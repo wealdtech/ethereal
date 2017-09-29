@@ -1,0 +1,14 @@
+# Features
+  - transaction
+    - regas (txID)
+    - cancel (txID)
+    - transact (txID)
+  - ether
+    - balance (address)
+    - transfer (address, amount)
+  - token
+    - info (token)
+    - balance (token, address)
+    - transfer (token, address, address, amount)
+  - ens
+  - domainsale
