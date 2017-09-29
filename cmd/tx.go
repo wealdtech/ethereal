@@ -10,15 +10,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package util
+
+package cmd
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/wealdtech/ethereal/util/contracts"
+	"github.com/spf13/cobra"
 )
 
-func ERC20Contract(client *ethclient.Client, address common.Address) (contract *contracts.ERC20, err error) {
-	contract, err = contracts.NewERC20(address, client)
-	return
+var txStr string
+
+// txCmd represents the tx command
+var txCmd = &cobra.Command{
+	Use:   "tx",
+	Short: "Manage transactions",
+	Long:  `Send transactions, obtain information about transactions, regas transactions etc.`,
+}
+
+func init() {
+	RootCmd.AddCommand(txCmd)
+}
+func txFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVarP(&txStr, "transaction", "t", "", "ID of the transaction")
 }
