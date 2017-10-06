@@ -1,13 +1,18 @@
 # Features
   - transaction
     - info (txID)
-    - regas (txID)
+    - gasprice (txID)
     - cancel (txID)
     - transact (txID)
     - raw
+    - pending?
   - ether
     - transfer (address, amount)
   - token
     - transfer (token, address, address, amount)
   - ens
   - domainsale
+  - etherdelta?
+  - utilities
+    - custom transaction handling
+  - sign

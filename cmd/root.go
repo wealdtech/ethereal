@@ -23,6 +23,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	homedir "github.com/mitchellh/go-homedir"
 	etherutils "github.com/orinocopay/go-etherutils"
@@ -34,9 +35,7 @@ import (
 )
 
 var cfgFile string
-var logFile string
 var quiet bool
-var connection string
 
 var client *ethclient.Client
 var chainID *big.Int
@@ -44,7 +43,6 @@ var referrer common.Address
 var nonce int64
 
 // Common variables
-var passphrase string
 var gasPriceStr string
 var gasPrice *big.Int
 
@@ -67,7 +65,12 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	quiet = viper.GetBool("quiet")
+
+	fmt.Println("Timeout is", viper.GetDuration("timeout"))
+	os.Exit(0)
 	// Set default log file if no alternative is provided
+	logFile := viper.GetString("log")
 	if logFile == "" {
 		home, err := homedir.Dir()
 		cli.ErrCheck(err, quiet, "Failed to access home directory")
@@ -79,10 +82,10 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	log.SetFormatter(&log.JSONFormatter{})
 
 	// Create a connection to an Ethereum node
-	client, err = ethclient.Dial(connection)
+	client, err = ethclient.Dial(viper.GetString("connection"))
 	cli.ErrCheck(err, quiet, "Failed to connect to Ethereum")
 	// Fetch the chain ID
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 	defer cancel()
 	chainID, err = client.NetworkID(ctx)
 	cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
@@ -109,13 +112,15 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cmd.yaml)")
-	RootCmd.PersistentFlags().StringVarP(&logFile, "log", "l", "", "log activity to the named file (default $HOME/.ethereal.log)")
-	RootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "no output")
-	RootCmd.PersistentFlags().StringVarP(&connection, "connection", "c", "https://api.orinocopay.com:8546/", "path to the Ethereum connection")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ethereal.yaml)")
+	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/domainsale.log)")
+	viper.BindPFlag("log", RootCmd.PersistentFlags().Lookup("log"))
+	RootCmd.PersistentFlags().Bool("quiet", false, "no output")
+	viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet"))
+	RootCmd.PersistentFlags().String("connection", "https://api.orinocopay.com:8546/", "path to the Ethereum connection")
+	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
+	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "Time to wait for network calls before failing")
+	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -131,17 +136,16 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".cmd" (without extension).
+		// Search config in home directory with name ".ethereal" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".cmd")
+		viper.SetConfigName(".ethereal")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+	err := viper.ReadInConfig()
+	cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to read configuration file %s", viper.ConfigFileUsed()))
 }
 
 //
@@ -150,9 +154,10 @@ func initConfig() {
 
 // Add flags for commands that carry out transactions
 func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
-	cmd.Flags().StringVarP(&passphrase, "passphrase", "p", "", passphraseExplanation)
-	cmd.Flags().StringVarP(&gasPriceStr, "gasprice", "g", "4 GWei", "Gas price for the transaction")
-	cmd.Flags().Int64VarP(&nonce, "nonce", "n", -1, "Nonce for the transaction; -1 is auto-select")
+	cmd.Flags().String("passphrase", "", passphraseExplanation)
+	viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
+	cmd.Flags().StringVar(&gasPriceStr, "gasprice", "4 GWei", "Gas price for the transaction")
+	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 
 // Augment session information
@@ -163,10 +168,25 @@ func augmentSession(session *domainsalecontract.DomainSaleContractSession) {
 	}
 }
 
-func obtainWalletAndAccount(address common.Address, passphrase string) (wallet accounts.Wallet, account *accounts.Account, err error) {
+func obtainWalletAndAccount(address common.Address) (wallet accounts.Wallet, account *accounts.Account, err error) {
 	wallet, err = cli.ObtainWallet(chainID, address)
 	if err == nil {
-		account, err = cli.ObtainAccount(&wallet, &address, passphrase)
+		account, err = cli.ObtainAccount(&wallet, &address, viper.GetString("passphrase"))
 	}
 	return wallet, account, err
+}
+
+var wallet accounts.Wallet
+var account *accounts.Account
+
+func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *types.Transaction, err error) {
+	if wallet == nil {
+		// Fetch the wallet and account for the sender
+		wallet, account, err = obtainWalletAndAccount(signer)
+		if err != nil {
+			return
+		}
+	}
+	signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
+	return
 }
