@@ -67,8 +67,6 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 
 	quiet = viper.GetBool("quiet")
 
-	fmt.Println("Timeout is", viper.GetDuration("timeout"))
-	os.Exit(0)
 	// Set default log file if no alternative is provided
 	logFile := viper.GetString("log")
 	if logFile == "" {
@@ -168,6 +166,82 @@ func augmentSession(session *domainsalecontract.DomainSaleContractSession) {
 	}
 }
 
+// Obtain the current nonce for the given address
+// N.B. currently uses a global nonce
+// TODO fix this
+func currentNonce(address common.Address) (currentNonce uint64, err error) {
+	if nonce == -1 {
+		var tmpNonce uint64
+		tmpNonce, err = client.PendingNonceAt(context.Background(), address)
+		if err != nil {
+			err = fmt.Errorf("failed to obtain nonce for %s: %s", address.Hex(), err.Error())
+			return
+		}
+		nonce = int64(tmpNonce)
+		currentNonce = uint64(nonce)
+	} else {
+		currentNonce = uint64(nonce)
+	}
+	return
+}
+
+// Obtain the next nonce for the given address
+func nextNonce(address common.Address) (nextNonce uint64, err error) {
+	if nonce == -1 {
+		_, err = currentNonce(address)
+		if err != nil {
+			return
+		}
+	}
+	nonce++
+	nextNonce = uint64(nonce)
+	return
+}
+
+// Create a transaction
+func createTransaction(fromAddress common.Address, toAddress common.Address, amount *big.Int, data []byte) (tx *types.Transaction, err error) {
+	// Obtain the nonce for the transaction
+	txNonce, err := currentNonce(fromAddress)
+	if err != nil {
+		return
+	}
+
+	// Gas limit for the transaction
+	// TODO take from ethclient/bind/base.go:transact
+	// gasLimit, err := client.EstimateGas(context.Background(), msg)
+	// cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to calculate gas limit to send to %s", etherTransferToAddress))
+	gasLimit := big.NewInt(30000)
+
+	// Create the transaction
+	tx = types.NewTransaction(txNonce, toAddress, amount, gasLimit, gasPrice, data)
+
+	return
+}
+
+// Create a signed transaction
+func createSignedTransaction(fromAddress common.Address, toAddress common.Address, amount *big.Int, data []byte) (signedTx *types.Transaction, err error) {
+	// Create the transaction
+	tx, err := createTransaction(fromAddress, toAddress, amount, data)
+	if err != nil {
+		return
+	}
+
+	// Sign the transaction
+	signedTx, err = signTransaction(fromAddress, tx)
+	if err != nil {
+		err = fmt.Errorf("Failed to sign transaction: %s", err.Error())
+		return
+	}
+
+	// Increment the nonce for the next transaction
+	nextNonce(fromAddress)
+
+	return
+}
+
+var wallet accounts.Wallet
+var account *accounts.Account
+
 func obtainWalletAndAccount(address common.Address) (wallet accounts.Wallet, account *accounts.Account, err error) {
 	wallet, err = cli.ObtainWallet(chainID, address)
 	if err == nil {
@@ -175,9 +249,6 @@ func obtainWalletAndAccount(address common.Address) (wallet accounts.Wallet, acc
 	}
 	return wallet, account, err
 }
-
-var wallet accounts.Wallet
-var account *accounts.Account
 
 func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *types.Transaction, err error) {
 	if wallet == nil {

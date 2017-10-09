@@ -15,11 +15,11 @@ package cmd
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
-	"math/big"
 	"os"
+	"strings"
 
-	"github.com/ethereum/go-ethereum/core/types"
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
@@ -28,6 +28,7 @@ import (
 
 var etherTransferAmount string
 var etherTransferToAddress string
+var etherTransferData string
 
 // etherTransferCmd represents the ether transfer command
 var etherTransferCmd = &cobra.Command{
@@ -42,10 +43,10 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		cli.Assert(args[0] != "", quiet, "Sender address is required")
 
 		fromAddress, err := ens.Resolve(client, args[0])
-		cli.ErrCheck(err, quiet, "Failed to obtain address to send funds")
+		cli.ErrCheck(err, quiet, "Failed to obtain sender for transfer")
 
 		toAddress, err := ens.Resolve(client, etherTransferToAddress)
-		cli.ErrCheck(err, quiet, "Failed to obtain address to receive funds")
+		cli.ErrCheck(err, quiet, "Failed to obtain recipient for transfer")
 
 		cli.Assert(etherTransferAmount != "", quiet, "Require an amount to transfer with --to")
 		amount, err := etherutils.StringToWei(etherTransferAmount)
@@ -56,28 +57,18 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
 
-		// Nonce for the transaction
-		var txNonce uint64
-		if nonce == -1 {
-			tmpNonce, err := client.PendingNonceAt(context.Background(), fromAddress)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain nonce for %s", args[0]))
-			txNonce = uint64(tmpNonce)
-		} else {
-			txNonce = uint64(nonce)
+		// Turn the data string in to hex
+		etherTransferData = strings.TrimPrefix(etherTransferData, "0x")
+		if len(etherTransferData)%2 == 1 {
+			// Doesn't like odd numbers
+			etherTransferData = "0" + etherTransferData
 		}
+		data, err := hex.DecodeString(etherTransferData)
+		cli.ErrCheck(err, quiet, "Failed to parse data")
 
-		// Gas limit for the transaction
-		// TODO take from ethclient/bind/base.go:transact
-		// gasLimit, err := client.EstimateGas(context.Background(), msg)
-		// cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to calculate gas limit to send to %s", etherTransferToAddress))
-		gasLimit := big.NewInt(30000)
-
-		tx := types.NewTransaction(txNonce, toAddress, amount, gasLimit, gasPrice, nil)
-		cli.ErrCheck(err, quiet, "Failed to generate transaction")
-
-		// Sign the transaction
-		signedTx, err := signTransaction(fromAddress, tx)
-		cli.ErrCheck(err, quiet, "Failed to sign transaction")
+		// Create and sign the transaction
+		signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, data)
+		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		err = client.SendTransaction(context.Background(), signedTx)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
@@ -93,5 +84,6 @@ func init() {
 	etherCmd.AddCommand(etherTransferCmd)
 	etherTransferCmd.Flags().StringVar(&etherTransferAmount, "amount", "", "Amount of Ether to transfer")
 	etherTransferCmd.Flags().StringVar(&etherTransferToAddress, "to", "", "Address to which to transfer Ether")
+	etherTransferCmd.Flags().StringVar(&etherTransferData, "data", "", "data to send with transaction (as a hex string)")
 	addTransactionFlags(etherTransferCmd, "Passphrase for the address that holds the funds")
 }
