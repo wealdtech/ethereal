@@ -25,13 +25,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// etherBalanceCmd represents the ether balance command
-var etherBalanceCmd = &cobra.Command{
+// ethBalanceCmd represents the ethbalance command
+var ethBalanceCmd = &cobra.Command{
 	Use:   "balance",
 	Short: "Obtain the balance for an address",
 	Long: `Obtain the Ether balance for an address.  For example:
 
-    ethereal ether balance 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal eth balance 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -62,5 +62,5 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 }
 
 func init() {
-	etherCmd.AddCommand(etherBalanceCmd)
+	ethCmd.AddCommand(ethBalanceCmd)
 }
