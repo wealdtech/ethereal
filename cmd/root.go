@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"time"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -40,10 +41,13 @@ var quiet bool
 var client *ethclient.Client
 var chainID *big.Int
 var referrer common.Address
+
+// TODO make maps keyed on address
 var nonce int64
+var wallet accounts.Wallet
+var account *accounts.Account
 
 // Common variables
-var gasPriceStr string
 var gasPrice *big.Int
 
 // RootCmd represents the base command when called without any subcommands
@@ -72,7 +76,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	if logFile == "" {
 		home, err := homedir.Dir()
 		cli.ErrCheck(err, quiet, "Failed to access home directory")
-		logFile = filepath.FromSlash(home + "/.ethereal.log")
+		logFile = filepath.FromSlash(home + "/ethereal.log")
 	}
 	f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 	cli.ErrCheck(err, quiet, "Failed to open log file")
@@ -89,11 +93,11 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
 
 	// Set up gas price
-	if gasPriceStr == "" {
+	if viper.GetString("gasprice") == "" {
 		gasPrice, err = etherutils.StringToWei("4 GWei")
 		cli.ErrCheck(err, quiet, "Invalid gas price")
 	} else {
-		gasPrice, err = etherutils.StringToWei(gasPriceStr)
+		gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
 		cli.ErrCheck(err, quiet, "Invalid gas price")
 	}
 }
@@ -111,7 +115,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ethereal.yaml)")
-	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/domainsale.log)")
+	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/ethereal.log)")
 	viper.BindPFlag("log", RootCmd.PersistentFlags().Lookup("log"))
 	RootCmd.PersistentFlags().Bool("quiet", false, "no output")
 	viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet"))
@@ -154,7 +158,8 @@ func initConfig() {
 func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
 	cmd.Flags().String("passphrase", "", passphraseExplanation)
 	viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
-	cmd.Flags().StringVar(&gasPriceStr, "gasprice", "4 GWei", "Gas price for the transaction")
+	cmd.Flags().String("gasprice", "4 GWei", "Gas price for the transaction")
+	viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 
@@ -167,14 +172,12 @@ func augmentSession(session *domainsalecontract.DomainSaleContractSession) {
 }
 
 // Obtain the current nonce for the given address
-// N.B. currently uses a global nonce
-// TODO fix this
 func currentNonce(address common.Address) (currentNonce uint64, err error) {
 	if nonce == -1 {
 		var tmpNonce uint64
 		tmpNonce, err = client.PendingNonceAt(context.Background(), address)
 		if err != nil {
-			err = fmt.Errorf("failed to obtain nonce for %s: %s", address.Hex(), err.Error())
+			err = fmt.Errorf("failed to obtain nonce for %s: %v", address.Hex(), err)
 			return
 		}
 		nonce = int64(tmpNonce)
@@ -198,28 +201,42 @@ func nextNonce(address common.Address) (nextNonce uint64, err error) {
 	return
 }
 
+// Estimate the gas required for a transaction
+func estimateGas(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (gas *big.Int, err error) {
+	msg := ethereum.CallMsg{From: fromAddress, To: toAddress, Value: amount, Data: data}
+	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+	defer cancel()
+	gas, err = client.EstimateGas(ctx, msg)
+	if err != nil {
+		return
+	}
+	return
+}
+
 // Create a transaction
-func createTransaction(fromAddress common.Address, toAddress common.Address, amount *big.Int, data []byte) (tx *types.Transaction, err error) {
+func createTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (tx *types.Transaction, err error) {
 	// Obtain the nonce for the transaction
-	txNonce, err := currentNonce(fromAddress)
+	var txNonce uint64
+	txNonce, err = currentNonce(fromAddress)
 	if err != nil {
 		return
 	}
 
 	// Gas limit for the transaction
-	// TODO take from ethclient/bind/base.go:transact
-	// gasLimit, err := client.EstimateGas(context.Background(), msg)
-	// cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to calculate gas limit to send to %s", etherTransferToAddress))
-	gasLimit := big.NewInt(30000)
+	var gasLimit *big.Int
+	gasLimit, err = estimateGas(fromAddress, toAddress, amount, data)
+	if err != nil {
+		return
+	}
 
 	// Create the transaction
-	tx = types.NewTransaction(txNonce, toAddress, amount, gasLimit, gasPrice, data)
+	tx = types.NewTransaction(txNonce, *toAddress, amount, gasLimit, gasPrice, data)
 
 	return
 }
 
 // Create a signed transaction
-func createSignedTransaction(fromAddress common.Address, toAddress common.Address, amount *big.Int, data []byte) (signedTx *types.Transaction, err error) {
+func createSignedTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (signedTx *types.Transaction, err error) {
 	// Create the transaction
 	tx, err := createTransaction(fromAddress, toAddress, amount, data)
 	if err != nil {
@@ -229,7 +246,7 @@ func createSignedTransaction(fromAddress common.Address, toAddress common.Addres
 	// Sign the transaction
 	signedTx, err = signTransaction(fromAddress, tx)
 	if err != nil {
-		err = fmt.Errorf("Failed to sign transaction: %s", err.Error())
+		err = fmt.Errorf("Failed to sign transaction: %v", err)
 		return
 	}
 
@@ -238,9 +255,6 @@ func createSignedTransaction(fromAddress common.Address, toAddress common.Addres
 
 	return
 }
-
-var wallet accounts.Wallet
-var account *accounts.Account
 
 func obtainWalletAndAccount(address common.Address) (wallet accounts.Wallet, account *accounts.Account, err error) {
 	wallet, err = cli.ObtainWallet(chainID, address)

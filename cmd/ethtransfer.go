@@ -38,8 +38,9 @@ var ethTransferCmd = &cobra.Command{
 
     ethereal eth transfer --to=x --amount=y --passphrase=secret 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
-In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
+In quiet mode this will return 0 if the transfer transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(len(args) == 1, quiet, "Requires a single address from which to transfer funds")
 		cli.Assert(args[0] != "", quiet, "Sender address is required")
 
 		fromAddress, err := ens.Resolve(client, args[0])
@@ -67,7 +68,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, data)
+		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, data)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		err = client.SendTransaction(context.Background(), signedTx)

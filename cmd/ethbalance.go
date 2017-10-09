@@ -35,6 +35,7 @@ var ethBalanceCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(len(args) == 1, quiet, "Requires a single address to check balanc")
 		cli.Assert(args[0] != "", quiet, "Address is required")
 
 		address, err := ens.Resolve(client, args[0])
