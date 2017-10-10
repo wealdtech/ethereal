@@ -54,3 +54,30 @@ func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output 
 	}
 	return
 }
+
+func StringToTokenValue(input string, decimals uint8) (output *big.Int, err error) {
+	output = big.NewInt(0)
+	if input == "" {
+		return
+	}
+
+	// Count the number of items after the decimal point
+	parts := strings.Split(input, ".")
+	var additionalZeros int
+	if len(parts) == 2 {
+		// There is a decimal place
+		additionalZeros = int(decimals) - len(parts[1])
+	} else {
+		// There is not a decimal place
+		additionalZeros = int(decimals)
+	}
+	// Remove the decimal point
+	tmp := strings.Replace(input, ".", "", -1)
+	// Add zeros to ensure that there are an appropriate number of decimals
+	tmp = tmp + strings.Repeat("0", additionalZeros)
+
+	// Set the output
+	output.SetString(tmp, 10)
+
+	return
+}

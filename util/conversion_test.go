@@ -15,6 +15,8 @@ package util
 import (
 	"math/big"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Helper to obtain a bigint from a string
@@ -57,6 +59,32 @@ func TestTokenValueToString(t *testing.T) {
 		result := TokenValueToString(tt.input, tt.decimals, tt.usePrefix)
 		if tt.output != result {
 			t.Errorf("Failure: (%v, %v, %v) => %v (expected %v)\n", tt.input, tt.decimals, tt.usePrefix, result, tt.output)
+		}
+	}
+}
+
+func TestStringToTokenValue(t *testing.T) {
+	tests := []struct {
+		input    string
+		decimals uint8
+		output   *big.Int
+	}{
+		{"", 0, bigInt("0")},
+		{"", 18, bigInt("0")},
+		{"2", 0, bigInt("2")},
+		{"3", 1, bigInt("30")},
+		{"4", 18, bigInt("4000000000000000000")},
+		{"5.000000000000000005", 18, bigInt("5000000000000000005")},
+		{"6.000000000000000006", 18, bigInt("6000000000000000006")},
+		{"777.777", 3, bigInt("777777")},
+	}
+
+	for _, tt := range tests {
+		result, err := StringToTokenValue(tt.input, tt.decimals)
+		assert.Nil(t, err, "Received error")
+		assert.Equal(t, result, tt.output, "Did not receive expected result")
+		if tt.output.Cmp(result) != 0 {
+			t.Errorf("Failure: (\"%v\", %v) => %v (expected %v)\n", tt.input, tt.decimals, result, tt.output)
 		}
 	}
 }

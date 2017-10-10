@@ -50,6 +50,8 @@ var account *accounts.Account
 // Common variables
 var gasPrice *big.Int
 
+var err error
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:              "ethereal",
@@ -67,6 +69,25 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	if cmd.Name() == "version" {
 		// User just wants the version
 		return
+	}
+
+	// We bind viper here so that we bind to the correct command
+	// (lots of commands have 'passphrase' as an option but we want
+	// to bind it to this particular command and this is the first
+	// chance we get)
+	if cmd.Flags().Lookup("passphrase") != nil {
+		viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
+	}
+	// Set up gas price if we have it
+	if cmd.Flags().Lookup("gasprice") != nil {
+		viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
+		if viper.GetString("gasprice") == "" {
+			gasPrice, err = etherutils.StringToWei("4 GWei")
+			cli.ErrCheck(err, quiet, "Invalid gas price")
+		} else {
+			gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
+			cli.ErrCheck(err, quiet, "Invalid gas price")
+		}
 	}
 
 	quiet = viper.GetBool("quiet")
@@ -91,15 +112,6 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	defer cancel()
 	chainID, err = client.NetworkID(ctx)
 	cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
-
-	// Set up gas price
-	if viper.GetString("gasprice") == "" {
-		gasPrice, err = etherutils.StringToWei("4 GWei")
-		cli.ErrCheck(err, quiet, "Invalid gas price")
-	} else {
-		gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
-		cli.ErrCheck(err, quiet, "Invalid gas price")
-	}
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -157,9 +169,7 @@ func initConfig() {
 // Add flags for commands that carry out transactions
 func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
 	cmd.Flags().String("passphrase", "", passphraseExplanation)
-	viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
 	cmd.Flags().String("gasprice", "4 GWei", "Gas price for the transaction")
-	viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 

@@ -30,7 +30,7 @@ var tokenBalanceCmd = &cobra.Command{
 	Short: "Obtain the token balance for an address",
 	Long: `Obtain the token balance for an address.  For example:
 
-    ethereal token balance --token=x 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal token balance --token=omg 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {

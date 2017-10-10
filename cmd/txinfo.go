@@ -19,7 +19,9 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
+	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
+	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
 )
 
@@ -35,14 +37,46 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		txHash := common.HexToHash(txStr)
 		transaction, pending, err := client.TransactionByHash(context.Background(), txHash)
+
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 
 		if quiet {
 			os.Exit(0)
 		}
 
-		fmt.Println(transaction)
-		fmt.Println(pending)
+		if pending {
+			fmt.Printf("Type:\t\tPending transaction\n")
+		} else {
+			fmt.Printf("Type:\t\tMined transaction\n")
+		}
+
+		// TODO: From
+
+		// To
+		if transaction.To() == nil {
+			// Contract creation; calculate the address of the contract
+			fmt.Printf("Type:\t\tContract creation\n")
+			// TODO need From address to work this out
+			//			contractAddress := common.StringToAddress("0x01")
+			//			to, err := ens.ReverseResolve(client, &contractAddress)
+			//			if err == nil {
+			//				fmt.Printf("Contract creation:\t%v (%s)\n", to, contractAddress)
+			//			} else {
+			//				fmt.Printf("Contract creation:\t%v\n", contractAddress)
+			//			}
+		} else {
+			to, err := ens.ReverseResolve(client, transaction.To())
+			if err == nil {
+				fmt.Printf("To:\t\t%v (%s)\n", to, transaction.To().Hex())
+			} else {
+				fmt.Printf("To:\t\t%v\n", transaction.To().Hex())
+			}
+		}
+
+		fmt.Printf("Nonce:\t\t%v\n", transaction.Nonce())
+		fmt.Printf("Gas limit:\t%v\n", transaction.Gas())
+		fmt.Printf("Gas price:\t%v\n", etherutils.WeiToString(transaction.GasPrice(), true))
+		fmt.Printf("Value:\t\t%v\n", etherutils.WeiToString(transaction.Value(), true))
 	},
 }
 
