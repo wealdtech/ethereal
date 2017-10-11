@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
@@ -44,39 +45,51 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			os.Exit(0)
 		}
 
+		var receipt *types.Receipt
 		if pending {
-			fmt.Printf("Type:\t\tPending transaction\n")
+			if transaction.To() == nil {
+				fmt.Printf("Type:\t\t\tPending contract creation\n")
+			} else {
+				fmt.Printf("Type:\t\t\tPending transaction\n")
+			}
 		} else {
-			fmt.Printf("Type:\t\tMined transaction\n")
+			if transaction.To() == nil {
+				fmt.Printf("Type:\t\t\tMined contract creation\n")
+			} else {
+				fmt.Printf("Type:\t\t\tMined transaction\n")
+			}
+			receipt, err = client.TransactionReceipt(context.Background(), txHash)
 		}
 
 		// TODO: From
 
 		// To
 		if transaction.To() == nil {
-			// Contract creation; calculate the address of the contract
-			fmt.Printf("Type:\t\tContract creation\n")
-			// TODO need From address to work this out
-			//			contractAddress := common.StringToAddress("0x01")
-			//			to, err := ens.ReverseResolve(client, &contractAddress)
-			//			if err == nil {
-			//				fmt.Printf("Contract creation:\t%v (%s)\n", to, contractAddress)
-			//			} else {
-			//				fmt.Printf("Contract creation:\t%v\n", contractAddress)
-			//			}
+			if receipt != nil {
+				contractAddress := receipt.ContractAddress
+				to, err := ens.ReverseResolve(client, &contractAddress)
+				if err == nil {
+					fmt.Printf("Contract address:\t%v (%s)\n", to, contractAddress.Hex())
+				} else {
+					fmt.Printf("Contract address:\t%v\n", contractAddress.Hex())
+				}
+			}
 		} else {
 			to, err := ens.ReverseResolve(client, transaction.To())
 			if err == nil {
-				fmt.Printf("To:\t\t%v (%s)\n", to, transaction.To().Hex())
+				fmt.Printf("To:\t\t\t%v (%s)\n", to, transaction.To().Hex())
 			} else {
-				fmt.Printf("To:\t\t%v\n", transaction.To().Hex())
+				fmt.Printf("To:\t\t\t%v\n", transaction.To().Hex())
 			}
 		}
 
-		fmt.Printf("Nonce:\t\t%v\n", transaction.Nonce())
-		fmt.Printf("Gas limit:\t%v\n", transaction.Gas())
-		fmt.Printf("Gas price:\t%v\n", etherutils.WeiToString(transaction.GasPrice(), true))
-		fmt.Printf("Value:\t\t%v\n", etherutils.WeiToString(transaction.Value(), true))
+		fmt.Printf("Nonce:\t\t\t%v\n", transaction.Nonce())
+		fmt.Printf("Gas limit:\t\t%v\n", transaction.Gas())
+		if receipt != nil {
+			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
+		}
+		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(transaction.GasPrice(), true))
+		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(transaction.Value(), true))
 	},
 }
 
