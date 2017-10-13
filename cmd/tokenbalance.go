@@ -24,6 +24,8 @@ import (
 	"github.com/wealdtech/ethereal/util"
 )
 
+var tokenBalanceRaw bool
+
 // tokenBalanceCmd represents the ether balance command
 var tokenBalanceCmd = &cobra.Command{
 	Use:   "balance",
@@ -56,11 +58,16 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 			}
 		}
 
-		fmt.Printf("%s\n", util.TokenValueToString(balance, decimals, false))
+		if tokenBalanceRaw {
+			fmt.Printf("%s\n", balance.String())
+		} else {
+			fmt.Printf("%s\n", util.TokenValueToString(balance, decimals, false))
+		}
 	},
 }
 
 func init() {
 	tokenFlags(tokenBalanceCmd)
 	tokenCmd.AddCommand(tokenBalanceCmd)
+	tokenBalanceCmd.Flags().BoolVar(&tokenBalanceRaw, "raw", false, "Dispay raw output (no decimals)")
 }

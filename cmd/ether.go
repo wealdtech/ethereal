@@ -17,13 +17,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ethCmd represents the eth command
-var ethCmd = &cobra.Command{
-	Use:   "eth",
-	Short: "Manage Ether balances",
-	Long:  `Obtain balances and transfer funds between addresses.`,
+// etherCmd represents the ether command
+var etherCmd = &cobra.Command{
+	Use:     "ether",
+	Aliases: []string{"eth"},
+	Short:   "Manage Ether balances",
+	Long:    `Obtain balances and transfer funds between addresses.`,
 }
 
 func init() {
-	RootCmd.AddCommand(ethCmd)
+	RootCmd.AddCommand(etherCmd)
 }

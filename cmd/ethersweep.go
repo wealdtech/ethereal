@@ -25,15 +25,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ethSweepToAddress string
+var etherSweepToAddress string
 
-// ethSweepCmd represents the eth sweep command
-var ethSweepCmd = &cobra.Command{
+// etherSweepCmd represents the ether sweep command
+var etherSweepCmd = &cobra.Command{
 	Use:   "sweep",
 	Short: "Sweep funds to a given address",
 	Long: `Sweep all Ether funds from one address to another.  For example:
 
-    ethereal eth sweep --to=x --passphrase=secret 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    etherereal ether sweep --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the sweep transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -43,7 +43,7 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		fromAddress, err := ens.Resolve(client, args[0])
 		cli.ErrCheck(err, quiet, "Failed to obtain sender for sweep")
 
-		toAddress, err := ens.Resolve(client, ethSweepToAddress)
+		toAddress, err := ens.Resolve(client, etherSweepToAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain recipient for sweep")
 
 		// Obtain the balance of the address
@@ -73,7 +73,7 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 }
 
 func init() {
-	ethCmd.AddCommand(ethSweepCmd)
-	ethSweepCmd.Flags().StringVar(&ethSweepToAddress, "to", "", "Address to which to sweep Ether")
-	addTransactionFlags(ethSweepCmd, "Passphrase for the address that holds the funds")
+	etherCmd.AddCommand(etherSweepCmd)
+	etherSweepCmd.Flags().StringVar(&etherSweepToAddress, "to", "", "Address to which to sweep Ether")
+	addTransactionFlags(etherSweepCmd, "Passphrase for the address that holds the funds")
 }

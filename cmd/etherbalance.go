@@ -25,13 +25,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ethBalanceCmd represents the ethbalance command
-var ethBalanceCmd = &cobra.Command{
+var etherBalanceWei bool
+
+// etherBalanceCmd represents the ether balance command
+var etherBalanceCmd = &cobra.Command{
 	Use:   "balance",
 	Short: "Obtain the balance for an address",
 	Long: `Obtain the Ether balance for an address.  For example:
 
-    ethereal eth balance 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal ether balance 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -58,10 +60,15 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 			}
 		}
 
-		fmt.Printf("%s\n", etherutils.WeiToString(balance, true))
+		if etherBalanceWei {
+			fmt.Printf("%s\n", balance.String())
+		} else {
+			fmt.Printf("%s\n", etherutils.WeiToString(balance, true))
+		}
 	},
 }
 
 func init() {
-	ethCmd.AddCommand(ethBalanceCmd)
+	etherCmd.AddCommand(etherBalanceCmd)
+	etherBalanceCmd.Flags().BoolVar(&etherBalanceWei, "wei", false, "Dispay output in number of Wei")
 }
