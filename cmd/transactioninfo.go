@@ -26,18 +26,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// txInfoCmd represents the tx info command
-var txInfoCmd = &cobra.Command{
+// transactionInfoCmd represents the transaction info command
+var transactionInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Obtain information about a transaction",
 	Long: `Obtain information about a transaction.  For example:
 
-    ethereal tx info --transaction=0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal transaction info --transaction=0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		txHash := common.HexToHash(txStr)
-		transaction, pending, err := client.TransactionByHash(context.Background(), txHash)
+		txHash := common.HexToHash(transactionStr)
+		tx, pending, err := client.TransactionByHash(context.Background(), txHash)
 
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 
@@ -47,13 +47,13 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 
 		var receipt *types.Receipt
 		if pending {
-			if transaction.To() == nil {
+			if tx.To() == nil {
 				fmt.Printf("Type:\t\t\tPending contract creation\n")
 			} else {
 				fmt.Printf("Type:\t\t\tPending transaction\n")
 			}
 		} else {
-			if transaction.To() == nil {
+			if tx.To() == nil {
 				fmt.Printf("Type:\t\t\tMined contract creation\n")
 			} else {
 				fmt.Printf("Type:\t\t\tMined transaction\n")
@@ -64,7 +64,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		// TODO: From
 
 		// To
-		if transaction.To() == nil {
+		if tx.To() == nil {
 			if receipt != nil {
 				contractAddress := receipt.ContractAddress
 				to, err := ens.ReverseResolve(client, &contractAddress)
@@ -75,25 +75,25 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 				}
 			}
 		} else {
-			to, err := ens.ReverseResolve(client, transaction.To())
+			to, err := ens.ReverseResolve(client, tx.To())
 			if err == nil {
-				fmt.Printf("To:\t\t\t%v (%s)\n", to, transaction.To().Hex())
+				fmt.Printf("To:\t\t\t%v (%s)\n", to, tx.To().Hex())
 			} else {
-				fmt.Printf("To:\t\t\t%v\n", transaction.To().Hex())
+				fmt.Printf("To:\t\t\t%v\n", tx.To().Hex())
 			}
 		}
 
-		fmt.Printf("Nonce:\t\t\t%v\n", transaction.Nonce())
-		fmt.Printf("Gas limit:\t\t%v\n", transaction.Gas())
+		fmt.Printf("Nonce:\t\t\t%v\n", tx.Nonce())
+		fmt.Printf("Gas limit:\t\t%v\n", tx.Gas())
 		if receipt != nil {
 			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
 		}
-		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(transaction.GasPrice(), true))
-		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(transaction.Value(), true))
+		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
+		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
 	},
 }
 
 func init() {
-	txFlags(txInfoCmd)
-	txCmd.AddCommand(txInfoCmd)
+	transactionFlags(transactionInfoCmd)
+	transactionCmd.AddCommand(transactionInfoCmd)
 }

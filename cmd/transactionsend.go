@@ -25,20 +25,21 @@ import (
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-var txSendAmount string
-var txSendToAddress string
-var txSendData string
+var transactionSendAmount string
+var transactionSendToAddress string
+var transactionSendData string
 
-// txSendCmd represents the tx send command
-var txSendCmd = &cobra.Command{
+// transactionSendCmd represents the transaction send command
+var transactionSendCmd = &cobra.Command{
 	Use:   "send",
 	Short: "Send a transaction",
 	Long: `Send a transaction.  For example:
 
-    ethereal tx send --to=x --amount=y --passphrase=secret --data=0x12345 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal transaction send --to=0x2ab7150Bba7D5F181b3aF5623e52b15bB1054845	 --amount=y --passphrase=secret --data=0x12345 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -49,19 +50,20 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.ErrCheck(err, quiet, "Failed to obtain sender for transfer")
 
 		var toAddress *common.Address
-		if txSendToAddress == "" {
-			// This is valid because it can be a contract creation
+		if transactionSendToAddress == "" {
+			// This is valid because it can be a contract creation, but only if there is data as well
+			cli.Assert(transactionSendData != "", quiet, "Transactions without a to address must have data")
 		} else {
-			tmp, err := ens.Resolve(client, txSendToAddress)
+			tmp, err := ens.Resolve(client, transactionSendToAddress)
 			cli.ErrCheck(err, quiet, "Failed to obtain to address for transaction")
 			toAddress = &tmp
 		}
 
 		var amount *big.Int
-		if txSendAmount == "" {
+		if transactionSendAmount == "" {
 			amount = big.NewInt(0)
 		} else {
-			amount, err = etherutils.StringToWei(txSendAmount)
+			amount, err = etherutils.StringToWei(transactionSendAmount)
 			cli.ErrCheck(err, quiet, "Invalid amount")
 		}
 
@@ -71,12 +73,12 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
 
 		// Turn the data string in to hex
-		txSendData = strings.TrimPrefix(txSendData, "0x")
-		if len(txSendData)%2 == 1 {
+		transactionSendData = strings.TrimPrefix(transactionSendData, "0x")
+		if len(transactionSendData)%2 == 1 {
 			// Doesn't like odd numbers
-			txSendData = "0" + txSendData
+			transactionSendData = "0" + transactionSendData
 		}
-		data, err := hex.DecodeString(txSendData)
+		data, err := hex.DecodeString(transactionSendData)
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
 		// Create and sign the transaction
@@ -86,6 +88,17 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		err = client.SendTransaction(context.Background(), signedTx)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
+		log.WithFields(log.Fields{
+			"group":         "transaction",
+			"command":       "send",
+			"from":          fromAddress.Hex(),
+			"to":            toAddress.Hex(),
+			"amount":        amount.String(),
+			"data":          hex.EncodeToString(data),
+			"networkid":     chainID,
+			"transactionid": signedTx.Hash().Hex(),
+		}).Info("success")
+
 		if quiet {
 			os.Exit(0)
 		}
@@ -94,9 +107,9 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 }
 
 func init() {
-	txCmd.AddCommand(txSendCmd)
-	txSendCmd.Flags().StringVar(&txSendAmount, "amount", "", "Amount of Ether to transfer")
-	txSendCmd.Flags().StringVar(&txSendToAddress, "to", "", "Address to which to transfer Ether")
-	txSendCmd.Flags().StringVar(&txSendData, "data", "", "data to send with transaction (as a hex string)")
-	addTransactionFlags(txSendCmd, "Passphrase for the address that holds the funds")
+	transactionCmd.AddCommand(transactionSendCmd)
+	transactionSendCmd.Flags().StringVar(&transactionSendAmount, "amount", "", "Amount of Ether to transfer")
+	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
+	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
+	addTransactionFlags(transactionSendCmd, "Passphrase for the address that holds the funds")
 }

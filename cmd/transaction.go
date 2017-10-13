@@ -17,18 +17,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var txStr string
+var transactionStr string
 
-// txCmd represents the tx command
-var txCmd = &cobra.Command{
-	Use:   "tx",
-	Short: "Manage transactions",
-	Long:  `Send transactions, obtain information about transactions, regas transactions etc.`,
+// transactionCmd represents the transaction command
+var transactionCmd = &cobra.Command{
+	Use:     "transaction",
+	Aliases: []string{"tx"},
+	Short:   "Manage transactions",
+	Long:    `Send transactions, obtain information about transactions, regas transactions etc.`,
 }
 
 func init() {
-	RootCmd.AddCommand(txCmd)
+	RootCmd.AddCommand(transactionCmd)
 }
-func txFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&txStr, "transaction", "t", "", "ID of the transaction")
+func transactionFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVarP(&transactionStr, "transaction", "t", "", "ID of the transaction")
 }

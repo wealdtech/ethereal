@@ -22,6 +22,7 @@ import (
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -64,6 +65,16 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 
 		err = client.SendTransaction(context.Background(), signedTx)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+		log.WithFields(log.Fields{
+			"group":         "ether",
+			"command":       "sweep",
+			"from":          fromAddress.Hex(),
+			"to":            toAddress.Hex(),
+			"amount":        amount.String(),
+			"networkid":     chainID,
+			"transactionid": signedTx.Hash().Hex(),
+		}).Info("success")
 
 		if quiet {
 			os.Exit(0)
