@@ -10,15 +10,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package util
+
+package cmd
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/wealdtech/ethereal/util/contracts"
+	"github.com/spf13/cobra"
 )
 
-func ERC20Contract(client *ethclient.Client, address common.Address) (contract *contracts.ERC20, err error) {
-	contract, err = contracts.NewERC20(address, client)
-	return
+// accountCmd represents the account command
+var accountCmd = &cobra.Command{
+	Use:     "account",
+	Aliases: []string{"acc"},
+	Short:   "Manage accounts",
+	Long:    `Obtain information about Ethereum accounts.`,
+}
+
+func init() {
+	RootCmd.AddCommand(accountCmd)
 }

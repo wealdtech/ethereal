@@ -38,7 +38,6 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		txHash := common.HexToHash(transactionStr)
 		tx, pending, err := client.TransactionByHash(context.Background(), txHash)
-
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 
 		if quiet {
@@ -61,7 +60,15 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			receipt, err = client.TransactionReceipt(context.Background(), txHash)
 		}
 
-		// TODO: From
+		fromAddress, err := txFrom(tx)
+		if err == nil {
+			to, err := ens.ReverseResolve(client, &fromAddress)
+			if err == nil {
+				fmt.Printf("From:\t\t\t%v (%s)\n", to, fromAddress.Hex())
+			} else {
+				fmt.Printf("From:\t\t\t%v\n", fromAddress.Hex())
+			}
+		}
 
 		// To
 		if tx.To() == nil {

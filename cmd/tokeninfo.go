@@ -28,10 +28,11 @@ var tokenInfoCmd = &cobra.Command{
 	Short: "Obtain information about a token",
 	Long: `Obtain information about a token.  For example:
 
-    ethereal token info --token=0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal token info --token=omg
 
 In quiet mode this will return 0 if the token exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(tokenStr != "", quiet, "--token is required")
 		token, err := tokenContract(tokenStr)
 		cli.ErrCheck(err, quiet, "Failed to obtain token contract")
 
@@ -42,6 +43,11 @@ In quiet mode this will return 0 if the token exists, otherwise 1.`,
 		name, err := token.Name(nil)
 		if err == nil {
 			fmt.Printf("Name: %s\n", name)
+		}
+
+		address, err := tokenContractAddress(tokenStr)
+		if err == nil {
+			fmt.Printf("Address: %s\n", address.Hex())
 		}
 
 		symbol, err := token.Symbol(nil)

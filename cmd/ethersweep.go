@@ -19,13 +19,13 @@ import (
 	"math/big"
 	"os"
 
-	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
+var etherSweepFromAddress string
 var etherSweepToAddress string
 
 // etherSweepCmd represents the ether sweep command
@@ -34,18 +34,17 @@ var etherSweepCmd = &cobra.Command{
 	Short: "Sweep funds to a given address",
 	Long: `Sweep all Ether funds from one address to another.  For example:
 
-    etherereal ether sweep --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    etherereal ether sweep --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret
 
 In quiet mode this will return 0 if the sweep transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(len(args) == 1, quiet, "Requires a single address from which to sweep funds")
-		cli.Assert(args[0] != "", quiet, "Sender address is required")
+		cli.Assert(etherSweepFromAddress != "", quiet, "--from is required")
+		fromAddress, err := ens.Resolve(client, etherSweepFromAddress)
+		cli.ErrCheck(err, quiet, "Failed to obtain from address for sweep")
 
-		fromAddress, err := ens.Resolve(client, args[0])
-		cli.ErrCheck(err, quiet, "Failed to obtain sender for sweep")
-
+		cli.Assert(etherSweepToAddress != "", quiet, "--to is required")
 		toAddress, err := ens.Resolve(client, etherSweepToAddress)
-		cli.ErrCheck(err, quiet, "Failed to obtain recipient for sweep")
+		cli.ErrCheck(err, quiet, "Failed to obtain to address for sweep")
 
 		// Obtain the balance of the address
 		balance, err := client.BalanceAt(context.Background(), fromAddress, nil)
@@ -57,10 +56,8 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		cli.ErrCheck(err, quiet, "Failed to estimate gas required to sweep funds")
 		amount := balance.Sub(balance, gas.Mul(gas, gasPrice))
 
-		fmt.Printf("%s - %s = %s\n", etherutils.WeiToString(balance, true), etherutils.WeiToString(gas, true), etherutils.WeiToString(amount, true))
-
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, nil)
+		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, nil, nil)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		err = client.SendTransaction(context.Background(), signedTx)
@@ -73,6 +70,8 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 			"to":            toAddress.Hex(),
 			"amount":        amount.String(),
 			"networkid":     chainID,
+			"gas":           signedTx.Gas().String(),
+			"gasprice":      signedTx.GasPrice().String(),
 			"transactionid": signedTx.Hash().Hex(),
 		}).Info("success")
 
@@ -85,6 +84,7 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 
 func init() {
 	etherCmd.AddCommand(etherSweepCmd)
+	etherSweepCmd.Flags().StringVar(&etherSweepFromAddress, "from", "", "Address from which to sweep Ether")
 	etherSweepCmd.Flags().StringVar(&etherSweepToAddress, "to", "", "Address to which to sweep Ether")
 	addTransactionFlags(etherSweepCmd, "Passphrase for the address that holds the funds")
 }

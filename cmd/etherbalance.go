@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var etherBalanceAddress string
 var etherBalanceWei bool
 
 // etherBalanceCmd represents the ether balance command
@@ -33,22 +34,14 @@ var etherBalanceCmd = &cobra.Command{
 	Short: "Obtain the balance for an address",
 	Long: `Obtain the Ether balance for an address.  For example:
 
-    ethereal ether balance 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal ether balance --address=0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(len(args) == 1, quiet, "Requires a single address to check balanc")
-		cli.Assert(args[0] != "", quiet, "Address is required")
-
-		address, err := ens.Resolve(client, args[0])
+		cli.Assert(etherBalanceAddress != "", quiet, "--address is required")
+		address, err := ens.Resolve(client, etherBalanceAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address")
 
-		// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		// defer cancel()
-
-		// TODO have a  --pending flag?
-		// PendingStateReader ?
-		// balance, err := PendingBalanceAt(ctx, address)
 		balance, err := client.BalanceAt(context.Background(), address, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance")
 
@@ -71,4 +64,5 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 func init() {
 	etherCmd.AddCommand(etherBalanceCmd)
 	etherBalanceCmd.Flags().BoolVar(&etherBalanceWei, "wei", false, "Dispay output in number of Wei")
+	etherBalanceCmd.Flags().StringVar(&etherBalanceAddress, "address", "", "Address to show Ether balance")
 }

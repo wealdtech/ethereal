@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/contracts"
 )
 
@@ -35,22 +34,26 @@ var tokenCmd = &cobra.Command{
 
 var unknownAddress = common.HexToAddress("00")
 
-// Obtain the token contract given a string
-func tokenContract(input string) (contract *contracts.ERC20, err error) {
-	var addr common.Address
-	// See if this looks like a hex address
-	if strings.HasPrefix(input, "0x") || len(input) == 64 {
-		addr = common.HexToAddress(input)
-	}
-	if addr == unknownAddress {
+func tokenContractAddress(input string) (address common.Address, err error) {
+	// Guess 1 - might be an ENS name or a hex string
+	address, err = ens.Resolve(client, input)
+	if (address == unknownAddress || err != nil) && !strings.HasSuffix(input, ".eth") {
 		// Guess 2 - try {input}.thetoken.eth
-		addr, err = ens.Resolve(client, input+".thetoken.eth")
+		address, err = ens.Resolve(client, input+".thetoken.eth")
 		if err != nil {
 			// Give up
 			err = fmt.Errorf("Unknown token %s", input)
 		}
 	}
-	contract, err = util.ERC20Contract(client, addr)
+	return
+}
+
+// Obtain the token contract given a string
+func tokenContract(input string) (contract *contracts.ERC20, err error) {
+	address, err := tokenContractAddress(input)
+	if err == nil {
+		contract, err = contracts.NewERC20(address, client)
+	}
 	return
 }
 
@@ -59,5 +62,5 @@ func init() {
 }
 
 func tokenFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&tokenStr, "token", "t", "", "Name or address of the token")
+	cmd.Flags().StringVar(&tokenStr, "token", "", "Name or address of the token")
 }

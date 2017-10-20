@@ -30,6 +30,7 @@ import (
 )
 
 var transactionSendAmount string
+var transactionSendFromAddress string
 var transactionSendToAddress string
 var transactionSendData string
 
@@ -39,23 +40,21 @@ var transactionSendCmd = &cobra.Command{
 	Short: "Send a transaction",
 	Long: `Send a transaction.  For example:
 
-    ethereal transaction send --to=0x2ab7150Bba7D5F181b3aF5623e52b15bB1054845	 --amount=y --passphrase=secret --data=0x12345 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal transaction send --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x2ab7150Bba7D5F181b3aF5623e52b15bB1054845	 --amount=1ether --passphrase=secret --data=0x12345
 
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(len(args) == 1, quiet, "Requires a single address from which to send the transaction")
-		cli.Assert(args[0] != "", quiet, "Sender address is required")
-
-		fromAddress, err := ens.Resolve(client, args[0])
-		cli.ErrCheck(err, quiet, "Failed to obtain sender for transfer")
+		cli.Assert(transactionSendFromAddress != "", quiet, "--from is required")
+		fromAddress, err := ens.Resolve(client, transactionSendFromAddress)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", transactionSendFromAddress))
 
 		var toAddress *common.Address
 		if transactionSendToAddress == "" {
 			// This is valid because it can be a contract creation, but only if there is data as well
-			cli.Assert(transactionSendData != "", quiet, "Transactions without a to address must have data")
+			cli.Assert(transactionSendData != "", quiet, "Transactions without a to address are contract creations and must have data")
 		} else {
 			tmp, err := ens.Resolve(client, transactionSendToAddress)
-			cli.ErrCheck(err, quiet, "Failed to obtain to address for transaction")
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve to address %s", transactionSendToAddress))
 			toAddress = &tmp
 		}
 
@@ -82,7 +81,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, data)
+		signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, nil, data)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		err = client.SendTransaction(context.Background(), signedTx)
@@ -96,6 +95,8 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			"amount":        amount.String(),
 			"data":          hex.EncodeToString(data),
 			"networkid":     chainID,
+			"gas":           signedTx.Gas().String(),
+			"gasprice":      signedTx.GasPrice().String(),
 			"transactionid": signedTx.Hash().Hex(),
 		}).Info("success")
 
@@ -109,7 +110,8 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 func init() {
 	transactionCmd.AddCommand(transactionSendCmd)
 	transactionSendCmd.Flags().StringVar(&transactionSendAmount, "amount", "", "Amount of Ether to transfer")
+	transactionSendCmd.Flags().StringVar(&transactionSendFromAddress, "from", "", "Address from which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
-	addTransactionFlags(transactionSendCmd, "Passphrase for the address that holds the funds")
+	addTransactionFlags(transactionSendCmd, "Passphrase for the address from which to transfer Ether")
 }

@@ -23,6 +23,7 @@ import (
 
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -37,12 +38,13 @@ import (
 
 var cfgFile string
 var quiet bool
+var verbose bool
 
 var client *ethclient.Client
 var chainID *big.Int
 var referrer common.Address
 
-// TODO make maps keyed on address
+// TODO make maps keyed on address?
 var nonce int64
 var wallet accounts.Wallet
 var account *accounts.Account
@@ -72,9 +74,10 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	}
 
 	// We bind viper here so that we bind to the correct command
-	// (lots of commands have 'passphrase' as an option but we want
-	// to bind it to this particular command and this is the first
-	// chance we get)
+	quiet = viper.GetBool("quiet")
+	verbose = viper.GetBool("verbose")
+	// ...lots of commands have 'passphrase' as an option but we want to bind
+	// it to this particular command and this is the first chance we get
 	if cmd.Flags().Lookup("passphrase") != nil {
 		viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
 	}
@@ -89,8 +92,6 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 			cli.ErrCheck(err, quiet, "Invalid gas price")
 		}
 	}
-
-	quiet = viper.GetBool("quiet")
 
 	// Set default log file if no alternative is provided
 	logFile := viper.GetString("log")
@@ -127,13 +128,15 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ethereal.yaml)")
-	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/ethereal.log)")
+	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/ethereal.log).  Logs are written for every action that generates a transaction")
 	viper.BindPFlag("log", RootCmd.PersistentFlags().Lookup("log"))
-	RootCmd.PersistentFlags().Bool("quiet", false, "no output")
+	RootCmd.PersistentFlags().Bool("quiet", false, "do not generate any output, but return a 0 exit code on success and 1 on failure.  The definitions of success and failure for a given command can be found in that command's help")
 	viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet"))
-	RootCmd.PersistentFlags().String("connection", "https://api.orinocopay.com:8546/", "path to the Ethereum connection")
+	RootCmd.PersistentFlags().Bool("verbose", false, "generate additional output where appropriate")
+	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
+	RootCmd.PersistentFlags().String("connection", "https://api.orinocopay.com:8546/", "the IPC or RPC path to an Ethereum node.  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
 	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
-	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "Time to wait for network calls before failing")
+	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "The time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 }
 
@@ -169,7 +172,7 @@ func initConfig() {
 // Add flags for commands that carry out transactions
 func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
 	cmd.Flags().String("passphrase", "", passphraseExplanation)
-	cmd.Flags().String("gasprice", "4 GWei", "Gas price for the transaction")
+	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 
@@ -185,7 +188,9 @@ func augmentSession(session *domainsalecontract.DomainSaleContractSession) {
 func currentNonce(address common.Address) (currentNonce uint64, err error) {
 	if nonce == -1 {
 		var tmpNonce uint64
-		tmpNonce, err = client.PendingNonceAt(context.Background(), address)
+		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+		defer cancel()
+		tmpNonce, err = client.PendingNonceAt(ctx, address)
 		if err != nil {
 			err = fmt.Errorf("failed to obtain nonce for %s: %v", address.Hex(), err)
 			return
@@ -224,7 +229,7 @@ func estimateGas(fromAddress common.Address, toAddress *common.Address, amount *
 }
 
 // Create a transaction
-func createTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (tx *types.Transaction, err error) {
+func createTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, gasLimit *big.Int, data []byte) (tx *types.Transaction, err error) {
 	// Obtain the nonce for the transaction
 	var txNonce uint64
 	txNonce, err = currentNonce(fromAddress)
@@ -233,22 +238,27 @@ func createTransaction(fromAddress common.Address, toAddress *common.Address, am
 	}
 
 	// Gas limit for the transaction
-	var gasLimit *big.Int
-	gasLimit, err = estimateGas(fromAddress, toAddress, amount, data)
-	if err != nil {
-		return
+	if gasLimit == nil {
+		gasLimit, err = estimateGas(fromAddress, toAddress, amount, data)
+		if err != nil {
+			return
+		}
 	}
 
 	// Create the transaction
-	tx = types.NewTransaction(txNonce, *toAddress, amount, gasLimit, gasPrice, data)
+	if toAddress == nil {
+		tx = types.NewContractCreation(txNonce, amount, gasLimit, gasPrice, data)
+	} else {
+		tx = types.NewTransaction(txNonce, *toAddress, amount, gasLimit, gasPrice, data)
+	}
 
 	return
 }
 
 // Create a signed transaction
-func createSignedTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (signedTx *types.Transaction, err error) {
+func createSignedTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, gasLimit *big.Int, data []byte) (signedTx *types.Transaction, err error) {
 	// Create the transaction
-	tx, err := createTransaction(fromAddress, toAddress, amount, data)
+	tx, err := createTransaction(fromAddress, toAddress, amount, gasLimit, data)
 	if err != nil {
 		return
 	}
@@ -262,6 +272,21 @@ func createSignedTransaction(fromAddress common.Address, toAddress *common.Addre
 
 	// Increment the nonce for the next transaction
 	nextNonce(fromAddress)
+
+	return
+}
+
+func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) {
+	wallet, account, err := obtainWalletAndAccount(sender)
+	if err != nil {
+		return
+	}
+	// Opts
+	opts = &bind.TransactOpts{
+		From:     sender,
+		Signer:   etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
+		GasPrice: gasPrice,
+	}
 
 	return
 }
@@ -284,4 +309,43 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 	}
 	signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
 	return
+}
+
+func txFrom(tx *types.Transaction) (address common.Address, err error) {
+	V, _, _ := tx.RawSignatureValues()
+	signer := deriveSigner(V)
+	address, err = types.Sender(signer, tx)
+	return
+}
+
+// Stolen from geth code as this is not exposed
+func deriveChainId(v *big.Int) *big.Int {
+	if v.BitLen() <= 64 {
+		v := v.Uint64()
+		if v == 27 || v == 28 {
+			return new(big.Int)
+		}
+		return new(big.Int).SetUint64((v - 35) / 2)
+	}
+	v = new(big.Int).Sub(v, big.NewInt(35))
+	return v.Div(v, big.NewInt(2))
+}
+
+// Stolen from geth code as this is not exposed
+func isProtectedV(V *big.Int) bool {
+	if V.BitLen() <= 8 {
+		v := V.Uint64()
+		return v != 27 && v != 28
+	}
+	// anything not 27 or 28 are considered unprotected
+	return true
+}
+
+// Stolen from geth code as this is not exposed
+func deriveSigner(V *big.Int) types.Signer {
+	if V.Sign() != 0 && isProtectedV(V) {
+		return types.NewEIP155Signer(deriveChainId(V))
+	} else {
+		return types.HomesteadSigner{}
+	}
 }

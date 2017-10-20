@@ -24,6 +24,7 @@ import (
 	"github.com/wealdtech/ethereal/util"
 )
 
+var tokenBalanceHolderAddress string
 var tokenBalanceRaw bool
 
 // tokenBalanceCmd represents the ether balance command
@@ -32,17 +33,17 @@ var tokenBalanceCmd = &cobra.Command{
 	Short: "Obtain the token balance for an address",
 	Long: `Obtain the token balance for an address.  For example:
 
-    ethereal token balance --token=omg 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal token balance --token=omg --holder=0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(args[0] != "", quiet, "Address is required")
+		cli.Assert(tokenBalanceHolderAddress != "", quiet, "--holder is required")
+		address, err := ens.Resolve(client, tokenBalanceHolderAddress)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenBalanceHolderAddress))
 
-		address, err := ens.Resolve(client, args[0])
-		cli.ErrCheck(err, quiet, "Failed to obtain address")
-
+		cli.Assert(tokenStr != "", quiet, "--token is required")
 		token, err := tokenContract(tokenStr)
-		cli.ErrCheck(err, quiet, "Failed to obtain token address")
+		cli.ErrCheck(err, quiet, "Failed to obtain token contract")
 
 		decimals, err := token.Decimals(nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain token decimals")
@@ -70,4 +71,5 @@ func init() {
 	tokenFlags(tokenBalanceCmd)
 	tokenCmd.AddCommand(tokenBalanceCmd)
 	tokenBalanceCmd.Flags().BoolVar(&tokenBalanceRaw, "raw", false, "Dispay raw output (no decimals)")
+	tokenBalanceCmd.Flags().StringVar(&tokenBalanceHolderAddress, "holder", "", "Holder of tokens")
 }

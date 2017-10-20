@@ -19,11 +19,13 @@ import (
 
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/util"
 )
 
 var tokenTransferAmount string
+var tokenTransferFromAddress string
 var tokenTransferToAddress string
 var tokenTransferData string
 
@@ -33,26 +35,26 @@ var tokenTransferCmd = &cobra.Command{
 	Short: "Transfer tokens to a given address",
 	Long: `Transfer token from one address to another.  For example:
 
-    ethereal token transfer --token=x --to=x --amount=y --passphrase=secret 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal token transfer --token=omg --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=10 --passphrase=secret
 
 In quiet mode this will return 0 if the transfer transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(len(args) == 1, quiet, "Requires a single address from which to transfer funds")
-		cli.Assert(args[0] != "", quiet, "Sender address is required")
+		cli.Assert(tokenTransferFromAddress != "", quiet, "--from is required")
+		fromAddress, err := ens.Resolve(client, tokenTransferFromAddress)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", tokenTransferFromAddress))
 
-		fromAddress, err := ens.Resolve(client, args[0])
-		cli.ErrCheck(err, quiet, "Failed to obtain sender for transfer")
+		cli.Assert(tokenTransferToAddress != "", quiet, "--to is required")
+		toAddress, err := ens.Resolve(client, tokenTransferToAddress)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve to address %s", tokenTransferToAddress))
 
+		cli.Assert(tokenStr != "", quiet, "--token is required")
 		token, err := tokenContract(tokenStr)
-		cli.ErrCheck(err, quiet, "Failed to obtain token address")
+		cli.ErrCheck(err, quiet, "Failed to obtain token contract")
 
 		decimals, err := token.Decimals(nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain token decimals")
 
-		toAddress, err := ens.Resolve(client, tokenTransferToAddress)
-		cli.ErrCheck(err, quiet, "Failed to obtain recipient for transfer")
-
-		cli.Assert(tokenTransferAmount != "", quiet, "Require an amount to transfer with --to")
+		cli.Assert(tokenTransferAmount != "", quiet, "--amount is required")
 		amount, err := util.StringToTokenValue(tokenTransferAmount, decimals)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
@@ -61,25 +63,38 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", util.TokenValueToString(balance, decimals, false)))
 
-		fmt.Printf("Sending %s from %s to %s (balance %s)\n", util.TokenValueToString(amount, decimals, false), fromAddress.Hex(), toAddress.Hex(), util.TokenValueToString(balance, decimals, false))
-		// Create and sign the transaction
-		//		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, data)
-		//		cli.ErrCheck(err, quiet, "Failed to create transaction")
+		opts, err := generateTxOpts(fromAddress)
+		cli.ErrCheck(err, quiet, "Failed to generate transaction")
 
-		//		err = client.SendTransaction(context.Background(), signedTx)
-		//		cli.ErrCheck(err, quiet, "Failed to send transaction")
+		signedTx, err := token.Transfer(opts, toAddress, amount)
+		cli.ErrCheck(err, quiet, "Failed to create transaction")
+
+		log.WithFields(log.Fields{
+			"group":         "token",
+			"command":       "transfer",
+			"token":         tokenStr,
+			"from":          fromAddress.Hex(),
+			"to":            toAddress.Hex(),
+			"amount":        amount.String(),
+			"networkid":     chainID,
+			"gas":           signedTx.Gas().String(),
+			"gasprice":      signedTx.GasPrice().String(),
+			"transactionid": signedTx.Hash().Hex(),
+		}).Info("success")
 
 		if quiet {
 			os.Exit(0)
 		}
-		//		fmt.Println(signedTx.Hash().Hex())
+
+		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 
 func init() {
 	tokenCmd.AddCommand(tokenTransferCmd)
 	tokenFlags(tokenTransferCmd)
-	tokenTransferCmd.Flags().StringVar(&tokenTransferAmount, "amount", "", "Amount of Ether to transfer")
-	tokenTransferCmd.Flags().StringVar(&tokenTransferToAddress, "to", "", "Address to which to transfer Ether")
-	addTransactionFlags(tokenTransferCmd, "Passphrase for the address that holds the tokens")
+	tokenTransferCmd.Flags().StringVar(&tokenTransferAmount, "amount", "", "Amount to transfer")
+	tokenTransferCmd.Flags().StringVar(&tokenTransferFromAddress, "from", "", "Address from which to transfer tokens")
+	tokenTransferCmd.Flags().StringVar(&tokenTransferToAddress, "to", "", "Address to which to transfer tokens")
+	addTransactionFlags(tokenTransferCmd, "Passphrase for the address from which to transfer tokens")
 }
