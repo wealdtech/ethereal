@@ -1,6 +1,4 @@
-Ethereal is a command line tool for managing common tasks in Ethereum.  It is designed to be
-
-It is designed to allow integration in to batch scripts and to be called from other programs by providing concise information and through use of the quiet mode where results are translated in to exit codes.
+Ethereal is a command line tool for managing common tasks in Ethereum.  It is designed to allow integration in to batch scripts and to be called from other programs by providing concise information and through use of the quiet mode where results are translated in to exit codes.
 
 ## Installing Ethereal
 
@@ -13,7 +11,7 @@ Ethereal works with Geth, MIST and Parity wallets in the standard locations.  A 
 
 ### Access to Ethereum networks
 
-Ethereal supports all main Ethereum networks  It auto-detects the network by querying the connected node for the network ID.  The connection should be geth-compatible, so either geth itself or parity with the `--geth` flag to enable geth compatibility mode.  The connectino could be a local node or a network service such as Infura.
+Ethereal supports all main Ethereum networks  It auto-detects the network by querying the connected node for the network ID.  The connection should be geth-compatible, so either geth itself or parity with the `--geth` flag to enable geth compatibility mode.  The connection could be a local node or a network service such as Infura.
 
 ## Examples
 
