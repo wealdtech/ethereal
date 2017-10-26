@@ -14,11 +14,14 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
 
+	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
@@ -49,36 +52,44 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		// Obtain the balance of the address
 		balance, err := client.BalanceAt(context.Background(), fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", args[0]))
+		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", fromAddress.Hex()))
 
 		// Obtain the amount of gas required to send the transaction, and calculate the amount to send
 		gas, err := estimateGas(fromAddress, &toAddress, balance, nil)
 		cli.ErrCheck(err, quiet, "Failed to estimate gas required to sweep funds")
 		amount := balance.Sub(balance, gas.Mul(gas, gasPrice))
+		outputIf(verbose, fmt.Sprintf("Sweeping %s\n", etherutils.WeiToString(amount, true)))
 
 		// Create and sign the transaction
 		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, nil, nil)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		err = client.SendTransaction(context.Background(), signedTx)
-		cli.ErrCheck(err, quiet, "Failed to send transaction")
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				signedTx.EncodeRLP(buf)
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			}
+		} else {
+			err = client.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		log.WithFields(log.Fields{
-			"group":         "ether",
-			"command":       "sweep",
-			"from":          fromAddress.Hex(),
-			"to":            toAddress.Hex(),
-			"amount":        amount.String(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas().String(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
-
-		if quiet {
-			os.Exit(0)
+			log.WithFields(log.Fields{
+				"group":         "ether",
+				"command":       "sweep",
+				"from":          fromAddress.Hex(),
+				"to":            toAddress.Hex(),
+				"amount":        amount.String(),
+				"networkid":     chainID,
+				"gas":           signedTx.Gas().String(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
+			if quiet {
+				os.Exit(0)
+			}
+			fmt.Println(signedTx.Hash().Hex())
 		}
-		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

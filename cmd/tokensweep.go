@@ -14,6 +14,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
@@ -22,6 +24,7 @@ import (
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var tokenSweepFromAddress string
@@ -55,30 +58,48 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, "No balance")
 
+		if verbose {
+			symbol, err := token.Symbol(nil)
+			if err == nil {
+				decimals, err := token.Decimals(nil)
+				if err == nil {
+					fmt.Println("Sweeping %s %s\n", util.TokenValueToString(balance, decimals, false), symbol)
+				}
+			}
+		}
+
 		opts, err := generateTxOpts(fromAddress)
-		cli.ErrCheck(err, quiet, "Failed to generate transaction")
+		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 
 		signedTx, err := token.Transfer(opts, toAddress, balance)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		log.WithFields(log.Fields{
-			"group":         "token",
-			"command":       "sweep",
-			"token":         tokenStr,
-			"from":          fromAddress.Hex(),
-			"to":            toAddress.Hex(),
-			"amount":        balance.String(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas().String(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				signedTx.EncodeRLP(buf)
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			}
+		} else {
+			log.WithFields(log.Fields{
+				"group":         "token",
+				"command":       "sweep",
+				"token":         tokenStr,
+				"from":          fromAddress.Hex(),
+				"to":            toAddress.Hex(),
+				"amount":        balance.String(),
+				"networkid":     chainID,
+				"gas":           signedTx.Gas().String(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
 
-		if quiet {
-			os.Exit(0)
+			if quiet {
+				os.Exit(0)
+			}
+
+			fmt.Println(signedTx.Hash().Hex())
 		}
-
-		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

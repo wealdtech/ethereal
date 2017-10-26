@@ -14,6 +14,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -64,29 +66,37 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", util.TokenValueToString(balance, decimals, false)))
 
 		opts, err := generateTxOpts(fromAddress)
-		cli.ErrCheck(err, quiet, "Failed to generate transaction")
+		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 
 		signedTx, err := token.Transfer(opts, toAddress, amount)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		log.WithFields(log.Fields{
-			"group":         "token",
-			"command":       "transfer",
-			"token":         tokenStr,
-			"from":          fromAddress.Hex(),
-			"to":            toAddress.Hex(),
-			"amount":        amount.String(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas().String(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				signedTx.EncodeRLP(buf)
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			}
+		} else {
+			log.WithFields(log.Fields{
+				"group":         "token",
+				"command":       "transfer",
+				"token":         tokenStr,
+				"from":          fromAddress.Hex(),
+				"to":            toAddress.Hex(),
+				"amount":        amount.String(),
+				"networkid":     chainID,
+				"gas":           signedTx.Gas().String(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
 
-		if quiet {
-			os.Exit(0)
+			if quiet {
+				os.Exit(0)
+			}
+
+			fmt.Println(signedTx.Hash().Hex())
 		}
-
-		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

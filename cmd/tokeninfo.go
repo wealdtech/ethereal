@@ -42,27 +42,29 @@ In quiet mode this will return 0 if the token exists, otherwise 1.`,
 
 		name, err := token.Name(nil)
 		if err == nil {
-			fmt.Printf("Name: %s\n", name)
+			fmt.Printf("Name:\t\t%s\n", name)
 		}
 
-		address, err := tokenContractAddress(tokenStr)
-		if err == nil {
-			fmt.Printf("Address: %s\n", address.Hex())
+		if verbose {
+			address, err := tokenContractAddress(tokenStr)
+			if err == nil {
+				fmt.Printf("Address:\t%s\n", address.Hex())
+			}
 		}
 
 		symbol, err := token.Symbol(nil)
 		if err == nil {
-			fmt.Printf("Symbol: %s\n", symbol)
+			fmt.Printf("Symbol:\t\t%s\n", symbol)
 		}
 
 		decimals, err := token.Decimals(nil)
 		if err == nil {
-			fmt.Printf("Decimals: %d\n", decimals)
+			fmt.Printf("Decimals:\t%d\n", decimals)
 		}
 
 		totalSupply, err := token.TotalSupply(nil)
 		if err == nil {
-			fmt.Printf("Total supply: %s\n", util.TokenValueToString(totalSupply, decimals, true))
+			fmt.Printf("Total supply:\t%s\n", util.TokenValueToString(totalSupply, decimals, true))
 		}
 	},
 }

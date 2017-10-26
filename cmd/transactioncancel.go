@@ -14,7 +14,9 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
@@ -61,23 +63,31 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 		signedTx, err := createSignedTransaction(fromAddress, &fromAddress, nil, nil, nil)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		err = client.SendTransaction(context.Background(), signedTx)
-		cli.ErrCheck(err, quiet, "Failed to send transaction")
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				signedTx.EncodeRLP(buf)
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			}
+		} else {
+			err = client.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		log.WithFields(log.Fields{
-			"group":         "transaction",
-			"command":       "cancel",
-			"address":       fromAddress.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas().String(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+			log.WithFields(log.Fields{
+				"group":         "transaction",
+				"command":       "cancel",
+				"address":       fromAddress.Hex(),
+				"networkid":     chainID,
+				"gas":           signedTx.Gas().String(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
 
-		if quiet {
-			os.Exit(0)
+			if quiet {
+				os.Exit(0)
+			}
+			fmt.Println(signedTx.Hash().Hex())
 		}
-		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

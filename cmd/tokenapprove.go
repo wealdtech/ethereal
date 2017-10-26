@@ -14,6 +14,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -58,32 +60,40 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 		amount, err := util.StringToTokenValue(tokenApproveAmount, decimals)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
-		opts, err := generateTxOpts(holderAddress)
-		cli.ErrCheck(err, quiet, "Failed to generate transaction")
-
 		// TODO obtain current approval; confirm that this is not !0=>!0
+
+		opts, err := generateTxOpts(holderAddress)
+		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 
 		signedTx, err := token.Approve(opts, spenderAddress, amount)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		log.WithFields(log.Fields{
-			"group":         "token",
-			"command":       "approve",
-			"token":         tokenStr,
-			"holder":        holderAddress.Hex(),
-			"spender":       spenderAddress.Hex(),
-			"amount":        amount.String(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas().String(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				signedTx.EncodeRLP(buf)
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			}
+		} else {
+			log.WithFields(log.Fields{
+				"group":         "token",
+				"command":       "approve",
+				"token":         tokenStr,
+				"holder":        holderAddress.Hex(),
+				"spender":       spenderAddress.Hex(),
+				"amount":        amount.String(),
+				"networkid":     chainID,
+				"gas":           signedTx.Gas().String(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
 
-		if quiet {
-			os.Exit(0)
+			if quiet {
+				os.Exit(0)
+			}
+
+			fmt.Println(signedTx.Hash().Hex())
 		}
-
-		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

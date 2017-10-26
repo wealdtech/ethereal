@@ -39,6 +39,7 @@ import (
 var cfgFile string
 var quiet bool
 var verbose bool
+var offline bool
 
 var client *ethclient.Client
 var chainID *big.Int
@@ -76,8 +77,12 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	// We bind viper here so that we bind to the correct command
 	quiet = viper.GetBool("quiet")
 	verbose = viper.GetBool("verbose")
-	// ...lots of commands have 'passphrase' as an option but we want to bind
-	// it to this particular command and this is the first chance we get
+	offline = viper.GetBool("offline")
+	if quiet && verbose {
+		cli.Err(quiet, "Cannot supply both quiet and verbose flags")
+	}
+	// ...lots of commands have (e.g.) 'passphrase' as an option but we want to
+	// bind it to this particular command and this is the first chance we get
 	if cmd.Flags().Lookup("passphrase") != nil {
 		viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
 	}
@@ -136,8 +141,10 @@ func init() {
 	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
 	RootCmd.PersistentFlags().String("connection", "https://api.orinocopay.com:8546/", "the IPC or RPC path to an Ethereum node.  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
 	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
-	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "The time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
+	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "the time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
+	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
+	viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -283,9 +290,10 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 	}
 	// Opts
 	opts = &bind.TransactOpts{
-		From:     sender,
-		Signer:   etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
-		GasPrice: gasPrice,
+		From:      sender,
+		Signer:    etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
+		GasPrice:  gasPrice,
+		DoNotSend: offline,
 	}
 
 	return
@@ -309,6 +317,12 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 	}
 	signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
 	return
+}
+
+func outputIf(condition bool, msg string) {
+	if condition {
+		fmt.Println(msg)
+	}
 }
 
 func txFrom(tx *types.Transaction) (address common.Address, err error) {
