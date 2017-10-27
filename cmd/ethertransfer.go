@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -56,7 +55,9 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
 		// Obtain the balance of the address
-		balance, err := client.BalanceAt(context.Background(), fromAddress, nil)
+		ctx, cancel := localContext()
+		defer cancel()
+		balance, err := client.BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
 
@@ -80,7 +81,9 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			err = client.SendTransaction(context.Background(), signedTx)
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			log.WithFields(log.Fields{

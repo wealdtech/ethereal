@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -47,7 +46,9 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 							if err == nil {
 								fmt.Printf(" (%s)", name)
 							}
-							balance, err := client.BalanceAt(context.Background(), account.Address, nil)
+							ctx, cancel := localContext()
+							defer cancel()
+							balance, err := client.BalanceAt(ctx, account.Address, nil)
 							if err == nil {
 								fmt.Printf(" %s", etherutils.WeiToString(balance, true))
 							}

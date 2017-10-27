@@ -325,6 +325,10 @@ func outputIf(condition bool, msg string) {
 	}
 }
 
+func localContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+}
+
 func txFrom(tx *types.Transaction) (address common.Address, err error) {
 	V, _, _ := tx.RawSignatureValues()
 	signer := deriveSigner(V)

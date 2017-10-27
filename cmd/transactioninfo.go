@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -37,7 +36,9 @@ var transactionInfoCmd = &cobra.Command{
 In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		txHash := common.HexToHash(transactionStr)
-		tx, pending, err := client.TransactionByHash(context.Background(), txHash)
+		ctx, cancel := localContext()
+		defer cancel()
+		tx, pending, err := client.TransactionByHash(ctx, txHash)
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 
 		if quiet {
@@ -57,7 +58,9 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			} else {
 				fmt.Printf("Type:\t\t\tMined transaction\n")
 			}
-			receipt, err = client.TransactionReceipt(context.Background(), txHash)
+			ctx, cancel := localContext()
+			defer cancel()
+			receipt, err = client.TransactionReceipt(ctx, txHash)
 		}
 
 		fromAddress, err := txFrom(tx)

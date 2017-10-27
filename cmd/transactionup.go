@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -37,7 +36,9 @@ var transactionUpCmd = &cobra.Command{
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		txHash := common.HexToHash(transactionStr)
-		tx, pending, err := client.TransactionByHash(context.Background(), txHash)
+		ctx, cancel := localContext()
+		defer cancel()
+		tx, pending, err := client.TransactionByHash(ctx, txHash)
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 		cli.Assert(pending, quiet, "Transaction has already been mined")
 
@@ -59,7 +60,9 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			err = client.SendTransaction(context.Background(), signedTx)
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			log.WithFields(log.Fields{

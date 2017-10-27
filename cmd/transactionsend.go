@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -23,6 +22,8 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
@@ -34,6 +35,7 @@ var transactionSendAmount string
 var transactionSendFromAddress string
 var transactionSendToAddress string
 var transactionSendData string
+var transactionSendRaw string
 
 // transactionSendCmd represents the transaction send command
 var transactionSendCmd = &cobra.Command{
@@ -45,6 +47,44 @@ var transactionSendCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if transactionSendRaw != "" {
+			// Send a raw transaction
+
+			// Decode the raw transaction
+			data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
+			cli.ErrCheck(err, quiet, "Failed to decode data")
+			signedTx := &types.Transaction{}
+			stream := rlp.NewStream(bytes.NewReader(data), 0)
+			err = signedTx.DecodeRLP(stream)
+			cli.ErrCheck(err, quiet, "Failed to decode transaction")
+
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+			fromAddress, err := txFrom(signedTx)
+			cli.ErrCheck(err, quiet, "Failed to obtain from address")
+
+			log.WithFields(log.Fields{
+				"group":         "transaction",
+				"command":       "send",
+				"from":          fromAddress.Hex(),
+				"to":            signedTx.To().Hex(),
+				"amount":        signedTx.Value().String(),
+				"data":          hex.EncodeToString(signedTx.Data()),
+				"networkid":     chainID,
+				"gas":           signedTx.Gas().String(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
+
+			if !quiet {
+				fmt.Println(signedTx.Hash().Hex())
+			}
+			os.Exit(0)
+		}
+
 		cli.Assert(transactionSendFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, transactionSendFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", transactionSendFromAddress))
@@ -68,7 +108,9 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		}
 
 		// Obtain the balance of the address
-		balance, err := client.BalanceAt(context.Background(), fromAddress, nil)
+		ctx, cancel := localContext()
+		defer cancel()
+		balance, err := client.BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
 
@@ -92,7 +134,9 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			err = client.SendTransaction(context.Background(), signedTx)
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			log.WithFields(log.Fields{
@@ -122,5 +166,6 @@ func init() {
 	transactionSendCmd.Flags().StringVar(&transactionSendFromAddress, "from", "", "Address from which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
+	transactionSendCmd.Flags().StringVar(&transactionSendRaw, "raw", "", "raw transaction (as a hex string).  This overrides all other options")
 	addTransactionFlags(transactionSendCmd, "Passphrase for the address from which to transfer Ether")
 }

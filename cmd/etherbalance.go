@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"math/big"
 	"os"
@@ -42,7 +41,9 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		address, err := ens.Resolve(client, etherBalanceAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address")
 
-		balance, err := client.BalanceAt(context.Background(), address, nil)
+		ctx, cancel := localContext()
+		defer cancel()
+		balance, err := client.BalanceAt(ctx, address, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance")
 
 		if quiet {

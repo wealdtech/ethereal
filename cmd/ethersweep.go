@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -50,7 +49,9 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		cli.ErrCheck(err, quiet, "Failed to obtain to address for sweep")
 
 		// Obtain the balance of the address
-		balance, err := client.BalanceAt(context.Background(), fromAddress, nil)
+		ctx, cancel := localContext()
+		defer cancel()
+		balance, err := client.BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", fromAddress.Hex()))
 
@@ -71,7 +72,9 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			err = client.SendTransaction(context.Background(), signedTx)
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			log.WithFields(log.Fields{
