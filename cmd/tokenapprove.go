@@ -41,6 +41,8 @@ var tokenApproveCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the approval transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
+
 		cli.Assert(tokenApproveHolderAddress != "", quiet, "--holder is required")
 		holderAddress, err := ens.Resolve(client, tokenApproveHolderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenApproveHolderAddress))

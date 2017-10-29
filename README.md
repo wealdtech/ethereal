@@ -9,6 +9,10 @@ Ethereal requires [Go](https://golang.org/).  With Go installed you can install 
 
 Ethereal works with Geth, MIST and Parity wallets in the standard locations.  A simple way to check the addresses that can be seen by Ethereal is to run `ethereal account list` which will list all accounts that Ethereal can see.  If you expect an address to show up and it doesn't then please raise an issue with the relevant details.
 
+If you use Parity and want to import a private key or a wallet from another system please see https://github.com/paritytech/parity/wiki/Backing-up-&-Restoring#restoring-options
+
+If you use Geth and want to import a private key or a wallet from another system please see https://github.com/ethereum/go-ethereum/wiki/Managing-your-accounts
+
 ### Access to Ethereum networks
 
 Ethereal supports all main Ethereum networks  It auto-detects the network by querying the connected node for the network ID.  The connection should be geth-compatible, so either geth itself or parity with the `--geth` flag to enable geth compatibility mode.  The connection could be a local node or a network service such as Infura.

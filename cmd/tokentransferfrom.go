@@ -42,6 +42,8 @@ var tokenTransferFromCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the transfer transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
+
 		cli.Assert(tokenTransferFromFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, tokenTransferFromFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", tokenTransferFromFromAddress))

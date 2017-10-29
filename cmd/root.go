@@ -290,10 +290,10 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 	}
 	// Opts
 	opts = &bind.TransactOpts{
-		From:      sender,
-		Signer:    etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
-		GasPrice:  gasPrice,
-		DoNotSend: offline,
+		From:     sender,
+		Signer:   etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
+		GasPrice: gasPrice,
+		// DoNotSend: offline,
 	}
 
 	return
