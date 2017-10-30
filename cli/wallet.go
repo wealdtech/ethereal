@@ -23,10 +23,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/accounts/usbwallet"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/params"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
 )
 
 func ObtainWallets(chainID *big.Int) ([]accounts.Wallet, error) {
@@ -43,6 +45,12 @@ func ObtainWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 		return nil, err
 	}
 	wallets = append(wallets, parityWallets...)
+
+	ledgerWallets, err := obtainLedgerWallets(chainID)
+	if err != nil {
+		return nil, err
+	}
+	wallets = append(wallets, ledgerWallets...)
 
 	return wallets, nil
 }
@@ -152,6 +160,29 @@ func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	return accountManager.Wallets(), nil
 }
 
+func obtainLedgerWallets(chainID *big.Int) ([]accounts.Wallet, error) {
+	ledgerhub, err := usbwallet.NewLedgerHub()
+	if err != nil {
+		return nil, err
+	}
+
+	backends := []accounts.Backend{ledgerhub}
+	accountManager := accounts.NewManager(backends...)
+	defer accountManager.Close()
+
+	usbWallets := viper.GetInt("usbwallets")
+	for _, wallet := range accountManager.Wallets() {
+		wallet.Open("")
+		path := accounts.DefaultLedgerBaseDerivationPath
+		for i := 0; i < usbWallets; i++ {
+			path[3] = uint32(i)
+			wallet.Derive(path, true)
+		}
+	}
+
+	return accountManager.Wallets(), nil
+}
+
 // ObtainAccount fetches the account for a given address
 func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase string) (*accounts.Account, error) {
 	for _, account := range (*wallet).Accounts() {
@@ -167,7 +198,6 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 
 // VerifyPassphrase confirms that a passphrase is correct for an account
 func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphrase string) bool {
-
 	_, err := wallet.SignHashWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	return err == nil
 }

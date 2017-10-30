@@ -40,20 +40,23 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 				for _, account := range wallet.Accounts() {
 					foundAccounts = true
 					if !quiet {
-						fmt.Printf("%s", account.Address.Hex())
-						if verbose {
+						if !verbose {
+							fmt.Println(account.Address.Hex())
+						} else {
+							fmt.Printf("Location:\t%s\n", account.URL)
+							fmt.Printf("Address:\t%s\n", account.Address.Hex())
 							name, err := ens.ReverseResolve(client, &account.Address)
 							if err == nil {
-								fmt.Printf(" (%s)", name)
+								fmt.Printf("Name:\t\t%s\n", name)
 							}
 							ctx, cancel := localContext()
 							defer cancel()
 							balance, err := client.BalanceAt(ctx, account.Address, nil)
 							if err == nil {
-								fmt.Printf(" %s", etherutils.WeiToString(balance, true))
+								fmt.Printf("Balance:\t%s\n", etherutils.WeiToString(balance, true))
 							}
+							fmt.Println("")
 						}
-						fmt.Printf("\n")
 					}
 				}
 			}

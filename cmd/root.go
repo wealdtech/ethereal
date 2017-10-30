@@ -145,6 +145,8 @@ func init() {
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
 	viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline"))
+	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
+	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
 }
 
 // initConfig reads in config file and ENV variables if set.
