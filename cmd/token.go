@@ -62,5 +62,5 @@ func init() {
 }
 
 func tokenFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&tokenStr, "token", "", "Name or address of the token")
+	cmd.Flags().StringVar(&tokenStr, "token", "", "Name (resolved as <name>.thetoken.eth) or address of the token contract")
 }

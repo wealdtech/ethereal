@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"os"
 
 	"github.com/orinocopay/go-etherutils/cli"
@@ -62,7 +63,10 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 		amount, err := util.StringToTokenValue(tokenApproveAmount, decimals)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
-		// TODO obtain current approval; confirm that this is not !0=>!0
+		allowance, err := token.Allowance(nil, holderAddress, spenderAddress)
+		cli.ErrCheck(err, quiet, "Failed to obtain allowance")
+
+		cli.Assert(allowance.Cmp(big.NewInt(0)) == 0 || amount.Cmp(big.NewInt(0)) == 0, quiet, fmt.Sprintf("Allowance is currently %s; it must be set to zero before being changed to avoid a potential double spend", util.TokenValueToString(allowance, decimals, false)))
 
 		opts, err := generateTxOpts(holderAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
