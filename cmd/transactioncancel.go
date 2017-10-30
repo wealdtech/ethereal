@@ -21,6 +21,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
+	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -51,9 +52,13 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 		cli.Assert(pending, quiet, "Transaction has already been mined")
 
-		// Set the gas price to be the current gas price + 11.1% if it has not been specified
+		minGasPrice := big.NewInt(0).Add(big.NewInt(0).Add(tx.GasPrice(), big.NewInt(0).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(10))
 		if viper.GetString("gasprice") == "" {
-			gasPrice = tx.GasPrice().Add(tx.GasPrice(), tx.GasPrice().Div(tx.GasPrice(), big.NewInt(9)))
+			// No gas price supplied; use the calculated minimum
+			gasPrice = minGasPrice
+		} else {
+			// Gas price supplied; ensure it is at least 10% more than the current gas price
+			cli.Assert(gasPrice.Cmp(minGasPrice) >= 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
 		}
 
 		// Create and sign the transaction

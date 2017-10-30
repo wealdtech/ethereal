@@ -17,21 +17,26 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
+	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/orinocopay/go-etherutils/cli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // transactionUpCmd represents the transaction up command
 var transactionUpCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Increase the gas cost for a pending transaction",
-	Long: `Increase the gas cost for a transaction.  For example:
+	Long: `Increase the gas cost for a pending transaction.  For example:
 
     ethereal transaction up --gasprice=20gwei --passphrase=secret --transaction=0x454d2274155cce506359de6358785ce5366f6c13e825263674c272eec8532c0c
+
+If no gas price is supplied then it will default to 10% higher than the current gas price for the transaction.
 
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -42,8 +47,14 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
 		cli.Assert(pending, quiet, "Transaction has already been mined")
 
-		// TODO
-		// Ensure that the proposed gas price is at least 10% more than the current gas price
+		minGasPrice := big.NewInt(0).Add(big.NewInt(0).Add(tx.GasPrice(), big.NewInt(0).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(10))
+		if viper.GetString("gasprice") == "" {
+			// No gas price supplied; use the calculated minimum
+			gasPrice = minGasPrice
+		} else {
+			// Gas price supplied; ensure it is at least 10% more than the current gas price
+			cli.Assert(gasPrice.Cmp(minGasPrice) >= 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
+		}
 
 		// Create and sign the transaction
 		fromAddress, err := txFrom(tx)
