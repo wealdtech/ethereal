@@ -16,7 +16,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +27,7 @@ var versionCmd = &cobra.Command{
 
     ethereal version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cli.Version)
+		fmt.Println("1.0.104")
 	},
 }
 
