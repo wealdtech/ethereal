@@ -23,28 +23,28 @@ Ethereal supports all main Ethereum networks  It auto-detects the network by que
 You have submitted a transaction to the network but it's taking a long time to process because the gas price is too low.
 
 ```
-ethereal transaction up --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --gasprice=20GWei --pasphrase=secret
+ethereal transaction up --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --gasprice=20GWei --passphrase=secret
 ```
 where `transaction` is the hash of the pending transactions, `gasprice` is the price you want to set for gas, and `passphrase` is the passphrase for the account that sent the transaction.
 
 ### Cancel a transaction
 You have submitted a transaction to the network by mistake and want to cancel it.
 ```
-ethereal transaction cancel --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --pasphrase=secret
+ethereal transaction cancel --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --passphrase=secret
 ```
 where `transaction` is the hash of the pending transactions and `passphrase` is the passphrase for the account that sent the transaction.
 
 ### Sweep Ether
 You want to transfer all Ether in one account to another.
 ```
-ethereal ether sweep --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --pasphrase=secret
+ethereal ether sweep --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret
 ```
 where `from` is the address from which the Ether will be transferred, `to` is the address to which the Ether will be transferred, and `passphrase` is the passphrase for the `from` account.
 
 ### Transfer a token
 You want to transfer a token to another account.
 ```
-ethereal token transfer --token=omg --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=10.2 --pasphrase=secret
+ethereal token transfer --token=omg --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=10.2 --passphrase=secret
 ```
 where `token` is the token to transfer, `from` is the address from which the token will be transferred, `to` is the address to which the token will be transferred, `amount` is the amount of the token to transfer, `gasprice` is the price you want to set for gas, and `passphrase` is the passphrase for the `from` account.
 
