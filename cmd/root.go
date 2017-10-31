@@ -33,7 +33,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/wealdtech/go-domainsale/domainsalecontract"
 )
 
 var cfgFile string
@@ -183,14 +182,6 @@ func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
 	cmd.Flags().String("passphrase", "", passphraseExplanation)
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
-}
-
-// Augment session information
-func augmentSession(session *domainsalecontract.DomainSaleContractSession) {
-	session.TransactOpts.GasPrice = gasPrice
-	if nonce != -1 {
-		session.TransactOpts.Nonce = big.NewInt(nonce)
-	}
 }
 
 // Obtain the current nonce for the given address
