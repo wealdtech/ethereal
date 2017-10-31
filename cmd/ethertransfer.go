@@ -71,7 +71,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, nil, data)
+		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, gasLimit, data)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		if offline {

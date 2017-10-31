@@ -62,7 +62,7 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		outputIf(verbose, fmt.Sprintf("Sweeping %s\n", etherutils.WeiToString(amount, true)))
 
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, nil, nil)
+		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, gasLimit, nil)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		if offline {

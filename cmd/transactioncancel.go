@@ -66,7 +66,7 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 		cli.ErrCheck(err, quiet, "Failed to obtain from address")
 
 		nonce = int64(tx.Nonce())
-		signedTx, err := createSignedTransaction(fromAddress, &fromAddress, nil, nil, nil)
+		signedTx, err := createSignedTransaction(fromAddress, &fromAddress, nil, gasLimit, nil)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		if offline {

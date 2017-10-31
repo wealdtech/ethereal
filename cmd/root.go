@@ -51,6 +51,7 @@ var account *accounts.Account
 
 // Common variables
 var gasPrice *big.Int
+var gasLimit *big.Int
 
 var err error
 
@@ -94,6 +95,13 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		} else {
 			gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
 			cli.ErrCheck(err, quiet, "Invalid gas price")
+		}
+	}
+
+	if cmd.Flags().Lookup("gaslimit") != nil {
+		viper.BindPFlag("gaslimit", cmd.Flags().Lookup("gaslimit"))
+		if viper.GetInt("gaslimit") > 0 {
+			gasLimit = big.NewInt(int64(viper.GetInt("gaslimit")))
 		}
 	}
 
@@ -181,6 +189,7 @@ func initConfig() {
 func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
 	cmd.Flags().String("passphrase", "", passphraseExplanation)
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
+	cmd.Flags().Int64("gaslimit", -1, "Gas limit for the transaction; -1 is auto-select")
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 
@@ -286,9 +295,11 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		From:     sender,
 		Signer:   etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
 		GasPrice: gasPrice,
-		// DoNotSend: offline,
 	}
 
+	if gasLimit != nil {
+		opts.GasLimit = gasLimit
+	}
 	return
 }
 

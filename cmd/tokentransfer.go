@@ -65,7 +65,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		// Obtain the balance of the address
 		balance, err := token.BalanceOf(nil, fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", util.TokenValueToString(balance, decimals, false)))
+		cli.Assert(balance.Cmp(amount) >= 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", util.TokenValueToString(balance, decimals, false)))
 
 		opts, err := generateTxOpts(fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
