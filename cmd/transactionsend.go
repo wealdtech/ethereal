@@ -139,18 +139,33 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-			log.WithFields(log.Fields{
-				"group":         "transaction",
-				"command":       "send",
-				"from":          fromAddress.Hex(),
-				"to":            toAddress.Hex(),
-				"amount":        amount.String(),
-				"data":          hex.EncodeToString(data),
-				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			if toAddress == nil {
+				log.WithFields(log.Fields{
+					"group":         "transaction",
+					"command":       "send",
+					"from":          fromAddress.Hex(),
+					"to":            toAddress.Hex(),
+					"amount":        amount.String(),
+					"data":          hex.EncodeToString(data),
+					"networkid":     chainID,
+					"gas":           signedTx.Gas().String(),
+					"gasprice":      signedTx.GasPrice().String(),
+					"transactionid": signedTx.Hash().Hex(),
+				}).Info("success")
+			} else {
+				log.WithFields(log.Fields{
+					"group":         "transaction",
+					"command":       "send",
+					"from":          fromAddress.Hex(),
+					"to":            toAddress.Hex(),
+					"amount":        amount.String(),
+					"data":          hex.EncodeToString(data),
+					"networkid":     chainID,
+					"gas":           signedTx.Gas().String(),
+					"gasprice":      signedTx.GasPrice().String(),
+					"transactionid": signedTx.Hash().Hex(),
+				}).Info("success")
+			}
 
 			if quiet {
 				os.Exit(0)
