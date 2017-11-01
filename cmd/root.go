@@ -283,14 +283,15 @@ func createSignedTransaction(fromAddress common.Address, toAddress *common.Addre
 }
 
 func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) {
-	wallet, account, err := obtainWalletAndAccount(sender)
-	if err != nil {
-		return
-	}
-
 	// Signer depends on what information is available to us
 	var signer bind.SignerFn
 	if viper.GetString("passphrase") != "" {
+		var wallet accounts.Wallet
+		var account *accounts.Account
+		wallet, account, err = obtainWalletAndAccount(sender)
+		if err != nil {
+			return
+		}
 		signer = etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase"))
 	} else if viper.GetString("privatekey") != "" {
 		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
@@ -316,15 +317,14 @@ func obtainWalletAndAccount(address common.Address) (wallet accounts.Wallet, acc
 }
 
 func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *types.Transaction, err error) {
-	if wallet == nil {
-		// Fetch the wallet and account for the sender
-		wallet, account, err = obtainWalletAndAccount(signer)
-		if err != nil {
-			return
-		}
-	}
-
 	if viper.GetString("passphrase") != "" {
+		if wallet == nil {
+			// Fetch the wallet and account for the sender
+			wallet, account, err = obtainWalletAndAccount(signer)
+			if err != nil {
+				return
+			}
+		}
 		signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
 	} else if viper.GetString("privatekey") != "" {
 		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
