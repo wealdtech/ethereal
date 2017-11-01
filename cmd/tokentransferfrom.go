@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
 )
 
@@ -119,5 +119,5 @@ func init() {
 	tokenTransferFromCmd.Flags().StringVar(&tokenTransferFromFromAddress, "from", "", "Address from which to transfer tokens")
 	tokenTransferFromCmd.Flags().StringVar(&tokenTransferFromToAddress, "to", "", "Address to which to transfer tokens")
 	tokenTransferFromCmd.Flags().StringVar(&tokenTransferFromByAddress, "by", "", "Address allowed to transfer tokens")
-	addTransactionFlags(tokenTransferFromCmd, "Passphrase for the address from which to transfer tokens")
+	addTransactionFlags(tokenTransferFromCmd, "the address from which to transfer tokens")
 }

@@ -20,10 +20,10 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
 )
 
@@ -109,5 +109,5 @@ func init() {
 	tokenApproveCmd.Flags().StringVar(&tokenApproveAmount, "amount", "", "Amount to approve")
 	tokenApproveCmd.Flags().StringVar(&tokenApproveHolderAddress, "holder", "", "Address that holds tokens")
 	tokenApproveCmd.Flags().StringVar(&tokenApproveSpenderAddress, "spender", "", "Address that can spend tokens")
-	addTransactionFlags(tokenApproveCmd, "Passphrase for the address from which to approve tokens")
+	addTransactionFlags(tokenApproveCmd, "the address from which to approve tokens")
 }

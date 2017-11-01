@@ -22,10 +22,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 // transactionUpCmd represents the transaction up command
@@ -100,5 +100,5 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 func init() {
 	transactionCmd.AddCommand(transactionUpCmd)
 	transactionFlags(transactionUpCmd)
-	addTransactionFlags(transactionUpCmd, "Passphrase for the address that holds the funds")
+	addTransactionFlags(transactionUpCmd, "the address that holds the funds")
 }

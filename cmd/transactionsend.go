@@ -25,10 +25,10 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var transactionSendAmount string
@@ -167,5 +167,5 @@ func init() {
 	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
 	transactionSendCmd.Flags().StringVar(&transactionSendRaw, "raw", "", "raw transaction (as a hex string).  This overrides all other options")
-	addTransactionFlags(transactionSendCmd, "Passphrase for the address from which to transfer Ether")
+	addTransactionFlags(transactionSendCmd, "the address from which to transfer Ether")
 }

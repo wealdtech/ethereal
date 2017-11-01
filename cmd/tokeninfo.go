@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
 )
 

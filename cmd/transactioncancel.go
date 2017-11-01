@@ -22,10 +22,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var transactionCancelAmount string
@@ -104,5 +104,5 @@ func init() {
 	transactionFlags(transactionCancelCmd)
 	transactionCancelCmd.Flags().StringVar(&transactionCancelAmount, "amount", "", "Amount of Ether to transfer")
 	transactionCancelCmd.Flags().StringVar(&transactionCancelToAddress, "to", "", "Address to which to transfer Ether")
-	addTransactionFlags(transactionCancelCmd, "Passphrase for the address that holds the funds")
+	addTransactionFlags(transactionCancelCmd, "the address that holds the funds")
 }

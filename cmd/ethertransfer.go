@@ -21,10 +21,10 @@ import (
 	"strings"
 
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var etherTransferAmount string
@@ -112,5 +112,5 @@ func init() {
 	etherTransferCmd.Flags().StringVar(&etherTransferFromAddress, "from", "", "Address from which to transfer Ether")
 	etherTransferCmd.Flags().StringVar(&etherTransferToAddress, "to", "", "Address to which to transfer Ether")
 	etherTransferCmd.Flags().StringVar(&etherTransferData, "data", "", "data to send with transaction (as a hex string)")
-	addTransactionFlags(etherTransferCmd, "Passphrase for the address from which to transfer Ether")
+	addTransactionFlags(etherTransferCmd, "the address from which to transfer Ether")
 }

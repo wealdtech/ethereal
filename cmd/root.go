@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"os"
@@ -26,13 +27,14 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	homedir "github.com/mitchellh/go-homedir"
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var cfgFile string
@@ -84,6 +86,9 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	// bind it to this particular command and this is the first chance we get
 	if cmd.Flags().Lookup("passphrase") != nil {
 		viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
+	}
+	if cmd.Flags().Lookup("privatekey") != nil {
+		viper.BindPFlag("privatekey", cmd.Flags().Lookup("privatekey"))
 	}
 	// Set up gas price if we have it
 	if cmd.Flags().Lookup("gasprice") != nil {
@@ -178,8 +183,9 @@ func initConfig() {
 //
 
 // Add flags for commands that carry out transactions
-func addTransactionFlags(cmd *cobra.Command, passphraseExplanation string) {
-	cmd.Flags().String("passphrase", "", passphraseExplanation)
+func addTransactionFlags(cmd *cobra.Command, explanation string) {
+	cmd.Flags().String("passphrase", "", fmt.Sprintf("passphrase for %s", explanation))
+	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
@@ -281,12 +287,21 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 	if err != nil {
 		return
 	}
-	// Opts
+
+	// Signer depends on what information is available to us
+	var signer bind.SignerFn
+	if viper.GetString("passphrase") != "" {
+		signer = etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase"))
+	} else if viper.GetString("privatekey") != "" {
+		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
+		cli.ErrCheck(err, quiet, "Invalid private key")
+		signer = etherutils.KeySigner(chainID, key)
+	}
+
 	opts = &bind.TransactOpts{
 		From:     sender,
-		Signer:   etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase")),
+		Signer:   signer,
 		GasPrice: gasPrice,
-		// DoNotSend: offline,
 	}
 
 	return
@@ -308,7 +323,18 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 			return
 		}
 	}
-	signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
+
+	if viper.GetString("passphrase") != "" {
+		signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
+	} else if viper.GetString("privatekey") != "" {
+		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
+		cli.ErrCheck(err, quiet, "Invalid private key")
+		keyAddr := crypto.PubkeyToAddress(key.PublicKey)
+		if signer != keyAddr {
+			return nil, errors.New("not authorized to sign this account")
+		}
+		signedTx, err = types.SignTx(tx, types.NewEIP155Signer(chainID), key)
+	}
 	return
 }
 

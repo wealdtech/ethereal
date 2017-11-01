@@ -21,10 +21,10 @@ import (
 	"os"
 
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var etherSweepFromAddress string
@@ -100,5 +100,5 @@ func init() {
 	etherCmd.AddCommand(etherSweepCmd)
 	etherSweepCmd.Flags().StringVar(&etherSweepFromAddress, "from", "", "Address from which to sweep Ether")
 	etherSweepCmd.Flags().StringVar(&etherSweepToAddress, "to", "", "Address to which to sweep Ether")
-	addTransactionFlags(etherSweepCmd, "Passphrase for the address that holds the funds")
+	addTransactionFlags(etherSweepCmd, "the address that holds the funds")
 }

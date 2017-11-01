@@ -19,9 +19,9 @@ import (
 	"os"
 
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var etherBalanceAddress string

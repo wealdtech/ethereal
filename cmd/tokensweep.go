@@ -20,10 +20,10 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
 )
 
@@ -110,5 +110,5 @@ func init() {
 	tokenFlags(tokenSweepCmd)
 	tokenSweepCmd.Flags().StringVar(&tokenSweepFromAddress, "from", "", "Address from which to sweep tokens")
 	tokenSweepCmd.Flags().StringVar(&tokenSweepToAddress, "to", "", "Address to which to sweep tokens")
-	addTransactionFlags(tokenSweepCmd, "Passphrase for the address from which to sweep tokens")
+	addTransactionFlags(tokenSweepCmd, "the address from which to sweep tokens")
 }
