@@ -14,10 +14,14 @@
 package cmd
 
 import (
+	"strings"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/spf13/cobra"
 )
 
 var contractStr string
+var contractAbi string
 
 // contractCmd represents the contract command
 var contractCmd = &cobra.Command{
@@ -32,4 +36,10 @@ func init() {
 
 func contractFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&contractStr, "contract", "", "address of the contract")
+	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI of the contract")
+}
+
+func parseAbi(input string) (output abi.ABI, err error) {
+	reader := strings.NewReader(input)
+	return abi.JSON(reader)
 }
