@@ -39,7 +39,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		ctx, cancel := localContext()
 		defer cancel()
 		tx, pending, err := client.TransactionByHash(ctx, txHash)
-		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 
 		if quiet {
 			os.Exit(0)

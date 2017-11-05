@@ -44,8 +44,8 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		ctx, cancel := localContext()
 		defer cancel()
 		tx, pending, err := client.TransactionByHash(ctx, txHash)
-		cli.ErrCheck(err, quiet, "Failed to obtain transaction")
-		cli.Assert(pending, quiet, "Transaction has already been mined")
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
+		cli.Assert(pending, quiet, fmt.Sprintf("Transaction %s has already been mined", txHash.Hex()))
 
 		minGasPrice := big.NewInt(0).Add(big.NewInt(0).Add(tx.GasPrice(), big.NewInt(0).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(10))
 		if viper.GetString("gasprice") == "" {
