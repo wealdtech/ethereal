@@ -41,7 +41,7 @@ var contractCallCmd = &cobra.Command{
 	Short: "Call a contract method",
 	Long: `Call a contract method.  For example:
 
-    ethereal contract call --contract= --abi= --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --signature="totalSupply()"
+   ethereal contract call --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --abi="./erc20.abi" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="totalSupply()"
 
 In quiet mode this will return 0 if the contract is successfully called, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -60,7 +60,8 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		var abi abi.ABI
 		if contractAbi == "" {
 			// See if we can fetch the ABI from ENS, one day
-			cli.Err(quiet, "--abi is required (if not present in ENS)")
+			// cli.Err(quiet, "--abi is required (if not present in ENS)")
+			cli.Err(quiet, "--abi is required")
 		} else {
 			cli.Assert(contractAbi != "", quiet, "--abi is required (if not present in ENS)")
 			abi, err = parseAbi(contractAbi)
@@ -74,9 +75,12 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 
 		methodName := contractCallCall[0:openBracketPos]
 
-		parser := csv.NewReader(strings.NewReader(contractCallCall[openBracketPos+1 : closeBracketPos]))
-		contractCallArgs, err := parser.Read()
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractCallCall))
+		var contractCallArgs []string
+		if openBracketPos+1 != closeBracketPos {
+			parser := csv.NewReader(strings.NewReader(contractCallCall[openBracketPos+1 : closeBracketPos]))
+			contractCallArgs, err = parser.Read()
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractCallCall))
+		}
 
 		method, exists := abi.Methods[methodName]
 		cli.Assert(exists, quiet, fmt.Sprintf("Method %s is unknown", methodName))
@@ -177,7 +181,7 @@ func stringToValue(arg abi.Argument, val string) (interface{}, error) {
 	case abi.ArrayTy:
 		return nil, fmt.Errorf("Unhandled type array (%s)", arg.Type.T)
 	case abi.AddressTy:
-		return common.StringToAddress(val), nil
+		return common.HexToAddress(val), nil
 	case abi.FixedBytesTy:
 		slice := make([]byte, arg.Type.Size)
 		var decoded []byte
@@ -264,7 +268,7 @@ func stringToValue(arg abi.Argument, val string) (interface{}, error) {
 			return hex.DecodeString(val)
 		}
 	case abi.HashTy:
-		return common.StringToHash(val), nil
+		return common.HexToHash(val), nil
 	case abi.FixedPointTy:
 		return nil, fmt.Errorf("Unhandled type %s", arg.Type.T)
 	case abi.FunctionTy:

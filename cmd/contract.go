@@ -14,6 +14,9 @@
 package cmd
 
 import (
+	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -40,6 +43,15 @@ func contractFlags(cmd *cobra.Command) {
 }
 
 func parseAbi(input string) (output abi.ABI, err error) {
-	reader := strings.NewReader(input)
+	var reader io.Reader
+	if strings.Contains(input, string(filepath.Separator)) {
+		// ABI value is a path
+		reader, err = os.Open(input)
+		if err != nil {
+			return
+		}
+	} else {
+		reader = strings.NewReader(input)
+	}
 	return abi.JSON(reader)
 }
