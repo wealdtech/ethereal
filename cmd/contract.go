@@ -39,7 +39,7 @@ func init() {
 
 func contractFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&contractStr, "contract", "", "address of the contract")
-	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI of the contract")
+	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI, or path to ABI, for the contract ")
 }
 
 func parseAbi(input string) (output abi.ABI, err error) {

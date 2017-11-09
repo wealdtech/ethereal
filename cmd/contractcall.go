@@ -52,15 +52,11 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 
 		// We need to have 'call', and either 'abi' or 'signature'
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
-
-		if contractAbi == "" {
-			// Contract ABI is missing; try to fetch it from ENS
-		}
+		// TODO handle 'signature'
 
 		var abi abi.ABI
 		if contractAbi == "" {
 			// See if we can fetch the ABI from ENS, one day
-			// cli.Err(quiet, "--abi is required (if not present in ENS)")
 			cli.Err(quiet, "--abi is required")
 		} else {
 			cli.Assert(contractAbi != "", quiet, "--abi is required (if not present in ENS)")
