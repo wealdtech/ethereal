@@ -49,3 +49,10 @@ ethereal token transfer --token=omg --from=0x5FfC014343cd971B7eb70732021E26C35B7
 where `token` is the token to transfer, `from` is the address from which the token will be transferred, `to` is the address to which the token will be transferred, `amount` is the amount of the token to transfer, `gasprice` is the price you want to set for gas, and `passphrase` is the passphrase for the `from` account.
 
 *Please note that before using a token name such as 'omg' you should confirm that the contract address matches the expected contract address by using `ethereal info --token=omg` or similar.*
+
+### Call a contract
+You want to obtain information directly from a contract using its ABI, for example call the `balanceOf()` call of an ERC-20 token.
+```
+ethereal contract call --abi='./erc20.abi' --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call='balanceOf(0x5FfC014343cd971B7eb70732021E26C35B744cc4)'
+```
+where `abi` is the path to the contract's ABI, `contract` is the address of the contract to call, and `call` is the ABI method to call.
