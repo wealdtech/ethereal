@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"strings"
@@ -26,6 +27,7 @@ import (
 
 var dnsGetResource string
 var dnsGetKey string
+var dnsGetWire bool
 
 // dnsGetCmd represents the dns get command
 var dnsGetCmd = &cobra.Command{
@@ -72,13 +74,18 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 			os.Exit(0)
 		}
 
-		// Decode the data resource record(s)
-		offset := 0
-		var result dns.RR
-		for offset < len(data) {
-			result, offset, err = dns.UnpackRR(data, offset)
-			fmt.Println(result)
+		if dnsGetWire {
+			fmt.Println(hex.EncodeToString(data))
+		} else {
+			// Decode the data resource record(s)
+			offset := 0
+			var result dns.RR
+			for offset < len(data) {
+				result, offset, err = dns.UnpackRR(data, offset)
+				fmt.Println(result)
+			}
 		}
+
 	},
 }
 
@@ -87,4 +94,5 @@ func init() {
 	dnsFlags(dnsGetCmd)
 	dnsGetCmd.Flags().StringVar(&dnsGetResource, "resource", "", "The resource (A, NS, CNAME etc.)")
 	dnsGetCmd.Flags().StringVar(&dnsGetKey, "key", "", "The key for the resource (\".\" for domain-level information)")
+	dnsGetCmd.Flags().BoolVar(&dnsGetWire, "wire", false, "Display the output as hex in wire format")
 }
