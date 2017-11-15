@@ -63,9 +63,6 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
-		// Ensure that this is a DNS resolver
-		// supportsDns, err := resolerContract.SupportsInterface(ID)
-
 		data, err := resolverContract.Dns(nil, node, resourceNum, dnsGetKey)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsGetResource, dnsGetKey, dnsDomain))
 		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsGetResource, dnsGetKey, dnsDomain))
@@ -93,6 +90,6 @@ func init() {
 	dnsCmd.AddCommand(dnsGetCmd)
 	dnsFlags(dnsGetCmd)
 	dnsGetCmd.Flags().StringVar(&dnsGetResource, "resource", "", "The resource (A, NS, CNAME etc.)")
-	dnsGetCmd.Flags().StringVar(&dnsGetKey, "key", "", "The key for the resource (\".\" for domain-level information)")
+	dnsGetCmd.Flags().StringVar(&dnsGetKey, "key", ".", "The key for the resource (\".\" for domain-level information)")
 	dnsGetCmd.Flags().BoolVar(&dnsGetWire, "wire", false, "Display the output as hex in wire format")
 }
