@@ -79,9 +79,6 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
-		// TODO Ensure that this is a DNS resolver
-		// supportsDns, err := resolerContract.SupportsInterface(nil, ID)
-
 		// Create the data resource record(s)
 		data := make([]byte, 16384)
 		offset := 0
@@ -142,7 +139,7 @@ func init() {
 	dnsFlags(dnsSetCmd)
 	dnsSetCmd.Flags().DurationVar(&dnsSetTtl, "ttl", time.Duration(0), "The time-to-live for the record")
 	dnsSetCmd.Flags().StringVar(&dnsSetResource, "resource", "", "The resource (A, NS, CNAME etc.)")
-	dnsSetCmd.Flags().StringVar(&dnsSetKey, "key", "", "The key for the resource (\".\" for domain-level information)")
+	dnsSetCmd.Flags().StringVar(&dnsSetKey, "key", ".", "The key for the resource (\".\" for domain-level information)")
 	dnsSetCmd.Flags().StringVar(&dnsSetValue, "value", "", "The value for the resource (separate multiple items with &&)")
 	addTransactionFlags(dnsSetCmd, "the owner of the domain")
 }
