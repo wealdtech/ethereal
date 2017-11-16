@@ -47,6 +47,11 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		ensDomain := strings.ToLower(dnsDomain) + ".domainmap.wealdtech.eth"
+		if dnsDomain == "." {
+			// Root is special
+			dnsDomain = ""
+			ensDomain = "domainmap.wealdtech.eth"
+		}
 
 		cli.Assert(dnsSetTtl != time.Duration(0), quiet, "--ttl is required")
 
@@ -91,7 +96,6 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				source = fmt.Sprintf("%s.%s. %d %s %s", dnsSetKey, dnsDomain, int(dnsSetTtl.Seconds()), dnsSetResource, value)
 			}
 			resource, err := dns.NewRR(source)
-			fmt.Println("Record is", source)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
 			offset, err = dns.PackRR(resource, data, offset, nil, false)
 		}

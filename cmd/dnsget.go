@@ -41,6 +41,11 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		ensDomain := strings.ToLower(dnsDomain) + ".domainmap.wealdtech.eth"
+		if dnsDomain == "." {
+			// Root is special
+			dnsDomain = ""
+			ensDomain = "domainmap.wealdtech.eth"
+		}
 		node := ens.NameHash(ensDomain)
 
 		cli.Assert(dnsGetResource != "", quiet, "--resource is required")
