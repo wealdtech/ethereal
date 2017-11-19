@@ -55,6 +55,10 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 							if err == nil {
 								fmt.Printf("Balance:\t%s\n", etherutils.WeiToString(balance, true))
 							}
+							nonce, err := client.PendingNonceAt(ctx, account.Address)
+							if err == nil {
+								fmt.Printf("Next nonce:\t%v\n", nonce)
+							}
 							fmt.Println("")
 						}
 					}
