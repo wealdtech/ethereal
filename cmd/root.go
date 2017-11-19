@@ -308,10 +308,17 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		signer = etherutils.KeySigner(chainID, key)
 	}
 
+	curNonce, err := currentNonce(sender)
+	if err != nil {
+		return
+	}
+	nonce = int64(curNonce)
+
 	opts = &bind.TransactOpts{
 		From:     sender,
 		Signer:   signer,
 		GasPrice: gasPrice,
+		Nonce:    big.NewInt(0).SetInt64(nonce),
 	}
 
 	if gasLimit != nil {
