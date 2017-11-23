@@ -50,13 +50,12 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		fromAddress, err := ens.Resolve(client, contractCallFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))
 
-		// We need to have 'call', and either 'abi' or 'signature'
+		// We need to have 'call' and 'abi'
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
-		// TODO handle 'signature'
 
 		var abi abi.ABI
 		if contractAbi == "" {
-			// See if we can fetch the ABI from ENS, one day
+			// TODO See if we can fetch the ABI from ENS
 			cli.Err(quiet, "--abi is required")
 		} else {
 			cli.Assert(contractAbi != "", quiet, "--abi is required (if not present in ENS)")
@@ -111,7 +110,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		}
 
 		abiOutput, err := unpack(abi, methodName, []byte(result))
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", "RewardEnd"))
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", methodName))
 		results := []string{}
 		for i, _ := range *abiOutput {
 			val, err := valueToString(method.Outputs[i], *((*abiOutput)[i]))
