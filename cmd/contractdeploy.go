@@ -84,7 +84,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 
 			var methodArgs []interface{}
 			for i, input := range method.Inputs {
-				val, err := contractStringToValue(input, contractDeployArgs[i])
+				val, err := contractStringToValue(input.Type, contractDeployArgs[i])
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to decode argument %s", contractDeployArgs[i]))
 				methodArgs = append(methodArgs, val)
 			}

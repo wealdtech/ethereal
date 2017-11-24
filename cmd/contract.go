@@ -86,22 +86,44 @@ func contractUnpack(abi abi.ABI, name string, data []byte) (result *[]*interface
 	return
 }
 
-func contractStringToValue(arg abi.Argument, val string) (interface{}, error) {
-	switch arg.Type.T {
+func contractStringToValue(argType abi.Type, val string) (interface{}, error) {
+	switch argType.T {
 	case abi.IntTy:
 		res := big.NewInt(0)
-		res, err := res.SetString(val, 10)
-		if err {
+		res, success := res.SetString(val, 10)
+		if !success {
 			return nil, fmt.Errorf("Bad integer %s", val)
 		}
-		return res, nil
+		switch argType.Size {
+		case 8:
+			return int8(res.Uint64()), nil
+		case 16:
+			return int16(res.Uint64()), nil
+		case 32:
+			return int32(res.Uint64()), nil
+		case 64:
+			return int64(res.Uint64()), nil
+		default:
+			return res, nil
+		}
 	case abi.UintTy:
 		res := big.NewInt(0)
-		res, err := res.SetString(val, 10)
-		if err {
+		res, success := res.SetString(val, 10)
+		if !success {
 			return nil, fmt.Errorf("Bad integer %s", val)
 		}
-		return res, nil
+		switch argType.Size {
+		case 8:
+			return uint8(res.Uint64()), nil
+		case 16:
+			return uint16(res.Uint64()), nil
+		case 32:
+			return uint32(res.Uint64()), nil
+		case 64:
+			return uint64(res.Uint64()), nil
+		default:
+			return res, nil
+		}
 	case abi.BoolTy:
 		if val == "true" || val == "True" || val == "1" {
 			return true, nil
@@ -111,13 +133,13 @@ func contractStringToValue(arg abi.Argument, val string) (interface{}, error) {
 	case abi.StringTy:
 		return val, nil
 	case abi.SliceTy:
-		return nil, fmt.Errorf("Unhandled type slice (%s)", arg.Type.T)
+		return nil, fmt.Errorf("Unhandled type slice (%s)", argType)
 	case abi.ArrayTy:
-		return nil, fmt.Errorf("Unhandled type array (%s)", arg.Type.T)
+		return nil, fmt.Errorf("Unhandled type array (%s)", argType)
 	case abi.AddressTy:
 		return common.HexToAddress(val), nil
 	case abi.FixedBytesTy:
-		slice := make([]byte, arg.Type.Size)
+		slice := make([]byte, argType.Size)
 		var decoded []byte
 		if strings.HasPrefix(val, "0x") {
 			decoded, err = hex.DecodeString(val[2:])
@@ -125,10 +147,10 @@ func contractStringToValue(arg abi.Argument, val string) (interface{}, error) {
 			decoded, err = hex.DecodeString(val)
 		}
 		if err == nil {
-			copy(slice[arg.Type.Size-len(decoded):arg.Type.Size], decoded)
+			copy(slice[argType.Size-len(decoded):argType.Size], decoded)
 		}
 		hdr := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
-		switch arg.Type.Size {
+		switch argType.Size {
 		case 1:
 			return *(*[1]uint8)(unsafe.Pointer(hdr.Data)), nil
 		case 2:
@@ -194,7 +216,7 @@ func contractStringToValue(arg abi.Argument, val string) (interface{}, error) {
 		case 32:
 			return *(*[32]uint8)(unsafe.Pointer(hdr.Data)), nil
 		}
-		return nil, fmt.Errorf("Invalid byte size %d", arg.Type.Size)
+		return nil, fmt.Errorf("Invalid byte size %d", argType.Size)
 	case abi.BytesTy:
 		if strings.HasPrefix(val, "0x") {
 			return hex.DecodeString(val[2:])
@@ -204,16 +226,16 @@ func contractStringToValue(arg abi.Argument, val string) (interface{}, error) {
 	case abi.HashTy:
 		return common.HexToHash(val), nil
 	case abi.FixedPointTy:
-		return nil, fmt.Errorf("Unhandled type %s", arg.Type.T)
+		return nil, fmt.Errorf("Unhandled type %v", argType)
 	case abi.FunctionTy:
-		return nil, fmt.Errorf("Unhandled type %s", arg.Type.T)
+		return nil, fmt.Errorf("Unhandled type %v", argType)
 	default:
-		return nil, fmt.Errorf("Unknown type %s", arg.Type.T)
+		return nil, fmt.Errorf("Unknown type %v", argType)
 	}
 }
 
-func contractValueToString(arg abi.Argument, val interface{}) (string, error) {
-	switch arg.Type.T {
+func contractValueToString(argType abi.Type, val interface{}) (string, error) {
+	switch argType.T {
 	case abi.IntTy:
 		return val.(*big.Int).String(), nil
 	case abi.UintTy:
@@ -227,22 +249,129 @@ func contractValueToString(arg abi.Argument, val interface{}) (string, error) {
 	case abi.StringTy:
 		return val.(string), nil
 	case abi.SliceTy:
-		return "", fmt.Errorf("Unhandled type %s", arg.Type.T)
+		return "", fmt.Errorf("Unhandled type %v", argType)
 	case abi.ArrayTy:
-		return "", fmt.Errorf("Unhandled type %s", arg.Type.T)
+		res := make([]string, 0)
+		arrayVal := reflect.ValueOf(val)
+		for i := 0; i < arrayVal.Len(); i++ {
+			elemRes, err := contractValueToString(*argType.Elem, arrayVal.Index(i).Interface())
+			if err != nil {
+				return "", err
+			}
+			res = append(res, elemRes)
+		}
+		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.AddressTy:
 		return val.(common.Address).Hex(), nil
 	case abi.FixedBytesTy:
-		return fmt.Sprintf("0x%s", hex.EncodeToString(val.([]byte))), nil
+		switch argType.Size {
+		case 1:
+			castVal := val.([1]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 2:
+			castVal := val.([2]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 3:
+			castVal := val.([3]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 4:
+			castVal := val.([4]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 5:
+			castVal := val.([5]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 6:
+			castVal := val.([6]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 7:
+			castVal := val.([7]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 8:
+			castVal := val.([8]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 9:
+			castVal := val.([9]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 10:
+			castVal := val.([10]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 11:
+			castVal := val.([11]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 12:
+			castVal := val.([12]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 13:
+			castVal := val.([13]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 14:
+			castVal := val.([14]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 15:
+			castVal := val.([15]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 16:
+			castVal := val.([16]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 17:
+			castVal := val.([17]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 18:
+			castVal := val.([18]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 19:
+			castVal := val.([19]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 20:
+			castVal := val.([20]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 21:
+			castVal := val.([21]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 22:
+			castVal := val.([22]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 23:
+			castVal := val.([23]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 24:
+			castVal := val.([24]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 25:
+			castVal := val.([25]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 26:
+			castVal := val.([26]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 27:
+			castVal := val.([27]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 28:
+			castVal := val.([28]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 29:
+			castVal := val.([29]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 30:
+			castVal := val.([30]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 31:
+			castVal := val.([32]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		case 32:
+			castVal := val.([32]byte)
+			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		}
+		return "", fmt.Errorf("Invalid byte size %d", argType.Size)
 	case abi.BytesTy:
 		return fmt.Sprintf("0x%s", hex.EncodeToString(val.([]byte))), nil
 	case abi.HashTy:
 		return val.(common.Hash).Hex(), nil
 	case abi.FixedPointTy:
-		return "", fmt.Errorf("Unhandled type %s", arg.Type.T)
+		return "", fmt.Errorf("Unhandled type %v", argType)
 	case abi.FunctionTy:
-		return "", fmt.Errorf("Unhandled type %s", arg.Type.T)
+		return "", fmt.Errorf("Unhandled type %v", argType)
 	default:
-		return "", fmt.Errorf("Unknown type %s", arg.Type.T)
+		return "", fmt.Errorf("Unknown type %v", argType)
 	}
 }

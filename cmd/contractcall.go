@@ -17,6 +17,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 
 	ethereum "github.com/ethereum/go-ethereum"
@@ -77,12 +78,18 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 
 		var methodArgs []interface{}
 		for i, input := range method.Inputs {
-			val, err := contractStringToValue(input, contractCallArgs[i])
+			val, err := contractStringToValue(input.Type, contractCallArgs[i])
 			cli.ErrCheck(err, quiet, "Failed to decode argument")
+			fmt.Printf("val is %v\n", val)
+			fmt.Printf("val type is %v\n", reflect.TypeOf(val))
 			methodArgs = append(methodArgs, val)
 		}
 
+		fmt.Printf("methodName is %v\n", methodName)
+		fmt.Printf("methodArgs is %v\n", methodArgs)
 		data, err := abi.Pack(methodName, methodArgs...)
+		cli.ErrCheck(err, quiet, "Failed to convert arguments")
+		fmt.Printf("data is %v\n", data)
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
 		contractAddress, err := ens.Resolve(client, contractStr)
@@ -108,7 +115,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", methodName))
 		results := []string{}
 		for i, _ := range *abiOutput {
-			val, err := contractValueToString(method.Outputs[i], *((*abiOutput)[i]))
+			val, err := contractValueToString(method.Outputs[i].Type, *((*abiOutput)[i]))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", *((*abiOutput)[i])))
 			results = append(results, val)
 		}
