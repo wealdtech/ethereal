@@ -195,7 +195,7 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("passphrase", "", fmt.Sprintf("passphrase for %s", explanation))
 	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
-	cmd.Flags().Int64("gaslimit", -1, "Gas limit for the transaction; -1 is auto-select")
+	cmd.Flags().Int64("gaslimit", 0, "Gas limit for the transaction; 0 is auto-select")
 	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 
