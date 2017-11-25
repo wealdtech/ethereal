@@ -17,10 +17,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/orinocopay/go-etherutils/cli"
 	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/wealdtech/ethereal/cli"
 )
 
 var accountNonceAddress string
