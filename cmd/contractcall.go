@@ -35,7 +35,7 @@ var contractCallReturns string
 var contractCallCmd = &cobra.Command{
 	Use:   "call",
 	Short: "Call a contract method",
-	Long: `Call a contract method.  For example:
+	Long: `Call a contract method against a local node (not transmitting to the blockchain).  For example:
 
    ethereal contract call --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --abi="./erc20.abi" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="totalSupply()"
 

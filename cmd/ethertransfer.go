@@ -41,6 +41,7 @@ var etherTransferCmd = &cobra.Command{
     ethereal ether transfer --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=1.5ether --passphrase=secret
 
 In quiet mode this will return 0 if the transfer transaction is successfully sent, otherwise 1.`,
+	Aliases: []string{"send"},
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(etherTransferFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, etherTransferFromAddress)
