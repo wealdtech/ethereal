@@ -101,7 +101,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		}
 
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, &contractAddress, amount, nil, data)
+		signedTx, err := createSignedTransaction(fromAddress, &contractAddress, amount, gasLimit, data)
 		cli.ErrCheck(err, quiet, "Failed to create contract method transaction")
 
 		if offline {
