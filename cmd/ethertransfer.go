@@ -20,11 +20,11 @@ import (
 	"os"
 	"strings"
 
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens"
+	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var etherTransferAmount string

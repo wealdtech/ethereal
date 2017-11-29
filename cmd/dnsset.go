@@ -22,10 +22,10 @@ import (
 	"time"
 
 	"github.com/miekg/dns"
-	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var dnsSetTtl time.Duration
@@ -46,11 +46,11 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
-		ensDomain := strings.ToLower(dnsDomain) + ".domainmap.wealdtech.eth"
+		ensDomain := ens.NormaliseDomain(dnsDomain)
 		if dnsDomain == "." {
 			// Root is special
 			dnsDomain = ""
-			ensDomain = "domainmap.wealdtech.eth"
+			ensDomain = ""
 		}
 
 		cli.Assert(dnsSetTtl != time.Duration(0), quiet, "--ttl is required")

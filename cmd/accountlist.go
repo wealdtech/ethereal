@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"os"
 
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens"
+	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 // accountListCmd represents the account list command

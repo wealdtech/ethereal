@@ -20,9 +20,9 @@ import (
 	"strings"
 
 	"github.com/miekg/dns"
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var dnsGetResource string
@@ -40,11 +40,11 @@ var dnsGetCmd = &cobra.Command{
 In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
-		ensDomain := strings.ToLower(dnsDomain) + ".domainmap.wealdtech.eth"
+		ensDomain := ens.NormaliseDomain(dnsDomain)
 		if dnsDomain == "." {
 			// Root is special
 			dnsDomain = ""
-			ensDomain = "domainmap.wealdtech.eth"
+			ensDomain = ""
 		}
 		node := ens.NameHash(ensDomain)
 

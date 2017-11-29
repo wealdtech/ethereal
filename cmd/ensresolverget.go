@@ -16,9 +16,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/orinocopay/go-etherutils/cli"
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 // ensResolverGetCmd represents the resolver get command
@@ -34,7 +34,7 @@ In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registrarContract, err := ens.RegistrarContract(client)
+		registrarContract, err := ens.RegistrarContract(client, ensDomain)
 		inState, err := ens.NameInState(registrarContract, client, ensDomain, "Owned")
 		cli.ErrAssert(inState, err, quiet, "Name not in a suitable state to obtain the resolver")
 

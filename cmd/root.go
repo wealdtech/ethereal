@@ -30,7 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	homedir "github.com/mitchellh/go-homedir"
-	etherutils "github.com/orinocopay/go-etherutils"
+	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

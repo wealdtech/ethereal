@@ -26,9 +26,9 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/orinocopay/go-etherutils/cli"
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var contractCallFromAddress string

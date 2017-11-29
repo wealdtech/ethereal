@@ -14,8 +14,8 @@
 package cmd
 
 import (
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var ensDomain string
@@ -29,7 +29,7 @@ var ensCmd = &cobra.Command{
 
 // Ensure that a domain is in a suitable state
 func inState(domain string, state string) (inState bool) {
-	registrarContract, err := ens.RegistrarContract(client)
+	registrarContract, err := ens.RegistrarContract(client, domain)
 	if err == nil {
 		inState, err = ens.NameInState(registrarContract, client, domain, state)
 		if err != nil {

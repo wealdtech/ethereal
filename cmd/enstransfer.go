@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/orinocopay/go-etherutils/cli"
-	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var ensTransferNewOwnerStr string
@@ -46,7 +46,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		cli.Assert(len(strings.Split(ensDomain, ".")) == 2, quiet, "Name must not contain . (except for ending in .eth)")
 
 		// Ensure that the name is in a suitable state
-		registrarContract, err := ens.RegistrarContract(client)
+		registrarContract, err := ens.RegistrarContract(client, ensDomain)
 		inState, err := ens.NameInState(registrarContract, client, ensDomain, "Owned")
 		cli.ErrAssert(inState, err, quiet, fmt.Sprintf("%s not in a suitable state to transfer", ensDomain))
 

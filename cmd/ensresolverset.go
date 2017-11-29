@@ -17,9 +17,9 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/orinocopay/go-etherutils/cli"
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var ensResolverSetResolverStr string
@@ -43,7 +43,7 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		// Ensure that the name is in a suitable state
-		if ens.DomainLevel(ensDomain) == 1 {
+		if ens.Tld(ensDomain) == "eth" && ens.DomainLevel(ensDomain) == 1 {
 			cli.Assert(inState(ensDomain, "Owned"), quiet, fmt.Sprintf("%s not in a suitable state to set a resolver", ensDomain))
 		}
 
