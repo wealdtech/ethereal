@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -88,7 +89,11 @@ In quiet mode this will return 0 if the account was successfully decoded, otherw
 
 		var key *ecdsa.PrivateKey
 		if accountKeysPrivateKey != "" {
-			key, err = crypto.HexToECDSA(accountKeysPrivateKey)
+			if strings.HasPrefix(accountKeysPrivateKey, "0x") {
+				key, err = crypto.HexToECDSA(accountKeysPrivateKey[2:])
+			} else {
+				key, err = crypto.HexToECDSA(accountKeysPrivateKey)
+			}
 			cli.ErrCheck(err, quiet, "Invalid private key")
 			if quiet {
 				os.Exit(0)
@@ -123,8 +128,8 @@ In quiet mode this will return 0 if the account was successfully decoded, otherw
 				os.Exit(0)
 			}
 		}
-		fmt.Printf("Private key:\t\t%s\n", key.D.Text(16))
-		fmt.Printf("Public key:\t\t%s\n", hex.EncodeToString(crypto.FromECDSAPub(&key.PublicKey)))
+		fmt.Printf("Private key:\t\t0x%032x\n", key.D)
+		fmt.Printf("Public key:\t\t0x%s\n", hex.EncodeToString(crypto.FromECDSAPub(&key.PublicKey)))
 		fmt.Printf("Ethereum address:\t%s\n", crypto.PubkeyToAddress(key.PublicKey).Hex())
 	},
 }
