@@ -80,16 +80,12 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		for i, input := range method.Inputs {
 			val, err := contractStringToValue(input.Type, contractCallArgs[i])
 			cli.ErrCheck(err, quiet, "Failed to decode argument")
-			fmt.Printf("val is %v\n", val)
-			fmt.Printf("val type is %v\n", reflect.TypeOf(val))
+			outputIf(verbose, fmt.Sprintf("input %d is %v (%v)", i, val, reflect.TypeOf(val)))
 			methodArgs = append(methodArgs, val)
 		}
 
-		fmt.Printf("methodName is %v\n", methodName)
-		fmt.Printf("methodArgs is %v\n", methodArgs)
 		data, err := abi.Pack(methodName, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
-		fmt.Printf("data is %v\n", data)
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
 		contractAddress, err := ens.Resolve(client, contractStr)
