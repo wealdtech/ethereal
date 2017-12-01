@@ -93,7 +93,12 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			if dnsSetKey == "." {
 				source = fmt.Sprintf("%s. %d %s %s", dnsDomain, int(dnsSetTtl.Seconds()), dnsSetResource, value)
 			} else {
-				source = fmt.Sprintf("%s.%s. %d %s %s", dnsSetKey, dnsDomain, int(dnsSetTtl.Seconds()), dnsSetResource, value)
+				if strings.HasSuffix(dnsSetKey, ".") {
+					// If the key ends with "." then it is considered fully-qualified
+					source = fmt.Sprintf("%s %d %s %s", dnsSetKey, int(dnsSetTtl.Seconds()), dnsSetResource, value)
+				} else {
+					source = fmt.Sprintf("%s.%s. %d %s %s", dnsSetKey, dnsDomain, int(dnsSetTtl.Seconds()), dnsSetResource, value)
+				}
 			}
 			resource, err := dns.NewRR(source)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))

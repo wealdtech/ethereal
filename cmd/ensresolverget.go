@@ -34,9 +34,9 @@ In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registrarContract, err := ens.RegistrarContract(client, ensDomain)
-		inState, err := ens.NameInState(registrarContract, client, ensDomain, "Owned")
-		cli.ErrAssert(inState, err, quiet, "Name not in a suitable state to obtain the resolver")
+		// registrarContract, err := ens.RegistrarContract(client, ensDomain)
+		// inState, err := ens.NameInState(registrarContract, client, ensDomain, "Owned")
+		// cli.ErrAssert(inState, err, quiet, "Name not in a suitable state to obtain the resolver")
 
 		registryContract, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
