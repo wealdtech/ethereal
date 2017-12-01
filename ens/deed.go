@@ -17,8 +17,8 @@ package ens
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/orinocopay/go-etherutils/ens/deedcontract"
-	"github.com/orinocopay/go-etherutils/ens/registrarcontract"
+	"github.com/wealdtech/ethereal/ens/deedcontract"
+	"github.com/wealdtech/ethereal/ens/registrarcontract"
 )
 
 // DeedContract obtains the deed contract at a particular address

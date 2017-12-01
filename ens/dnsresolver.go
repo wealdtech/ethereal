@@ -25,8 +25,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens/dnsresolvercontract"
+	"github.com/orinocopay/go-etherutils"
+	"github.com/wealdtech/ethereal/ens/dnsresolvercontract"
 )
 
 // CreateDnsResolverSession creates a session suitable for multiple calls

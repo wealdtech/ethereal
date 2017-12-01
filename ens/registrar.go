@@ -28,9 +28,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto/sha3"
 	"github.com/ethereum/go-ethereum/ethclient"
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens/registrarcontract"
-	"github.com/orinocopay/go-etherutils/ens/registrycontract"
+	"github.com/orinocopay/go-etherutils"
+	"github.com/wealdtech/ethereal/ens/registrarcontract"
+	"github.com/wealdtech/ethereal/ens/registrycontract"
 )
 
 func RegistrarContractAddress(client *ethclient.Client, domain string) (address common.Address, err error) {

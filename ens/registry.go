@@ -28,9 +28,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens/registrarcontract"
-	"github.com/orinocopay/go-etherutils/ens/registrycontract"
+	"github.com/orinocopay/go-etherutils"
+	"github.com/wealdtech/ethereal/ens/registrarcontract"
+	"github.com/wealdtech/ethereal/ens/registrycontract"
 )
 
 func RegistryContractAddress(client *ethclient.Client) (address common.Address, err error) {
@@ -71,6 +71,10 @@ func RegistryContract(client *ethclient.Client) (registry *registrycontract.Regi
 // RegistryContractFromRegistrar obtains the registry contract given an
 // existing registrar contract
 func RegistryContractFromRegistrar(client *ethclient.Client, registrar *registrarcontract.RegistrarContract) (registry *registrycontract.RegistryContract, err error) {
+	if registrar == nil {
+		err = errors.New("no registrar contract")
+		return
+	}
 	registryAddress, err := registrar.Ens(nil)
 	if err != nil {
 		return
@@ -81,6 +85,10 @@ func RegistryContractFromRegistrar(client *ethclient.Client, registrar *registra
 
 // Resolver obtains the address of the resolver for a .eth name
 func Resolver(contract *registrycontract.RegistryContract, name string) (address common.Address, err error) {
+	if contract == nil {
+		err = errors.New("no registry contract")
+		return
+	}
 	address, err = contract.Resolver(nil, NameHash(name))
 	if err == nil && bytes.Compare(address.Bytes(), UnknownAddress.Bytes()) == 0 {
 		err = errors.New("no resolver")

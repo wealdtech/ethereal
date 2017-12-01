@@ -28,8 +28,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens/resolvercontract"
+	"github.com/orinocopay/go-etherutils"
+	"github.com/wealdtech/ethereal/ens/resolvercontract"
 )
 
 var zeroHash = make([]byte, 32)

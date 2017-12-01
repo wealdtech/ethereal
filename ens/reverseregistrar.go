@@ -24,8 +24,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens/reverseregistrarcontract"
+	"github.com/orinocopay/go-etherutils"
+	"github.com/wealdtech/ethereal/ens/reverseregistrarcontract"
 )
 
 // ReverseRegistrarContract obtains the reverse registrar contract for a chain

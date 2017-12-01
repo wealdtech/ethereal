@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/ethclient"
-	etherutils "github.com/orinocopay/go-etherutils"
+	"github.com/orinocopay/go-etherutils"
 	"github.com/stretchr/testify/assert"
 )
 
