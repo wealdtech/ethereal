@@ -73,7 +73,7 @@ func contractUnpack(abi abi.ABI, name string, data []byte) (result *[]*interface
 	if len(method.Outputs) == 0 {
 		return
 	} else if len(method.Outputs) == 1 {
-		output := reflect.New(method.Outputs[0].Type.Type.Elem()).Elem().Interface()
+		output := reflect.New(method.Outputs[0].Type.Type).Elem().Interface()
 		err = abi.Unpack(&output, name, data)
 		res = append(res, &output)
 	} else {
