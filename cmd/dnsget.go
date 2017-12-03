@@ -26,7 +26,7 @@ import (
 )
 
 var dnsGetResource string
-var dnsGetKey string
+var dnsGetName string
 var dnsGetWire bool
 
 // dnsGetCmd represents the dns get command
@@ -35,18 +35,28 @@ var dnsGetCmd = &cobra.Command{
 	Short: "Get a value for a DNS record",
 	Long: `Get a value for a DNS resource record.  For example:
 
-    ethereal dns get --domain=wealdtech.eth --resource=A
+    ethereal dns get --zone=wealdtech.eth --resource=A
 
 In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(dnsDomain != "", quiet, "--domain is required")
-		ensDomain := ens.NormaliseDomain(dnsDomain)
-		if dnsDomain == "." {
-			// Root is special
-			dnsDomain = ""
-			ensDomain = ""
+		cli.Assert(dnsDomain != "", quiet, "--zone is required")
+		if !strings.HasSuffix(dnsDomain, ".") {
+			dnsDomain = dnsDomain + "."
 		}
-		node := ens.NameHash(ensDomain)
+		dnsDomain = ens.NormaliseDomain(dnsDomain)
+
+		dnsGetName = strings.ToLower(dnsGetName)
+		if dnsGetName == "" {
+			dnsGetName = dnsDomain
+		} else {
+			if !strings.HasSuffix(dnsGetName, ".") {
+				dnsGetName = dnsGetName + "." + dnsDomain
+			}
+		}
+		ensZone := strings.TrimSuffix(dnsDomain, ".")
+
+		zoneHash := ens.NameHash(ensZone)
+		// nameHash := ens.LabelHash(dnsGetName)
 
 		cli.Assert(dnsGetResource != "", quiet, "--resource is required")
 		dnsGetResource := strings.ToUpper(dnsGetResource)
@@ -54,23 +64,20 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsGetResource))
 		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsGetResource, resourceNum))
 
-		cli.Assert(dnsGetKey != "", quiet, "--key is required")
-		dnsGetKey = strings.ToLower(dnsGetKey)
-
 		// Obtain the registry contract
 		registryContract, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Obtain resolver for the domain
-		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
+		resolverAddress, err := ens.Resolver(registryContract, ensZone)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
 		resolverContract, err := ens.DnsResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
-		data, err := resolverContract.Dns(nil, node, resourceNum, dnsGetKey)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsGetResource, dnsGetKey, dnsDomain))
-		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsGetResource, dnsGetKey, dnsDomain))
+		data, err := resolverContract.Dns(nil, zoneHash, resourceNum, dnsGetName)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsGetResource, dnsGetName, dnsDomain))
+		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsGetResource, dnsGetName, dnsDomain))
 
 		if quiet {
 			os.Exit(0)
@@ -95,6 +102,6 @@ func init() {
 	dnsCmd.AddCommand(dnsGetCmd)
 	dnsFlags(dnsGetCmd)
 	dnsGetCmd.Flags().StringVar(&dnsGetResource, "resource", "", "The resource (A, NS, CNAME etc.)")
-	dnsGetCmd.Flags().StringVar(&dnsGetKey, "key", ".", "The key for the resource (\".\" for domain-level information)")
+	dnsGetCmd.Flags().StringVar(&dnsGetName, "name", "", "The name for the resource (end with \".\" for fully-qualified domain, otherwise zone will be added)")
 	dnsGetCmd.Flags().BoolVar(&dnsGetWire, "wire", false, "Display the output as hex in wire format")
 }
