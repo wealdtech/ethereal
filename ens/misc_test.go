@@ -14,6 +14,7 @@ func TestNormaliseDomain(t *testing.T) {
 		{"eth", "eth"},
 		{"ETH", "eth"},
 		{".eth", ".eth"},
+		{".eth.", ".eth."},
 		{"wealdtech.eth", "wealdtech.eth"},
 		{".wealdtech.eth", ".wealdtech.eth"},
 		{"subdomain.wealdtech.eth", "subdomain.wealdtech.eth"},

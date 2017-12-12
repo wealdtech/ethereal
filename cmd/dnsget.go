@@ -23,10 +23,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util"
 )
 
-var dnsGetResource string
-var dnsGetName string
 var dnsGetWire bool
 
 // dnsGetCmd represents the dns get command
@@ -39,45 +38,49 @@ var dnsGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(dnsDomain != "", quiet, "--zone is required")
+		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
+
+		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		if !strings.HasSuffix(dnsDomain, ".") {
 			dnsDomain = dnsDomain + "."
 		}
 		dnsDomain = ens.NormaliseDomain(dnsDomain)
+		outputIf(verbose, fmt.Sprintf("DNS domain is %s", dnsDomain))
+		ensDomain := strings.TrimSuffix(dnsDomain, ".")
+		outputIf(verbose, fmt.Sprintf("ENS domain is %s", ensDomain))
+		domainHash := ens.NameHash(ensDomain)
 
-		dnsGetName = strings.ToLower(dnsGetName)
-		if dnsGetName == "" {
-			dnsGetName = dnsDomain
+		dnsName = strings.ToLower(dnsName)
+		if dnsName == "" {
+			dnsName = dnsDomain
 		} else {
-			if !strings.HasSuffix(dnsGetName, ".") {
-				dnsGetName = dnsGetName + "." + dnsDomain
+			if !strings.HasSuffix(dnsName, ".") {
+				dnsName = dnsName + "." + dnsDomain
 			}
 		}
-		ensZone := strings.TrimSuffix(dnsDomain, ".")
+		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
+		nameHash := util.DnsDomainHash(dnsName)
 
-		zoneHash := ens.NameHash(ensZone)
-		// nameHash := ens.LabelHash(dnsGetName)
-
-		cli.Assert(dnsGetResource != "", quiet, "--resource is required")
-		dnsGetResource := strings.ToUpper(dnsGetResource)
-		resourceNum, exists := stringToType[dnsGetResource]
-		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsGetResource))
-		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsGetResource, resourceNum))
+		cli.Assert(dnsResource != "", quiet, "--resource is required")
+		dnsResource := strings.ToUpper(dnsResource)
+		resourceNum, exists := stringToType[dnsResource]
+		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
+		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
 
 		// Obtain the registry contract
 		registryContract, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Obtain resolver for the domain
-		resolverAddress, err := ens.Resolver(registryContract, ensZone)
+		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
 		resolverContract, err := ens.DnsResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
-		data, err := resolverContract.Dns(nil, zoneHash, resourceNum, dnsGetName)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsGetResource, dnsGetName, dnsDomain))
-		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsGetResource, dnsGetName, dnsDomain))
+		data, err := resolverContract.DnsRecord(nil, domainHash, nameHash, resourceNum)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsResource, dnsName, dnsDomain))
+		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 
 		if quiet {
 			os.Exit(0)
@@ -101,7 +104,5 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 func init() {
 	dnsCmd.AddCommand(dnsGetCmd)
 	dnsFlags(dnsGetCmd)
-	dnsGetCmd.Flags().StringVar(&dnsGetResource, "resource", "", "The resource (A, NS, CNAME etc.)")
-	dnsGetCmd.Flags().StringVar(&dnsGetName, "name", "", "The name for the resource (end with \".\" for fully-qualified domain, otherwise zone will be added)")
 	dnsGetCmd.Flags().BoolVar(&dnsGetWire, "wire", false, "Display the output as hex in wire format")
 }

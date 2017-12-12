@@ -26,7 +26,7 @@ import (
 var client, _ = ethclient.Dial("https://ropsten.orinocopay.com:8546/")
 
 func TestSealBid1(t *testing.T) {
-	contract, err := RegistrarContract(client)
+	contract, err := RegistrarContract(client, "eth")
 	assert.Nil(t, err, "Failed to obtain contract")
 
 	address, err := Resolve(client, "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1")

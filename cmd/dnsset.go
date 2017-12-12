@@ -26,20 +26,19 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var dnsSetTtl time.Duration
-var dnsSetResource string
-var dnsSetName string
 var dnsSetValue string
 
 // dnsSetCmd represents the dns set command
 var dnsSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set a value for a DNS record",
-	Long: `Set a value for a DNS resource record.  For example to set the A record for www.wealdtech.eth to 193.62.81.1:
+	Long: `Set a value for a DNS record.  For example to set the A record for www.wealdtech.eth to 193.62.81.1:
 
-    ethereal dns set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --value=193.62.81.1 --passphrase=secret
+    ethereal dns record set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --value=193.62.81.1 --passphrase=secret
 
 In quiet mode this will return 0 if the set transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -53,29 +52,26 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		outputIf(verbose, fmt.Sprintf("DNS domain is %s", dnsDomain))
 		ensDomain := strings.TrimSuffix(dnsDomain, ".")
 		outputIf(verbose, fmt.Sprintf("ENS domain is %s", ensDomain))
+		domainHash := ens.NameHash(ensDomain)
 
-		dnsSetName = strings.ToLower(dnsSetName)
-		if dnsSetName == "" {
-			dnsSetName = dnsDomain
+		dnsName = strings.ToLower(dnsName)
+		if dnsName == "" {
+			dnsName = dnsDomain
 		} else {
-			if !strings.HasSuffix(dnsSetName, ".") {
-				dnsSetName = dnsSetName + "." + dnsDomain
+			if !strings.HasSuffix(dnsName, ".") {
+				dnsName = dnsName + "." + dnsDomain
 			}
 		}
-		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsSetName))
-
-		domainHash := ens.NameHash(ensDomain)
+		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
+		nameHash := util.DnsDomainHash(dnsName)
 
 		cli.Assert(dnsSetTtl != time.Duration(0), quiet, "--ttl is required")
 
-		cli.Assert(dnsSetResource != "", quiet, "--resource is required")
-		dnsSetResource := strings.ToUpper(dnsSetResource)
-		resourceNum, exists := stringToType[dnsSetResource]
-		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsSetResource))
-		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsSetResource, resourceNum))
-
-		cli.Assert(dnsSetName != "", quiet, "--key is required")
-		dnsSetName = strings.ToLower(dnsSetName)
+		cli.Assert(dnsResource != "", quiet, "--resource is required")
+		dnsResource := strings.ToUpper(dnsResource)
+		resourceNum, exists := stringToType[dnsResource]
+		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
+		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
 
 		cli.Assert(dnsSetValue != "", quiet, "--value is required")
 
@@ -101,17 +97,33 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		offset := 0
 		values := strings.Split(dnsSetValue, "&&")
 		for _, value := range values {
-			source := fmt.Sprintf("%s %d %s %s", dnsSetName, int(dnsSetTtl.Seconds()), dnsSetResource, value)
+			source := fmt.Sprintf("%s %d %s %s", dnsName, int(dnsSetTtl.Seconds()), dnsResource, value)
 			resource, err := dns.NewRR(source)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
 			offset, err = dns.PackRR(resource, data, offset, nil, false)
 		}
 		data = data[0:offset]
 
+		// Obtain the current SOA
+		curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DnsDomainHash(dnsDomain), dns.TypeSOA)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
+		var soaData []byte
+		if len(curSoaData) > 0 {
+			// We have an SOA so increment the serial
+			soaRr, _, err := dns.UnpackRR(curSoaData, 0)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
+			outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
+			soaRr.(*dns.SOA).Serial += 1
+			outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
+			soaData = make([]byte, 16384)
+			offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
+			soaData = soaData[0:offset]
+		}
+
 		// Send the transaction
 		opts, err := generateTxOpts(domainOwner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		signedTx, err := resolverContract.SetDns(opts, domainHash, resourceNum, dnsSetName, data)
+		signedTx, err := resolverContract.SetDnsRecord(opts, domainHash, nameHash, resourceNum, data, soaData)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		if offline {
@@ -124,9 +136,9 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			log.WithFields(log.Fields{
 				"group":         "dns",
 				"command":       "set",
-				"resource":      dnsSetResource,
+				"resource":      dnsResource,
 				"domain":        dnsDomain,
-				"name":          dnsSetName,
+				"name":          dnsName,
 				"value":         dnsSetValue,
 				"ttl":           dnsSetTtl,
 				"owner":         domainOwner,
@@ -149,8 +161,6 @@ func init() {
 	dnsCmd.AddCommand(dnsSetCmd)
 	dnsFlags(dnsSetCmd)
 	dnsSetCmd.Flags().DurationVar(&dnsSetTtl, "ttl", time.Duration(0), "The time-to-live for the record")
-	dnsSetCmd.Flags().StringVar(&dnsSetResource, "resource", "", "The resource (A, NS, CNAME etc.)")
-	dnsSetCmd.Flags().StringVar(&dnsSetName, "name", "", "The name for the resource (end with \".\" for fully-qualified domain, otherwise zone will be added)")
 	dnsSetCmd.Flags().StringVar(&dnsSetValue, "value", "", "The value for the resource (separate multiple items with &&)")
 	addTransactionFlags(dnsSetCmd, "the owner of the domain")
 }

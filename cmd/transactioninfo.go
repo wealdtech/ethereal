@@ -35,6 +35,7 @@ var transactionInfoCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 		ctx, cancel := localContext()
 		defer cancel()
@@ -104,6 +105,6 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 }
 
 func init() {
-	transactionFlags(transactionInfoCmd)
 	transactionCmd.AddCommand(transactionInfoCmd)
+	transactionFlags(transactionInfoCmd)
 }

@@ -19,6 +19,78 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "nodeEntriesCount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "name": "resource",
+        "type": "uint16"
+      },
+      {
+        "name": "soaData",
+        "type": "bytes"
+      }
+    ],
+    "name": "clearDnsRecord",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "name": "records",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -192,52 +264,22 @@
     "type": "function"
   },
   {
-    "constant": false,
+    "constant": true,
     "inputs": [
       {
         "name": "node",
         "type": "bytes32"
       },
       {
-        "name": "rr",
-        "type": "uint16"
-      },
-      {
-        "name": "key",
-        "type": "string"
-      },
-      {
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "setDns",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "uint16"
-      },
-      {
-        "name": "",
+        "name": "name",
         "type": "bytes32"
       }
     ],
-    "name": "dnsRecords",
+    "name": "nameEntries",
     "outputs": [
       {
-        "name": "",
-        "type": "bytes"
+        "name": "entries",
+        "type": "uint16"
       }
     ],
     "payable": false,
@@ -266,19 +308,72 @@
     "constant": true,
     "inputs": [
       {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "nameEntriesCount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "node",
         "type": "bytes32"
       },
       {
-        "name": "rr",
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "name": "resource",
         "type": "uint16"
       },
       {
-        "name": "key",
-        "type": "string"
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "name": "soaData",
+        "type": "bytes"
       }
     ],
-    "name": "dns",
+    "name": "setDnsRecord",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "name": "resource",
+        "type": "uint16"
+      }
+    ],
+    "name": "dnsRecord",
     "outputs": [
       {
         "name": "data",
@@ -324,6 +419,25 @@
       {
         "name": "y",
         "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      }
+    ],
+    "name": "nodeEntries",
+    "outputs": [
+      {
+        "name": "entries",
+        "type": "uint16"
       }
     ],
     "payable": false,

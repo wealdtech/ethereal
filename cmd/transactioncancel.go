@@ -45,6 +45,7 @@ The cancellation transaction will cost 21000 gas.
 
 In quiet mode this will return 0 if the cancel transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 		ctx, cancel := localContext()
 		defer cancel()
