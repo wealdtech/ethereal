@@ -31,6 +31,7 @@ import (
 
 var dnsSetTtl time.Duration
 var dnsSetValue string
+var dnsSetNoSoa bool
 
 // dnsSetCmd represents the dns set command
 var dnsSetCmd = &cobra.Command{
@@ -104,20 +105,22 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		}
 		data = data[0:offset]
 
-		// Obtain the current SOA
-		curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DnsDomainHash(dnsDomain), dns.TypeSOA)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
 		var soaData []byte
-		if len(curSoaData) > 0 {
-			// We have an SOA so increment the serial
-			soaRr, _, err := dns.UnpackRR(curSoaData, 0)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
-			outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
-			soaRr.(*dns.SOA).Serial += 1
-			outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
-			soaData = make([]byte, 16384)
-			offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
-			soaData = soaData[0:offset]
+		if !dnsSetNoSoa {
+			// Obtain the current SOA
+			curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DnsDomainHash(dnsDomain), dns.TypeSOA)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
+			if len(curSoaData) > 0 {
+				// We have an SOA so increment the serial
+				soaRr, _, err := dns.UnpackRR(curSoaData, 0)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
+				outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
+				soaRr.(*dns.SOA).Serial += 1
+				outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
+				soaData = make([]byte, 16384)
+				offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
+				soaData = soaData[0:offset]
+			}
 		}
 
 		// Send the transaction
@@ -162,5 +165,6 @@ func init() {
 	dnsFlags(dnsSetCmd)
 	dnsSetCmd.Flags().DurationVar(&dnsSetTtl, "ttl", time.Duration(0), "The time-to-live for the record")
 	dnsSetCmd.Flags().StringVar(&dnsSetValue, "value", "", "The value for the resource (separate multiple items with &&)")
+	dnsSetCmd.Flags().BoolVar(&dnsSetNoSoa, "nosoa", false, "Do not update the zone's SOA record")
 	addTransactionFlags(dnsSetCmd, "the owner of the domain")
 }
