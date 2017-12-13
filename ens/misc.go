@@ -14,9 +14,13 @@ func DomainLevel(name string) (level int) {
 
 // Normalise an ENS domain
 func NormaliseDomain(domain string) string {
+	wildcard := false
+	if strings.HasPrefix(domain, "*.") {
+		wildcard = true
+		domain = domain[2:]
+	}
 	output, err := p.ToUnicode(strings.ToLower(domain))
 	if err != nil {
-		// TODO find out why ToUnicode() might fail and handle it here
 		panic("ENS domain normalisation failed")
 	}
 
@@ -25,6 +29,10 @@ func NormaliseDomain(domain string) string {
 		output = "." + output
 	}
 
+	// If we removed a wildcard then add it back
+	if wildcard {
+		output = "*." + output
+	}
 	return output
 }
 

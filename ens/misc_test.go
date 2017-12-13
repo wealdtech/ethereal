@@ -18,6 +18,7 @@ func TestNormaliseDomain(t *testing.T) {
 		{"wealdtech.eth", "wealdtech.eth"},
 		{".wealdtech.eth", ".wealdtech.eth"},
 		{"subdomain.wealdtech.eth", "subdomain.wealdtech.eth"},
+		{"*.wealdtech.eth", "*.wealdtech.eth"},
 	}
 
 	for _, tt := range tests {

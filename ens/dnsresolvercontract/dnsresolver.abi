@@ -19,25 +19,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "nodeEntriesCount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -207,6 +188,29 @@
         "type": "bytes32"
       },
       {
+        "name": "name",
+        "type": "bytes32"
+      }
+    ],
+    "name": "hasDnsRecords",
+    "outputs": [
+      {
+        "name": "hasRecords",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
         "name": "key",
         "type": "string"
       }
@@ -257,29 +261,6 @@
       {
         "name": "ret",
         "type": "string"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "node",
-        "type": "bytes32"
-      },
-      {
-        "name": "name",
-        "type": "bytes32"
-      }
-    ],
-    "name": "nameEntries",
-    "outputs": [
-      {
-        "name": "entries",
-        "type": "uint16"
       }
     ],
     "payable": false,
@@ -385,6 +366,44 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "node",
+        "type": "bytes32"
+      }
+    ],
+    "name": "hasDnsZone",
+    "outputs": [
+      {
+        "name": "hasRecords",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "soaRecords",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -419,25 +438,6 @@
       {
         "name": "y",
         "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "node",
-        "type": "bytes32"
-      }
-    ],
-    "name": "nodeEntries",
-    "outputs": [
-      {
-        "name": "entries",
-        "type": "uint16"
       }
     ],
     "payable": false,
