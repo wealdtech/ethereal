@@ -40,6 +40,7 @@ If no gas price is supplied then it will default to 10% higher than the current 
 
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 		ctx, cancel := localContext()
 		defer cancel()

@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
 )
 

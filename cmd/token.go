@@ -18,8 +18,8 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util/contracts"
 )
 

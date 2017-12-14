@@ -20,9 +20,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 // transactionInfoCmd represents the transaction info command
@@ -35,6 +35,7 @@ var transactionInfoCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 		ctx, cancel := localContext()
 		defer cancel()
@@ -104,6 +105,6 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 }
 
 func init() {
-	transactionFlags(transactionInfoCmd)
 	transactionCmd.AddCommand(transactionInfoCmd)
+	transactionFlags(transactionInfoCmd)
 }
