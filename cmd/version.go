@@ -22,12 +22,12 @@ import (
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "version of Ethereal",
+	Short: "Version of Ethereal",
 	Long: `Obtain the version of Ethereal.  For example:
 
     ethereal version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("1.1.112-dns")
+		fmt.Println("1.2.128")
 	},
 }
 

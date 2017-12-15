@@ -1,0 +1,19 @@
+NONCE=`./ethereal account nonce --address=0x388ea662ef2c223ec0b047d41bf3c0f362142ad5 --connection=https://ropsten.orinocopay.com:8546/`
+
+# ./ethereal ens resolver set --connection=https://ropsten.orinocopay.com:8546/ --domain=ensdns.xyz --resolver=0x0B05B9E763c8dc6A196AB08Ee24a4151e9a5EA10 --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+# exit
+
+./ethereal --connection=https://ropsten.orinocopay.com:8546/ dns set --domain=ensdns.xyz --ttl="6h" --resource=SOA --value="ns1.ensdns.xyz hostmaster.ensdns.xyz 1 3600 600 604800 300" --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
+./ethereal dns set --connection=https://ropsten.orinocopay.com:8546/ --domain=ensdns.xyz --ttl="12h" --resource=NS --value='ns1.ensdns.xyz&&ns2.ensdns.xyz' --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
+./ethereal --connection=https://ropsten.orinocopay.com:8546/ dns set --domain=ensdns.xyz --ttl="6h" --resource=A --name=ns1 --value="145.239.72.102" --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
+./ethereal --connection=https://ropsten.orinocopay.com:8546/ dns set --domain=ensdns.xyz --ttl="6h" --resource=A --name=ns2 --value="212.47.248.33" --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
+./ethereal --connection=https://ropsten.orinocopay.com:8546/ dns set --domain=ensdns.xyz --ttl="6h" --resource=A --value="212.47.248.33" --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
+./ethereal --connection=https://ropsten.orinocopay.com:8546/ dns set --domain=ensdns.xyz --ttl="6h" --resource=CNAME --name=www --value=ensdns.xyz. --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
+./ethereal --connection=https://ropsten.orinocopay.com:8546/ dns set --domain=ensdns.xyz --name="*" --ttl="6h" --resource=CNAME --value=www.ensdns.xyz. --passphrase=throwaway --nonce=$NONCE && NONCE=$((NONCE+1))
+
