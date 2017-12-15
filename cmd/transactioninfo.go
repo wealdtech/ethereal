@@ -62,6 +62,11 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			ctx, cancel := localContext()
 			defer cancel()
 			receipt, err = client.TransactionReceipt(ctx, txHash)
+			if receipt.Status == 0 {
+				fmt.Printf("Result:\t\tFailed\n")
+			} else {
+				fmt.Printf("Result:\t\tSucceeded\n")
+			}
 		}
 
 		fromAddress, err := txFrom(tx)
