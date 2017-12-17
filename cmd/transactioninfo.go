@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"fmt"
+	"math/big"
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -23,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util"
 )
 
 // transactionInfoCmd represents the transaction info command
@@ -62,10 +64,12 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			ctx, cancel := localContext()
 			defer cancel()
 			receipt, err = client.TransactionReceipt(ctx, txHash)
+			// TODO need the block number to calculate the status?
+			// Any other way to recognise non-Byzantium receipts?
 			if receipt.Status == 0 {
-				fmt.Printf("Result:\t\tFailed\n")
+				fmt.Printf("Result:\t\t\tFailed\n")
 			} else {
-				fmt.Printf("Result:\t\tSucceeded\n")
+				fmt.Printf("Result:\t\t\tSucceeded\n")
 			}
 		}
 
@@ -100,12 +104,37 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		}
 
 		fmt.Printf("Nonce:\t\t\t%v\n", tx.Nonce())
+		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
 		fmt.Printf("Gas limit:\t\t%v\n", tx.Gas())
 		if receipt != nil {
 			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
+			fmt.Printf("Gas cost:\t\t%v\n", etherutils.WeiToString(big.NewInt(0).Mul(tx.GasPrice(), receipt.GasUsed), true))
 		}
-		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
 		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
+
+		if receipt != nil && len(receipt.Logs) != 0 {
+			if !verbose {
+				fmt.Printf("Log entries:\t\t%v\n", len(receipt.Logs))
+			} else {
+				fmt.Println("Logs")
+				util.InitLogDefinitions()
+				for i, log := range receipt.Logs {
+					logDefinition := util.LogDefinitions[log.Topics[0]]
+					if logDefinition == nil {
+						fmt.Printf(" %3d:\t\t\tUnknown(", i)
+						for j := 1; j < len(log.Topics); j++ {
+							if j > 1 {
+								fmt.Printf(",")
+							}
+							fmt.Printf("%s", log.Topics[j].Hex())
+						}
+						fmt.Printf(")\n")
+					} else {
+						fmt.Println(logDefinition.Signature)
+					}
+				}
+			}
+		}
 	},
 }
 
