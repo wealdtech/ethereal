@@ -58,8 +58,11 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		// Obtain the amount of gas required to send the transaction, and calculate the amount to send
 		gas, err := estimateGas(fromAddress, &toAddress, balance, nil)
 		cli.ErrCheck(err, quiet, "Failed to estimate gas required to sweep funds")
-		amount := balance.Sub(balance, gasPrice.Mul(gasPrice, big.NewInt(int64(gas))))
-		outputIf(verbose, fmt.Sprintf("Sweeping %s\n", etherutils.WeiToString(amount, true)))
+		outputIf(verbose, fmt.Sprintf("Gas estimation is %v", gas))
+		gasCost := big.NewInt(0).Mul(big.NewInt(int64(gas)), gasPrice)
+		outputIf(verbose, fmt.Sprintf("Gas cost is %v", etherutils.WeiToString(gasCost, true)))
+		amount := balance.Sub(balance, gasCost)
+		outputIf(verbose, fmt.Sprintf("Sweeping %s", etherutils.WeiToString(amount, true)))
 
 		// Create and sign the transaction
 		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, gasLimit, nil)
