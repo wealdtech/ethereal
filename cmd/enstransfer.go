@@ -39,7 +39,6 @@ The keystore for the address must be local (i.e. listed with 'get accounts list'
 In quiet mode this will return 0 if the transaction to transfer the name is sent successfully, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
-
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 		cli.Assert(ensTransferNewOwnerStr != "", quiet, "--address is required")
 		cli.Assert(len(ensDomain) > 10, quiet, "Domain must be at least 7 characters long")

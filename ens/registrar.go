@@ -15,7 +15,6 @@
 package ens
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 	"math/rand"
@@ -89,7 +88,7 @@ func CreateRegistrarSession(chainID *big.Int, wallet *accounts.Wallet, account *
 func SealBid(name string, owner *common.Address, amount big.Int, salt string) (hash common.Hash, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 	domainHash := LabelHash(domain)
@@ -111,7 +110,7 @@ func SealBid(name string, owner *common.Address, amount big.Int, salt string) (h
 func StartAuction(session *registrarcontract.RegistrarContractSession, name string) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 
@@ -123,7 +122,7 @@ func StartAuction(session *registrarcontract.RegistrarContractSession, name stri
 func StartAuctionAndBid(session *registrarcontract.RegistrarContractSession, name string, owner *common.Address, amount big.Int, salt string, dummies int) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 
@@ -154,7 +153,7 @@ func StartAuctionAndBid(session *registrarcontract.RegistrarContractSession, nam
 func InvalidateName(session *registrarcontract.RegistrarContractSession, name string) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 
@@ -177,7 +176,7 @@ func NewBid(session *registrarcontract.RegistrarContractSession, name string, ow
 func RevealBid(session *registrarcontract.RegistrarContractSession, name string, owner *common.Address, amount big.Int, salt string) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 	domainHash := LabelHash(domain)
@@ -192,7 +191,7 @@ func RevealBid(session *registrarcontract.RegistrarContractSession, name string,
 func FinishAuction(session *registrarcontract.RegistrarContractSession, name string) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 
@@ -203,7 +202,7 @@ func FinishAuction(session *registrarcontract.RegistrarContractSession, name str
 func Transfer(session *registrarcontract.RegistrarContractSession, name string, to common.Address) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 
@@ -215,7 +214,7 @@ func Transfer(session *registrarcontract.RegistrarContractSession, name string, 
 func Entry(contract *registrarcontract.RegistrarContract, client *ethclient.Client, name string) (state string, deedAddress common.Address, registrationDate time.Time, value *big.Int, highestBid *big.Int, err error) {
 	domain, err := Domain(name)
 	if err != nil {
-		err = errors.New("invalid name")
+		err = fmt.Errorf("invalid name")
 		return
 	}
 
@@ -276,21 +275,21 @@ func NameInState(contract *registrarcontract.RegistrarContract, client *ethclien
 		} else {
 			switch state {
 			case "Available":
-				err = errors.New("this name has not been auctioned")
+				err = fmt.Errorf("this name has not been auctioned")
 			case "Bidding":
-				err = errors.New("this name is being auctioned")
+				err = fmt.Errorf("this name is being auctioned")
 			case "Won":
-				err = errors.New("this name's auction has finished")
+				err = fmt.Errorf("this name's auction has finished")
 			case "Owned":
-				err = errors.New("this name is owned")
+				err = fmt.Errorf("this name is owned")
 			case "Forbidden":
-				err = errors.New("this name is unavailable")
+				err = fmt.Errorf("this name is unavailable")
 			case "Revealing":
-				err = errors.New("this name is being revealed")
+				err = fmt.Errorf("this name is being revealed")
 			case "Unavailable":
-				err = errors.New("this name is not yet available")
+				err = fmt.Errorf("this name is not yet available")
 			default:
-				err = errors.New("this name is in an unknown state")
+				err = fmt.Errorf("this name is in an unknown state")
 			}
 		}
 	}

@@ -39,7 +39,6 @@ The keystore for the account that owns the name must be local (i.e. listed with 
 In quiet mode this will return 0 if the transaction to set the resolver is sent successfully, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
-
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		// Ensure that the name is in a suitable state

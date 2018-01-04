@@ -1,6 +1,7 @@
 package ens
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -39,12 +40,44 @@ func NormaliseDomain(domain string) string {
 // Obtain the TLD of an ENS domain
 func Tld(domain string) string {
 	domain = NormaliseDomain(domain)
-	lastPeriodLoc := strings.LastIndex(domain, ".")
-	if lastPeriodLoc == -1 {
+	tld, err := DomainPart(domain, -1)
+	if err != nil {
 		return domain
-	} else if lastPeriodLoc == len(domain) {
-		return ""
-	} else {
-		return domain[lastPeriodLoc+1:]
 	}
+	return tld
+}
+
+// DomainPart obtains a part of a name
+// Positive parts start at the lowest-level of the domain and work towards the
+// top-level domain.  Negative parts start at the top-level domain and work
+// towards the lowest-level domain.
+// For example, with a domain bar.foo.com the following parts will be returned:
+// Number | part
+//      1 |  bar
+//      2 |  foo
+//      3 |  com
+//     -1 |  com
+//     -2 |  foo
+//     -3 |  bar
+func DomainPart(domain string, part int) (string, error) {
+	if part == 0 {
+		return "", fmt.Errorf("Invalid part")
+	}
+	domain = NormaliseDomain(domain)
+	parts := strings.Split(domain, ".")
+	if len(parts) < abs(part) {
+		return "", fmt.Errorf("Not enough parts")
+	}
+	if part < 0 {
+		return parts[len(parts)+part], nil
+	} else {
+		return parts[part-1], nil
+	}
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

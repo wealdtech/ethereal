@@ -39,13 +39,13 @@ var ensInfoCmd = &cobra.Command{
 In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(ensDomain != "", quiet, "--domain is required")
+
 		ensDomain = ens.NormaliseDomain(ensDomain)
-		tld := ens.Tld(ensDomain)
+		outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
 
-		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", tld))
-
-		registrarContract, err := ens.RegistrarContract(client, tld)
-
+		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
+		registrarContract, err := ens.RegistrarContract(client, ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 
 		registry, err := ens.RegistryContract(client)
@@ -53,7 +53,6 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 		fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
-		os.Exit(0)
 
 		if ens.DomainLevel(ensDomain) == 1 {
 			state, err := ens.State(registrarContract, client, ensDomain)
@@ -156,32 +155,33 @@ func ownedInfo(name string) {
 	registrarContract, err := ens.RegistrarContract(client, ens.Tld(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 	_, deedAddress, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
-	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
-	fmt.Println("Owned since", registrationDate)
-	fmt.Println("Locked value is", etherutils.WeiToString(value, true))
-	fmt.Println("Highest bid was", etherutils.WeiToString(highestBid, true))
+	if err == nil {
+		fmt.Println("Owned since", registrationDate)
+		fmt.Println("Locked value is", etherutils.WeiToString(value, true))
+		fmt.Println("Highest bid was", etherutils.WeiToString(highestBid, true))
 
-	// Deed
-	deedContract, err := ens.DeedContract(client, &deedAddress)
-	cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
-	// Deed owner
-	deedOwner, err := deedContract.Owner(nil)
-	cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-	deedOwnerName, _ := ens.ReverseResolve(client, &deedOwner)
-	if deedOwnerName == "" {
-		fmt.Println("Deed owner is", deedOwner.Hex())
-	} else {
-		fmt.Printf("Deed owner is %s (%s)\n", deedOwnerName, deedOwner.Hex())
-	}
-
-	previousDeedOwner, err := deedContract.PreviousOwner(nil)
-	cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-	if bytes.Compare(previousDeedOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0 {
-		previousDeedOwnerName, _ := ens.ReverseResolve(client, &previousDeedOwner)
-		if previousDeedOwnerName == "" {
-			fmt.Println("Previous deed owner is", previousDeedOwner.Hex())
+		// Deed
+		deedContract, err := ens.DeedContract(client, &deedAddress)
+		cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
+		// Deed owner
+		deedOwner, err := deedContract.Owner(nil)
+		cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
+		deedOwnerName, _ := ens.ReverseResolve(client, &deedOwner)
+		if deedOwnerName == "" {
+			fmt.Println("Deed owner is", deedOwner.Hex())
 		} else {
-			fmt.Printf("Previous deed owner is %s (%s)\n", previousDeedOwnerName, previousDeedOwner.Hex())
+			fmt.Printf("Deed owner is %s (%s)\n", deedOwnerName, deedOwner.Hex())
+		}
+
+		previousDeedOwner, err := deedContract.PreviousOwner(nil)
+		cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
+		if bytes.Compare(previousDeedOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0 {
+			previousDeedOwnerName, _ := ens.ReverseResolve(client, &previousDeedOwner)
+			if previousDeedOwnerName == "" {
+				fmt.Println("Previous deed owner is", previousDeedOwner.Hex())
+			} else {
+				fmt.Printf("Previous deed owner is %s (%s)\n", previousDeedOwnerName, previousDeedOwner.Hex())
+			}
 		}
 	}
 
