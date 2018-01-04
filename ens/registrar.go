@@ -182,7 +182,7 @@ func RevealBid(session *registrarcontract.RegistrarContractSession, name string,
 	domainHash := LabelHash(domain)
 	saltHash := saltHash(salt)
 
-	session.TransactOpts.GasLimit = big.NewInt(200000)
+	session.TransactOpts.GasLimit = 200000
 	tx, err = session.UnsealBid(domainHash, &amount, saltHash)
 	return
 }

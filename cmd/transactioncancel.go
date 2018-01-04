@@ -87,7 +87,7 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 				"command":       "cancel",
 				"address":       fromAddress.Hex(),
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")

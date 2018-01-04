@@ -89,7 +89,7 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 				"spender":       spenderAddress.Hex(),
 				"amount":        amount.String(),
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")

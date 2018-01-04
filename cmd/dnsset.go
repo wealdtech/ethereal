@@ -146,7 +146,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				"ttl":           dnsSetTtl,
 				"owner":         domainOwner,
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")

@@ -74,7 +74,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				"amount":        signedTx.Value().String(),
 				"data":          hex.EncodeToString(signedTx.Data()),
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")
@@ -148,7 +148,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 					"amount":        amount.String(),
 					"data":          hex.EncodeToString(data),
 					"networkid":     chainID,
-					"gas":           signedTx.Gas().String(),
+					"gas":           signedTx.Gas(),
 					"gasprice":      signedTx.GasPrice().String(),
 					"transactionid": signedTx.Hash().Hex(),
 				}).Info("success")
@@ -161,7 +161,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 					"amount":        amount.String(),
 					"data":          hex.EncodeToString(data),
 					"networkid":     chainID,
-					"gas":           signedTx.Gas().String(),
+					"gas":           signedTx.Gas(),
 					"gasprice":      signedTx.GasPrice().String(),
 					"transactionid": signedTx.Hash().Hex(),
 				}).Info("success")

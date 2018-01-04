@@ -85,7 +85,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				"amount":        tx.Value().String(),
 				"data":          hex.EncodeToString(tx.Data()),
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")

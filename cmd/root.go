@@ -53,7 +53,7 @@ var account *accounts.Account
 
 // Common variables
 var gasPrice *big.Int
-var gasLimit *big.Int
+var gasLimit uint64
 
 var err error
 
@@ -106,7 +106,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	if cmd.Flags().Lookup("gaslimit") != nil {
 		viper.BindPFlag("gaslimit", cmd.Flags().Lookup("gaslimit"))
 		if viper.GetInt("gaslimit") > 0 {
-			gasLimit = big.NewInt(int64(viper.GetInt("gaslimit")))
+			gasLimit = uint64(viper.GetInt("gaslimit"))
 		}
 	}
 
@@ -231,7 +231,7 @@ func nextNonce(address common.Address) (nextNonce uint64, err error) {
 }
 
 // Estimate the gas required for a transaction
-func estimateGas(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (gas *big.Int, err error) {
+func estimateGas(fromAddress common.Address, toAddress *common.Address, amount *big.Int, data []byte) (gas uint64, err error) {
 	msg := ethereum.CallMsg{From: fromAddress, To: toAddress, Value: amount, Data: data}
 	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 	defer cancel()
@@ -243,7 +243,7 @@ func estimateGas(fromAddress common.Address, toAddress *common.Address, amount *
 }
 
 // Create a transaction
-func createTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, gasLimit *big.Int, data []byte) (tx *types.Transaction, err error) {
+func createTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, gasLimit uint64, data []byte) (tx *types.Transaction, err error) {
 	// Obtain the nonce for the transaction
 	var txNonce uint64
 	txNonce, err = currentNonce(fromAddress)
@@ -252,7 +252,7 @@ func createTransaction(fromAddress common.Address, toAddress *common.Address, am
 	}
 
 	// Gas limit for the transaction
-	if gasLimit == nil {
+	if gasLimit == 0 {
 		gasLimit, err = estimateGas(fromAddress, toAddress, amount, data)
 		if err != nil {
 			return
@@ -270,7 +270,7 @@ func createTransaction(fromAddress common.Address, toAddress *common.Address, am
 }
 
 // Create a signed transaction
-func createSignedTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, gasLimit *big.Int, data []byte) (signedTx *types.Transaction, err error) {
+func createSignedTransaction(fromAddress common.Address, toAddress *common.Address, amount *big.Int, gasLimit uint64, data []byte) (signedTx *types.Transaction, err error) {
 	// Create the transaction
 	tx, err := createTransaction(fromAddress, toAddress, amount, gasLimit, data)
 	if err != nil {
@@ -320,7 +320,7 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		Nonce:    big.NewInt(0).SetInt64(nonce),
 	}
 
-	if gasLimit != nil {
+	if gasLimit != 0 {
 		opts.GasLimit = gasLimit
 	}
 	return

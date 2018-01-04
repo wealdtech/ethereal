@@ -23,10 +23,10 @@ import (
 	"strings"
 
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var contractDeployFromAddress string
@@ -123,7 +123,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 				"from":          fromAddress.Hex(),
 				"amount":        amount.String(),
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")

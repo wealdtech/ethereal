@@ -24,10 +24,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	etherutils "github.com/orinocopay/go-etherutils"
-	"github.com/orinocopay/go-etherutils/ens"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/ens"
 )
 
 var contractSendAmount string
@@ -124,7 +124,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				"contract":      contractAddress.Hex(),
 				"amount":        amount.String(),
 				"networkid":     chainID,
-				"gas":           signedTx.Gas().String(),
+				"gas":           signedTx.Gas(),
 				"gasprice":      signedTx.GasPrice().String(),
 				"transactionid": signedTx.Hash().Hex(),
 			}).Info("success")
