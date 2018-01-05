@@ -14,6 +14,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -24,6 +26,9 @@ import (
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
 )
+
+var transactionInfoRaw bool
+var transactionInfoJson bool
 
 // transactionInfoCmd represents the transaction info command
 var transactionInfoCmd = &cobra.Command{
@@ -43,6 +48,20 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 
 		if quiet {
+			os.Exit(0)
+		}
+
+		if transactionInfoRaw {
+			buf := new(bytes.Buffer)
+			tx.EncodeRLP(buf)
+			fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			os.Exit(0)
+		}
+
+		if transactionInfoJson {
+			json, err := tx.MarshalJSON()
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain JSON for transaction %s", txHash.Hex()))
+			fmt.Printf("%s\n", string(json))
 			os.Exit(0)
 		}
 
@@ -112,4 +131,6 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 func init() {
 	transactionCmd.AddCommand(transactionInfoCmd)
 	transactionFlags(transactionInfoCmd)
+	transactionInfoCmd.Flags().BoolVar(&transactionInfoRaw, "raw", false, "Output the transaction as raw hex")
+	transactionInfoCmd.Flags().BoolVar(&transactionInfoJson, "json", false, "Output the transaction as json")
 }
