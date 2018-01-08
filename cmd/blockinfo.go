@@ -72,9 +72,19 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Extra:\t\t\t%s", block.Extra()))
 		outputIf(verbose, fmt.Sprintf("Difficulty:\t\t%v", block.Difficulty()))
 		fmt.Printf("Gas limit:\t\t%v\n", block.GasLimit())
-		// gasPct := big.NewFloat(0).Quo(big.NewFloat(0).Mul(big.NewFloat(100), big.NewFloat(0).SetInt(block.GasUsed())), big.NewFloat(0).SetInt(block.GasLimit()))
-		// fmt.Printf("Gas used:\t\t%v (%s%%)\n", block.GasUsed(), gasPct.Text('f', 2))
-		outputIf(verbose, fmt.Sprintf("Uncles:\t\t\t%v", len(block.Uncles())))
+		gasPct := big.NewFloat(0).Quo(big.NewFloat(0).Mul(big.NewFloat(100), big.NewFloat(0).SetInt(big.NewInt(int64(block.GasUsed())))), big.NewFloat(0).SetInt(big.NewInt(int64(block.GasLimit()))))
+		fmt.Printf("Gas used:\t\t%v (%s%%)\n", block.GasUsed(), gasPct.Text('f', 2))
+		if verbose {
+			if len(block.Uncles()) > 0 {
+				fmt.Println("Uncles:")
+				for i, uncle := range block.Uncles() {
+					fmt.Printf("\t%d: block %v (%v)\n", i, uncle.Number, big.NewInt(0).Sub(uncle.Number, block.Number()))
+				}
+			}
+
+		} else {
+			fmt.Printf("Uncles:\t\t\t%v\n", len(block.Uncles()))
+		}
 		fmt.Printf("Transactions:\t\t%v\n", block.Transactions().Len())
 	},
 }
