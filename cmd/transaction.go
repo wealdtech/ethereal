@@ -31,5 +31,5 @@ func init() {
 	RootCmd.AddCommand(transactionCmd)
 }
 func transactionFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&transactionStr, "transaction", "t", "", "ID of the transaction")
+	cmd.Flags().StringVarP(&transactionStr, "transaction", "t", "", "raw transaction data or ID of the transaction")
 }

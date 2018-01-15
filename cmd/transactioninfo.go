@@ -18,9 +18,11 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -41,11 +43,27 @@ var transactionInfoCmd = &cobra.Command{
 In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(transactionStr != "", quiet, "--transaction is required")
-		txHash := common.HexToHash(transactionStr)
-		ctx, cancel := localContext()
-		defer cancel()
-		tx, pending, err := client.TransactionByHash(ctx, txHash)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
+		var txHash common.Hash
+		var pending bool
+		var tx *types.Transaction
+		if len(transactionStr) > 66 {
+			// Assume input is a raw transaction
+			data, err := hex.DecodeString(strings.TrimPrefix(transactionStr, "0x"))
+			cli.ErrCheck(err, quiet, "Failed to decode data")
+			tx = &types.Transaction{}
+			stream := rlp.NewStream(bytes.NewReader(data), 0)
+			err = tx.DecodeRLP(stream)
+			cli.ErrCheck(err, quiet, "Failed to decode raw transaction")
+			txHash = tx.Hash()
+		} else {
+			// Assume input is a transaction ID
+			txHash = common.HexToHash(transactionStr)
+			ctx, cancel := localContext()
+			defer cancel()
+			var err error
+			tx, pending, err = client.TransactionByHash(ctx, txHash)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
+		}
 
 		if quiet {
 			os.Exit(0)
@@ -82,9 +100,9 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			defer cancel()
 			receipt, err = client.TransactionReceipt(ctx, txHash)
 			if receipt.Status == 0 {
-				fmt.Printf("Result:\t\tFailed\n")
+				fmt.Printf("Result:\t\t\tFailed\n")
 			} else {
-				fmt.Printf("Result:\t\tSucceeded\n")
+				fmt.Printf("Result:\t\t\tSucceeded\n")
 			}
 		}
 
