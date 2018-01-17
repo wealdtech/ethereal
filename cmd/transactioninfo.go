@@ -143,6 +143,26 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		}
 		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
 		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
+
+		if verbose && len(receipt.Logs) > 0 {
+			fmt.Printf("Logs:\n")
+			for i, log := range receipt.Logs {
+				fmt.Printf("\t%d:\n", i)
+				fmt.Printf("\t\tAddress:\t%v\n", log.Address.Hex())
+				if len(log.Topics) > 0 {
+					fmt.Printf("\t\tTopics:\n")
+					for j, topic := range log.Topics {
+						fmt.Printf("\t\t\t%d:\t%v\n", j, topic.Hex())
+					}
+				}
+				if len(log.Data) > 0 {
+					fmt.Printf("\t\tData:\n")
+					for j := 0; j*32 < len(log.Data); j++ {
+						fmt.Printf("\t\t\t%d:\t0x%s\n", j, hex.EncodeToString(log.Data[j*32:(j+1)*32]))
+					}
+				}
+			}
+		}
 	},
 }
 
