@@ -55,11 +55,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 		cli.Assert(contractDeployData != "", quiet, "--data is required")
 
 		var data []byte
-		if strings.HasPrefix(contractDeployData, "0x") {
-			data, err = hex.DecodeString(contractDeployData[2:])
-		} else {
-			data, err = hex.DecodeString(contractDeployData)
-		}
+		data, err = hex.DecodeString(strings.TrimPrefix(contractDeployData, "0x"))
 		cli.ErrCheck(err, quiet, "Failed to decode data")
 		// Add construcor arguments if present
 		if contractAbi != "" {

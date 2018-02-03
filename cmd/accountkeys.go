@@ -89,11 +89,7 @@ In quiet mode this will return 0 if the account was successfully decoded, otherw
 
 		var key *ecdsa.PrivateKey
 		if accountKeysPrivateKey != "" {
-			if strings.HasPrefix(accountKeysPrivateKey, "0x") {
-				key, err = crypto.HexToECDSA(accountKeysPrivateKey[2:])
-			} else {
-				key, err = crypto.HexToECDSA(accountKeysPrivateKey)
-			}
+			key, err = crypto.HexToECDSA(strings.TrimPrefix(accountKeysPrivateKey, "0x"))
 			cli.ErrCheck(err, quiet, "Invalid private key")
 			if quiet {
 				os.Exit(0)

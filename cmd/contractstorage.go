@@ -45,11 +45,7 @@ In quiet mode this will return 0 if the storage contains a non-zero value, other
 
 		cli.Assert(contractStorageKey != "", quiet, "--key is required")
 		var hash common.Hash
-		if strings.HasPrefix(contractStorageKey, "0x") {
-			hash = common.HexToHash(contractStorageKey[2:])
-		} else {
-			hash = common.HexToHash(contractStorageKey)
-		}
+		hash = common.HexToHash(strings.TrimPrefix(contractStorageKey, "0x"))
 		ctx, cancel := localContext()
 		defer cancel()
 		value, err := client.StorageAt(ctx, contractAddress, hash, nil)

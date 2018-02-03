@@ -141,11 +141,7 @@ func contractStringToValue(argType abi.Type, val string) (interface{}, error) {
 	case abi.FixedBytesTy:
 		slice := make([]byte, argType.Size)
 		var decoded []byte
-		if strings.HasPrefix(val, "0x") {
-			decoded, err = hex.DecodeString(val[2:])
-		} else {
-			decoded, err = hex.DecodeString(val)
-		}
+		decoded, err = hex.DecodeString(strings.TrimPrefix(val, "0x"))
 		if err == nil {
 			copy(slice[argType.Size-len(decoded):argType.Size], decoded)
 		}
@@ -218,11 +214,7 @@ func contractStringToValue(argType abi.Type, val string) (interface{}, error) {
 		}
 		return nil, fmt.Errorf("Invalid byte size %d", argType.Size)
 	case abi.BytesTy:
-		if strings.HasPrefix(val, "0x") {
-			return hex.DecodeString(val[2:])
-		} else {
-			return hex.DecodeString(val)
-		}
+		return hex.DecodeString(strings.TrimPrefix(val, "0x"))
 	case abi.HashTy:
 		return common.HexToHash(val), nil
 	case abi.FixedPointTy:
