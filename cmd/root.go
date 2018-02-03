@@ -80,6 +80,9 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	quiet = viper.GetBool("quiet")
 	verbose = viper.GetBool("verbose")
 	offline = viper.GetBool("offline")
+	if offline == true {
+		// TODO Also need chain ID and nonce
+	}
 	if quiet && verbose {
 		cli.Err(quiet, "Cannot supply both quiet and verbose flags")
 	}
@@ -317,7 +320,8 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		From:     sender,
 		Signer:   signer,
 		GasPrice: gasPrice,
-		Nonce:    big.NewInt(0).SetInt64(nonce),
+		// DoNotSend: offline,
+		Nonce: big.NewInt(0).SetInt64(nonce),
 	}
 
 	if gasLimit != 0 {

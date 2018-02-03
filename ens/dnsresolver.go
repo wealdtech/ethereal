@@ -81,7 +81,7 @@ func DnsResolverContractByAddress(client *ethclient.Client, resolverAddress comm
 
 	// Ensure that this is a DNS resolver
 	var supported bool
-	supported, err = resolver.SupportsInterface(nil, [4]byte{0xd7, 0xc2, 0x83, 0x6a})
+	supported, err = resolver.SupportsInterface(nil, [4]byte{0xa8, 0xfa, 0x56, 0x82})
 	if err != nil {
 		return
 	}
