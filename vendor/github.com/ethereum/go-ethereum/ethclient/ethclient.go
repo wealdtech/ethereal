@@ -411,11 +411,7 @@ func (ec *Client) PendingTransactionCount(ctx context.Context) (uint, error) {
 	return uint(num), err
 }
 
-// SubscribePendingTransactions subscribes to notifications about new pending
-// transactions on the given channel.
-func (ec *Client) SubscribePendingTransactions(ctx context.Context, ch chan<- *types.Transaction) (ethereum.Subscription, error) {
-	return ec.c.EthSubscribe(ctx, ch, "newPendingTransactions", map[string]struct{}{})
-}
+// TODO: SubscribePendingTransactions (needs server side)
 
 // Contract Calling
 

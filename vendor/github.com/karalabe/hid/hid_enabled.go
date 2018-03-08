@@ -135,7 +135,7 @@ type Device struct {
 }
 
 // Close releases the HID USB device handle.
-func (dev *Device) Close() error {
+func (dev *Device) Close() {
 	dev.lock.Lock()
 	defer dev.lock.Unlock()
 
@@ -143,7 +143,6 @@ func (dev *Device) Close() error {
 		C.hid_close(dev.device)
 		dev.device = nil
 	}
-	return nil
 }
 
 // Write sends an output report to a HID device.
