@@ -17,7 +17,9 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -25,6 +27,7 @@ import (
 )
 
 var etherBalanceAddress string
+var etherBalanceBlock string
 var etherBalanceWei bool
 
 // etherBalanceCmd represents the ether balance command
@@ -41,9 +44,26 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		address, err := ens.Resolve(client, etherBalanceAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address")
 
+		var blockNumber *big.Int
+		if etherBalanceBlock != "" {
+			if blockInfoNumberRegexp.MatchString(etherBalanceBlock) {
+				var succeeded bool
+				blockNumber, succeeded = big.NewInt(0).SetString(etherBalanceBlock, 10)
+				cli.Assert(succeeded, quiet, fmt.Sprintf("Failed to parse block number %s", etherBalanceBlock))
+			} else {
+				blockHash := common.HexToHash(etherBalanceBlock)
+				ctx, cancel := localContext()
+				defer cancel()
+				block, err := client.BlockByHash(ctx, blockHash)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain block %s", etherBalanceBlock))
+				blockNumber = block.Number()
+			}
+		}
+
 		ctx, cancel := localContext()
 		defer cancel()
-		balance, err := client.BalanceAt(ctx, address, nil)
+		balance, err := client.BalanceAt(ctx, address, blockNumber)
+		cli.Assert(err == nil || !strings.HasPrefix(err.Error(), "missing trie node"), quiet, "Connection does not have information on that block, please change the connection parameter to point to a full node")
 		cli.ErrCheck(err, quiet, "Failed to obtain balance")
 
 		if quiet {
@@ -66,4 +86,5 @@ func init() {
 	etherCmd.AddCommand(etherBalanceCmd)
 	etherBalanceCmd.Flags().BoolVar(&etherBalanceWei, "wei", false, "Dispay output in number of Wei")
 	etherBalanceCmd.Flags().StringVar(&etherBalanceAddress, "address", "", "Address to show Ether balance")
+	etherBalanceCmd.Flags().StringVar(&etherBalanceBlock, "block", "", "block hash or number at which to show Ether balance (must be run against an archive node)")
 }
