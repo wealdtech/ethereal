@@ -84,7 +84,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 
 func init() {
 	etherCmd.AddCommand(etherBalanceCmd)
-	etherBalanceCmd.Flags().BoolVar(&etherBalanceWei, "wei", false, "Dispay output in number of Wei")
+	etherBalanceCmd.Flags().BoolVar(&etherBalanceWei, "wei", false, "Display output in number of Wei")
 	etherBalanceCmd.Flags().StringVar(&etherBalanceAddress, "address", "", "Address to show Ether balance")
 	etherBalanceCmd.Flags().StringVar(&etherBalanceBlock, "block", "", "block hash or number at which to show Ether balance (must be run against an archive node)")
 }

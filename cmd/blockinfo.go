@@ -27,6 +27,8 @@ import (
 	"github.com/wealdtech/ethereal/ens"
 )
 
+var blockInfoTransactions bool
+
 var blockInfoNumberRegexp = regexp.MustCompile("[0-9]+")
 
 // blockInfoCmd represents the block info command
@@ -85,11 +87,21 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		} else {
 			fmt.Printf("Uncles:\t\t\t%v\n", len(block.Uncles()))
 		}
-		fmt.Printf("Transactions:\t\t%v\n", block.Transactions().Len())
+		if blockInfoTransactions {
+			if block.Transactions().Len() > 0 {
+				fmt.Println("Transactions:")
+				for i, tx := range block.Transactions() {
+					fmt.Printf("\t%4d: %v\n", i, tx.Hash().Hex())
+				}
+			}
+		} else {
+			fmt.Printf("Transactions:\t\t%v\n", block.Transactions().Len())
+		}
 	},
 }
 
 func init() {
 	blockCmd.AddCommand(blockInfoCmd)
+	blockInfoCmd.Flags().BoolVar(&blockInfoTransactions, "transactions", false, "Display hashes of all block transactions")
 	blockFlags(blockInfoCmd)
 }

@@ -70,6 +70,6 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 func init() {
 	tokenFlags(tokenBalanceCmd)
 	tokenCmd.AddCommand(tokenBalanceCmd)
-	tokenBalanceCmd.Flags().BoolVar(&tokenBalanceRaw, "raw", false, "Dispay raw output (no decimals)")
+	tokenBalanceCmd.Flags().BoolVar(&tokenBalanceRaw, "raw", false, "Display raw output (no decimals)")
 	tokenBalanceCmd.Flags().StringVar(&tokenBalanceHolderAddress, "holder", "", "Holder of tokens")
 }
