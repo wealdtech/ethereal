@@ -241,7 +241,16 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.StringTy:
 		return val.(string), nil
 	case abi.SliceTy:
-		return "", fmt.Errorf("Unhandled type %v", argType)
+		res := make([]string, 0)
+		arrayVal := reflect.ValueOf(val)
+		for i := 0; i < arrayVal.Len(); i++ {
+			elemRes, err := contractValueToString(*argType.Elem, arrayVal.Index(i).Interface())
+			if err != nil {
+				return "", err
+			}
+			res = append(res, elemRes)
+		}
+		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.ArrayTy:
 		res := make([]string, 0)
 		arrayVal := reflect.ValueOf(val)

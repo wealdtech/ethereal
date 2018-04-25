@@ -80,8 +80,9 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	quiet = viper.GetBool("quiet")
 	verbose = viper.GetBool("verbose")
 	offline = viper.GetBool("offline")
-	if offline == true {
-		// TODO Also need chain ID and nonce
+	if offline {
+		// Also need chain ID
+		chainID = big.NewInt(viper.GetInt64("chainid"))
 	}
 	if quiet && verbose {
 		cli.Err(quiet, "Cannot supply both quiet and verbose flags")
@@ -94,6 +95,9 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	if cmd.Flags().Lookup("privatekey") != nil {
 		viper.BindPFlag("privatekey", cmd.Flags().Lookup("privatekey"))
 	}
+	if cmd.Flags().Lookup("nonce") != nil {
+		viper.BindPFlag("nonce", cmd.Flags().Lookup("nonce"))
+	}
 	// Set up gas price if we have it
 	if cmd.Flags().Lookup("gasprice") != nil {
 		viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
@@ -105,6 +109,8 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 			cli.ErrCheck(err, quiet, "Invalid gas price")
 		}
 	}
+	// Set up nonce if we have it
+	nonce = viper.GetInt64("nonce")
 
 	if cmd.Flags().Lookup("gaslimit") != nil {
 		viper.BindPFlag("gaslimit", cmd.Flags().Lookup("gaslimit"))
@@ -126,13 +132,15 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	log.SetFormatter(&log.JSONFormatter{})
 
 	// Create a connection to an Ethereum node
-	client, err = ethclient.Dial(viper.GetString("connection"))
-	cli.ErrCheck(err, quiet, "Failed to connect to Ethereum")
-	// Fetch the chain ID
-	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
-	defer cancel()
-	chainID, err = client.NetworkID(ctx)
-	cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
+	if !offline {
+		client, err = ethclient.Dial(viper.GetString("connection"))
+		cli.ErrCheck(err, quiet, "Failed to connect to Ethereum")
+		// Fetch the chain ID
+		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+		defer cancel()
+		chainID, err = client.NetworkID(ctx)
+		cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
+	}
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -160,6 +168,8 @@ func init() {
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
 	viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline"))
+	RootCmd.PersistentFlags().Int64("chainid", 0, "the chain ID of the network (only required when offline)")
+	viper.BindPFlag("chainid", RootCmd.PersistentFlags().Lookup("chainid"))
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
 	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
 }
@@ -198,7 +208,7 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
 	cmd.Flags().Int64("gaslimit", 0, "Gas limit for the transaction; 0 is auto-select")
-	cmd.Flags().Int64Var(&nonce, "nonce", -1, "Nonce for the transaction; -1 is auto-select")
+	cmd.Flags().Int64("nonce", -1, "Nonce for the transaction; -1 is auto-select")
 }
 
 // Obtain the current nonce for the given address
