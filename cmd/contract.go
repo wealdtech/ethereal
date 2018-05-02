@@ -357,7 +357,7 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 			castVal := val.([30]byte)
 			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
 		case 31:
-			castVal := val.([32]byte)
+			castVal := val.([31]byte)
 			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
 		case 32:
 			castVal := val.([32]byte)

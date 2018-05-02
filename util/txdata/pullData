@@ -1,0 +1,8 @@
+#!/bin/bash
+
+START=1
+HIGH=30000
+
+for ((i=START;i<=HIGH;i++)); do
+curl -s -q https://www.4byte.directory/api/v1/signatures/${i}/ | jq '"newFunction(\"\(.hex_signature[2:10])\", \"\(.text_signature)\")"' | sed -e 's/^"//' -e 's/\([^\\]\)"/\1/g' -e 's/\\"/"/g'
+done

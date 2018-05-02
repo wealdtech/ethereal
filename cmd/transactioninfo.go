@@ -27,6 +27,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util/txdata"
 )
 
 var transactionInfoRaw bool
@@ -145,6 +146,11 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		}
 		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
 		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
+
+		txdata.InitFunctionMap()
+		if len(tx.Data()) > 0 {
+			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(tx.Data()))
+		}
 
 		if verbose && len(receipt.Logs) > 0 {
 			fmt.Printf("Logs:\n")
