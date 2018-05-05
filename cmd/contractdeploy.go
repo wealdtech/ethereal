@@ -44,7 +44,7 @@ var contractDeployCmd = &cobra.Command{
 
 where data is the hex string of the contract binary.  If the contract constructor requires arguments the both the ABI and the constructor are required, for example:
 
-   ethereal contract deploy --data=0x606060...430029 --abi='./MyContract.abi' --constructor='MyContract(1,2,3)' --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase=secret
+   ethereal contract deploy --data=0x606060...430029 --abi='./MyContract.abi' --constructor='constructor(1,2,3)' --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase=secret
 
 In quiet mode this will return 0 if the contract creation transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
