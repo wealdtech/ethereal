@@ -32,6 +32,7 @@ import (
 
 var transactionInfoRaw bool
 var transactionInfoJson bool
+var transactionInfoSignatures string
 
 // transactionInfoCmd represents the transaction info command
 var transactionInfoCmd = &cobra.Command{
@@ -82,6 +83,13 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain JSON for transaction %s", txHash.Hex()))
 			fmt.Printf("%s\n", string(json))
 			os.Exit(0)
+		}
+
+		txdata.InitFunctionMap()
+		if transactionInfoSignatures != "" {
+			for _, signature := range strings.Split(transactionInfoSignatures, ";") {
+				txdata.AddFunctionSignature(signature)
+			}
 		}
 
 		var receipt *types.Receipt
@@ -147,7 +155,6 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
 		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
 
-		txdata.InitFunctionMap()
 		if len(tx.Data()) > 0 {
 			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(tx.Data()))
 		}
@@ -179,4 +186,5 @@ func init() {
 	transactionFlags(transactionInfoCmd)
 	transactionInfoCmd.Flags().BoolVar(&transactionInfoRaw, "raw", false, "Output the transaction as raw hex")
 	transactionInfoCmd.Flags().BoolVar(&transactionInfoJson, "json", false, "Output the transaction as json")
+	transactionInfoCmd.Flags().StringVar(&transactionInfoSignatures, "signatures", "", "Semicolon-separated list of custom transaction signatures (e.g. myFunc(address,bytes32);myFunc2(bool)")
 }
