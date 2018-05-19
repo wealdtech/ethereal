@@ -67,6 +67,17 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 		}
 
+		//		{
+		//			ctx, cancel := localContext()
+		//			defer cancel()
+		//			var err error
+		//			txs, err := client.PendingTransactions(ctx)
+		//			for _, tx := range txs {
+		//				fmt.Printf("%v\n", tx)
+		//			}
+		//			os.Exit(0)
+		//		}
+
 		if quiet {
 			os.Exit(0)
 		}

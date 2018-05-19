@@ -48,11 +48,11 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		registrarContract, err := ens.RegistrarContract(client, ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 
+		outputIf(verbose, fmt.Sprintf("Name hash is %x", ens.NameHash(ensDomain)))
 		registry, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 		domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
-		fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 
 		if ens.DomainLevel(ensDomain) == 1 {
 			state, err := ens.State(registrarContract, client, ensDomain)
@@ -74,6 +74,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 					case "Won":
 						wonInfo(ensDomain)
 					case "Owned":
+						fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 						ownedInfo(ensDomain)
 					default:
 						fmt.Println(state)
@@ -83,6 +84,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 				ownedInfo(ensDomain)
 			}
 		} else {
+			fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 			subdomainInfo(ensDomain)
 		}
 	},

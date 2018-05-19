@@ -62,6 +62,19 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		// Obtain owner for the domain
 		domainOwner, err := registryContract.Owner(nil, domainHash)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
+
+		{
+			data := make([]byte, 16384)
+			offset := 0
+			source := fmt.Sprintf("%s %d %s", dnsName, int(dnsSetTtl.Seconds()), dnsResource)
+			resource, err := dns.NewRR(source)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
+			offset, err = dns.PackRR(resource, data, offset, nil, false)
+			data = data[0:offset]
+			fmt.Printf("Data is %x\n", data)
+			os.Exit(0)
+		}
+
 		cli.Assert(bytes.Compare(domainOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", domainOwner.Hex()))
 
@@ -119,7 +132,6 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				}
 				fmt.Println(signedTx.Hash().Hex())
 			}
-
 		} else {
 			// Record-based
 			dnsName = strings.ToLower(dnsName)
@@ -132,7 +144,6 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			}
 			outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
 			nameHash := util.DnsDomainHash(dnsName)
-
 			cli.Assert(dnsSetTtl != time.Duration(0), quiet, "--ttl is required")
 
 			cli.Assert(dnsResource != "", quiet, "--resource is required")
@@ -171,6 +182,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 					soaData = soaData[0:offset]
 				}
 			}
+			fmt.Printf("SOA data is %x\n", soaData)
 
 			// Build the transaction
 			opts, err := generateTxOpts(domainOwner)
