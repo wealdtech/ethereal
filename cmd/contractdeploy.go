@@ -129,38 +129,6 @@ In quiet mode this will return 0 if the contract creation transaction is success
 			}
 			fmt.Println(signedTx.Hash().Hex())
 		}
-
-		//		cli.Assert(contractStr != "", quiet, "--contract is required")
-		//		contractAddress, err := ens.Resolve(client, contractStr)
-		//		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
-
-		// Make the call
-		//		msg := ethereum.CallMsg{
-		//			From: fromAddress,
-		//			To:   &contractAddress,
-		//			Data: data,
-		//		}
-		//		ctx, cancel := localContext()
-		//		defer cancel()
-		//		result, err := client.CallContract(ctx, msg, nil)
-		//		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call contract %s", methodName))
-		//		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return any data", methodName))
-
-		if quiet {
-			os.Exit(0)
-		}
-
-		//		abiOutput, err := unpack(abi, methodName, []byte(result))
-		//		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", methodName))
-		//		results := []string{}
-		//		for i, _ := range *abiOutput {
-		//			val, err := valueToString(method.Outputs[i], *((*abiOutput)[i]))
-		//			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", *((*abiOutput)[i])))
-		//			results = append(results, val)
-		//		}
-
-		// Output the result
-		//		fmt.Printf("%s\n", strings.Join(results, ","))
 	},
 }
 
