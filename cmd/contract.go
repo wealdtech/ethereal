@@ -19,7 +19,6 @@ import (
 	"io"
 	"math/big"
 	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"unsafe"
@@ -27,10 +26,14 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var contractStr string
 var contractAbi string
+var contractJson string
+var contractName string
 
 // contractCmd represents the contract command
 var contractCmd = &cobra.Command{
@@ -45,19 +48,54 @@ func init() {
 
 func contractFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&contractStr, "contract", "", "address of the contract")
-	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI, or path to ABI, for the contract ")
+	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI, or path to ABI, for the contract")
+	cmd.Flags().StringVar(&contractJson, "json", "", "JSON, or path to JSON, for the contract as output by solc --combined-json=bin,abi")
+	cmd.Flags().StringVar(&contractName, "name", "", "Name of the contract (required when using json)")
+}
+
+// parse contract given the information from various flags
+func parseContract(binStr string) *util.Contract {
+	var contract *util.Contract
+	if contractJson != "" {
+		cli.Assert(contractName != "", quiet, "--name required with JSON")
+		contract, err = util.ParseCombinedJson(contractJson, contractName)
+		cli.ErrCheck(err, quiet, "Failed to parse JSON")
+	} else {
+		contract = &util.Contract{}
+
+		// Add name if present
+		if contractName != "" {
+			contract.Name = contractName
+		}
+
+		// Add binary if present
+		var bin []byte
+		bin, err = hex.DecodeString(strings.TrimPrefix(binStr, "0x"))
+		cli.ErrCheck(err, quiet, "Failed to decode data")
+		contract = &util.Contract{Binary: bin}
+
+		// Add ABI if present
+		if contractAbi != "" {
+			abi, err := contractParseAbi(contractAbi)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse ABI %s", contractAbi))
+			contract.Abi = abi
+		}
+	}
+	return contract
 }
 
 func contractParseAbi(input string) (output abi.ABI, err error) {
 	var reader io.Reader
-	if strings.Contains(input, string(filepath.Separator)) {
+
+	if strings.HasPrefix(contractAbi, "[") {
+		// ABI is direct
+		reader = strings.NewReader(input)
+	} else {
 		// ABI value is a path
 		reader, err = os.Open(input)
 		if err != nil {
 			return
 		}
-	} else {
-		reader = strings.NewReader(input)
 	}
 	return abi.JSON(reader)
 }

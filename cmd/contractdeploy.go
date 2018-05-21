@@ -46,24 +46,18 @@ where data is the hex string of the contract binary.  If the contract constructo
 
    ethereal contract deploy --data=0x606060...430029 --abi='./MyContract.abi' --constructor='constructor(1,2,3)' --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase=secret
 
+Usually the easiest way to deploy a contract is to use the combined JSON output of solc.  In this situation deploying the contract might be:
+
+   ethereal contract deploy --json='./MyContract.json' --constructor='constructor(1,2,3') --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase=secret
+
 In quiet mode this will return 0 if the contract creation transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(contractDeployFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, contractDeployFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractDeployFromAddress))
 
-		cli.Assert(contractDeployData != "", quiet, "--data is required")
-
-		var data []byte
-		data, err = hex.DecodeString(strings.TrimPrefix(contractDeployData, "0x"))
-		cli.ErrCheck(err, quiet, "Failed to decode data")
-		// Add construcor arguments if present
-		if contractAbi != "" {
-			cli.Assert(contractDeployConstructor != "", quiet, "Constructor required if ABI is present")
-
-			abi, err := contractParseAbi(contractAbi)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse ABI %s", contractAbi))
-
+		contract := parseContract(contractDeployData)
+		if contractDeployConstructor != "" {
 			openBracketPos := strings.Index(contractDeployConstructor, "(")
 			cli.Assert(openBracketPos != -1, quiet, fmt.Sprintf("Missing open bracket in call %s", contractDeployConstructor))
 			closeBracketPos := strings.LastIndex(contractDeployConstructor, ")")
@@ -76,7 +70,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractDeployConstructor))
 			}
 
-			method := abi.Constructor
+			method := contract.Abi.Constructor
 
 			var methodArgs []interface{}
 			for i, input := range method.Inputs {
@@ -85,9 +79,9 @@ In quiet mode this will return 0 if the contract creation transaction is success
 				methodArgs = append(methodArgs, val)
 			}
 
-			argData, err := abi.Pack("", methodArgs...)
+			argData, err := contract.Abi.Pack("", methodArgs...)
 			cli.ErrCheck(err, quiet, "Failed to pack arguments")
-			data = append(data, argData...)
+			contract.Binary = append(contract.Binary, argData...)
 		}
 
 		amount := big.NewInt(0)
@@ -97,7 +91,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 		}
 
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, nil, amount, gasLimit, data)
+		signedTx, err := createSignedTransaction(fromAddress, nil, amount, gasLimit, contract.Binary)
 		cli.ErrCheck(err, quiet, "Failed to create contract deployment transaction")
 
 		if offline {
@@ -115,7 +109,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 			log.WithFields(log.Fields{
 				"group":         "contract",
 				"command":       "deploy",
-				"data":          "0x" + hex.EncodeToString(data),
+				"data":          "0x" + hex.EncodeToString(contract.Binary),
 				"from":          fromAddress.Hex(),
 				"amount":        amount.String(),
 				"networkid":     chainID,
