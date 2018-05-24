@@ -20,10 +20,12 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto/sha3"
 )
 
 var functions map[[4]byte]function
+var events map[[32]byte]function
 
 type function struct {
 	name   string
@@ -61,28 +63,73 @@ func DataToString(input []byte) string {
 	}
 }
 
+// EventToString takes a transaction's event information and converts it to a useful representatino if one exists
+func EventToString(input *types.Log) string {
+	function, exists := events[input.Topics[0]]
+	if !exists {
+		return ""
+	} else {
+		var buffer bytes.Buffer
+		buffer.WriteString(fmt.Sprintf("%s(", function.name))
+
+		// Turn topics in to a byte array
+		topics := make([]byte, 32*len(input.Topics))
+		for i := range input.Topics {
+			copy(topics[i*32:i*32+32], input.Topics[i].Bytes())
+		}
+
+		curTopic := 1
+		for i, param := range function.params {
+			t, err := abi.NewType(param)
+			if err == nil {
+				var res string
+				var err error
+				if len(input.Topics) > curTopic {
+					res, err = valueToString(t, uint32(curTopic), 0, topics)
+					curTopic++
+				} else {
+					res, err = valueToString(t, uint32(i+1-curTopic), 0, input.Data)
+				}
+				if err != nil {
+					res = err.Error()
+				}
+				buffer.WriteString(fmt.Sprintf("%s", res))
+				if i < len(function.params)-1 {
+					buffer.WriteString(fmt.Sprintf(","))
+				}
+			}
+		}
+		buffer.WriteString(")")
+		return buffer.String()
+	}
+}
+
 func contractValueToString(argType abi.Type, index uint32, data []byte) (string, error) {
+	return valueToString(argType, index, 4, data)
+}
+
+func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (string, error) {
 	switch argType.T {
 	case abi.IntTy:
-		return big.NewInt(0).SetBytes(data[4+index*32 : 36+index*32]).String(), nil
+		return big.NewInt(0).SetBytes(data[offset+index*32 : offset+index*32+32]).String(), nil
 	case abi.UintTy:
-		return big.NewInt(0).SetBytes(data[4+index*32 : 36+index*32]).String(), nil
+		return big.NewInt(0).SetBytes(data[offset+index*32 : offset+index*32+32]).String(), nil
 	case abi.BoolTy:
-		if data[35+index*32] == 0x01 {
+		if data[offset+index*32+31] == 0x01 {
 			return "true", nil
 		} else {
 			return "false", nil
 		}
 	case abi.StringTy:
-		offset := binary.BigEndian.Uint32(data[32+index*32 : 36+index*32])
-		len := binary.BigEndian.Uint32(data[32+offset : 36+offset])
-		return fmt.Sprintf("\"%s\"", string(data[36+offset:36+offset+len])), nil
+		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
+		len := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
+		return fmt.Sprintf("\"%s\"", string(data[offset+start+32:offset+start+32+len])), nil
 	case abi.SliceTy, abi.ArrayTy:
 		res := make([]string, 0)
-		offset := binary.BigEndian.Uint32(data[32+index*32 : 36+index*32])
-		entries := binary.BigEndian.Uint32(data[32+offset : 36+offset])
+		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
+		entries := binary.BigEndian.Uint32(data[offset+start+32 : offset+start+36])
 		for i := uint32(0); i < entries; i++ {
-			elemRes, err := contractValueToString(*argType.Elem, 1+offset/32+i, data)
+			elemRes, err := valueToString(*argType.Elem, 1+start/32+i, offset, data)
 			if err != nil {
 				return "", err
 			}
@@ -90,15 +137,15 @@ func contractValueToString(argType abi.Type, index uint32, data []byte) (string,
 		}
 		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.AddressTy:
-		return fmt.Sprintf("0x%x", data[16+index*32:36+index*32]), nil
+		return fmt.Sprintf("0x%x", data[offset+index*32+12:offset+index*32+32]), nil
 	case abi.FixedBytesTy:
-		return fmt.Sprintf("0x%x", data[36-uint32(argType.Size)+index*32:36+index*32]), nil
+		return fmt.Sprintf("0x%x", data[offset+index*32+32-uint32(argType.Size):offset+index*32+32]), nil
 	case abi.BytesTy:
-		offset := binary.BigEndian.Uint32(data[32+index*32 : 36+index*32])
-		len := binary.BigEndian.Uint32(data[32+offset : 36+offset])
-		return fmt.Sprintf("0x%x", data[36+offset:36+offset+len]), nil
+		start := binary.BigEndian.Uint32(data[offset+index*32 : 28 : offset+index*32+32])
+		len := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
+		return fmt.Sprintf("0x%x", data[offset+start+32:offset+start+32+len]), nil
 	case abi.HashTy:
-		return fmt.Sprintf("0x%x", data[4+index*32:36+index*32]), nil
+		return fmt.Sprintf("0x%x", data[offset+index*32:offset+index*32+32]), nil
 	case abi.FixedPointTy:
 		return "", fmt.Errorf("unhandled type %v", argType)
 	case abi.FunctionTy:
@@ -121,10 +168,13 @@ func AddFunctionSignature(signature string) {
 	name := sigBits[0]
 	params := strings.Split(sigBits[1], ",")
 	functions[sig] = function{name: name, params: params}
+	// Also add to events
+	events[hash] = function{name: name, params: params}
 }
 
 func InitFunctionMap() {
 	functions = make(map[[4]byte]function)
+	events = make(map[[32]byte]function)
 	AddFunctionSignature("a()")
 	AddFunctionSignature("A()")
 	AddFunctionSignature("AaadharDemo()")
@@ -23631,4 +23681,10 @@ func InitFunctionMap() {
 	AddFunctionSignature("ZipperWithdrawalRight(address)")
 	AddFunctionSignature("setDnsRecord(bytes32,bytes32,uint16,bytes,bytes)")
 	AddFunctionSignature("setDnsRecords(bytes32,bytes)")
+	AddFunctionSignature("NewBid(bytes32,address,uint256)")
+	AddFunctionSignature("Offer(address,string,uint256,uint256)")
+	AddFunctionSignature("Bid(address,string,uint256)")
+	AddFunctionSignature("Transfer(address,address,string,uint256)")
+	AddFunctionSignature("Cancel(string)")
+	AddFunctionSignature("Withdraw(address,uint256)")
 }
