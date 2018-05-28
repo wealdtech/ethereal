@@ -167,6 +167,9 @@ func AddFunctionSignature(signature string) {
 	sigBits := strings.Split(strings.TrimSuffix(signature, ")"), "(")
 	name := sigBits[0]
 	params := strings.Split(sigBits[1], ",")
+	if params[0] == "" {
+		params = make([]string, 0)
+	}
 	functions[sig] = function{name: name, params: params}
 	// Also add to events
 	events[hash] = function{name: name, params: params}
