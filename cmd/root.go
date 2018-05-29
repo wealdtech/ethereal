@@ -366,6 +366,8 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 			return nil, errors.New("not authorized to sign this account")
 		}
 		signedTx, err = types.SignTx(tx, types.NewEIP155Signer(chainID), key)
+	} else {
+		err = errors.New("no passphrase or private key; cannot sign")
 	}
 	return
 }
