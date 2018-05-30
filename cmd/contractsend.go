@@ -22,7 +22,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -50,18 +49,10 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		fromAddress, err := ens.Resolve(client, contractSendFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractSendFromAddress))
 
-		// We need to have 'call' and 'abi'
+		// We need to have 'call'
 		cli.Assert(contractSendCall != "", quiet, "--call is required")
 
-		var abi abi.ABI
-		if contractAbi == "" {
-			// TODO See if we can fetch the ABI from ENS
-			cli.Err(quiet, "--abi is required")
-		} else {
-			cli.Assert(contractAbi != "", quiet, "--abi is required (if not present in ENS)")
-			abi, err = contractParseAbi(contractAbi)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse ABI %s", contractAbi))
-		}
+		contract := parseContract("")
 
 		openBracketPos := strings.Index(contractSendCall, "(")
 		cli.Assert(openBracketPos != -1, quiet, fmt.Sprintf("Missing open bracket in call %s", contractSendCall))
@@ -77,9 +68,10 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractSendCall))
 		}
 
-		method, exists := abi.Methods[methodName]
+		method, exists := contract.Abi.Methods[methodName]
 		cli.Assert(exists, quiet, fmt.Sprintf("Method %s is unknown", methodName))
 
+		cli.Assert(len(method.Inputs) == len(contractSendArgs), quiet, fmt.Sprintf("%s expects %d parameter(s), found %d", methodName, len(method.Inputs), len(contractSendArgs)))
 		var methodArgs []interface{}
 		for i, input := range method.Inputs {
 			val, err := contractStringToValue(input.Type, contractSendArgs[i])
@@ -87,7 +79,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			methodArgs = append(methodArgs, val)
 		}
 
-		data, err := abi.Pack(methodName, methodArgs...)
+		data, err := contract.Abi.Pack(methodName, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
