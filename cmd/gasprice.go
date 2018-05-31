@@ -26,6 +26,7 @@ import (
 
 var gasPriceBlocks int64
 var gasPriceWei bool
+var gasPriceLowest bool
 
 // gasPriceCmd represents the gas price command
 var gasPriceCmd = &cobra.Command{
@@ -42,6 +43,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 		cli.Assert(gasPriceBlocks > 0, quiet, "--blocks must be greater than 0")
 		// Always fetch the latest block
 
+		lowestGasPrice := big.NewInt(0)
 		totalGasPrice := big.NewInt(0)
 		totalTxs := int64(0)
 
@@ -56,7 +58,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 			if len(txs) > 0 {
 				// Order transactions by gas price
 				sort.Slice(txs, func(i, j int) bool {
-					return txs[i].GasPrice().Cmp(txs[j].GasPrice()) < 0
+					return txs[i].GasPrice().Cmp(txs[j].GasPrice()) > 0
 				})
 				// Remove any 0 gas-price transactions
 				validTxs := txs[:0]
@@ -66,17 +68,24 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 					}
 				}
 				if len(validTxs) > 0 {
-					// Take the average gas price of the 9th decile of transactions
-					blockGasPrice := big.NewInt(0)
-					blockTxs := int64(0)
-					for _, tx := range validTxs[(len(validTxs)*8)/10 : (len(validTxs)*9)/10+1] {
-						blockGasPrice = blockGasPrice.Add(blockGasPrice, tx.GasPrice())
-						blockTxs++
+					if gasPriceLowest {
+						blockLowestGasPrice := validTxs[len(validTxs)-1].GasPrice()
+						if lowestGasPrice.Cmp(zero) == 0 || blockLowestGasPrice.Cmp(lowestGasPrice) < 0 {
+							lowestGasPrice = blockLowestGasPrice
+						}
+					} else {
+						// Take the average gas price of the 9th decile of transactions
+						blockGasPrice := big.NewInt(0)
+						blockTxs := int64(0)
+						for _, tx := range validTxs[(len(validTxs)*8)/10 : (len(validTxs)*9)/10+1] {
+							blockGasPrice = blockGasPrice.Add(blockGasPrice, tx.GasPrice())
+							blockTxs++
+						}
+						totalGasPrice = totalGasPrice.Add(totalGasPrice, blockGasPrice)
+						totalTxs += blockTxs
+						blockGasPrice = blockGasPrice.Div(blockGasPrice, big.NewInt(blockTxs))
+						outputIf(verbose, fmt.Sprintf("Expected inclusion price for block %v over %d transactions is %s", blockNumber, blockTxs, etherutils.WeiToString(blockGasPrice, true)))
 					}
-					totalGasPrice = totalGasPrice.Add(totalGasPrice, blockGasPrice)
-					totalTxs += blockTxs
-					blockGasPrice = blockGasPrice.Div(blockGasPrice, big.NewInt(blockTxs))
-					outputIf(verbose, fmt.Sprintf("Expected inclusion price for block %v over %d transactions is %s", blockNumber, blockTxs, etherutils.WeiToString(blockGasPrice, true)))
 				}
 			}
 
@@ -84,16 +93,21 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 		}
 
 		// Obtain final value
-		avgPrice := totalGasPrice.Div(totalGasPrice, big.NewInt(totalTxs))
+		var finalGasPrice *big.Int
+		if gasPriceLowest {
+			finalGasPrice = lowestGasPrice
+		} else {
+			finalGasPrice = totalGasPrice.Div(totalGasPrice, big.NewInt(totalTxs))
+		}
 
 		if quiet {
 			os.Exit(0)
 		}
 
 		if gasPriceWei {
-			fmt.Printf("%s\n", avgPrice.String())
+			fmt.Printf("%s\n", finalGasPrice.String())
 		} else {
-			fmt.Printf("%s\n", etherutils.WeiToString(avgPrice, true))
+			fmt.Printf("%s\n", etherutils.WeiToString(finalGasPrice, true))
 		}
 	},
 }
@@ -102,4 +116,5 @@ func init() {
 	gasCmd.AddCommand(gasPriceCmd)
 	gasPriceCmd.Flags().BoolVar(&gasPriceWei, "wei", false, "Display output in number of Wei")
 	gasPriceCmd.Flags().Int64Var(&gasPriceBlocks, "blocks", 5, "Number of blocks to go back to average gas price")
+	gasPriceCmd.Flags().BoolVar(&gasPriceLowest, "lowest", false, "Lowest inclusion price over the blocks")
 }
