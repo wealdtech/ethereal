@@ -31,7 +31,7 @@ import (
 	"github.com/wealdtech/ethereal/util"
 )
 
-var dnsSetTtl time.Duration
+var dnsSetTTL time.Duration
 var dnsSetValue string
 var dnsSetNoSoa bool
 
@@ -66,7 +66,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		//		{
 		//			data := make([]byte, 16384)
 		//			offset := 0
-		//			source := fmt.Sprintf("%s %d %s", dnsName, int(dnsSetTtl.Seconds()), dnsResource)
+		//			source := fmt.Sprintf("%s %d %s", dnsName, int(dnsSetTTL.Seconds()), dnsResource)
 		//			resource, err := dns.NewRR(source)
 		//			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
 		//			offset, err = dns.PackRR(resource, data, offset, nil, false)
@@ -143,8 +143,8 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				}
 			}
 			outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
-			nameHash := util.DnsDomainHash(dnsName)
-			cli.Assert(dnsSetTtl != time.Duration(0), quiet, "--ttl is required")
+			nameHash := util.DNSDomainHash(dnsName)
+			cli.Assert(dnsSetTTL != time.Duration(0), quiet, "--ttl is required")
 
 			cli.Assert(dnsResource != "", quiet, "--resource is required")
 			dnsResource := strings.ToUpper(dnsResource)
@@ -158,7 +158,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			offset := 0
 			values := strings.Split(dnsSetValue, "&&")
 			for _, value := range values {
-				source := fmt.Sprintf("%s %d %s %s", dnsName, int(dnsSetTtl.Seconds()), dnsResource, value)
+				source := fmt.Sprintf("%s %d %s %s", dnsName, int(dnsSetTTL.Seconds()), dnsResource, value)
 				resource, err := dns.NewRR(source)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
 				offset, err = dns.PackRR(resource, data, offset, nil, false)
@@ -168,14 +168,14 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			var soaData []byte
 			if !dnsSetNoSoa {
 				// Obtain the current SOA
-				curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DnsDomainHash(dnsDomain), dns.TypeSOA)
+				curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DNSDomainHash(dnsDomain), dns.TypeSOA)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
 				if len(curSoaData) > 0 {
 					// We have an SOA so increment the serial
 					soaRr, _, err := dns.UnpackRR(curSoaData, 0)
 					cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
 					outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
-					soaRr.(*dns.SOA).Serial += 1
+					soaRr.(*dns.SOA).Serial++
 					outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
 					soaData = make([]byte, 16384)
 					offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
@@ -203,7 +203,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 					"domain":        dnsDomain,
 					"name":          dnsName,
 					"value":         dnsSetValue,
-					"ttl":           dnsSetTtl,
+					"ttl":           dnsSetTTL,
 					"owner":         domainOwner,
 					"networkid":     chainID,
 					"gas":           signedTx.Gas(),
@@ -224,7 +224,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 func init() {
 	dnsCmd.AddCommand(dnsSetCmd)
 	dnsFlags(dnsSetCmd)
-	dnsSetCmd.Flags().DurationVar(&dnsSetTtl, "ttl", time.Duration(0), "The time-to-live for the record")
+	dnsSetCmd.Flags().DurationVar(&dnsSetTTL, "ttl", time.Duration(0), "The time-to-live for the record")
 	dnsSetCmd.Flags().StringVar(&dnsSetValue, "value", "", "The value for the resource (separate multiple items with &&)")
 	dnsSetCmd.Flags().BoolVar(&dnsSetNoSoa, "nosoa", false, "Do not update the zone's SOA record")
 	addTransactionFlags(dnsSetCmd, "the owner of the domain")

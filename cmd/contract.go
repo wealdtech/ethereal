@@ -32,7 +32,7 @@ import (
 
 var contractStr string
 var contractAbi string
-var contractJson string
+var contractJSON string
 var contractName string
 
 // contractCmd represents the contract command
@@ -49,16 +49,16 @@ func init() {
 func contractFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&contractStr, "contract", "", "address of the contract")
 	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI, or path to ABI, for the contract")
-	cmd.Flags().StringVar(&contractJson, "json", "", "JSON, or path to JSON, for the contract as output by solc --combined-json=bin,abi")
+	cmd.Flags().StringVar(&contractJSON, "json", "", "JSON, or path to JSON, for the contract as output by solc --combined-json=bin,abi")
 	cmd.Flags().StringVar(&contractName, "name", "", "Name of the contract (required when using json)")
 }
 
 // parse contract given the information from various flags
 func parseContract(binStr string) *util.Contract {
 	var contract *util.Contract
-	if contractJson != "" {
+	if contractJSON != "" {
 		cli.Assert(contractName != "", quiet, "--name required with JSON")
-		contract, err = util.ParseCombinedJson(contractJson, contractName)
+		contract, err = util.ParseCombinedJSON(contractJSON, contractName)
 		cli.ErrCheck(err, quiet, "Failed to parse JSON")
 	} else {
 		contract = &util.Contract{}
@@ -115,7 +115,7 @@ func contractUnpack(abi abi.ABI, name string, data []byte) (result *[]*interface
 		err = abi.Unpack(&output, name, data)
 		res = append(res, &output)
 	} else {
-		for i, _ := range method.Outputs {
+		for i := range method.Outputs {
 			output := reflect.New(method.Outputs[i].Type.Type.Elem()).Elem().Interface()
 			res = append(res, &output)
 		}
@@ -165,9 +165,8 @@ func contractStringToValue(argType abi.Type, val string) (interface{}, error) {
 	case abi.BoolTy:
 		if val == "true" || val == "True" || val == "1" {
 			return true, nil
-		} else {
-			return false, nil
 		}
+		return false, nil
 	case abi.StringTy:
 		return val, nil
 	case abi.SliceTy:
@@ -273,9 +272,8 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.BoolTy:
 		if val.(bool) == true {
 			return "true", nil
-		} else {
-			return "false", nil
 		}
+		return "false", nil
 	case abi.StringTy:
 		return val.(string), nil
 	case abi.SliceTy:

@@ -31,7 +31,7 @@ import (
 )
 
 var transactionInfoRaw bool
-var transactionInfoJson bool
+var transactionInfoJSON bool
 var transactionInfoSignatures string
 
 // transactionInfoCmd represents the transaction info command
@@ -89,7 +89,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			os.Exit(0)
 		}
 
-		if transactionInfoJson {
+		if transactionInfoJSON {
 			json, err := tx.MarshalJSON()
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain JSON for transaction %s", txHash.Hex()))
 			fmt.Printf("%s\n", string(json))
@@ -202,6 +202,6 @@ func init() {
 	transactionCmd.AddCommand(transactionInfoCmd)
 	transactionFlags(transactionInfoCmd)
 	transactionInfoCmd.Flags().BoolVar(&transactionInfoRaw, "raw", false, "Output the transaction as raw hex")
-	transactionInfoCmd.Flags().BoolVar(&transactionInfoJson, "json", false, "Output the transaction as json")
+	transactionInfoCmd.Flags().BoolVar(&transactionInfoJSON, "json", false, "Output the transaction as json")
 	transactionInfoCmd.Flags().StringVar(&transactionInfoSignatures, "signatures", "", "Semicolon-separated list of custom transaction signatures (e.g. myFunc(address,bytes32);myFunc2(bool)")
 }

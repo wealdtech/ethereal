@@ -10,6 +10,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// Package util contains utilities for Ethereal
 package util
 
 import (
@@ -24,6 +26,7 @@ var ten = big.NewInt(10)
 var thousand = big.NewInt(1000)
 var million = big.NewInt(1000000)
 
+// TokenValueToString converts a token value to a suitable string representation
 func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output string) {
 	// Take a string version of the input
 	value := input.String()
@@ -55,6 +58,7 @@ func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output 
 	return
 }
 
+// StringToTokenValue converts a string to a number of tokens
 func StringToTokenValue(input string, decimals uint8) (output *big.Int, err error) {
 	output = big.NewInt(0)
 	if input == "" {

@@ -102,7 +102,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		abiOutput, err := contractUnpack(contract.Abi, methodName, []byte(result))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", methodName))
 		results := []string{}
-		for i, _ := range *abiOutput {
+		for i := range *abiOutput {
 			val, err := contractValueToString(method.Outputs[i].Type, *((*abiOutput)[i]))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", *((*abiOutput)[i])))
 			results = append(results, val)

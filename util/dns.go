@@ -6,8 +6,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto/sha3"
 )
 
-// DnsHash hashes a domain name
-func DnsDomainHash(domain string) (hash [32]byte) {
+// DNSDomainHash hashes a domain name
+func DNSDomainHash(domain string) (hash [32]byte) {
 	lower := strings.ToLower(domain)
 	sha := sha3.NewKeccak256()
 	sha.Write([]byte(lower))

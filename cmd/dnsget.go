@@ -74,7 +74,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 			}
 		}
 		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
-		nameHash := util.DnsDomainHash(dnsName)
+		nameHash := util.DNSDomainHash(dnsName)
 
 		// Obtain the registry contract
 		registryContract, err := ens.RegistryContract(client)

@@ -10,6 +10,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package util
 
 import (
@@ -30,8 +31,8 @@ type Contract struct {
 	Binary []byte
 }
 
-// ParseCombinedJson parses a combined JSON output of solc for a specific contract
-func ParseCombinedJson(input string, name string) (*Contract, error) {
+// ParseCombinedJSON parses a combined JSON output of solc for a specific contract
+func ParseCombinedJSON(input string, name string) (*Contract, error) {
 	var err error
 	var data []byte
 	if strings.HasPrefix(input, "{") {
@@ -44,13 +45,13 @@ func ParseCombinedJson(input string, name string) (*Contract, error) {
 		}
 	}
 
-	var contractsJson interface{}
-	err = json.Unmarshal(data, &contractsJson)
+	var contractsJSON interface{}
+	err = json.Unmarshal(data, &contractsJSON)
 	if err != nil {
 		return nil, err
 	}
-	contractsJsonMap := contractsJson.(map[string]interface{})
-	contracts, exists := contractsJsonMap["contracts"]
+	contractsJSONMap := contractsJSON.(map[string]interface{})
+	contracts, exists := contractsJSONMap["contracts"]
 	if !exists {
 		return nil, errors.New("JSON does not contain contracts element")
 	}
@@ -61,12 +62,12 @@ func ParseCombinedJson(input string, name string) (*Contract, error) {
 			// Found our contract
 			contract := &Contract{Name: name}
 
-			contractJson := contractValue.(map[string]interface{})
+			contractJSON := contractValue.(map[string]interface{})
 
 			// Obtain ABI
-			abiJson, exists := contractJson["abi"]
+			abiJSON, exists := contractJSON["abi"]
 			if exists {
-				abi, err := abi.JSON(strings.NewReader(abiJson.(string)))
+				abi, err := abi.JSON(strings.NewReader(abiJSON.(string)))
 				if err != nil {
 					return nil, err
 				}
@@ -74,7 +75,7 @@ func ParseCombinedJson(input string, name string) (*Contract, error) {
 			}
 
 			// Obtain binary
-			binStr, exists := contractJson["bin"]
+			binStr, exists := contractJSON["bin"]
 			if exists {
 				bin, err := hex.DecodeString(binStr.(string))
 				if err != nil {

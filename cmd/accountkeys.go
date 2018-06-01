@@ -68,9 +68,9 @@ const (
 )
 
 var (
-	ErrLocked  = accounts.NewAuthNeededError("password or unlock")
-	ErrNoMatch = errors.New("no key for given address or file")
-	ErrDecrypt = errors.New("could not decrypt key with given passphrase")
+	errLocked  = accounts.NewAuthNeededError("password or unlock")
+	errNoMatch = errors.New("no key for given address or file")
+	errDecrypt = errors.New("could not decrypt key with given passphrase")
 )
 
 // accountKeysCmd represents the account keys command
@@ -137,7 +137,7 @@ func init() {
 	accountKeysCmd.Flags().StringVar(&accountKeysPrivateKey, "privatekey", "", "private key for account keys")
 }
 
-func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byte, keyId []byte, err error) {
+func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byte, keyID []byte, err error) {
 	if keyProtected.Version != version {
 		return nil, nil, fmt.Errorf("Version not supported: %v", keyProtected.Version)
 	}
@@ -146,7 +146,7 @@ func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byt
 		return nil, nil, fmt.Errorf("Cipher not supported: %v", keyProtected.Crypto.Cipher)
 	}
 
-	keyId = uuid.Parse(keyProtected.Id)
+	keyID = uuid.Parse(keyProtected.ID)
 	mac, err := hex.DecodeString(keyProtected.Crypto.MAC)
 	if err != nil {
 		return nil, nil, err
@@ -169,18 +169,18 @@ func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byt
 
 	calculatedMAC := crypto.Keccak256(derivedKey[16:32], cipherText)
 	if !bytes.Equal(calculatedMAC, mac) {
-		return nil, nil, ErrDecrypt
+		return nil, nil, errDecrypt
 	}
 
 	plainText, err := aesCTRXOR(derivedKey[:16], cipherText, iv)
 	if err != nil {
 		return nil, nil, err
 	}
-	return plainText, keyId, err
+	return plainText, keyID, err
 }
 
-func decryptKeyV1(keyProtected *encryptedKeyJSONV1, auth string) (keyBytes []byte, keyId []byte, err error) {
-	keyId = uuid.Parse(keyProtected.Id)
+func decryptKeyV1(keyProtected *encryptedKeyJSONV1, auth string) (keyBytes []byte, keyID []byte, err error) {
+	keyID = uuid.Parse(keyProtected.ID)
 	mac, err := hex.DecodeString(keyProtected.Crypto.MAC)
 	if err != nil {
 		return nil, nil, err
@@ -203,27 +203,27 @@ func decryptKeyV1(keyProtected *encryptedKeyJSONV1, auth string) (keyBytes []byt
 
 	calculatedMAC := crypto.Keccak256(derivedKey[16:32], cipherText)
 	if !bytes.Equal(calculatedMAC, mac) {
-		return nil, nil, ErrDecrypt
+		return nil, nil, errDecrypt
 	}
 
 	plainText, err := aesCBCDecrypt(crypto.Keccak256(derivedKey[:16])[:16], cipherText, iv)
 	if err != nil {
 		return nil, nil, err
 	}
-	return plainText, keyId, err
+	return plainText, keyID, err
 }
 
 type encryptedKeyJSONV3 struct {
 	Address string     `json:"address"`
 	Crypto  cryptoJSON `json:"crypto"`
-	Id      string     `json:"id"`
+	ID      string     `json:"id"`
 	Version int        `json:"version"`
 }
 
 type encryptedKeyJSONV1 struct {
 	Address string     `json:"address"`
 	Crypto  cryptoJSON `json:"crypto"`
-	Id      string     `json:"id"`
+	ID      string     `json:"id"`
 	Version string     `json:"version"`
 }
 type cryptoJSON struct {
@@ -295,7 +295,7 @@ func aesCBCDecrypt(key, cipherText, iv []byte) ([]byte, error) {
 	decrypter.CryptBlocks(paddedPlaintext, cipherText)
 	plaintext := pkcs7Unpad(paddedPlaintext)
 	if plaintext == nil {
-		return nil, ErrDecrypt
+		return nil, errDecrypt
 	}
 	return plaintext, err
 }

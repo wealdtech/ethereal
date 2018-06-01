@@ -390,7 +390,7 @@ func txFrom(tx *types.Transaction) (address common.Address, err error) {
 }
 
 // Stolen from geth code as this is not exposed
-func deriveChainId(v *big.Int) *big.Int {
+func deriveChainID(v *big.Int) *big.Int {
 	if v.BitLen() <= 64 {
 		v := v.Uint64()
 		if v == 27 || v == 28 {
@@ -415,8 +415,7 @@ func isProtectedV(V *big.Int) bool {
 // Stolen from geth code as this is not exposed
 func deriveSigner(V *big.Int) types.Signer {
 	if V.Sign() != 0 && isProtectedV(V) {
-		return types.NewEIP155Signer(deriveChainId(V))
-	} else {
-		return types.HomesteadSigner{}
+		return types.NewEIP155Signer(deriveChainID(V))
 	}
+	return types.HomesteadSigner{}
 }
