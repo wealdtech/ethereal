@@ -78,6 +78,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 
 		data, err := contract.Abi.Pack(methodName, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
+		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
 		contractAddress, err := ens.Resolve(client, contractStr)
@@ -99,6 +100,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			os.Exit(0)
 		}
 
+		outputIf(verbose, fmt.Sprintf("Result is %x", []byte(result)))
 		abiOutput, err := contractUnpack(contract.Abi, methodName, []byte(result))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", methodName))
 		results := []string{}

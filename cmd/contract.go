@@ -125,6 +125,7 @@ func contractUnpack(abi abi.ABI, name string, data []byte) (result *[]*interface
 }
 
 func contractStringToValue(argType abi.Type, val string) (interface{}, error) {
+	val = strings.Trim(val, " ")
 	switch argType.T {
 	case abi.IntTy:
 		res := big.NewInt(0)
