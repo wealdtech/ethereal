@@ -70,6 +70,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 				if len(validTxs) > 0 {
 					if gasPriceLowest {
 						blockLowestGasPrice := validTxs[len(validTxs)-1].GasPrice()
+						outputIf(verbose, fmt.Sprintf("Lowest inclusion price for block %v is %s", blockNumber, etherutils.WeiToString(blockLowestGasPrice, true)))
 						if lowestGasPrice.Cmp(zero) == 0 || blockLowestGasPrice.Cmp(lowestGasPrice) < 0 {
 							lowestGasPrice = blockLowestGasPrice
 						}
