@@ -45,19 +45,21 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 						} else {
 							fmt.Printf("Location:\t%s\n", account.URL)
 							fmt.Printf("Address:\t%s\n", account.Address.Hex())
-							name, err := ens.ReverseResolve(client, &account.Address)
-							if err == nil {
-								fmt.Printf("Name:\t\t%s\n", name)
-							}
-							ctx, cancel := localContext()
-							defer cancel()
-							balance, err := client.BalanceAt(ctx, account.Address, nil)
-							if err == nil {
-								fmt.Printf("Balance:\t%s\n", etherutils.WeiToString(balance, true))
-							}
-							nonce, err := client.PendingNonceAt(ctx, account.Address)
-							if err == nil {
-								fmt.Printf("Next nonce:\t%v\n", nonce)
+							if !offline {
+								name, err := ens.ReverseResolve(client, &account.Address)
+								if err == nil {
+									fmt.Printf("Name:\t\t%s\n", name)
+								}
+								ctx, cancel := localContext()
+								defer cancel()
+								balance, err := client.BalanceAt(ctx, account.Address, nil)
+								if err == nil {
+									fmt.Printf("Balance:\t%s\n", etherutils.WeiToString(balance, true))
+								}
+								nonce, err := client.PendingNonceAt(ctx, account.Address)
+								if err == nil {
+									fmt.Printf("Next nonce:\t%v\n", nonce)
+								}
 							}
 							fmt.Println("")
 						}
