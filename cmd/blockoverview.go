@@ -36,6 +36,9 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var blockNumber *big.Int
 		var lastBlockTime *time.Time
+		if verbose {
+			fmt.Printf("Block\t Gas used/Gas limit\tBlock time\t\tGap\tCoinbase\n")
+		}
 		for i := blockOverviewBlocks; i > 0; i-- {
 			ctx, cancel := localContext()
 			defer cancel()
