@@ -21,10 +21,9 @@ var blockStr string
 
 // blockCmd represents the block command
 var blockCmd = &cobra.Command{
-	Use:     "block",
-	Aliases: []string{"tx"},
-	Short:   "Manage blocks",
-	Long:    `Obtain information about blocks and their transactions`,
+	Use:   "block",
+	Short: "Manage blocks",
+	Long:  `Obtain information about blocks and their transactions`,
 }
 
 func init() {

@@ -29,7 +29,7 @@ import (
 
 var blockInfoTransactions bool
 
-var blockInfoNumberRegexp = regexp.MustCompile("[0-9]+")
+var blockInfoNumberRegexp = regexp.MustCompile("^[0-9]+$")
 
 // blockInfoCmd represents the block info command
 var blockInfoCmd = &cobra.Command{
