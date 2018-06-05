@@ -80,10 +80,10 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 			if len(block.Uncles()) > 0 {
 				fmt.Println("Uncles:")
 				for i, uncle := range block.Uncles() {
-					fmt.Printf("\t%d: block %v (%v)\n", i, uncle.Number, big.NewInt(0).Sub(uncle.Number, block.Number()))
+					fmt.Printf("\t%d:\tblock:\t%v (%v)\n", i, uncle.Number, big.NewInt(0).Sub(uncle.Number, block.Number()))
+					fmt.Printf("\t\thash:\t0x%x\n", uncle.Hash())
 				}
 			}
-
 		} else {
 			fmt.Printf("Uncles:\t\t\t%v\n", len(block.Uncles()))
 		}
