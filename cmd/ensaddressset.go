@@ -16,27 +16,27 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
 )
 
-var ensResolverSetResolverStr string
+var ensAddressSetAddressStr string
 
-// ensResolverSetCmd represents the ens resolver set command
-var ensResolverSetCmd = &cobra.Command{
+// ensAddressSetCmd represents the ens resolver set command
+var ensAddressSetCmd = &cobra.Command{
 	Use:   "set",
-	Short: "Set the resolver of an ENS domain",
-	Long: `Set the resolver of a name registered with the Ethereum Name Service (ENS).  For example:
+	Short: "Set the address of an ENS domain",
+	Long: `Set the address of a name registered with the Ethereum Name Service (ENS).  For example:
 
-    ethereal ens resolver set --domain=enstest.eth --resolver=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase="my secret passphrase"
-
-If the resolver is not supplied then the public resolver for the network will be used.
+    ethereal ens address set --domain=enstest.eth --address=0x1234...5678 --passphrase="my secret passphrase"
 
 The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
-In quiet mode this will return 0 if the transaction to set the resolver is sent successfully, otherwise 1.`,
+In quiet mode this will return 0 if the transaction to set the address is sent successfully, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
@@ -49,26 +49,41 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 		cli.ErrCheck(err, quiet, "cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
-		// Set the resolver from either command-line or default
-		resolverAddress, err := ens.Resolve(client, ensResolverSetResolverStr)
-		if err != nil {
-			resolverAddress, err = ens.PublicResolver(client)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("no public resolver for network id %v", chainID))
-		}
+		// Obtain the address
+		address, err := ens.Resolve(client, ensAddressSetAddressStr)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("invalid name/address %s", ensAddressSetAddressStr))
+
+		// Obtain the resolver for this name
+		resolver, err := ens.ResolverContract(client, ensDomain)
+		cli.ErrCheck(err, quiet, "No resolver for that name")
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
-		tx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), resolverAddress)
+		signedTx, err := resolver.SetAddr(opts, ens.NameHash(ensDomain), address)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
-		if !quiet {
-			fmt.Println("Transaction ID is", tx.Hash().Hex())
+
+		log.WithFields(log.Fields{
+			"group":         "ens/address",
+			"command":       "set",
+			"domain":        ensDomain,
+			"address":       address.Hex(),
+			"networkid":     chainID,
+			"gas":           signedTx.Gas(),
+			"gasprice":      signedTx.GasPrice().String(),
+			"transactionid": signedTx.Hash().Hex(),
+		}).Info("success")
+
+		if quiet {
+			os.Exit(0)
 		}
+
+		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 
 func init() {
-	ensResolverCmd.AddCommand(ensResolverSetCmd)
-	ensResolverFlags(ensResolverSetCmd)
-	ensResolverSetCmd.Flags().StringVarP(&ensResolverSetResolverStr, "resolver", "r", "", "The resolver's name or address")
-	addTransactionFlags(ensResolverSetCmd, "passphrase for the account that owns the domain")
+	ensAddressCmd.AddCommand(ensAddressSetCmd)
+	ensAddressFlags(ensAddressSetCmd)
+	ensAddressSetCmd.Flags().StringVar(&ensAddressSetAddressStr, "address", "", "The name or address to which to resolve")
+	addTransactionFlags(ensAddressSetCmd, "passphrase for the account that owns the domain")
 }
