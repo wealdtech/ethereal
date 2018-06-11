@@ -95,9 +95,9 @@ func generateDataHash() []byte {
 		hashData = strings.ToLower(signatureHash) == "true"
 	}
 	if hashData {
-		outputIf(verbose, "Data will be hashed prior to signing")
 		// Hash the data
 		data = crypto.Keccak256(data)
+		outputIf(verbose, fmt.Sprintf("Hashed data is %x", data))
 	}
 	buffer := make([]byte, 0)
 	buffer = append(buffer, []byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d", len(data)))...)
