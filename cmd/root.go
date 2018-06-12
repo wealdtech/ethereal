@@ -319,6 +319,10 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		cli.ErrCheck(err, quiet, "Invalid private key")
 		signer = etherutils.KeySigner(chainID, key)
 	}
+	if signer == nil {
+		err = fmt.Errorf("no signer; please supply either passphrase or private key")
+		return
+	}
 
 	curNonce, err := currentNonce(sender)
 	if err != nil {
