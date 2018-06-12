@@ -88,7 +88,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
 
 		amount := big.NewInt(0)
-		if contractDeployAmount != "" {
+		if contractSendAmount != "" {
 			amount, err = etherutils.StringToWei(contractSendAmount)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid amount %s", contractSendAmount))
 		}
