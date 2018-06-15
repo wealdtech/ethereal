@@ -42,11 +42,11 @@ func RegistryContractAddress(client *ethclient.Client) (address common.Address, 
 	}
 
 	// Instantiate the registry contract
-	if chainID.Cmp(params.MainnetChainConfig.ChainId) == 0 {
+	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		address = common.HexToAddress("314159265dd8dbb310642f98f50c066173c1259b")
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		address = common.HexToAddress("112234455c3a32fd11230c42e7bccd4a84e02010")
-	} else if chainID.Cmp(params.RinkebyChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		address = common.HexToAddress("e7410170f87102DF0055eB195163A03B7F2Bff4A")
 	} else {
 		err = fmt.Errorf("No contract for network ID %v", chainID)

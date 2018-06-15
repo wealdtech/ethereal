@@ -63,25 +63,13 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		domainOwner, err := registryContract.Owner(nil, domainHash)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
-		//		{
-		//			data := make([]byte, 16384)
-		//			offset := 0
-		//			source := fmt.Sprintf("%s %d %s", dnsName, int(dnsSetTTL.Seconds()), dnsResource)
-		//			resource, err := dns.NewRR(source)
-		//			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
-		//			offset, err = dns.PackRR(resource, data, offset, nil, false)
-		//			data = data[0:offset]
-		//			fmt.Printf("Data is %x\n", data)
-		//			os.Exit(0)
-		//		}
-
 		cli.Assert(bytes.Compare(domainOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", domainOwner.Hex()))
 
 		// Obtain resolver for the domain
 		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
-		resolverContract, err := ens.DnsResolverContractByAddress(client, resolverAddress)
+		resolverContract, err := ens.DNSResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
@@ -102,12 +90,11 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			w.Write(data[0:offset])
 			w.Close()
 			data = b.Bytes()
-			fmt.Printf("Data size is %d\n", len(data))
 
 			// Build the transaction
 			opts, err := generateTxOpts(domainOwner)
 			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-			signedTx, err = resolverContract.SetDnsZone(opts, domainHash, data)
+			signedTx, err = resolverContract.SetDNSZone(opts, domainHash, data)
 			cli.ErrCheck(err, quiet, "Failed to create transaction")
 			if offline {
 				if !quiet {
@@ -143,7 +130,6 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				}
 			}
 			outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
-			nameHash := util.DNSDomainHash(dnsName)
 			cli.Assert(dnsSetTTL != time.Duration(0), quiet, "--ttl is required")
 
 			cli.Assert(dnsResource != "", quiet, "--resource is required")
@@ -168,7 +154,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			var soaData []byte
 			if !dnsSetNoSoa {
 				// Obtain the current SOA
-				curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DNSDomainHash(dnsDomain), dns.TypeSOA)
+				curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DNSWireFormatDomainHash(dnsDomain), dns.TypeSOA)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
 				if len(curSoaData) > 0 {
 					// We have an SOA so increment the serial
@@ -182,12 +168,12 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 					soaData = soaData[0:offset]
 				}
 			}
-			fmt.Printf("SOA data is %x\n", soaData)
+			data = append(data, soaData...)
 
 			// Build the transaction
 			opts, err := generateTxOpts(domainOwner)
 			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-			signedTx, err = resolverContract.SetDnsRecord(opts, domainHash, nameHash, resourceNum, data, soaData)
+			signedTx, err = resolverContract.SetDNSRecords(opts, domainHash, data)
 			cli.ErrCheck(err, quiet, "Failed to create transaction")
 			if offline {
 				if !quiet {

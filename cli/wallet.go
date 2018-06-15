@@ -72,11 +72,11 @@ func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, er
 
 func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
 	keydir := node.DefaultDataDir()
-	if chainID.Cmp(params.MainnetChainConfig.ChainId) == 0 {
+	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		// Nothing to add for mainnet
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "testnet")
-	} else if chainID.Cmp(params.RinkebyChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -90,11 +90,11 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 
 func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	keydir := node.DefaultDataDir()
-	if chainID.Cmp(params.MainnetChainConfig.ChainId) == 0 {
+	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		// Nothing to add for mainnet
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "testnet")
-	} else if chainID.Cmp(params.RinkebyChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -119,9 +119,9 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 		return nil, fmt.Errorf("Unsupported operating system")
 	}
 
-	if chainID.Cmp(params.MainnetChainConfig.ChainId) == 0 {
+	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "ethereum")
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "test")
 	}
 
@@ -148,9 +148,9 @@ func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 		return nil, fmt.Errorf("Unsupported operating system")
 	}
 
-	if chainID.Cmp(params.MainnetChainConfig.ChainId) == 0 {
+	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "ethereum")
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainId) == 0 {
+	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "test")
 	}
 

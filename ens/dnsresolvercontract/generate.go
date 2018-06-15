@@ -1,3 +1,3 @@
 package dnsresolvercontract
 
-//go:generate abigen -abi dnsresolver.abi -out dnsresolver.go -pkg dnsresolvercontract -type DnsResolverContract
+//go:generate abigen -abi dnsresolver.abi -out dnsresolver.go -pkg dnsresolvercontract -type DNSResolverContract

@@ -29,13 +29,13 @@ import (
 	"github.com/wealdtech/ethereal/ens/dnsresolvercontract"
 )
 
-// CreateDnsResolverSession creates a session suitable for multiple calls
-func CreateDnsResolverSession(chainID *big.Int, wallet *accounts.Wallet, account *accounts.Account, passphrase string, contract *dnsresolvercontract.DnsResolverContract, gasPrice *big.Int) *dnsresolvercontract.DnsResolverContractSession {
+// CreateDNSResolverSession creates a session suitable for multiple calls
+func CreateDNSResolverSession(chainID *big.Int, wallet *accounts.Wallet, account *accounts.Account, passphrase string, contract *dnsresolvercontract.DNSResolverContract, gasPrice *big.Int) *dnsresolvercontract.DNSResolverContractSession {
 	// Create a signer
 	signer := etherutils.AccountSigner(chainID, wallet, account, passphrase)
 
 	// Return our session
-	session := &dnsresolvercontract.DnsResolverContractSession{
+	session := &dnsresolvercontract.DNSResolverContractSession{
 		Contract: contract,
 		CallOpts: bind.CallOpts{
 			Pending: true,
@@ -50,31 +50,25 @@ func CreateDnsResolverSession(chainID *big.Int, wallet *accounts.Wallet, account
 	return session
 }
 
-// DnsRecord fetches a DNS record
-func DnsRecord(client *ethclient.Client, domain string, name string, rrType uint16) (data []byte, err error) {
-	contract, err := DnsResolverContract(client, domain)
+// DNSRecord fetches a DNS record
+func DNSRecord(client *ethclient.Client, domain string, name string, rrType uint16) (data []byte, err error) {
+	contract, err := DNSResolverContract(client, domain)
 	if err == nil {
 		data, err = contract.DnsRecord(nil, NameHash(domain), LabelHash(name), rrType)
 	}
 	return
 }
 
-// SetDnsRecord sets a DNS record
-func SetDnsRecord(session *dnsresolvercontract.DnsResolverContractSession, domain string, name string, rrType uint16, data []byte, soaData []byte) (tx *types.Transaction, err error) {
-	tx, err = session.SetDnsRecord(NameHash(domain), LabelHash(name), rrType, data, soaData)
+// SetDNSRecords sets DNS records
+func SetDNSRecords(session *dnsresolvercontract.DNSResolverContractSession, domain string, data []byte) (tx *types.Transaction, err error) {
+	tx, err = session.SetDNSRecords(NameHash(domain), data)
 	return
 }
 
-// ClearDnsRecord clears a DNS record
-func ClearDnsRecord(session *dnsresolvercontract.DnsResolverContractSession, domain string, name string, rrType uint16, soaData []byte) (tx *types.Transaction, err error) {
-	tx, err = session.ClearDnsRecord(NameHash(domain), LabelHash(name), rrType, soaData)
-	return
-}
-
-// DnsResolverContractByAddress instantiates the resolver contract at aspecific address
-func DnsResolverContractByAddress(client *ethclient.Client, resolverAddress common.Address) (resolver *dnsresolvercontract.DnsResolverContract, err error) {
+// DNSResolverContractByAddress instantiates the resolver contract at aspecific address
+func DNSResolverContractByAddress(client *ethclient.Client, resolverAddress common.Address) (resolver *dnsresolvercontract.DNSResolverContract, err error) {
 	// Instantiate the resolver contract
-	resolver, err = dnsresolvercontract.NewDnsResolverContract(resolverAddress, client)
+	resolver, err = dnsresolvercontract.NewDNSResolverContract(resolverAddress, client)
 	if err != nil {
 		return
 	}
@@ -92,8 +86,8 @@ func DnsResolverContractByAddress(client *ethclient.Client, resolverAddress comm
 	return
 }
 
-// DnsResolverContract obtains the resolver contract for a domain
-func DnsResolverContract(client *ethclient.Client, domain string) (resolver *dnsresolvercontract.DnsResolverContract, err error) {
+// DNSResolverContract obtains the resolver contract for a domain
+func DNSResolverContract(client *ethclient.Client, domain string) (resolver *dnsresolvercontract.DNSResolverContract, err error) {
 	resolverAddress, err := resolverAddress(client, domain)
 	if err != nil {
 		return
@@ -103,6 +97,6 @@ func DnsResolverContract(client *ethclient.Client, domain string) (resolver *dns
 		return
 	}
 
-	resolver, err = DnsResolverContractByAddress(client, resolverAddress)
+	resolver, err = DNSResolverContractByAddress(client, resolverAddress)
 	return
 }

@@ -26,19 +26,11 @@
         "type": "bytes32"
       },
       {
-        "name": "name",
-        "type": "bytes32"
-      },
-      {
-        "name": "resource",
-        "type": "uint16"
-      },
-      {
-        "name": "soaData",
+        "name": "data",
         "type": "bytes"
       }
     ],
-    "name": "clearDnsRecord",
+    "name": "setDNSRecords",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -75,15 +67,15 @@
     "constant": false,
     "inputs": [
       {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "key",
+        "name": "_key",
         "type": "string"
       },
       {
-        "name": "value",
+        "name": "_value",
         "type": "string"
       }
     ],
@@ -124,33 +116,15 @@
     "constant": false,
     "inputs": [
       {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "setDnsZone",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "node",
+        "name": "_x",
         "type": "bytes32"
       },
       {
-        "name": "x",
-        "type": "bytes32"
-      },
-      {
-        "name": "y",
+        "name": "_y",
         "type": "bytes32"
       }
     ],
@@ -206,29 +180,6 @@
         "type": "bytes32"
       },
       {
-        "name": "name",
-        "type": "bytes32"
-      }
-    ],
-    "name": "hasDnsRecords",
-    "outputs": [
-      {
-        "name": "hasRecords",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "node",
-        "type": "bytes32"
-      },
-      {
         "name": "key",
         "type": "string"
       }
@@ -252,11 +203,29 @@
         "type": "bytes32"
       },
       {
-        "name": "contentType",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "setDNSZone",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_node",
+        "type": "bytes32"
+      },
+      {
+        "name": "_contentType",
         "type": "uint256"
       },
       {
-        "name": "data",
+        "name": "_data",
         "type": "bytes"
       }
     ],
@@ -308,82 +277,15 @@
     "constant": false,
     "inputs": [
       {
-        "name": "node",
-        "type": "bytes32"
-      }
-    ],
-    "name": "clearDnsZone",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "name",
+        "name": "_name",
         "type": "string"
       }
     ],
     "name": "setName",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "nameEntriesCount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "node",
-        "type": "bytes32"
-      },
-      {
-        "name": "name",
-        "type": "bytes32"
-      },
-      {
-        "name": "resource",
-        "type": "uint16"
-      },
-      {
-        "name": "data",
-        "type": "bytes"
-      },
-      {
-        "name": "soaData",
-        "type": "bytes"
-      }
-    ],
-    "name": "setDnsRecord",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -417,52 +319,28 @@
     "type": "function"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
         "name": "node",
         "type": "bytes32"
       }
     ],
-    "name": "hasDnsZone",
-    "outputs": [
-      {
-        "name": "hasRecords",
-        "type": "bool"
-      }
-    ],
+    "name": "clearDNSZone",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "soaRecords",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "hash",
+        "name": "_hash",
         "type": "bytes32"
       }
     ],
@@ -499,11 +377,11 @@
     "constant": false,
     "inputs": [
       {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "addr",
+        "name": "_addr",
         "type": "address"
       }
     ],
@@ -542,6 +420,55 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "name",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "name": "resource",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "name": "length",
+        "type": "uint256"
+      }
+    ],
+    "name": "Updated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "node",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "name",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "name": "resource",
+        "type": "uint16"
+      }
+    ],
+    "name": "Deleted",
+    "type": "event"
   },
   {
     "anonymous": false,

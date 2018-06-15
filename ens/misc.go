@@ -13,7 +13,7 @@ func DomainLevel(name string) (level int) {
 	return len(strings.Split(name, ".")) - 1
 }
 
-// Normalise an ENS domain
+// NormaliseDomain turns ENS domain in to normal form
 func NormaliseDomain(domain string) string {
 	wildcard := false
 	if strings.HasPrefix(domain, "*.") {
@@ -37,7 +37,7 @@ func NormaliseDomain(domain string) string {
 	return output
 }
 
-// Obtain the TLD of an ENS domain
+// Tld obtains the top-level domain of an ENS name
 func Tld(domain string) string {
 	domain = NormaliseDomain(domain)
 	tld, err := DomainPart(domain, -1)
@@ -70,9 +70,8 @@ func DomainPart(domain string, part int) (string, error) {
 	}
 	if part < 0 {
 		return parts[len(parts)+part], nil
-	} else {
-		return parts[part-1], nil
 	}
+	return parts[part-1], nil
 }
 
 func abs(x int) int {

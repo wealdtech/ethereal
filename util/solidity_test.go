@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-func TestParseCombinedJson(t *testing.T) {
+func TestParseCombinedJSON(t *testing.T) {
 	tests := []struct {
 		input    string
 		inputErr error
@@ -26,7 +26,7 @@ func TestParseCombinedJson(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result, err := ParseCombinedJson(tt.input, tt.name)
+		_, err := ParseCombinedJSON(tt.input, tt.name)
 		if err != tt.inputErr {
 			t.Errorf("Failure: parsing resulted in %v (expected %v)", err, tt.inputErr)
 		}

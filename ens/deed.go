@@ -27,7 +27,7 @@ func DeedContract(client *ethclient.Client, address *common.Address) (deed *deed
 	return
 }
 
-// DeedContract obtains the deed contract for a particular name
+// DeedContractFor obtains the deed contract for a particular name
 func DeedContractFor(client *ethclient.Client, registrar *registrarcontract.RegistrarContract, name string) (deedContract *deedcontract.DeedContract, err error) {
 	_, deedAddress, _, _, _, err := Entry(registrar, client, name)
 	if err != nil {

@@ -42,17 +42,6 @@ var dnsGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//		jdata, err := hex.DecodeString("037777770574657374340365746800000100010000a8c0000401020304057465737434036574680000060001000054600039036e733105746573743403657468000a686f73746d617374657205746573743403657468000000000400000e100000025800093a800000012c")
-		//		joffset := 0
-		//		var jresult dns.RR
-		//		for joffset < len(jdata) {
-		//			jresult, joffset, err = dns.UnpackRR(jdata, joffset)
-		//			if err == nil {
-		//				fmt.Println(jresult)
-		//			}
-		//		}
-		//		os.Exit(0)
-
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
@@ -74,7 +63,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 			}
 		}
 		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
-		nameHash := util.DNSDomainHash(dnsName)
+		nameHash := util.DNSWireFormatDomainHash(dnsName)
 
 		// Obtain the registry contract
 		registryContract, err := ens.RegistryContract(client)
@@ -83,7 +72,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		// Obtain resolver for the domain
 		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
-		resolverContract, err := ens.DnsResolverContractByAddress(client, resolverAddress)
+		resolverContract, err := ens.DNSResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
