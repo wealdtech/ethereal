@@ -19,6 +19,7 @@ import (
 	"io"
 	"math/big"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"unsafe"
@@ -57,7 +58,10 @@ func contractFlags(cmd *cobra.Command) {
 func parseContract(binStr string) *util.Contract {
 	var contract *util.Contract
 	if contractJSON != "" {
-		cli.Assert(contractName != "", quiet, "--name required with JSON")
+		if contractName == "" {
+			// Attempt to obtain the contract name from the JSON file
+			contractName = strings.Split(filepath.Base(contractJSON), ".")[0]
+		}
 		contract, err = util.ParseCombinedJSON(contractJSON, contractName)
 		cli.ErrCheck(err, quiet, "Failed to parse JSON")
 	} else {

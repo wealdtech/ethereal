@@ -87,6 +87,5 @@ func ParseCombinedJSON(input string, name string) (*Contract, error) {
 			return contract, nil
 		}
 	}
-	return nil, errors.New("No such contract")
-
+	return nil, fmt.Errorf("no contract \"%s\" in JSON; use --name to provide the name of the contract", name)
 }
