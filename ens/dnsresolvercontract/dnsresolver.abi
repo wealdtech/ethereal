@@ -176,6 +176,29 @@
     "constant": true,
     "inputs": [
       {
+        "name": "_node",
+        "type": "bytes32"
+      },
+      {
+        "name": "x",
+        "type": "bytes32"
+      }
+    ],
+    "name": "hasDNSRecords",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "node",
         "type": "bytes32"
       },
@@ -295,6 +318,29 @@
     "constant": true,
     "inputs": [
       {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "nameEntriesCount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "node",
         "type": "bytes32"
       },
@@ -322,7 +368,7 @@
     "constant": false,
     "inputs": [
       {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       }
     ],
