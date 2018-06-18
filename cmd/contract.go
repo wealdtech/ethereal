@@ -306,105 +306,12 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.AddressTy:
 		return val.(common.Address).Hex(), nil
 	case abi.FixedBytesTy:
-		switch argType.Size {
-		case 1:
-			castVal := val.([1]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 2:
-			castVal := val.([2]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 3:
-			castVal := val.([3]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 4:
-			castVal := val.([4]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 5:
-			castVal := val.([5]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 6:
-			castVal := val.([6]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 7:
-			castVal := val.([7]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 8:
-			castVal := val.([8]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 9:
-			castVal := val.([9]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 10:
-			castVal := val.([10]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 11:
-			castVal := val.([11]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 12:
-			castVal := val.([12]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 13:
-			castVal := val.([13]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 14:
-			castVal := val.([14]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 15:
-			castVal := val.([15]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 16:
-			castVal := val.([16]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 17:
-			castVal := val.([17]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 18:
-			castVal := val.([18]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 19:
-			castVal := val.([19]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 20:
-			castVal := val.([20]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 21:
-			castVal := val.([21]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 22:
-			castVal := val.([22]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 23:
-			castVal := val.([23]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 24:
-			castVal := val.([24]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 25:
-			castVal := val.([25]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 26:
-			castVal := val.([26]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 27:
-			castVal := val.([27]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 28:
-			castVal := val.([28]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 29:
-			castVal := val.([29]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 30:
-			castVal := val.([30]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 31:
-			castVal := val.([31]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
-		case 32:
-			castVal := val.([32]byte)
-			return fmt.Sprintf("0x%s", hex.EncodeToString(castVal[:])), nil
+		arrayVal := reflect.ValueOf(val)
+		castVal := make([]byte, arrayVal.Len())
+		for i := 0; i < arrayVal.Len(); i++ {
+			castVal[i] = byte(arrayVal.Index(i).Uint())
 		}
-		return "", fmt.Errorf("Invalid byte size %d", argType.Size)
+		return fmt.Sprintf("0x%s", hex.EncodeToString(castVal)), nil
 	case abi.BytesTy:
 		return fmt.Sprintf("0x%s", hex.EncodeToString(val.([]byte))), nil
 	case abi.HashTy:
