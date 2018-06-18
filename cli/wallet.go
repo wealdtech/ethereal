@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// ObtainWallets obtains all known wallets for a given chain
 func ObtainWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	var wallets []accounts.Wallet
 

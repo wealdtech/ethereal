@@ -33,6 +33,7 @@ import (
 	"github.com/wealdtech/ethereal/ens/registrycontract"
 )
 
+// RegistryContractAddress obtains the address of the registry contract for a chain
 func RegistryContractAddress(client *ethclient.Client) (address common.Address, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

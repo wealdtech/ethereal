@@ -65,7 +65,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 			if err == nil {
 				decimals, err := token.Decimals(nil)
 				if err == nil {
-					fmt.Println("Sweeping %s %s\n", util.TokenValueToString(balance, decimals, false), symbol)
+					fmt.Printf("Sweeping %s %s\n", util.TokenValueToString(balance, decimals, false), symbol)
 				}
 			}
 		}

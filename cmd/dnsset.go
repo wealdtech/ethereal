@@ -83,6 +83,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 			for rec := range dns.ParseZone(file, dnsDomain, "") {
 				cli.Assert(rec.Error == nil, quiet, fmt.Sprintf("Failed to parse zone file %s: %v", dnsZonefile, rec.Error))
 				offset, err = dns.PackRR(rec.RR, data, offset, nil, false)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", rec.RR))
 			}
 			var b bytes.Buffer
 			w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
@@ -148,6 +149,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				resource, err := dns.NewRR(source)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
 				offset, err = dns.PackRR(resource, data, offset, nil, false)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", resource))
 			}
 			data = data[0:offset]
 
@@ -165,6 +167,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 					outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
 					soaData = make([]byte, 16384)
 					offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
+					cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", soaRr))
 					soaData = soaData[0:offset]
 				}
 			}

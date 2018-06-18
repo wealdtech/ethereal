@@ -32,6 +32,7 @@ import (
 	"github.com/wealdtech/ethereal/ens/registrycontract"
 )
 
+// RegistrarContractAddress obtains the registrar contract address for a given domain
 func RegistrarContractAddress(client *ethclient.Client, domain string) (address common.Address, err error) {
 	// Obtain a registry contract
 	registry, err := RegistryContract(client)
@@ -199,6 +200,7 @@ func FinishAuction(session *registrarcontract.RegistrarContractSession, name str
 	return
 }
 
+// Transfer transfers domain ownership to a new address
 func Transfer(session *registrarcontract.RegistrarContractSession, name string, to common.Address) (tx *types.Transaction, err error) {
 	domain, err := Domain(name)
 	if err != nil {

@@ -10,6 +10,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package txdata
 
 import (
@@ -58,9 +59,8 @@ func DataToString(input []byte) string {
 		}
 		buffer.WriteString(")")
 		return buffer.String()
-	} else {
-		return fmt.Sprintf("%x", input)
 	}
+	return fmt.Sprintf("%x", input)
 }
 
 // EventToString takes a transaction's event information and converts it to a useful representatino if one exists
@@ -68,40 +68,39 @@ func EventToString(input *types.Log) string {
 	function, exists := events[input.Topics[0]]
 	if !exists {
 		return ""
-	} else {
-		var buffer bytes.Buffer
-		buffer.WriteString(fmt.Sprintf("%s(", function.name))
+	}
+	var buffer bytes.Buffer
+	buffer.WriteString(fmt.Sprintf("%s(", function.name))
 
-		// Turn topics in to a byte array
-		topics := make([]byte, 32*len(input.Topics))
-		for i := range input.Topics {
-			copy(topics[i*32:i*32+32], input.Topics[i].Bytes())
-		}
+	// Turn topics in to a byte array
+	topics := make([]byte, 32*len(input.Topics))
+	for i := range input.Topics {
+		copy(topics[i*32:i*32+32], input.Topics[i].Bytes())
+	}
 
-		curTopic := 1
-		for i, param := range function.params {
-			t, err := abi.NewType(param)
-			if err == nil {
-				var res string
-				var err error
-				if len(input.Topics) > curTopic {
-					res, err = valueToString(t, uint32(curTopic), 0, topics)
-					curTopic++
-				} else {
-					res, err = valueToString(t, uint32(i+1-curTopic), 0, input.Data)
-				}
-				if err != nil {
-					res = err.Error()
-				}
-				buffer.WriteString(fmt.Sprintf("%s", res))
-				if i < len(function.params)-1 {
-					buffer.WriteString(fmt.Sprintf(","))
-				}
+	curTopic := 1
+	for i, param := range function.params {
+		t, err := abi.NewType(param)
+		if err == nil {
+			var res string
+			var err error
+			if len(input.Topics) > curTopic {
+				res, err = valueToString(t, uint32(curTopic), 0, topics)
+				curTopic++
+			} else {
+				res, err = valueToString(t, uint32(i+1-curTopic), 0, input.Data)
+			}
+			if err != nil {
+				res = err.Error()
+			}
+			buffer.WriteString(fmt.Sprintf("%s", res))
+			if i < len(function.params)-1 {
+				buffer.WriteString(fmt.Sprintf(","))
 			}
 		}
-		buffer.WriteString(")")
-		return buffer.String()
 	}
+	buffer.WriteString(")")
+	return buffer.String()
 }
 
 func contractValueToString(argType abi.Type, index uint32, data []byte) (string, error) {
@@ -117,9 +116,8 @@ func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (
 	case abi.BoolTy:
 		if data[offset+index*32+31] == 0x01 {
 			return "true", nil
-		} else {
-			return "false", nil
 		}
+		return "false", nil
 	case abi.StringTy:
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
 		len := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
@@ -175,6 +173,7 @@ func AddFunctionSignature(signature string) {
 	events[hash] = function{name: name, params: params}
 }
 
+// InitFunctionMap initialises the function (and event) map with known signatures
 func InitFunctionMap() {
 	functions = make(map[[4]byte]function)
 	events = make(map[[32]byte]function)

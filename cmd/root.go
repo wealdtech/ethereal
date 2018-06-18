@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"errors"
 	"fmt"
 	"math/big"
@@ -363,7 +364,8 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 		}
 		signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
 	} else if viper.GetString("privatekey") != "" {
-		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
+		var key *ecdsa.PrivateKey
+		key, err = crypto.HexToECDSA(viper.GetString("privatekey"))
 		cli.ErrCheck(err, quiet, "Invalid private key")
 		keyAddr := crypto.PubkeyToAddress(key.PublicKey)
 		if signer != keyAddr {
