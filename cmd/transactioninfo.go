@@ -170,7 +170,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(tx.Data()))
 		}
 
-		if verbose && len(receipt.Logs) > 0 {
+		if verbose && receipt != nil && len(receipt.Logs) > 0 {
 			fmt.Printf("Logs:\n")
 			for i, log := range receipt.Logs {
 				fmt.Printf("\t%d:\n", i)
