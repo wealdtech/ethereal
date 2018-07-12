@@ -67,17 +67,6 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 		}
 
-		//		{
-		//			ctx, cancel := localContext()
-		//			defer cancel()
-		//			var err error
-		//			txs, err := client.PendingTransactions(ctx)
-		//			for _, tx := range txs {
-		//				fmt.Printf("%v\n", tx)
-		//			}
-		//			os.Exit(0)
-		//		}
-
 		if quiet {
 			os.Exit(0)
 		}
@@ -126,6 +115,11 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 					fmt.Printf("Result:\t\t\tSucceeded\n")
 				}
 			}
+		}
+
+		if receipt != nil && len(receipt.Logs) > 0 {
+			// We can obtain the block number from the log
+			fmt.Printf("Block:\t\t\t%d\n", receipt.Logs[0].BlockNumber)
 		}
 
 		fromAddress, err := txFrom(tx)
