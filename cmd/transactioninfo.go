@@ -160,7 +160,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
 		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
 
-		if len(tx.Data()) > 0 {
+		if tx.To() != nil && len(tx.Data()) > 0 {
 			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(tx.Data()))
 		}
 
