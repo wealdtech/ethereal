@@ -19,6 +19,8 @@ Ethereal supports all main Ethereum networks  It auto-detects the network by que
 
 ## Examples
 
+Note that for most of the examples below additional information can be obtained by adding the `--verbose` flag to the command line.
+
 ### Increase the gas price for transaction
 You have submitted a transaction to the network but it's taking a long time to process because the gas price is too low.
 
@@ -50,9 +52,31 @@ where `token` is the token to transfer, `from` is the address from which the tok
 
 *Please note that before using a token name such as 'omg' you should confirm that the contract address matches the expected contract address by using `ethereal info --token=omg` or similar.*
 
+## Obtain information about a transaction
+
+```
+ethereal transaction info --transaction=0x5097a149236b675a5807ea78c657b64c71da48789476828fede68126769b24be
+```
+
+### Deploy a contract
+Ethereal can deploy a contract in various ways, but the easiest is to use `solc` to create a file containing both the ABI and bytecode, and use that.  For example:
+
+```
+solc --optimize --combined-json=abi,bin MyContract.sol >MyContract.json
+ethereal contract deploy --json=MyContract.json --from=0xdd8686E0Ea24bc74ea6a4688926b5397D167930E --passphrase=secret --constructor='constructor("hello")'
+```
+
+If the contract does not have a constructor the `--constructor` argument can be omitted.
+
 ### Call a contract
 You want to obtain information directly from a contract using its ABI, for example call the `balanceOf()` call of an ERC-20 token.
 ```
 ethereal contract call --abi='./erc20.abi' --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call='balanceOf(0x5FfC014343cd971B7eb70732021E26C35B744cc4)'
 ```
 where `abi` is the path to the contract's ABI, `contract` is the address of the contract to call, and `call` is the ABI method to call.
+
+You can also use the JSON file as referenced in 'Deploy a contract' above, for example:
+
+```
+ethereal contract call --json=MyContract.json --from=0xdd8686E0Ea24bc74ea6a4688926b5397D167930E --call="getString()"
+```
