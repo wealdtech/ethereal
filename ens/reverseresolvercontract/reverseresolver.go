@@ -1,5 +1,5 @@
-// This file is an automatically generated Go binding. Do not modify as any
-// change will likely be lost upon the next re-generation!
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
 
 package reverseresolvercontract
 
@@ -19,6 +19,7 @@ const ReverseResolverABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"ens\",\
 type ReverseResolver struct {
 	ReverseResolverCaller     // Read-only binding to the contract
 	ReverseResolverTransactor // Write-only binding to the contract
+	ReverseResolverFilterer   // Log filterer for contract events
 }
 
 // ReverseResolverCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -28,6 +29,11 @@ type ReverseResolverCaller struct {
 
 // ReverseResolverTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ReverseResolverTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// ReverseResolverFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type ReverseResolverFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -70,16 +76,16 @@ type ReverseResolverTransactorRaw struct {
 
 // NewReverseResolver creates a new instance of ReverseResolver, bound to a specific deployed contract.
 func NewReverseResolver(address common.Address, backend bind.ContractBackend) (*ReverseResolver, error) {
-	contract, err := bindReverseResolver(address, backend, backend)
+	contract, err := bindReverseResolver(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ReverseResolver{ReverseResolverCaller: ReverseResolverCaller{contract: contract}, ReverseResolverTransactor: ReverseResolverTransactor{contract: contract}}, nil
+	return &ReverseResolver{ReverseResolverCaller: ReverseResolverCaller{contract: contract}, ReverseResolverTransactor: ReverseResolverTransactor{contract: contract}, ReverseResolverFilterer: ReverseResolverFilterer{contract: contract}}, nil
 }
 
 // NewReverseResolverCaller creates a new read-only instance of ReverseResolver, bound to a specific deployed contract.
 func NewReverseResolverCaller(address common.Address, caller bind.ContractCaller) (*ReverseResolverCaller, error) {
-	contract, err := bindReverseResolver(address, caller, nil)
+	contract, err := bindReverseResolver(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -88,20 +94,29 @@ func NewReverseResolverCaller(address common.Address, caller bind.ContractCaller
 
 // NewReverseResolverTransactor creates a new write-only instance of ReverseResolver, bound to a specific deployed contract.
 func NewReverseResolverTransactor(address common.Address, transactor bind.ContractTransactor) (*ReverseResolverTransactor, error) {
-	contract, err := bindReverseResolver(address, nil, transactor)
+	contract, err := bindReverseResolver(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &ReverseResolverTransactor{contract: contract}, nil
 }
 
+// NewReverseResolverFilterer creates a new log filterer instance of ReverseResolver, bound to a specific deployed contract.
+func NewReverseResolverFilterer(address common.Address, filterer bind.ContractFilterer) (*ReverseResolverFilterer, error) {
+	contract, err := bindReverseResolver(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &ReverseResolverFilterer{contract: contract}, nil
+}
+
 // bindReverseResolver binds a generic wrapper to an already deployed contract.
-func bindReverseResolver(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindReverseResolver(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ReverseResolverABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, nil), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

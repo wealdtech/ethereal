@@ -1,5 +1,5 @@
-// This file is an automatically generated Go binding. Do not modify as any
-// change will likely be lost upon the next re-generation!
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
 
 package reverseregistrarcontract
 
@@ -19,6 +19,7 @@ const ReverseRegistrarContractABI = "[{\"constant\":false,\"inputs\":[{\"name\":
 type ReverseRegistrarContract struct {
 	ReverseRegistrarContractCaller     // Read-only binding to the contract
 	ReverseRegistrarContractTransactor // Write-only binding to the contract
+	ReverseRegistrarContractFilterer   // Log filterer for contract events
 }
 
 // ReverseRegistrarContractCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -28,6 +29,11 @@ type ReverseRegistrarContractCaller struct {
 
 // ReverseRegistrarContractTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ReverseRegistrarContractTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// ReverseRegistrarContractFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type ReverseRegistrarContractFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -70,16 +76,16 @@ type ReverseRegistrarContractTransactorRaw struct {
 
 // NewReverseRegistrarContract creates a new instance of ReverseRegistrarContract, bound to a specific deployed contract.
 func NewReverseRegistrarContract(address common.Address, backend bind.ContractBackend) (*ReverseRegistrarContract, error) {
-	contract, err := bindReverseRegistrarContract(address, backend, backend)
+	contract, err := bindReverseRegistrarContract(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ReverseRegistrarContract{ReverseRegistrarContractCaller: ReverseRegistrarContractCaller{contract: contract}, ReverseRegistrarContractTransactor: ReverseRegistrarContractTransactor{contract: contract}}, nil
+	return &ReverseRegistrarContract{ReverseRegistrarContractCaller: ReverseRegistrarContractCaller{contract: contract}, ReverseRegistrarContractTransactor: ReverseRegistrarContractTransactor{contract: contract}, ReverseRegistrarContractFilterer: ReverseRegistrarContractFilterer{contract: contract}}, nil
 }
 
 // NewReverseRegistrarContractCaller creates a new read-only instance of ReverseRegistrarContract, bound to a specific deployed contract.
 func NewReverseRegistrarContractCaller(address common.Address, caller bind.ContractCaller) (*ReverseRegistrarContractCaller, error) {
-	contract, err := bindReverseRegistrarContract(address, caller, nil)
+	contract, err := bindReverseRegistrarContract(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -88,20 +94,29 @@ func NewReverseRegistrarContractCaller(address common.Address, caller bind.Contr
 
 // NewReverseRegistrarContractTransactor creates a new write-only instance of ReverseRegistrarContract, bound to a specific deployed contract.
 func NewReverseRegistrarContractTransactor(address common.Address, transactor bind.ContractTransactor) (*ReverseRegistrarContractTransactor, error) {
-	contract, err := bindReverseRegistrarContract(address, nil, transactor)
+	contract, err := bindReverseRegistrarContract(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &ReverseRegistrarContractTransactor{contract: contract}, nil
 }
 
+// NewReverseRegistrarContractFilterer creates a new log filterer instance of ReverseRegistrarContract, bound to a specific deployed contract.
+func NewReverseRegistrarContractFilterer(address common.Address, filterer bind.ContractFilterer) (*ReverseRegistrarContractFilterer, error) {
+	contract, err := bindReverseRegistrarContract(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &ReverseRegistrarContractFilterer{contract: contract}, nil
+}
+
 // bindReverseRegistrarContract binds a generic wrapper to an already deployed contract.
-func bindReverseRegistrarContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindReverseRegistrarContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ReverseRegistrarContractABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, nil), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

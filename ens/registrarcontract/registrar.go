@@ -1,5 +1,5 @@
-// This file is an automatically generated Go binding. Do not modify as any
-// change will likely be lost upon the next re-generation!
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
 
 package registrarcontract
 
@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // RegistrarContractABI is the input ABI used to generate the binding from.
@@ -20,6 +22,7 @@ const RegistrarContractABI = "[{\"constant\":false,\"inputs\":[{\"name\":\"_hash
 type RegistrarContract struct {
 	RegistrarContractCaller     // Read-only binding to the contract
 	RegistrarContractTransactor // Write-only binding to the contract
+	RegistrarContractFilterer   // Log filterer for contract events
 }
 
 // RegistrarContractCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -29,6 +32,11 @@ type RegistrarContractCaller struct {
 
 // RegistrarContractTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RegistrarContractTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// RegistrarContractFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type RegistrarContractFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -71,16 +79,16 @@ type RegistrarContractTransactorRaw struct {
 
 // NewRegistrarContract creates a new instance of RegistrarContract, bound to a specific deployed contract.
 func NewRegistrarContract(address common.Address, backend bind.ContractBackend) (*RegistrarContract, error) {
-	contract, err := bindRegistrarContract(address, backend, backend)
+	contract, err := bindRegistrarContract(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &RegistrarContract{RegistrarContractCaller: RegistrarContractCaller{contract: contract}, RegistrarContractTransactor: RegistrarContractTransactor{contract: contract}}, nil
+	return &RegistrarContract{RegistrarContractCaller: RegistrarContractCaller{contract: contract}, RegistrarContractTransactor: RegistrarContractTransactor{contract: contract}, RegistrarContractFilterer: RegistrarContractFilterer{contract: contract}}, nil
 }
 
 // NewRegistrarContractCaller creates a new read-only instance of RegistrarContract, bound to a specific deployed contract.
 func NewRegistrarContractCaller(address common.Address, caller bind.ContractCaller) (*RegistrarContractCaller, error) {
-	contract, err := bindRegistrarContract(address, caller, nil)
+	contract, err := bindRegistrarContract(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,20 +97,29 @@ func NewRegistrarContractCaller(address common.Address, caller bind.ContractCall
 
 // NewRegistrarContractTransactor creates a new write-only instance of RegistrarContract, bound to a specific deployed contract.
 func NewRegistrarContractTransactor(address common.Address, transactor bind.ContractTransactor) (*RegistrarContractTransactor, error) {
-	contract, err := bindRegistrarContract(address, nil, transactor)
+	contract, err := bindRegistrarContract(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &RegistrarContractTransactor{contract: contract}, nil
 }
 
+// NewRegistrarContractFilterer creates a new log filterer instance of RegistrarContract, bound to a specific deployed contract.
+func NewRegistrarContractFilterer(address common.Address, filterer bind.ContractFilterer) (*RegistrarContractFilterer, error) {
+	contract, err := bindRegistrarContract(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractFilterer{contract: contract}, nil
+}
+
 // bindRegistrarContract binds a generic wrapper to an already deployed contract.
-func bindRegistrarContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindRegistrarContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RegistrarContractABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, nil), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -684,4 +701,841 @@ func (_RegistrarContract *RegistrarContractSession) UnsealBid(_hash [32]byte, _v
 // Solidity: function unsealBid(_hash bytes32, _value uint256, _salt bytes32) returns()
 func (_RegistrarContract *RegistrarContractTransactorSession) UnsealBid(_hash [32]byte, _value *big.Int, _salt [32]byte) (*types.Transaction, error) {
 	return _RegistrarContract.Contract.UnsealBid(&_RegistrarContract.TransactOpts, _hash, _value, _salt)
+}
+
+// RegistrarContractAuctionStartedIterator is returned from FilterAuctionStarted and is used to iterate over the raw logs and unpacked data for AuctionStarted events raised by the RegistrarContract contract.
+type RegistrarContractAuctionStartedIterator struct {
+	Event *RegistrarContractAuctionStarted // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistrarContractAuctionStartedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistrarContractAuctionStarted)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistrarContractAuctionStarted)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistrarContractAuctionStartedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistrarContractAuctionStartedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistrarContractAuctionStarted represents a AuctionStarted event raised by the RegistrarContract contract.
+type RegistrarContractAuctionStarted struct {
+	Hash             [32]byte
+	RegistrationDate *big.Int
+	Raw              types.Log // Blockchain specific contextual infos
+}
+
+// FilterAuctionStarted is a free log retrieval operation binding the contract event 0x87e97e825a1d1fa0c54e1d36c7506c1dea8b1efd451fe68b000cf96f7cf40003.
+//
+// Solidity: e AuctionStarted(hash indexed bytes32, registrationDate uint256)
+func (_RegistrarContract *RegistrarContractFilterer) FilterAuctionStarted(opts *bind.FilterOpts, hash [][32]byte) (*RegistrarContractAuctionStartedIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.FilterLogs(opts, "AuctionStarted", hashRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractAuctionStartedIterator{contract: _RegistrarContract.contract, event: "AuctionStarted", logs: logs, sub: sub}, nil
+}
+
+// WatchAuctionStarted is a free log subscription operation binding the contract event 0x87e97e825a1d1fa0c54e1d36c7506c1dea8b1efd451fe68b000cf96f7cf40003.
+//
+// Solidity: e AuctionStarted(hash indexed bytes32, registrationDate uint256)
+func (_RegistrarContract *RegistrarContractFilterer) WatchAuctionStarted(opts *bind.WatchOpts, sink chan<- *RegistrarContractAuctionStarted, hash [][32]byte) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.WatchLogs(opts, "AuctionStarted", hashRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistrarContractAuctionStarted)
+				if err := _RegistrarContract.contract.UnpackLog(event, "AuctionStarted", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistrarContractBidRevealedIterator is returned from FilterBidRevealed and is used to iterate over the raw logs and unpacked data for BidRevealed events raised by the RegistrarContract contract.
+type RegistrarContractBidRevealedIterator struct {
+	Event *RegistrarContractBidRevealed // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistrarContractBidRevealedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistrarContractBidRevealed)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistrarContractBidRevealed)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistrarContractBidRevealedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistrarContractBidRevealedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistrarContractBidRevealed represents a BidRevealed event raised by the RegistrarContract contract.
+type RegistrarContractBidRevealed struct {
+	Hash   [32]byte
+	Owner  common.Address
+	Value  *big.Int
+	Status uint8
+	Raw    types.Log // Blockchain specific contextual infos
+}
+
+// FilterBidRevealed is a free log retrieval operation binding the contract event 0x7b6c4b278d165a6b33958f8ea5dfb00c8c9d4d0acf1985bef5d10786898bc3e7.
+//
+// Solidity: e BidRevealed(hash indexed bytes32, owner indexed address, value uint256, status uint8)
+func (_RegistrarContract *RegistrarContractFilterer) FilterBidRevealed(opts *bind.FilterOpts, hash [][32]byte, owner []common.Address) (*RegistrarContractBidRevealedIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.FilterLogs(opts, "BidRevealed", hashRule, ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractBidRevealedIterator{contract: _RegistrarContract.contract, event: "BidRevealed", logs: logs, sub: sub}, nil
+}
+
+// WatchBidRevealed is a free log subscription operation binding the contract event 0x7b6c4b278d165a6b33958f8ea5dfb00c8c9d4d0acf1985bef5d10786898bc3e7.
+//
+// Solidity: e BidRevealed(hash indexed bytes32, owner indexed address, value uint256, status uint8)
+func (_RegistrarContract *RegistrarContractFilterer) WatchBidRevealed(opts *bind.WatchOpts, sink chan<- *RegistrarContractBidRevealed, hash [][32]byte, owner []common.Address) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.WatchLogs(opts, "BidRevealed", hashRule, ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistrarContractBidRevealed)
+				if err := _RegistrarContract.contract.UnpackLog(event, "BidRevealed", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistrarContractHashInvalidatedIterator is returned from FilterHashInvalidated and is used to iterate over the raw logs and unpacked data for HashInvalidated events raised by the RegistrarContract contract.
+type RegistrarContractHashInvalidatedIterator struct {
+	Event *RegistrarContractHashInvalidated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistrarContractHashInvalidatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistrarContractHashInvalidated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistrarContractHashInvalidated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistrarContractHashInvalidatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistrarContractHashInvalidatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistrarContractHashInvalidated represents a HashInvalidated event raised by the RegistrarContract contract.
+type RegistrarContractHashInvalidated struct {
+	Hash             [32]byte
+	Name             common.Hash
+	Value            *big.Int
+	RegistrationDate *big.Int
+	Raw              types.Log // Blockchain specific contextual infos
+}
+
+// FilterHashInvalidated is a free log retrieval operation binding the contract event 0x1f9c649fe47e58bb60f4e52f0d90e4c47a526c9f90c5113df842c025970b66ad.
+//
+// Solidity: e HashInvalidated(hash indexed bytes32, name indexed string, value uint256, registrationDate uint256)
+func (_RegistrarContract *RegistrarContractFilterer) FilterHashInvalidated(opts *bind.FilterOpts, hash [][32]byte, name []string) (*RegistrarContractHashInvalidatedIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var nameRule []interface{}
+	for _, nameItem := range name {
+		nameRule = append(nameRule, nameItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.FilterLogs(opts, "HashInvalidated", hashRule, nameRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractHashInvalidatedIterator{contract: _RegistrarContract.contract, event: "HashInvalidated", logs: logs, sub: sub}, nil
+}
+
+// WatchHashInvalidated is a free log subscription operation binding the contract event 0x1f9c649fe47e58bb60f4e52f0d90e4c47a526c9f90c5113df842c025970b66ad.
+//
+// Solidity: e HashInvalidated(hash indexed bytes32, name indexed string, value uint256, registrationDate uint256)
+func (_RegistrarContract *RegistrarContractFilterer) WatchHashInvalidated(opts *bind.WatchOpts, sink chan<- *RegistrarContractHashInvalidated, hash [][32]byte, name []string) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var nameRule []interface{}
+	for _, nameItem := range name {
+		nameRule = append(nameRule, nameItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.WatchLogs(opts, "HashInvalidated", hashRule, nameRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistrarContractHashInvalidated)
+				if err := _RegistrarContract.contract.UnpackLog(event, "HashInvalidated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistrarContractHashRegisteredIterator is returned from FilterHashRegistered and is used to iterate over the raw logs and unpacked data for HashRegistered events raised by the RegistrarContract contract.
+type RegistrarContractHashRegisteredIterator struct {
+	Event *RegistrarContractHashRegistered // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistrarContractHashRegisteredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistrarContractHashRegistered)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistrarContractHashRegistered)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistrarContractHashRegisteredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistrarContractHashRegisteredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistrarContractHashRegistered represents a HashRegistered event raised by the RegistrarContract contract.
+type RegistrarContractHashRegistered struct {
+	Hash             [32]byte
+	Owner            common.Address
+	Value            *big.Int
+	RegistrationDate *big.Int
+	Raw              types.Log // Blockchain specific contextual infos
+}
+
+// FilterHashRegistered is a free log retrieval operation binding the contract event 0x0f0c27adfd84b60b6f456b0e87cdccb1e5fb9603991588d87fa99f5b6b61e670.
+//
+// Solidity: e HashRegistered(hash indexed bytes32, owner indexed address, value uint256, registrationDate uint256)
+func (_RegistrarContract *RegistrarContractFilterer) FilterHashRegistered(opts *bind.FilterOpts, hash [][32]byte, owner []common.Address) (*RegistrarContractHashRegisteredIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.FilterLogs(opts, "HashRegistered", hashRule, ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractHashRegisteredIterator{contract: _RegistrarContract.contract, event: "HashRegistered", logs: logs, sub: sub}, nil
+}
+
+// WatchHashRegistered is a free log subscription operation binding the contract event 0x0f0c27adfd84b60b6f456b0e87cdccb1e5fb9603991588d87fa99f5b6b61e670.
+//
+// Solidity: e HashRegistered(hash indexed bytes32, owner indexed address, value uint256, registrationDate uint256)
+func (_RegistrarContract *RegistrarContractFilterer) WatchHashRegistered(opts *bind.WatchOpts, sink chan<- *RegistrarContractHashRegistered, hash [][32]byte, owner []common.Address) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.WatchLogs(opts, "HashRegistered", hashRule, ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistrarContractHashRegistered)
+				if err := _RegistrarContract.contract.UnpackLog(event, "HashRegistered", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistrarContractHashReleasedIterator is returned from FilterHashReleased and is used to iterate over the raw logs and unpacked data for HashReleased events raised by the RegistrarContract contract.
+type RegistrarContractHashReleasedIterator struct {
+	Event *RegistrarContractHashReleased // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistrarContractHashReleasedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistrarContractHashReleased)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistrarContractHashReleased)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistrarContractHashReleasedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistrarContractHashReleasedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistrarContractHashReleased represents a HashReleased event raised by the RegistrarContract contract.
+type RegistrarContractHashReleased struct {
+	Hash  [32]byte
+	Value *big.Int
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterHashReleased is a free log retrieval operation binding the contract event 0x292b79b9246fa2c8e77d3fe195b251f9cb839d7d038e667c069ee7708c631e16.
+//
+// Solidity: e HashReleased(hash indexed bytes32, value uint256)
+func (_RegistrarContract *RegistrarContractFilterer) FilterHashReleased(opts *bind.FilterOpts, hash [][32]byte) (*RegistrarContractHashReleasedIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.FilterLogs(opts, "HashReleased", hashRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractHashReleasedIterator{contract: _RegistrarContract.contract, event: "HashReleased", logs: logs, sub: sub}, nil
+}
+
+// WatchHashReleased is a free log subscription operation binding the contract event 0x292b79b9246fa2c8e77d3fe195b251f9cb839d7d038e667c069ee7708c631e16.
+//
+// Solidity: e HashReleased(hash indexed bytes32, value uint256)
+func (_RegistrarContract *RegistrarContractFilterer) WatchHashReleased(opts *bind.WatchOpts, sink chan<- *RegistrarContractHashReleased, hash [][32]byte) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.WatchLogs(opts, "HashReleased", hashRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistrarContractHashReleased)
+				if err := _RegistrarContract.contract.UnpackLog(event, "HashReleased", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistrarContractNewBidIterator is returned from FilterNewBid and is used to iterate over the raw logs and unpacked data for NewBid events raised by the RegistrarContract contract.
+type RegistrarContractNewBidIterator struct {
+	Event *RegistrarContractNewBid // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistrarContractNewBidIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistrarContractNewBid)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistrarContractNewBid)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistrarContractNewBidIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistrarContractNewBidIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistrarContractNewBid represents a NewBid event raised by the RegistrarContract contract.
+type RegistrarContractNewBid struct {
+	Hash    [32]byte
+	Bidder  common.Address
+	Deposit *big.Int
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterNewBid is a free log retrieval operation binding the contract event 0xb556ff269c1b6714f432c36431e2041d28436a73b6c3f19c021827bbdc6bfc29.
+//
+// Solidity: e NewBid(hash indexed bytes32, bidder indexed address, deposit uint256)
+func (_RegistrarContract *RegistrarContractFilterer) FilterNewBid(opts *bind.FilterOpts, hash [][32]byte, bidder []common.Address) (*RegistrarContractNewBidIterator, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var bidderRule []interface{}
+	for _, bidderItem := range bidder {
+		bidderRule = append(bidderRule, bidderItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.FilterLogs(opts, "NewBid", hashRule, bidderRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistrarContractNewBidIterator{contract: _RegistrarContract.contract, event: "NewBid", logs: logs, sub: sub}, nil
+}
+
+// WatchNewBid is a free log subscription operation binding the contract event 0xb556ff269c1b6714f432c36431e2041d28436a73b6c3f19c021827bbdc6bfc29.
+//
+// Solidity: e NewBid(hash indexed bytes32, bidder indexed address, deposit uint256)
+func (_RegistrarContract *RegistrarContractFilterer) WatchNewBid(opts *bind.WatchOpts, sink chan<- *RegistrarContractNewBid, hash [][32]byte, bidder []common.Address) (event.Subscription, error) {
+
+	var hashRule []interface{}
+	for _, hashItem := range hash {
+		hashRule = append(hashRule, hashItem)
+	}
+	var bidderRule []interface{}
+	for _, bidderItem := range bidder {
+		bidderRule = append(bidderRule, bidderItem)
+	}
+
+	logs, sub, err := _RegistrarContract.contract.WatchLogs(opts, "NewBid", hashRule, bidderRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistrarContractNewBid)
+				if err := _RegistrarContract.contract.UnpackLog(event, "NewBid", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

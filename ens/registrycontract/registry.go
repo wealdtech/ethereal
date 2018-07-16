@@ -1,15 +1,17 @@
-// This file is an automatically generated Go binding. Do not modify as any
-// change will likely be lost upon the next re-generation!
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
 
 package registrycontract
 
 import (
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // RegistryContractABI is the input ABI used to generate the binding from.
@@ -19,6 +21,7 @@ const RegistryContractABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"node\",
 type RegistryContract struct {
 	RegistryContractCaller     // Read-only binding to the contract
 	RegistryContractTransactor // Write-only binding to the contract
+	RegistryContractFilterer   // Log filterer for contract events
 }
 
 // RegistryContractCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -28,6 +31,11 @@ type RegistryContractCaller struct {
 
 // RegistryContractTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RegistryContractTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// RegistryContractFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type RegistryContractFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -70,16 +78,16 @@ type RegistryContractTransactorRaw struct {
 
 // NewRegistryContract creates a new instance of RegistryContract, bound to a specific deployed contract.
 func NewRegistryContract(address common.Address, backend bind.ContractBackend) (*RegistryContract, error) {
-	contract, err := bindRegistryContract(address, backend, backend)
+	contract, err := bindRegistryContract(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &RegistryContract{RegistryContractCaller: RegistryContractCaller{contract: contract}, RegistryContractTransactor: RegistryContractTransactor{contract: contract}}, nil
+	return &RegistryContract{RegistryContractCaller: RegistryContractCaller{contract: contract}, RegistryContractTransactor: RegistryContractTransactor{contract: contract}, RegistryContractFilterer: RegistryContractFilterer{contract: contract}}, nil
 }
 
 // NewRegistryContractCaller creates a new read-only instance of RegistryContract, bound to a specific deployed contract.
 func NewRegistryContractCaller(address common.Address, caller bind.ContractCaller) (*RegistryContractCaller, error) {
-	contract, err := bindRegistryContract(address, caller, nil)
+	contract, err := bindRegistryContract(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -88,20 +96,29 @@ func NewRegistryContractCaller(address common.Address, caller bind.ContractCalle
 
 // NewRegistryContractTransactor creates a new write-only instance of RegistryContract, bound to a specific deployed contract.
 func NewRegistryContractTransactor(address common.Address, transactor bind.ContractTransactor) (*RegistryContractTransactor, error) {
-	contract, err := bindRegistryContract(address, nil, transactor)
+	contract, err := bindRegistryContract(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &RegistryContractTransactor{contract: contract}, nil
 }
 
+// NewRegistryContractFilterer creates a new log filterer instance of RegistryContract, bound to a specific deployed contract.
+func NewRegistryContractFilterer(address common.Address, filterer bind.ContractFilterer) (*RegistryContractFilterer, error) {
+	contract, err := bindRegistryContract(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistryContractFilterer{contract: contract}, nil
+}
+
 // bindRegistryContract binds a generic wrapper to an already deployed contract.
-func bindRegistryContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindRegistryContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RegistryContractABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, nil), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -302,4 +319,545 @@ func (_RegistryContract *RegistryContractSession) SetTTL(node [32]byte, ttl uint
 // Solidity: function setTTL(node bytes32, ttl uint64) returns()
 func (_RegistryContract *RegistryContractTransactorSession) SetTTL(node [32]byte, ttl uint64) (*types.Transaction, error) {
 	return _RegistryContract.Contract.SetTTL(&_RegistryContract.TransactOpts, node, ttl)
+}
+
+// RegistryContractNewOwnerIterator is returned from FilterNewOwner and is used to iterate over the raw logs and unpacked data for NewOwner events raised by the RegistryContract contract.
+type RegistryContractNewOwnerIterator struct {
+	Event *RegistryContractNewOwner // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistryContractNewOwnerIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistryContractNewOwner)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistryContractNewOwner)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistryContractNewOwnerIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistryContractNewOwnerIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistryContractNewOwner represents a NewOwner event raised by the RegistryContract contract.
+type RegistryContractNewOwner struct {
+	Node  [32]byte
+	Label [32]byte
+	Owner common.Address
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterNewOwner is a free log retrieval operation binding the contract event 0xce0457fe73731f824cc272376169235128c118b49d344817417c6d108d155e82.
+//
+// Solidity: e NewOwner(node indexed bytes32, label indexed bytes32, owner address)
+func (_RegistryContract *RegistryContractFilterer) FilterNewOwner(opts *bind.FilterOpts, node [][32]byte, label [][32]byte) (*RegistryContractNewOwnerIterator, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+	var labelRule []interface{}
+	for _, labelItem := range label {
+		labelRule = append(labelRule, labelItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.FilterLogs(opts, "NewOwner", nodeRule, labelRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistryContractNewOwnerIterator{contract: _RegistryContract.contract, event: "NewOwner", logs: logs, sub: sub}, nil
+}
+
+// WatchNewOwner is a free log subscription operation binding the contract event 0xce0457fe73731f824cc272376169235128c118b49d344817417c6d108d155e82.
+//
+// Solidity: e NewOwner(node indexed bytes32, label indexed bytes32, owner address)
+func (_RegistryContract *RegistryContractFilterer) WatchNewOwner(opts *bind.WatchOpts, sink chan<- *RegistryContractNewOwner, node [][32]byte, label [][32]byte) (event.Subscription, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+	var labelRule []interface{}
+	for _, labelItem := range label {
+		labelRule = append(labelRule, labelItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.WatchLogs(opts, "NewOwner", nodeRule, labelRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistryContractNewOwner)
+				if err := _RegistryContract.contract.UnpackLog(event, "NewOwner", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistryContractNewResolverIterator is returned from FilterNewResolver and is used to iterate over the raw logs and unpacked data for NewResolver events raised by the RegistryContract contract.
+type RegistryContractNewResolverIterator struct {
+	Event *RegistryContractNewResolver // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistryContractNewResolverIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistryContractNewResolver)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistryContractNewResolver)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistryContractNewResolverIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistryContractNewResolverIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistryContractNewResolver represents a NewResolver event raised by the RegistryContract contract.
+type RegistryContractNewResolver struct {
+	Node     [32]byte
+	Resolver common.Address
+	Raw      types.Log // Blockchain specific contextual infos
+}
+
+// FilterNewResolver is a free log retrieval operation binding the contract event 0x335721b01866dc23fbee8b6b2c7b1e14d6f05c28cd35a2c934239f94095602a0.
+//
+// Solidity: e NewResolver(node indexed bytes32, resolver address)
+func (_RegistryContract *RegistryContractFilterer) FilterNewResolver(opts *bind.FilterOpts, node [][32]byte) (*RegistryContractNewResolverIterator, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.FilterLogs(opts, "NewResolver", nodeRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistryContractNewResolverIterator{contract: _RegistryContract.contract, event: "NewResolver", logs: logs, sub: sub}, nil
+}
+
+// WatchNewResolver is a free log subscription operation binding the contract event 0x335721b01866dc23fbee8b6b2c7b1e14d6f05c28cd35a2c934239f94095602a0.
+//
+// Solidity: e NewResolver(node indexed bytes32, resolver address)
+func (_RegistryContract *RegistryContractFilterer) WatchNewResolver(opts *bind.WatchOpts, sink chan<- *RegistryContractNewResolver, node [][32]byte) (event.Subscription, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.WatchLogs(opts, "NewResolver", nodeRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistryContractNewResolver)
+				if err := _RegistryContract.contract.UnpackLog(event, "NewResolver", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistryContractNewTTLIterator is returned from FilterNewTTL and is used to iterate over the raw logs and unpacked data for NewTTL events raised by the RegistryContract contract.
+type RegistryContractNewTTLIterator struct {
+	Event *RegistryContractNewTTL // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistryContractNewTTLIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistryContractNewTTL)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistryContractNewTTL)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistryContractNewTTLIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistryContractNewTTLIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistryContractNewTTL represents a NewTTL event raised by the RegistryContract contract.
+type RegistryContractNewTTL struct {
+	Node [32]byte
+	Ttl  uint64
+	Raw  types.Log // Blockchain specific contextual infos
+}
+
+// FilterNewTTL is a free log retrieval operation binding the contract event 0x1d4f9bbfc9cab89d66e1a1562f2233ccbf1308cb4f63de2ead5787adddb8fa68.
+//
+// Solidity: e NewTTL(node indexed bytes32, ttl uint64)
+func (_RegistryContract *RegistryContractFilterer) FilterNewTTL(opts *bind.FilterOpts, node [][32]byte) (*RegistryContractNewTTLIterator, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.FilterLogs(opts, "NewTTL", nodeRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistryContractNewTTLIterator{contract: _RegistryContract.contract, event: "NewTTL", logs: logs, sub: sub}, nil
+}
+
+// WatchNewTTL is a free log subscription operation binding the contract event 0x1d4f9bbfc9cab89d66e1a1562f2233ccbf1308cb4f63de2ead5787adddb8fa68.
+//
+// Solidity: e NewTTL(node indexed bytes32, ttl uint64)
+func (_RegistryContract *RegistryContractFilterer) WatchNewTTL(opts *bind.WatchOpts, sink chan<- *RegistryContractNewTTL, node [][32]byte) (event.Subscription, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.WatchLogs(opts, "NewTTL", nodeRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistryContractNewTTL)
+				if err := _RegistryContract.contract.UnpackLog(event, "NewTTL", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RegistryContractTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the RegistryContract contract.
+type RegistryContractTransferIterator struct {
+	Event *RegistryContractTransfer // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RegistryContractTransferIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RegistryContractTransfer)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RegistryContractTransfer)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RegistryContractTransferIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RegistryContractTransferIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RegistryContractTransfer represents a Transfer event raised by the RegistryContract contract.
+type RegistryContractTransfer struct {
+	Node  [32]byte
+	Owner common.Address
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterTransfer is a free log retrieval operation binding the contract event 0xd4735d920b0f87494915f556dd9b54c8f309026070caea5c737245152564d266.
+//
+// Solidity: e Transfer(node indexed bytes32, owner address)
+func (_RegistryContract *RegistryContractFilterer) FilterTransfer(opts *bind.FilterOpts, node [][32]byte) (*RegistryContractTransferIterator, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.FilterLogs(opts, "Transfer", nodeRule)
+	if err != nil {
+		return nil, err
+	}
+	return &RegistryContractTransferIterator{contract: _RegistryContract.contract, event: "Transfer", logs: logs, sub: sub}, nil
+}
+
+// WatchTransfer is a free log subscription operation binding the contract event 0xd4735d920b0f87494915f556dd9b54c8f309026070caea5c737245152564d266.
+//
+// Solidity: e Transfer(node indexed bytes32, owner address)
+func (_RegistryContract *RegistryContractFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *RegistryContractTransfer, node [][32]byte) (event.Subscription, error) {
+
+	var nodeRule []interface{}
+	for _, nodeItem := range node {
+		nodeRule = append(nodeRule, nodeItem)
+	}
+
+	logs, sub, err := _RegistryContract.contract.WatchLogs(opts, "Transfer", nodeRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RegistryContractTransfer)
+				if err := _RegistryContract.contract.UnpackLog(event, "Transfer", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

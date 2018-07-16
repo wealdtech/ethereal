@@ -1,5 +1,5 @@
-// This file is an automatically generated Go binding. Do not modify as any
-// change will likely be lost upon the next re-generation!
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
 
 package deedcontract
 
@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // DeedContractABI is the input ABI used to generate the binding from.
@@ -20,6 +22,7 @@ const DeedContractABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"creationDa
 type DeedContract struct {
 	DeedContractCaller     // Read-only binding to the contract
 	DeedContractTransactor // Write-only binding to the contract
+	DeedContractFilterer   // Log filterer for contract events
 }
 
 // DeedContractCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -29,6 +32,11 @@ type DeedContractCaller struct {
 
 // DeedContractTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type DeedContractTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// DeedContractFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type DeedContractFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -71,16 +79,16 @@ type DeedContractTransactorRaw struct {
 
 // NewDeedContract creates a new instance of DeedContract, bound to a specific deployed contract.
 func NewDeedContract(address common.Address, backend bind.ContractBackend) (*DeedContract, error) {
-	contract, err := bindDeedContract(address, backend, backend)
+	contract, err := bindDeedContract(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &DeedContract{DeedContractCaller: DeedContractCaller{contract: contract}, DeedContractTransactor: DeedContractTransactor{contract: contract}}, nil
+	return &DeedContract{DeedContractCaller: DeedContractCaller{contract: contract}, DeedContractTransactor: DeedContractTransactor{contract: contract}, DeedContractFilterer: DeedContractFilterer{contract: contract}}, nil
 }
 
 // NewDeedContractCaller creates a new read-only instance of DeedContract, bound to a specific deployed contract.
 func NewDeedContractCaller(address common.Address, caller bind.ContractCaller) (*DeedContractCaller, error) {
-	contract, err := bindDeedContract(address, caller, nil)
+	contract, err := bindDeedContract(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,20 +97,29 @@ func NewDeedContractCaller(address common.Address, caller bind.ContractCaller) (
 
 // NewDeedContractTransactor creates a new write-only instance of DeedContract, bound to a specific deployed contract.
 func NewDeedContractTransactor(address common.Address, transactor bind.ContractTransactor) (*DeedContractTransactor, error) {
-	contract, err := bindDeedContract(address, nil, transactor)
+	contract, err := bindDeedContract(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &DeedContractTransactor{contract: contract}, nil
 }
 
+// NewDeedContractFilterer creates a new log filterer instance of DeedContract, bound to a specific deployed contract.
+func NewDeedContractFilterer(address common.Address, filterer bind.ContractFilterer) (*DeedContractFilterer, error) {
+	contract, err := bindDeedContract(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &DeedContractFilterer{contract: contract}, nil
+}
+
 // bindDeedContract binds a generic wrapper to an already deployed contract.
-func bindDeedContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindDeedContract(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(DeedContractABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, nil), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -376,4 +393,247 @@ func (_DeedContract *DeedContractSession) SetRegistrar(newRegistrar common.Addre
 // Solidity: function setRegistrar(newRegistrar address) returns()
 func (_DeedContract *DeedContractTransactorSession) SetRegistrar(newRegistrar common.Address) (*types.Transaction, error) {
 	return _DeedContract.Contract.SetRegistrar(&_DeedContract.TransactOpts, newRegistrar)
+}
+
+// DeedContractDeedClosedIterator is returned from FilterDeedClosed and is used to iterate over the raw logs and unpacked data for DeedClosed events raised by the DeedContract contract.
+type DeedContractDeedClosedIterator struct {
+	Event *DeedContractDeedClosed // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DeedContractDeedClosedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DeedContractDeedClosed)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DeedContractDeedClosed)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DeedContractDeedClosedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DeedContractDeedClosedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DeedContractDeedClosed represents a DeedClosed event raised by the DeedContract contract.
+type DeedContractDeedClosed struct {
+	Raw types.Log // Blockchain specific contextual infos
+}
+
+// FilterDeedClosed is a free log retrieval operation binding the contract event 0xbb2ce2f51803bba16bc85282b47deeea9a5c6223eabea1077be696b3f265cf13.
+//
+// Solidity: e DeedClosed()
+func (_DeedContract *DeedContractFilterer) FilterDeedClosed(opts *bind.FilterOpts) (*DeedContractDeedClosedIterator, error) {
+
+	logs, sub, err := _DeedContract.contract.FilterLogs(opts, "DeedClosed")
+	if err != nil {
+		return nil, err
+	}
+	return &DeedContractDeedClosedIterator{contract: _DeedContract.contract, event: "DeedClosed", logs: logs, sub: sub}, nil
+}
+
+// WatchDeedClosed is a free log subscription operation binding the contract event 0xbb2ce2f51803bba16bc85282b47deeea9a5c6223eabea1077be696b3f265cf13.
+//
+// Solidity: e DeedClosed()
+func (_DeedContract *DeedContractFilterer) WatchDeedClosed(opts *bind.WatchOpts, sink chan<- *DeedContractDeedClosed) (event.Subscription, error) {
+
+	logs, sub, err := _DeedContract.contract.WatchLogs(opts, "DeedClosed")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DeedContractDeedClosed)
+				if err := _DeedContract.contract.UnpackLog(event, "DeedClosed", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// DeedContractOwnerChangedIterator is returned from FilterOwnerChanged and is used to iterate over the raw logs and unpacked data for OwnerChanged events raised by the DeedContract contract.
+type DeedContractOwnerChangedIterator struct {
+	Event *DeedContractOwnerChanged // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DeedContractOwnerChangedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DeedContractOwnerChanged)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DeedContractOwnerChanged)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DeedContractOwnerChangedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DeedContractOwnerChangedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DeedContractOwnerChanged represents a OwnerChanged event raised by the DeedContract contract.
+type DeedContractOwnerChanged struct {
+	NewOwner common.Address
+	Raw      types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnerChanged is a free log retrieval operation binding the contract event 0xa2ea9883a321a3e97b8266c2b078bfeec6d50c711ed71f874a90d500ae2eaf36.
+//
+// Solidity: e OwnerChanged(newOwner address)
+func (_DeedContract *DeedContractFilterer) FilterOwnerChanged(opts *bind.FilterOpts) (*DeedContractOwnerChangedIterator, error) {
+
+	logs, sub, err := _DeedContract.contract.FilterLogs(opts, "OwnerChanged")
+	if err != nil {
+		return nil, err
+	}
+	return &DeedContractOwnerChangedIterator{contract: _DeedContract.contract, event: "OwnerChanged", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnerChanged is a free log subscription operation binding the contract event 0xa2ea9883a321a3e97b8266c2b078bfeec6d50c711ed71f874a90d500ae2eaf36.
+//
+// Solidity: e OwnerChanged(newOwner address)
+func (_DeedContract *DeedContractFilterer) WatchOwnerChanged(opts *bind.WatchOpts, sink chan<- *DeedContractOwnerChanged) (event.Subscription, error) {
+
+	logs, sub, err := _DeedContract.contract.WatchLogs(opts, "OwnerChanged")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DeedContractOwnerChanged)
+				if err := _DeedContract.contract.UnpackLog(event, "OwnerChanged", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }
