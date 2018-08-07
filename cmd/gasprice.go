@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"os"
 	"sort"
+	"time"
 
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
@@ -54,6 +55,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 			block, err := client.BlockByNumber(ctx, blockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 			blockNumber = big.NewInt(0).Set(block.Number())
+			blockTime := time.Unix(block.Time().Int64(), 0)
 			txs := block.Transactions()
 			if len(txs) > 0 {
 				// Order transactions by gas price
@@ -70,7 +72,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 				if len(validTxs) > 0 {
 					if gasPriceLowest {
 						blockLowestGasPrice := validTxs[len(validTxs)-1].GasPrice()
-						outputIf(verbose, fmt.Sprintf("Lowest inclusion price for block %v is %s", blockNumber, etherutils.WeiToString(blockLowestGasPrice, true)))
+						outputIf(verbose, fmt.Sprintf("Lowest inclusion price for block %v (%s) is %s", blockNumber, blockTime.Format("06/01/02 15:04:05"), etherutils.WeiToString(blockLowestGasPrice, true)))
 						if lowestGasPrice.Cmp(zero) == 0 || blockLowestGasPrice.Cmp(lowestGasPrice) < 0 {
 							lowestGasPrice = blockLowestGasPrice
 						}
@@ -85,7 +87,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 						totalGasPrice = totalGasPrice.Add(totalGasPrice, blockGasPrice)
 						totalTxs += blockTxs
 						blockGasPrice = blockGasPrice.Div(blockGasPrice, big.NewInt(blockTxs))
-						outputIf(verbose, fmt.Sprintf("Expected inclusion price for block %v over %d transactions is %s", blockNumber, blockTxs, etherutils.WeiToString(blockGasPrice, true)))
+						outputIf(verbose, fmt.Sprintf("Expected inclusion price for block %v (%s) over %d transactions is %s", blockNumber, blockTime.Format("06/01/02 15:04:05"), blockTxs, etherutils.WeiToString(blockGasPrice, true)))
 					}
 				}
 			}
