@@ -30,5 +30,5 @@ func init() {
 	RootCmd.AddCommand(blockCmd)
 }
 func blockFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&blockStr, "block", "", "block hash or number")
+	cmd.Flags().StringVar(&blockStr, "block", "", "block hash or number, or 'latest'")
 }

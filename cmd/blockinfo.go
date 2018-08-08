@@ -45,7 +45,9 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		var block *types.Block
 		ctx, cancel := localContext()
 		defer cancel()
-		if blockInfoNumberRegexp.MatchString(blockStr) {
+		if blockStr == "latest" {
+			block, err = client.BlockByNumber(ctx, nil)
+		} else if blockInfoNumberRegexp.MatchString(blockStr) {
 			blockNum, succeeded := big.NewInt(0).SetString(blockStr, 10)
 			cli.Assert(succeeded, quiet, fmt.Sprintf("Failed to parse block number %s", blockStr))
 			block, err = client.BlockByNumber(ctx, blockNum)
