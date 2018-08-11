@@ -1,4 +1,4 @@
-// Copyright 2017 Orinoco Payments
+// Copyright 2017 Weald Technology Trading
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/orinocopay/go-etherutils"
 	"github.com/wealdtech/ethereal/ens/resolvercontract"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var zeroHash = make([]byte, 32)
@@ -125,7 +125,7 @@ func resolveHash(client *ethclient.Client, name string) (address common.Address,
 // CreateResolverSession creates a session suitable for multiple calls
 func CreateResolverSession(chainID *big.Int, wallet *accounts.Wallet, account *accounts.Account, passphrase string, contract *resolvercontract.ResolverContract, gasPrice *big.Int) *resolvercontract.ResolverContractSession {
 	// Create a signer
-	signer := etherutils.AccountSigner(chainID, wallet, account, passphrase)
+	signer := util.AccountSigner(chainID, wallet, account, passphrase)
 
 	// Return our session
 	session := &resolvercontract.ResolverContractSession{

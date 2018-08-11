@@ -1,4 +1,4 @@
-// Copyright 2017 Orinoco Payments
+// Copyright 2017 Weald Technology Trading
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/orinocopay/go-etherutils"
 	"github.com/wealdtech/ethereal/ens/registrarcontract"
 	"github.com/wealdtech/ethereal/ens/registrycontract"
+	"github.com/wealdtech/ethereal/util"
 )
 
 // RegistryContractAddress obtains the address of the registry contract for a chain
@@ -112,7 +112,7 @@ func SetSubdomainOwner(session *registrycontract.RegistryContractSession, name s
 // CreateRegistrySession creates a session suitable for multiple calls
 func CreateRegistrySession(chainID *big.Int, wallet *accounts.Wallet, account *accounts.Account, passphrase string, contract *registrycontract.RegistryContract, gasPrice *big.Int) *registrycontract.RegistryContractSession {
 	// Create a signer
-	signer := etherutils.AccountSigner(chainID, wallet, account, passphrase)
+	signer := util.AccountSigner(chainID, wallet, account, passphrase)
 
 	// Return our session
 	session := &registrycontract.RegistryContractSession{

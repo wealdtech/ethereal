@@ -1,4 +1,4 @@
-// Copyright 2017 Orinoco Payments
+// Copyright 2017 Weald Technology Trading
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/orinocopay/go-etherutils"
 	"github.com/wealdtech/ethereal/ens/reverseregistrarcontract"
+	"github.com/wealdtech/ethereal/util"
 )
 
 // ReverseRegistrarContract obtains the reverse registrar contract for a chain
@@ -59,7 +59,7 @@ func ReverseRegistrarContract(client *ethclient.Client) (registrar *reverseregis
 // CreateReverseRegistrarSession creates a session suitable for multiple calls
 func CreateReverseRegistrarSession(chainID *big.Int, wallet *accounts.Wallet, account *accounts.Account, passphrase string, contract *reverseregistrarcontract.ReverseRegistrarContract, gasPrice *big.Int) *reverseregistrarcontract.ReverseRegistrarContractSession {
 	// Create a signer
-	signer := etherutils.AccountSigner(chainID, wallet, account, passphrase)
+	signer := util.AccountSigner(chainID, wallet, account, passphrase)
 
 	// Return our session
 	session := &reverseregistrarcontract.ReverseRegistrarContractSession{

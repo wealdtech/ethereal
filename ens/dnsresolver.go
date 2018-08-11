@@ -1,4 +1,4 @@
-// Copyright 2017 Orinoco Payments
+// Copyright 2017 Weald Technology Trading
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/orinocopay/go-etherutils"
 	"github.com/wealdtech/ethereal/ens/dnsresolvercontract"
+	"github.com/wealdtech/ethereal/util"
 )
 
 // CreateDNSResolverSession creates a session suitable for multiple calls
 func CreateDNSResolverSession(chainID *big.Int, wallet *accounts.Wallet, account *accounts.Account, passphrase string, contract *dnsresolvercontract.DNSResolverContract, gasPrice *big.Int) *dnsresolvercontract.DNSResolverContractSession {
 	// Create a signer
-	signer := etherutils.AccountSigner(chainID, wallet, account, passphrase)
+	signer := util.AccountSigner(chainID, wallet, account, passphrase)
 
 	// Return our session
 	session := &dnsresolvercontract.DNSResolverContractSession{
