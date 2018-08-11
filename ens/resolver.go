@@ -78,7 +78,7 @@ func resolverAddress(client *ethclient.Client, name string) (address common.Addr
 // Resolve resolves an ENS name in to an Etheruem address
 // This will return an error if the name is not found or otherwise 0
 func Resolve(client *ethclient.Client, input string) (address common.Address, err error) {
-	if strings.HasSuffix(input, ".eth") {
+	if strings.Contains(input, ".") {
 		return resolveName(client, input)
 	}
 	if (strings.HasPrefix(input, "0x") && len(input) > 42) || (!strings.HasPrefix(input, "0x") && len(input) > 40) {
