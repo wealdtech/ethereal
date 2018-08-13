@@ -139,7 +139,7 @@ func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (
 	case abi.FixedBytesTy:
 		return fmt.Sprintf("0x%x", data[offset+index*32+32-uint32(argType.Size):offset+index*32+32]), nil
 	case abi.BytesTy:
-		start := binary.BigEndian.Uint32(data[offset+index*32 : 28 : offset+index*32+32])
+		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
 		len := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
 		return fmt.Sprintf("0x%x", data[offset+start+32:offset+start+32+len]), nil
 	case abi.HashTy:
