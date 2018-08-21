@@ -57,6 +57,7 @@ In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 }
 
 func init() {
+	offlineCmds["signature:verify"] = true
 	signatureCmd.AddCommand(signatureVerifyCmd)
 	signatureFlags(signatureVerifyCmd)
 	signatureVerifyCmd.Flags().StringVar(&signatureVerifySignature, "signature", "", "Hex string signature from which to obtain the signer")

@@ -32,5 +32,6 @@ var versionCmd = &cobra.Command{
 }
 
 func init() {
+	offlineCmds["version"] = true
 	RootCmd.AddCommand(versionCmd)
 }

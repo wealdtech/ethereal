@@ -81,6 +81,7 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "token",
 				"command":       "approve",

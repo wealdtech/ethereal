@@ -131,6 +131,7 @@ In quiet mode this will return 0 if the account was successfully decoded, otherw
 }
 
 func init() {
+	offlineCmds["account:keys"] = true
 	accountCmd.AddCommand(accountKeysCmd)
 	accountKeysCmd.Flags().StringVar(&accountKeysAddress, "address", "", "address for account keys")
 	accountKeysCmd.Flags().StringVar(&accountKeysPassphrase, "passphrase", "", "passphrase for account keys")

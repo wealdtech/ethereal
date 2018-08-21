@@ -70,6 +70,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		if !quiet {
 			fmt.Println(tx.Hash().Hex())
 		}
+		setupLogging()
 		log.WithFields(log.Fields{"transactionid": tx.Hash().Hex(),
 			"domain":    ensDomain,
 			"networkid": chainID,

@@ -104,6 +104,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
 			} else {
+				setupLogging()
 				log.WithFields(log.Fields{
 					"group":         "dns",
 					"command":       "set",
@@ -185,6 +186,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
 			} else {
+				setupLogging()
 				log.WithFields(log.Fields{
 					"group":         "dns",
 					"command":       "set",

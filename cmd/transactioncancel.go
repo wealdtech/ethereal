@@ -82,6 +82,7 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "transaction",
 				"command":       "cancel",

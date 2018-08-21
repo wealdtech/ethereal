@@ -109,6 +109,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send contract method transaction")
 
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "contract",
 				"command":       "send",

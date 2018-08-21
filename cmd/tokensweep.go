@@ -83,6 +83,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "token",
 				"command":       "sweep",

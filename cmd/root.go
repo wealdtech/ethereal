@@ -58,6 +58,9 @@ var gasLimit uint64
 
 var err error
 
+// Commands that can be run offline
+var offlineCmds = make(map[string]bool)
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:              "ethereal",
@@ -81,6 +84,12 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	quiet = viper.GetBool("quiet")
 	verbose = viper.GetBool("verbose")
 	offline = viper.GetBool("offline")
+
+	// If the command does not require access to the chain then override offline accordingly
+	if offlineCmds[cmdPath(cmd)] {
+		offline = true
+	}
+
 	if offline {
 		// Also need chain ID
 		chainID = big.NewInt(viper.GetInt64("chainid"))
@@ -120,7 +129,28 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// Set default log file if no alternative is provided
+	// Create a connection to an Ethereum node
+	if !offline {
+		client, err = ethclient.Dial(viper.GetString("connection"))
+		cli.ErrCheck(err, quiet, "Failed to connect to Ethereum")
+		// Fetch the chain ID
+		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+		defer cancel()
+		chainID, err = client.NetworkID(ctx)
+		cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
+	}
+}
+
+// cmdPath recurses up the command information to create a path for this command through commands and subcommands
+func cmdPath(cmd *cobra.Command) string {
+	if cmd.Parent() == nil || cmd.Parent().Name() == "ethereal" {
+		return cmd.Name()
+	}
+	return fmt.Sprintf("%s:%s", cmdPath(cmd.Parent()), cmd.Name())
+}
+
+// setupLogging sets up the logging for commands that wish to write output
+func setupLogging() {
 	logFile := viper.GetString("log")
 	if logFile == "" {
 		home, err := homedir.Dir()
@@ -132,16 +162,6 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
 
-	// Create a connection to an Ethereum node
-	if !offline {
-		client, err = ethclient.Dial(viper.GetString("connection"))
-		cli.ErrCheck(err, quiet, "Failed to connect to Ethereum")
-		// Fetch the chain ID
-		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
-		defer cancel()
-		chainID, err = client.NetworkID(ctx)
-		cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
-	}
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

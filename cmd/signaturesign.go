@@ -91,6 +91,7 @@ provided below:
 }
 
 func init() {
+	offlineCmds["signature:sign"] = true
 	signatureCmd.AddCommand(signatureSignCmd)
 	signatureFlags(signatureSignCmd)
 	signatureSignCmd.Flags().StringVar(&signatureSignSigner, "signer", "", "Address of the account to sign the data")

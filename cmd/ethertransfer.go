@@ -87,6 +87,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "ether",
 				"command":       "transfer",

@@ -66,6 +66,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			fromAddress, err := txFrom(signedTx)
 			cli.ErrCheck(err, quiet, "Failed to obtain from address")
 
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "transaction",
 				"command":       "send",
@@ -140,6 +141,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			if toAddress == nil {
+				setupLogging()
 				log.WithFields(log.Fields{
 					"group":         "transaction",
 					"command":       "send",
@@ -153,6 +155,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 					"transactionid": signedTx.Hash().Hex(),
 				}).Info("success")
 			} else {
+				setupLogging()
 				log.WithFields(log.Fields{
 					"group":         "transaction",
 					"command":       "send",

@@ -29,9 +29,9 @@ var accountNonceAddress string
 var accountNonceCmd = &cobra.Command{
 	Use:   "nonce",
 	Short: "Obtain the current nonce for an account",
-	Long: `Start the auction for a name with the Ethereum Name Service (ENS).  For example:
+	Long: `Obtain the current nonce for an account, taking in to account pending transctions.  For example:
 
-    ethereal account nonce address=0x5FfC014343cd971B7eb70732021E26C35B744cc4
+    ethereal account nonce --address=0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the nonce can be obtained, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {

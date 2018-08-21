@@ -106,6 +106,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send contract deployment transaction")
 
+			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "contract",
 				"command":       "deploy",

@@ -78,6 +78,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			if tx.To() == nil {
+				setupLogging()
 				log.WithFields(log.Fields{
 					"group":         "transaction",
 					"command":       "up",
@@ -90,6 +91,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 					"transactionid": signedTx.Hash().Hex(),
 				}).Info("success")
 			} else {
+				setupLogging()
 				log.WithFields(log.Fields{
 					"group":         "transaction",
 					"command":       "up",

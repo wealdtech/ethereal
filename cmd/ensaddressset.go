@@ -62,6 +62,7 @@ In quiet mode this will return 0 if the transaction to set the address is sent s
 		signedTx, err := resolver.SetAddr(opts, ens.NameHash(ensDomain), address)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
+		setupLogging()
 		log.WithFields(log.Fields{
 			"group":         "ens/address",
 			"command":       "set",
