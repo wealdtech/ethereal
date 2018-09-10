@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var client, _ = ethclient.Dial("https://ropsten.orinocopay.com:8546/")
+var client, _ = ethclient.Dial("https://ropsten.infura.io/")
 
 func TestSealBid1(t *testing.T) {
 	contract, err := RegistrarContract(client, "eth")
