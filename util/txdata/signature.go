@@ -125,7 +125,7 @@ func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (
 	case abi.SliceTy, abi.ArrayTy:
 		res := make([]string, 0)
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
-		entries := binary.BigEndian.Uint32(data[offset+start+32 : offset+start+36])
+		entries := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
 		for i := uint32(0); i < entries; i++ {
 			elemRes, err := valueToString(*argType.Elem, 1+start/32+i, offset, data)
 			if err != nil {
@@ -155,6 +155,19 @@ func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (
 
 // AddFunctionSignature adds a function signature to the translation list
 func AddFunctionSignature(signature string) {
+	// Start off removing parameter names if present
+	sigBits := strings.Split(strings.TrimSuffix(signature, ")"), "(")
+	name := sigBits[0]
+	params := strings.Split(sigBits[1], ",")
+	if params[0] == "" {
+		params = make([]string, 0)
+	}
+	for i := range params {
+		params[i] = strings.TrimSpace(params[i])
+		params[i] = strings.Split(params[i], " ")[0]
+	}
+	signature = fmt.Sprintf("%s(%s)", name, strings.Join(params, ","))
+
 	var hash [32]byte
 	sha := sha3.NewKeccak256()
 	sha.Write([]byte(signature))
@@ -162,12 +175,6 @@ func AddFunctionSignature(signature string) {
 	var sig [4]byte
 	copy(sig[:], hash[:4])
 
-	sigBits := strings.Split(strings.TrimSuffix(signature, ")"), "(")
-	name := sigBits[0]
-	params := strings.Split(sigBits[1], ",")
-	if params[0] == "" {
-		params = make([]string, 0)
-	}
 	functions[sig] = function{name: name, params: params}
 	// Also add to events
 	events[hash] = function{name: name, params: params}
