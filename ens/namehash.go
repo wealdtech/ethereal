@@ -15,7 +15,6 @@
 package ens
 
 import (
-	"errors"
 	"strings"
 
 	"golang.org/x/net/idna"
@@ -63,19 +62,6 @@ func NameHash(name string) (hash [32]byte) {
 	for i := len(parts) - 1; i >= 0; i-- {
 		hash = nameHashPart(hash, parts[i])
 	}
-	return
-}
-
-// Domain returns the domain directly before the '.eth' in a name
-func Domain(name string) (domain string, err error) {
-	normalizedName := Normalize(name)
-	nameBits := strings.Split(normalizedName, ".")
-	if len(nameBits) < 2 {
-		err = errors.New("invalid name")
-		return
-	}
-
-	domain = nameBits[len(nameBits)-2]
 	return
 }
 

@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"bytes"
-	"compress/zlib"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -41,7 +40,7 @@ var dnsSetCmd = &cobra.Command{
 	Short: "Set a value for a DNS record",
 	Long: `Set a value for a DNS record.  For example to set the A record for www.wealdtech.eth to 193.62.81.1:
 
-    ethereal dns record set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --value=193.62.81.1 --passphrase=secret
+    ethereal dns set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --value=193.62.81.1 --passphrase=secret
 
 In quiet mode this will return 0 if the set transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -54,6 +53,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		ensDomain := strings.TrimSuffix(dnsDomain, ".")
 		outputIf(verbose, fmt.Sprintf("ENS domain is %s", ensDomain))
 		domainHash := ens.NameHash(ensDomain)
+		outputIf(verbose, fmt.Sprintf("ENS domain hash is 0x%x", domainHash))
 
 		// Obtain the registry contract
 		registryContract, err := ens.RegistryContract(client)
@@ -74,140 +74,93 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
 		var signedTx *types.Transaction
-		data := make([]byte, 16384)
-		if dnsZonefile != "" {
-			// Zone-based
-			offset := 0
-			file, err := os.Open(dnsZonefile)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to open zone file %s", dnsZonefile))
-			for rec := range dns.ParseZone(file, dnsDomain, "") {
-				cli.Assert(rec.Error == nil, quiet, fmt.Sprintf("Failed to parse zone file %s: %v", dnsZonefile, rec.Error))
-				offset, err = dns.PackRR(rec.RR, data, offset, nil, false)
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", rec.RR))
+		data := make([]byte, 32768)
+		dnsName = strings.ToLower(dnsName)
+		if dnsName == "" {
+			dnsName = dnsDomain
+		} else {
+			if !strings.HasSuffix(dnsName, ".") {
+				dnsName = dnsName + "." + dnsDomain
 			}
-			var b bytes.Buffer
-			w, err := zlib.NewWriterLevel(&b, zlib.BestCompression)
-			cli.ErrCheck(err, quiet, "Failed to compress zone file")
-			w.Write(data[0:offset])
-			w.Close()
-			data = b.Bytes()
+		}
+		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
+		cli.Assert(dnsSetTTL != time.Duration(0), quiet, "--ttl is required")
 
-			// Build the transaction
-			opts, err := generateTxOpts(domainOwner)
-			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-			signedTx, err = resolverContract.SetDNSZone(opts, domainHash, data)
-			cli.ErrCheck(err, quiet, "Failed to create transaction")
-			if offline {
-				if !quiet {
-					buf := new(bytes.Buffer)
-					signedTx.EncodeRLP(buf)
-					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
-				}
-			} else {
-				setupLogging()
-				log.WithFields(log.Fields{
-					"group":         "dns",
-					"command":       "set",
-					"domain":        dnsDomain,
-					"owner":         domainOwner,
-					"networkid":     chainID,
-					"gas":           signedTx.Gas(),
-					"gasprice":      signedTx.GasPrice().String(),
-					"transactionid": signedTx.Hash().Hex(),
-				}).Info("success")
+		cli.Assert(dnsResource != "", quiet, "--resource is required")
+		dnsResource := strings.ToUpper(dnsResource)
+		resourceNum, exists := stringToType[dnsResource]
+		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
+		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
 
-				if quiet {
-					os.Exit(0)
-				}
-				fmt.Println(signedTx.Hash().Hex())
+		cli.Assert(dnsSetValue != "", quiet, "--value is required")
+
+		// Create the data resource record(s)
+		offset := 0
+		values := strings.Split(dnsSetValue, "&&")
+		for _, value := range values {
+			source := fmt.Sprintf("%s %d %s %s", dnsName, int(dnsSetTTL.Seconds()), dnsResource, value)
+			outputIf(verbose, fmt.Sprintf("Adding record %s", source))
+			resource, err := dns.NewRR(source)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
+			offset, err = dns.PackRR(resource, data, offset, nil, false)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", resource))
+		}
+		data = data[0:offset]
+
+		if dnsResource != "SOA" && !dnsSetNoSoa {
+			// Obtain the current SOA
+			curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DNSWireFormatDomainHash(dnsDomain), dns.TypeSOA)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
+			if len(curSoaData) > 0 {
+				// We have an SOA so increment the serial as per RFC 1912
+				soaRr, _, err := dns.UnpackRR(curSoaData, 0)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
+				outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
+				soaRr.(*dns.SOA).Serial = util.IncrementSerial(soaRr.(*dns.SOA).Serial)
+				soaRr.(*dns.SOA).Serial++
+				outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
+				soaData := make([]byte, 16384)
+				offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", soaRr))
+				soaData = soaData[0:offset]
+				data = append(data, soaData...)
+			}
+		}
+		outputIf(verbose, fmt.Sprintf("DNS data is %x", data))
+
+		// Build the transaction
+		opts, err := generateTxOpts(domainOwner)
+		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
+		signedTx, err = resolverContract.SetDNSRecords(opts, domainHash, data)
+		cli.ErrCheck(err, quiet, "Failed to create transaction")
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				signedTx.EncodeRLP(buf)
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			// Record-based
-			dnsName = strings.ToLower(dnsName)
-			if dnsName == "" {
-				dnsName = dnsDomain
-			} else {
-				if !strings.HasSuffix(dnsName, ".") {
-					dnsName = dnsName + "." + dnsDomain
-				}
+			setupLogging()
+			log.WithFields(log.Fields{
+				"group":         "dns",
+				"command":       "set",
+				"resource":      dnsResource,
+				"domain":        dnsDomain,
+				"name":          dnsName,
+				"value":         dnsSetValue,
+				"ttl":           dnsSetTTL,
+				"owner":         domainOwner,
+				"networkid":     chainID,
+				"gas":           signedTx.Gas(),
+				"gasprice":      signedTx.GasPrice().String(),
+				"transactionid": signedTx.Hash().Hex(),
+			}).Info("success")
+
+			if quiet {
+				os.Exit(0)
 			}
-			outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
-			cli.Assert(dnsSetTTL != time.Duration(0), quiet, "--ttl is required")
 
-			cli.Assert(dnsResource != "", quiet, "--resource is required")
-			dnsResource := strings.ToUpper(dnsResource)
-			resourceNum, exists := stringToType[dnsResource]
-			cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
-			outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
-
-			cli.Assert(dnsSetValue != "", quiet, "--value is required")
-
-			// Create the data resource record(s)
-			offset := 0
-			values := strings.Split(dnsSetValue, "&&")
-			for _, value := range values {
-				source := fmt.Sprintf("%s %d %s %s", dnsName, int(dnsSetTTL.Seconds()), dnsResource, value)
-				resource, err := dns.NewRR(source)
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to generate resource record from source %s", source))
-				offset, err = dns.PackRR(resource, data, offset, nil, false)
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", resource))
-			}
-			data = data[0:offset]
-
-			var soaData []byte
-			if !dnsSetNoSoa {
-				// Obtain the current SOA
-				curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DNSWireFormatDomainHash(dnsDomain), dns.TypeSOA)
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
-				if len(curSoaData) > 0 {
-					// We have an SOA so increment the serial
-					soaRr, _, err := dns.UnpackRR(curSoaData, 0)
-					cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
-					outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
-					soaRr.(*dns.SOA).Serial++
-					outputIf(verbose, fmt.Sprintf("New SOA record is %v", soaRr))
-					soaData = make([]byte, 16384)
-					offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
-					cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", soaRr))
-					soaData = soaData[0:offset]
-				}
-			}
-			data = append(data, soaData...)
-
-			// Build the transaction
-			opts, err := generateTxOpts(domainOwner)
-			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-			signedTx, err = resolverContract.SetDNSRecords(opts, domainHash, data)
-			cli.ErrCheck(err, quiet, "Failed to create transaction")
-			if offline {
-				if !quiet {
-					buf := new(bytes.Buffer)
-					signedTx.EncodeRLP(buf)
-					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
-				}
-			} else {
-				setupLogging()
-				log.WithFields(log.Fields{
-					"group":         "dns",
-					"command":       "set",
-					"resource":      dnsResource,
-					"domain":        dnsDomain,
-					"name":          dnsName,
-					"value":         dnsSetValue,
-					"ttl":           dnsSetTTL,
-					"owner":         domainOwner,
-					"networkid":     chainID,
-					"gas":           signedTx.Gas(),
-					"gasprice":      signedTx.GasPrice().String(),
-					"transactionid": signedTx.Hash().Hex(),
-				}).Info("success")
-
-				if quiet {
-					os.Exit(0)
-				}
-
-				fmt.Println(signedTx.Hash().Hex())
-			}
+			fmt.Println(signedTx.Hash().Hex())
 		}
 	},
 }

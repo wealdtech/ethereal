@@ -14,12 +14,8 @@
 package cmd
 
 import (
-	"bytes"
-	"compress/zlib"
 	"encoding/hex"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -35,10 +31,10 @@ var dnsGetWire bool
 // dnsGetCmd represents the dns get command
 var dnsGetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Get a value for a DNS record or zone",
+	Short: "Get a value for a DNS record",
 	Long: `Get a value for a DNS resource record.  For example:
 
-    ethereal dns get --zone=wealdtech.eth --resource=A
+    ethereal dns get --domain=wealdtech.eth --name=www --resource=A
 
 In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,29 +73,14 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
 
 		var data []byte
-		if dnsResource == "" {
-			// Attempt to fetch zone
-			result, err := resolverContract.DnsZone(nil, domainHash)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain zone for %s", dnsDomain))
-			cli.Assert(len(result) > 0, quiet, fmt.Sprintf("No zone data for %s", dnsDomain))
-			b := bytes.NewReader(result)
-			var z io.ReadCloser
-			z, err = zlib.NewReader(b)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to decompress zone data for %s", dnsDomain))
-			defer z.Close()
-			data, err = ioutil.ReadAll(z)
-
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Corrupt zone data for %s", dnsDomain))
-		} else {
-			// Attempt to fetch record
-			dnsResource := strings.ToUpper(dnsResource)
-			resourceNum, exists := stringToType[dnsResource]
-			cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
-			outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
-			data, err = resolverContract.DnsRecord(nil, domainHash, nameHash, resourceNum)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsResource, dnsName, dnsDomain))
-			cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsResource, dnsName, dnsDomain))
-		}
+		// Attempt to fetch record
+		dnsResource := strings.ToUpper(dnsResource)
+		resourceNum, exists := stringToType[dnsResource]
+		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
+		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
+		data, err = resolverContract.DnsRecord(nil, domainHash, nameHash, resourceNum)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsResource, dnsName, dnsDomain))
+		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 
 		if quiet {
 			os.Exit(0)

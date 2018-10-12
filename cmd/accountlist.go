@@ -79,6 +79,5 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 }
 
 func init() {
-	offlineCmds["account:list"] = true
 	accountCmd.AddCommand(accountListCmd)
 }

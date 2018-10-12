@@ -1,7 +1,10 @@
 package util
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/crypto/sha3"
 )
@@ -44,4 +47,40 @@ func DNSWireFormat(domain string) []byte {
 		offset += len(piece)
 	}
 	return bytes
+}
+
+// IncrementSerial increments a SOA serial number as per RFC 1912
+func IncrementSerial(serial uint32) uint32 {
+	strSerial := fmt.Sprintf("%d", serial)
+	datePart := time.Now().Format("20060102")
+
+	if len(strSerial) < 10 {
+		// Non-standard format; change to RFC 1912
+		strSerial = fmt.Sprintf("%s00", datePart)
+		result, _ := strconv.ParseInt(strSerial, 10, 32)
+		return uint32(result)
+	}
+
+	// Standard format
+	var nn int
+	if datePart == strSerial[:8] {
+		// Same day; increment nn
+		nn, _ = strconv.Atoi(strSerial[8:])
+		nn++
+	} else {
+		// Different day; nn to 0
+		nn = 0
+	}
+	strSerial = fmt.Sprintf("%s%02d", datePart, nn)
+	result, _ := strconv.ParseInt(strSerial, 10, 32)
+
+	if uint32(result) > serial {
+		// This will be the case if the format was already RFC 1912
+		return uint32(result)
+	}
+
+	// If we reach here it means that the serial number given to us is higher
+	// than the current date.  We cannot set it in to RFC 1912 format without
+	// confusing the nameservers so just increment it.
+	return serial + 1
 }

@@ -13,7 +13,9 @@
 package util
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,5 +34,28 @@ func TestWireFormat(t *testing.T) {
 	for _, tt := range tests {
 		output := DNSWireFormat(tt.input)
 		assert.Equal(t, tt.output, output)
+	}
+}
+
+// helper to set inputs and outputs with current date
+func setSerial(nn uint) uint32 {
+	now := time.Now()
+	return uint32(int(nn) + now.Day()*100 + int(now.Month())*10000 + now.Year()*1000000)
+}
+
+func TestIncrementSerial(t *testing.T) {
+	tests := []struct {
+		input  uint32
+		output uint32
+	}{
+		{input: 0, output: setSerial(0)},
+		{input: 2009080100, output: setSerial(0)},
+		{input: setSerial(0), output: setSerial(1)},
+		{input: setSerial(98), output: setSerial(99)},
+		{input: 4000000000, output: 4000000001},
+	}
+	for i, tt := range tests {
+		output := IncrementSerial(tt.input)
+		assert.Equal(t, tt.output, output, fmt.Sprintf("failed at test %d", i))
 	}
 }

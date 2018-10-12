@@ -47,6 +47,18 @@ func Tld(domain string) string {
 	return tld
 }
 
+// Domain obtains the domain of an ENS name, including subdomains.  It does this
+// by removing everything up to and including the first period.
+// For example, 'eth' will return ''
+//              'foo.eth' will return 'eth'
+//              'bar.foo.eth' will return 'foo.eth'
+func Domain(domain string) string {
+	if idx := strings.IndexByte(domain, '.'); idx >= 0 {
+		return domain[idx+1:]
+	}
+	return ""
+}
+
 // DomainPart obtains a part of a name
 // Positive parts start at the lowest-level of the domain and work towards the
 // top-level domain.  Negative parts start at the top-level domain and work

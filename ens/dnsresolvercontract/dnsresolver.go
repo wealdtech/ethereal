@@ -16,7 +16,7 @@ import (
 )
 
 // DNSResolverContractABI is the input ABI used to generate the binding from.
-const DNSResolverContractABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"setDNSRecords\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"records\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_key\",\"type\":\"string\"},{\"name\":\"_value\",\"type\":\"string\"}],\"name\":\"setText\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"contentTypes\",\"type\":\"uint256\"}],\"name\":\"ABI\",\"outputs\":[{\"name\":\"contentType\",\"type\":\"uint256\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_x\",\"type\":\"bytes32\"},{\"name\":\"_y\",\"type\":\"bytes32\"}],\"name\":\"setPubkey\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"content\",\"outputs\":[{\"name\":\"ret\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"addr\",\"outputs\":[{\"name\":\"ret\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"x\",\"type\":\"bytes32\"}],\"name\":\"hasDNSRecords\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"key\",\"type\":\"string\"}],\"name\":\"text\",\"outputs\":[{\"name\":\"ret\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"setDNSZone\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_contentType\",\"type\":\"uint256\"},{\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"setABI\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"name\",\"outputs\":[{\"name\":\"ret\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"zones\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_name\",\"type\":\"string\"}],\"name\":\"setName\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"nameEntriesCount\",\"outputs\":[{\"name\":\"\",\"type\":\"uint16\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"name\",\"type\":\"bytes32\"},{\"name\":\"resource\",\"type\":\"uint16\"}],\"name\":\"dnsRecord\",\"outputs\":[{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"}],\"name\":\"clearDNSZone\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_hash\",\"type\":\"bytes32\"}],\"name\":\"setContent\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"pubkey\",\"outputs\":[{\"name\":\"x\",\"type\":\"bytes32\"},{\"name\":\"y\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_addr\",\"type\":\"address\"}],\"name\":\"setAddr\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"dnsZone\",\"outputs\":[{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_registry\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"name\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"resource\",\"type\":\"uint16\"},{\"indexed\":false,\"name\":\"length\",\"type\":\"uint256\"}],\"name\":\"Updated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"name\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"resource\",\"type\":\"uint16\"}],\"name\":\"Deleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address\"}],\"name\":\"AddrChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"hash\",\"type\":\"bytes32\"}],\"name\":\"ContentChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"name\",\"type\":\"string\"}],\"name\":\"NameChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"contentType\",\"type\":\"uint256\"}],\"name\":\"ABIChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"x\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"y\",\"type\":\"bytes32\"}],\"name\":\"PubkeyChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"indexedKey\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"key\",\"type\":\"string\"}],\"name\":\"TextChanged\",\"type\":\"event\"}]"
+const DNSResolverContractABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"pure\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"setDNSRecords\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"uint16\"},{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"nameEntriesCount\",\"outputs\":[{\"name\":\"\",\"type\":\"uint16\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_key\",\"type\":\"string\"},{\"name\":\"_value\",\"type\":\"string\"}],\"name\":\"setText\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"contentTypes\",\"type\":\"uint256\"}],\"name\":\"ABI\",\"outputs\":[{\"name\":\"contentType\",\"type\":\"uint256\"},{\"name\":\"data\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_x\",\"type\":\"bytes32\"},{\"name\":\"_y\",\"type\":\"bytes32\"}],\"name\":\"setPubkey\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"content\",\"outputs\":[{\"name\":\"ret\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"addr\",\"outputs\":[{\"name\":\"ret\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_name\",\"type\":\"bytes32\"}],\"name\":\"hasDNSRecords\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"uint16\"},{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"records\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"},{\"name\":\"key\",\"type\":\"string\"}],\"name\":\"text\",\"outputs\":[{\"name\":\"ret\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_contentType\",\"type\":\"uint256\"},{\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"setABI\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"name\",\"outputs\":[{\"name\":\"ret\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_name\",\"type\":\"string\"}],\"name\":\"setName\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_name\",\"type\":\"bytes32\"},{\"name\":\"_resource\",\"type\":\"uint16\"}],\"name\":\"dnsRecord\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"}],\"name\":\"clearDNSZone\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_hash\",\"type\":\"bytes32\"}],\"name\":\"setContent\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"versions\",\"outputs\":[{\"name\":\"\",\"type\":\"uint16\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"pubkey\",\"outputs\":[{\"name\":\"x\",\"type\":\"bytes32\"},{\"name\":\"y\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_node\",\"type\":\"bytes32\"},{\"name\":\"_addr\",\"type\":\"address\"}],\"name\":\"setAddr\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_registry\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"name\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"resource\",\"type\":\"uint16\"}],\"name\":\"Updated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"name\",\"type\":\"bytes\"},{\"indexed\":false,\"name\":\"resource\",\"type\":\"uint16\"}],\"name\":\"Deleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"node\",\"type\":\"bytes32\"}],\"name\":\"Cleared\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"a\",\"type\":\"address\"}],\"name\":\"AddrChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"hash\",\"type\":\"bytes32\"}],\"name\":\"ContentChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"name\",\"type\":\"string\"}],\"name\":\"NameChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"contentType\",\"type\":\"uint256\"}],\"name\":\"ABIChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"x\",\"type\":\"bytes32\"},{\"indexed\":false,\"name\":\"y\",\"type\":\"bytes32\"}],\"name\":\"PubkeyChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"node\",\"type\":\"bytes32\"},{\"indexed\":true,\"name\":\"indexedKey\",\"type\":\"string\"},{\"indexed\":false,\"name\":\"key\",\"type\":\"string\"}],\"name\":\"TextChanged\",\"type\":\"event\"}]"
 
 // DNSResolverContract is an auto generated Go binding around an Ethereum contract.
 type DNSResolverContract struct {
@@ -250,80 +250,54 @@ func (_DNSResolverContract *DNSResolverContractCallerSession) Content(node [32]b
 
 // DnsRecord is a free data retrieval call binding the contract method 0xa8fa5682.
 //
-// Solidity: function dnsRecord(node bytes32, name bytes32, resource uint16) constant returns(data bytes)
-func (_DNSResolverContract *DNSResolverContractCaller) DnsRecord(opts *bind.CallOpts, node [32]byte, name [32]byte, resource uint16) ([]byte, error) {
+// Solidity: function dnsRecord(_node bytes32, _name bytes32, _resource uint16) constant returns(bytes)
+func (_DNSResolverContract *DNSResolverContractCaller) DnsRecord(opts *bind.CallOpts, _node [32]byte, _name [32]byte, _resource uint16) ([]byte, error) {
 	var (
 		ret0 = new([]byte)
 	)
 	out := ret0
-	err := _DNSResolverContract.contract.Call(opts, out, "dnsRecord", node, name, resource)
+	err := _DNSResolverContract.contract.Call(opts, out, "dnsRecord", _node, _name, _resource)
 	return *ret0, err
 }
 
 // DnsRecord is a free data retrieval call binding the contract method 0xa8fa5682.
 //
-// Solidity: function dnsRecord(node bytes32, name bytes32, resource uint16) constant returns(data bytes)
-func (_DNSResolverContract *DNSResolverContractSession) DnsRecord(node [32]byte, name [32]byte, resource uint16) ([]byte, error) {
-	return _DNSResolverContract.Contract.DnsRecord(&_DNSResolverContract.CallOpts, node, name, resource)
+// Solidity: function dnsRecord(_node bytes32, _name bytes32, _resource uint16) constant returns(bytes)
+func (_DNSResolverContract *DNSResolverContractSession) DnsRecord(_node [32]byte, _name [32]byte, _resource uint16) ([]byte, error) {
+	return _DNSResolverContract.Contract.DnsRecord(&_DNSResolverContract.CallOpts, _node, _name, _resource)
 }
 
 // DnsRecord is a free data retrieval call binding the contract method 0xa8fa5682.
 //
-// Solidity: function dnsRecord(node bytes32, name bytes32, resource uint16) constant returns(data bytes)
-func (_DNSResolverContract *DNSResolverContractCallerSession) DnsRecord(node [32]byte, name [32]byte, resource uint16) ([]byte, error) {
-	return _DNSResolverContract.Contract.DnsRecord(&_DNSResolverContract.CallOpts, node, name, resource)
-}
-
-// DnsZone is a free data retrieval call binding the contract method 0xdbfc5d00.
-//
-// Solidity: function dnsZone(node bytes32) constant returns(data bytes)
-func (_DNSResolverContract *DNSResolverContractCaller) DnsZone(opts *bind.CallOpts, node [32]byte) ([]byte, error) {
-	var (
-		ret0 = new([]byte)
-	)
-	out := ret0
-	err := _DNSResolverContract.contract.Call(opts, out, "dnsZone", node)
-	return *ret0, err
-}
-
-// DnsZone is a free data retrieval call binding the contract method 0xdbfc5d00.
-//
-// Solidity: function dnsZone(node bytes32) constant returns(data bytes)
-func (_DNSResolverContract *DNSResolverContractSession) DnsZone(node [32]byte) ([]byte, error) {
-	return _DNSResolverContract.Contract.DnsZone(&_DNSResolverContract.CallOpts, node)
-}
-
-// DnsZone is a free data retrieval call binding the contract method 0xdbfc5d00.
-//
-// Solidity: function dnsZone(node bytes32) constant returns(data bytes)
-func (_DNSResolverContract *DNSResolverContractCallerSession) DnsZone(node [32]byte) ([]byte, error) {
-	return _DNSResolverContract.Contract.DnsZone(&_DNSResolverContract.CallOpts, node)
+// Solidity: function dnsRecord(_node bytes32, _name bytes32, _resource uint16) constant returns(bytes)
+func (_DNSResolverContract *DNSResolverContractCallerSession) DnsRecord(_node [32]byte, _name [32]byte, _resource uint16) ([]byte, error) {
+	return _DNSResolverContract.Contract.DnsRecord(&_DNSResolverContract.CallOpts, _node, _name, _resource)
 }
 
 // HasDNSRecords is a free data retrieval call binding the contract method 0x4cbf6ba4.
 //
-// Solidity: function hasDNSRecords(_node bytes32, x bytes32) constant returns(bool)
-func (_DNSResolverContract *DNSResolverContractCaller) HasDNSRecords(opts *bind.CallOpts, _node [32]byte, x [32]byte) (bool, error) {
+// Solidity: function hasDNSRecords(_node bytes32, _name bytes32) constant returns(bool)
+func (_DNSResolverContract *DNSResolverContractCaller) HasDNSRecords(opts *bind.CallOpts, _node [32]byte, _name [32]byte) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
 	out := ret0
-	err := _DNSResolverContract.contract.Call(opts, out, "hasDNSRecords", _node, x)
+	err := _DNSResolverContract.contract.Call(opts, out, "hasDNSRecords", _node, _name)
 	return *ret0, err
 }
 
 // HasDNSRecords is a free data retrieval call binding the contract method 0x4cbf6ba4.
 //
-// Solidity: function hasDNSRecords(_node bytes32, x bytes32) constant returns(bool)
-func (_DNSResolverContract *DNSResolverContractSession) HasDNSRecords(_node [32]byte, x [32]byte) (bool, error) {
-	return _DNSResolverContract.Contract.HasDNSRecords(&_DNSResolverContract.CallOpts, _node, x)
+// Solidity: function hasDNSRecords(_node bytes32, _name bytes32) constant returns(bool)
+func (_DNSResolverContract *DNSResolverContractSession) HasDNSRecords(_node [32]byte, _name [32]byte) (bool, error) {
+	return _DNSResolverContract.Contract.HasDNSRecords(&_DNSResolverContract.CallOpts, _node, _name)
 }
 
 // HasDNSRecords is a free data retrieval call binding the contract method 0x4cbf6ba4.
 //
-// Solidity: function hasDNSRecords(_node bytes32, x bytes32) constant returns(bool)
-func (_DNSResolverContract *DNSResolverContractCallerSession) HasDNSRecords(_node [32]byte, x [32]byte) (bool, error) {
-	return _DNSResolverContract.Contract.HasDNSRecords(&_DNSResolverContract.CallOpts, _node, x)
+// Solidity: function hasDNSRecords(_node bytes32, _name bytes32) constant returns(bool)
+func (_DNSResolverContract *DNSResolverContractCallerSession) HasDNSRecords(_node [32]byte, _name [32]byte) (bool, error) {
+	return _DNSResolverContract.Contract.HasDNSRecords(&_DNSResolverContract.CallOpts, _node, _name)
 }
 
 // Name is a free data retrieval call binding the contract method 0x691f3431.
@@ -352,30 +326,30 @@ func (_DNSResolverContract *DNSResolverContractCallerSession) Name(node [32]byte
 	return _DNSResolverContract.Contract.Name(&_DNSResolverContract.CallOpts, node)
 }
 
-// NameEntriesCount is a free data retrieval call binding the contract method 0x932fc0e0.
+// NameEntriesCount is a free data retrieval call binding the contract method 0x0dee3863.
 //
-// Solidity: function nameEntriesCount( bytes32,  bytes32) constant returns(uint16)
-func (_DNSResolverContract *DNSResolverContractCaller) NameEntriesCount(opts *bind.CallOpts, arg0 [32]byte, arg1 [32]byte) (uint16, error) {
+// Solidity: function nameEntriesCount( bytes32,  uint16,  bytes32) constant returns(uint16)
+func (_DNSResolverContract *DNSResolverContractCaller) NameEntriesCount(opts *bind.CallOpts, arg0 [32]byte, arg1 uint16, arg2 [32]byte) (uint16, error) {
 	var (
 		ret0 = new(uint16)
 	)
 	out := ret0
-	err := _DNSResolverContract.contract.Call(opts, out, "nameEntriesCount", arg0, arg1)
+	err := _DNSResolverContract.contract.Call(opts, out, "nameEntriesCount", arg0, arg1, arg2)
 	return *ret0, err
 }
 
-// NameEntriesCount is a free data retrieval call binding the contract method 0x932fc0e0.
+// NameEntriesCount is a free data retrieval call binding the contract method 0x0dee3863.
 //
-// Solidity: function nameEntriesCount( bytes32,  bytes32) constant returns(uint16)
-func (_DNSResolverContract *DNSResolverContractSession) NameEntriesCount(arg0 [32]byte, arg1 [32]byte) (uint16, error) {
-	return _DNSResolverContract.Contract.NameEntriesCount(&_DNSResolverContract.CallOpts, arg0, arg1)
+// Solidity: function nameEntriesCount( bytes32,  uint16,  bytes32) constant returns(uint16)
+func (_DNSResolverContract *DNSResolverContractSession) NameEntriesCount(arg0 [32]byte, arg1 uint16, arg2 [32]byte) (uint16, error) {
+	return _DNSResolverContract.Contract.NameEntriesCount(&_DNSResolverContract.CallOpts, arg0, arg1, arg2)
 }
 
-// NameEntriesCount is a free data retrieval call binding the contract method 0x932fc0e0.
+// NameEntriesCount is a free data retrieval call binding the contract method 0x0dee3863.
 //
-// Solidity: function nameEntriesCount( bytes32,  bytes32) constant returns(uint16)
-func (_DNSResolverContract *DNSResolverContractCallerSession) NameEntriesCount(arg0 [32]byte, arg1 [32]byte) (uint16, error) {
-	return _DNSResolverContract.Contract.NameEntriesCount(&_DNSResolverContract.CallOpts, arg0, arg1)
+// Solidity: function nameEntriesCount( bytes32,  uint16,  bytes32) constant returns(uint16)
+func (_DNSResolverContract *DNSResolverContractCallerSession) NameEntriesCount(arg0 [32]byte, arg1 uint16, arg2 [32]byte) (uint16, error) {
+	return _DNSResolverContract.Contract.NameEntriesCount(&_DNSResolverContract.CallOpts, arg0, arg1, arg2)
 }
 
 // Pubkey is a free data retrieval call binding the contract method 0xc8690233.
@@ -414,30 +388,30 @@ func (_DNSResolverContract *DNSResolverContractCallerSession) Pubkey(node [32]by
 	return _DNSResolverContract.Contract.Pubkey(&_DNSResolverContract.CallOpts, node)
 }
 
-// Records is a free data retrieval call binding the contract method 0x107de931.
+// Records is a free data retrieval call binding the contract method 0x4f96bc00.
 //
-// Solidity: function records( bytes32,  bytes32,  uint16) constant returns(bytes)
-func (_DNSResolverContract *DNSResolverContractCaller) Records(opts *bind.CallOpts, arg0 [32]byte, arg1 [32]byte, arg2 uint16) ([]byte, error) {
+// Solidity: function records( bytes32,  uint16,  bytes32,  uint16) constant returns(bytes)
+func (_DNSResolverContract *DNSResolverContractCaller) Records(opts *bind.CallOpts, arg0 [32]byte, arg1 uint16, arg2 [32]byte, arg3 uint16) ([]byte, error) {
 	var (
 		ret0 = new([]byte)
 	)
 	out := ret0
-	err := _DNSResolverContract.contract.Call(opts, out, "records", arg0, arg1, arg2)
+	err := _DNSResolverContract.contract.Call(opts, out, "records", arg0, arg1, arg2, arg3)
 	return *ret0, err
 }
 
-// Records is a free data retrieval call binding the contract method 0x107de931.
+// Records is a free data retrieval call binding the contract method 0x4f96bc00.
 //
-// Solidity: function records( bytes32,  bytes32,  uint16) constant returns(bytes)
-func (_DNSResolverContract *DNSResolverContractSession) Records(arg0 [32]byte, arg1 [32]byte, arg2 uint16) ([]byte, error) {
-	return _DNSResolverContract.Contract.Records(&_DNSResolverContract.CallOpts, arg0, arg1, arg2)
+// Solidity: function records( bytes32,  uint16,  bytes32,  uint16) constant returns(bytes)
+func (_DNSResolverContract *DNSResolverContractSession) Records(arg0 [32]byte, arg1 uint16, arg2 [32]byte, arg3 uint16) ([]byte, error) {
+	return _DNSResolverContract.Contract.Records(&_DNSResolverContract.CallOpts, arg0, arg1, arg2, arg3)
 }
 
-// Records is a free data retrieval call binding the contract method 0x107de931.
+// Records is a free data retrieval call binding the contract method 0x4f96bc00.
 //
-// Solidity: function records( bytes32,  bytes32,  uint16) constant returns(bytes)
-func (_DNSResolverContract *DNSResolverContractCallerSession) Records(arg0 [32]byte, arg1 [32]byte, arg2 uint16) ([]byte, error) {
-	return _DNSResolverContract.Contract.Records(&_DNSResolverContract.CallOpts, arg0, arg1, arg2)
+// Solidity: function records( bytes32,  uint16,  bytes32,  uint16) constant returns(bytes)
+func (_DNSResolverContract *DNSResolverContractCallerSession) Records(arg0 [32]byte, arg1 uint16, arg2 [32]byte, arg3 uint16) ([]byte, error) {
+	return _DNSResolverContract.Contract.Records(&_DNSResolverContract.CallOpts, arg0, arg1, arg2, arg3)
 }
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
@@ -492,30 +466,30 @@ func (_DNSResolverContract *DNSResolverContractCallerSession) Text(node [32]byte
 	return _DNSResolverContract.Contract.Text(&_DNSResolverContract.CallOpts, node, key)
 }
 
-// Zones is a free data retrieval call binding the contract method 0x6de75ff8.
+// Versions is a free data retrieval call binding the contract method 0xc7cec7f8.
 //
-// Solidity: function zones( bytes32) constant returns(bytes)
-func (_DNSResolverContract *DNSResolverContractCaller) Zones(opts *bind.CallOpts, arg0 [32]byte) ([]byte, error) {
+// Solidity: function versions( bytes32) constant returns(uint16)
+func (_DNSResolverContract *DNSResolverContractCaller) Versions(opts *bind.CallOpts, arg0 [32]byte) (uint16, error) {
 	var (
-		ret0 = new([]byte)
+		ret0 = new(uint16)
 	)
 	out := ret0
-	err := _DNSResolverContract.contract.Call(opts, out, "zones", arg0)
+	err := _DNSResolverContract.contract.Call(opts, out, "versions", arg0)
 	return *ret0, err
 }
 
-// Zones is a free data retrieval call binding the contract method 0x6de75ff8.
+// Versions is a free data retrieval call binding the contract method 0xc7cec7f8.
 //
-// Solidity: function zones( bytes32) constant returns(bytes)
-func (_DNSResolverContract *DNSResolverContractSession) Zones(arg0 [32]byte) ([]byte, error) {
-	return _DNSResolverContract.Contract.Zones(&_DNSResolverContract.CallOpts, arg0)
+// Solidity: function versions( bytes32) constant returns(uint16)
+func (_DNSResolverContract *DNSResolverContractSession) Versions(arg0 [32]byte) (uint16, error) {
+	return _DNSResolverContract.Contract.Versions(&_DNSResolverContract.CallOpts, arg0)
 }
 
-// Zones is a free data retrieval call binding the contract method 0x6de75ff8.
+// Versions is a free data retrieval call binding the contract method 0xc7cec7f8.
 //
-// Solidity: function zones( bytes32) constant returns(bytes)
-func (_DNSResolverContract *DNSResolverContractCallerSession) Zones(arg0 [32]byte) ([]byte, error) {
-	return _DNSResolverContract.Contract.Zones(&_DNSResolverContract.CallOpts, arg0)
+// Solidity: function versions( bytes32) constant returns(uint16)
+func (_DNSResolverContract *DNSResolverContractCallerSession) Versions(arg0 [32]byte) (uint16, error) {
+	return _DNSResolverContract.Contract.Versions(&_DNSResolverContract.CallOpts, arg0)
 }
 
 // ClearDNSZone is a paid mutator transaction binding the contract method 0xad5780af.
@@ -604,44 +578,23 @@ func (_DNSResolverContract *DNSResolverContractTransactorSession) SetContent(_no
 
 // SetDNSRecords is a paid mutator transaction binding the contract method 0x0af179d7.
 //
-// Solidity: function setDNSRecords(node bytes32, data bytes) returns()
-func (_DNSResolverContract *DNSResolverContractTransactor) SetDNSRecords(opts *bind.TransactOpts, node [32]byte, data []byte) (*types.Transaction, error) {
-	return _DNSResolverContract.contract.Transact(opts, "setDNSRecords", node, data)
+// Solidity: function setDNSRecords(_node bytes32, _data bytes) returns()
+func (_DNSResolverContract *DNSResolverContractTransactor) SetDNSRecords(opts *bind.TransactOpts, _node [32]byte, _data []byte) (*types.Transaction, error) {
+	return _DNSResolverContract.contract.Transact(opts, "setDNSRecords", _node, _data)
 }
 
 // SetDNSRecords is a paid mutator transaction binding the contract method 0x0af179d7.
 //
-// Solidity: function setDNSRecords(node bytes32, data bytes) returns()
-func (_DNSResolverContract *DNSResolverContractSession) SetDNSRecords(node [32]byte, data []byte) (*types.Transaction, error) {
-	return _DNSResolverContract.Contract.SetDNSRecords(&_DNSResolverContract.TransactOpts, node, data)
+// Solidity: function setDNSRecords(_node bytes32, _data bytes) returns()
+func (_DNSResolverContract *DNSResolverContractSession) SetDNSRecords(_node [32]byte, _data []byte) (*types.Transaction, error) {
+	return _DNSResolverContract.Contract.SetDNSRecords(&_DNSResolverContract.TransactOpts, _node, _data)
 }
 
 // SetDNSRecords is a paid mutator transaction binding the contract method 0x0af179d7.
 //
-// Solidity: function setDNSRecords(node bytes32, data bytes) returns()
-func (_DNSResolverContract *DNSResolverContractTransactorSession) SetDNSRecords(node [32]byte, data []byte) (*types.Transaction, error) {
-	return _DNSResolverContract.Contract.SetDNSRecords(&_DNSResolverContract.TransactOpts, node, data)
-}
-
-// SetDNSZone is a paid mutator transaction binding the contract method 0x5d21719d.
-//
-// Solidity: function setDNSZone(node bytes32, data bytes) returns()
-func (_DNSResolverContract *DNSResolverContractTransactor) SetDNSZone(opts *bind.TransactOpts, node [32]byte, data []byte) (*types.Transaction, error) {
-	return _DNSResolverContract.contract.Transact(opts, "setDNSZone", node, data)
-}
-
-// SetDNSZone is a paid mutator transaction binding the contract method 0x5d21719d.
-//
-// Solidity: function setDNSZone(node bytes32, data bytes) returns()
-func (_DNSResolverContract *DNSResolverContractSession) SetDNSZone(node [32]byte, data []byte) (*types.Transaction, error) {
-	return _DNSResolverContract.Contract.SetDNSZone(&_DNSResolverContract.TransactOpts, node, data)
-}
-
-// SetDNSZone is a paid mutator transaction binding the contract method 0x5d21719d.
-//
-// Solidity: function setDNSZone(node bytes32, data bytes) returns()
-func (_DNSResolverContract *DNSResolverContractTransactorSession) SetDNSZone(node [32]byte, data []byte) (*types.Transaction, error) {
-	return _DNSResolverContract.Contract.SetDNSZone(&_DNSResolverContract.TransactOpts, node, data)
+// Solidity: function setDNSRecords(_node bytes32, _data bytes) returns()
+func (_DNSResolverContract *DNSResolverContractTransactorSession) SetDNSRecords(_node [32]byte, _data []byte) (*types.Transaction, error) {
+	return _DNSResolverContract.Contract.SetDNSRecords(&_DNSResolverContract.TransactOpts, _node, _data)
 }
 
 // SetName is a paid mutator transaction binding the contract method 0x77372213.
@@ -961,6 +914,128 @@ func (_DNSResolverContract *DNSResolverContractFilterer) WatchAddrChanged(opts *
 				// New log arrived, parse the event and forward to the user
 				event := new(DNSResolverContractAddrChanged)
 				if err := _DNSResolverContract.contract.UnpackLog(event, "AddrChanged", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// DNSResolverContractClearedIterator is returned from FilterCleared and is used to iterate over the raw logs and unpacked data for Cleared events raised by the DNSResolverContract contract.
+type DNSResolverContractClearedIterator struct {
+	Event *DNSResolverContractCleared // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DNSResolverContractClearedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DNSResolverContractCleared)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DNSResolverContractCleared)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DNSResolverContractClearedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DNSResolverContractClearedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DNSResolverContractCleared represents a Cleared event raised by the DNSResolverContract contract.
+type DNSResolverContractCleared struct {
+	Node [32]byte
+	Raw  types.Log // Blockchain specific contextual infos
+}
+
+// FilterCleared is a free log retrieval operation binding the contract event 0xf9c9793a5e1c345ae880b8c5e3b0a241f568d7242dcf6e21a2bea5dfb817d88e.
+//
+// Solidity: e Cleared(node bytes32)
+func (_DNSResolverContract *DNSResolverContractFilterer) FilterCleared(opts *bind.FilterOpts) (*DNSResolverContractClearedIterator, error) {
+
+	logs, sub, err := _DNSResolverContract.contract.FilterLogs(opts, "Cleared")
+	if err != nil {
+		return nil, err
+	}
+	return &DNSResolverContractClearedIterator{contract: _DNSResolverContract.contract, event: "Cleared", logs: logs, sub: sub}, nil
+}
+
+// WatchCleared is a free log subscription operation binding the contract event 0xf9c9793a5e1c345ae880b8c5e3b0a241f568d7242dcf6e21a2bea5dfb817d88e.
+//
+// Solidity: e Cleared(node bytes32)
+func (_DNSResolverContract *DNSResolverContractFilterer) WatchCleared(opts *bind.WatchOpts, sink chan<- *DNSResolverContractCleared) (event.Subscription, error) {
+
+	logs, sub, err := _DNSResolverContract.contract.WatchLogs(opts, "Cleared")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DNSResolverContractCleared)
+				if err := _DNSResolverContract.contract.UnpackLog(event, "Cleared", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1719,13 +1794,12 @@ type DNSResolverContractUpdated struct {
 	Node     [32]byte
 	Name     []byte
 	Resource uint16
-	Length   *big.Int
 	Raw      types.Log // Blockchain specific contextual infos
 }
 
-// FilterUpdated is a free log retrieval operation binding the contract event 0x54c176550009b22baa8f09052da16ee02e1df250881ba30e944948669fe8482f.
+// FilterUpdated is a free log retrieval operation binding the contract event 0xb09b445b0776998f69b77758912de74d641195b10c8f03062f124495b13ef9f6.
 //
-// Solidity: e Updated(node bytes32, name bytes, resource uint16, length uint256)
+// Solidity: e Updated(node bytes32, name bytes, resource uint16)
 func (_DNSResolverContract *DNSResolverContractFilterer) FilterUpdated(opts *bind.FilterOpts) (*DNSResolverContractUpdatedIterator, error) {
 
 	logs, sub, err := _DNSResolverContract.contract.FilterLogs(opts, "Updated")
@@ -1735,9 +1809,9 @@ func (_DNSResolverContract *DNSResolverContractFilterer) FilterUpdated(opts *bin
 	return &DNSResolverContractUpdatedIterator{contract: _DNSResolverContract.contract, event: "Updated", logs: logs, sub: sub}, nil
 }
 
-// WatchUpdated is a free log subscription operation binding the contract event 0x54c176550009b22baa8f09052da16ee02e1df250881ba30e944948669fe8482f.
+// WatchUpdated is a free log subscription operation binding the contract event 0xb09b445b0776998f69b77758912de74d641195b10c8f03062f124495b13ef9f6.
 //
-// Solidity: e Updated(node bytes32, name bytes, resource uint16, length uint256)
+// Solidity: e Updated(node bytes32, name bytes, resource uint16)
 func (_DNSResolverContract *DNSResolverContractFilterer) WatchUpdated(opts *bind.WatchOpts, sink chan<- *DNSResolverContractUpdated) (event.Subscription, error) {
 
 	logs, sub, err := _DNSResolverContract.contract.WatchLogs(opts, "Updated")

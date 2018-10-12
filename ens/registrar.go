@@ -87,7 +87,7 @@ func CreateRegistrarSession(chainID *big.Int, wallet *accounts.Wallet, account *
 
 // SealBid seals the elements of a bid in to a single hash
 func SealBid(name string, owner *common.Address, amount big.Int, salt string) (hash common.Hash, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -109,7 +109,7 @@ func SealBid(name string, owner *common.Address, amount big.Int, salt string) (h
 
 // StartAuction starts an auction without bidding
 func StartAuction(session *registrarcontract.RegistrarContractSession, name string) (tx *types.Transaction, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -121,7 +121,7 @@ func StartAuction(session *registrarcontract.RegistrarContractSession, name stri
 
 // StartAuctionAndBid starts an auction and bids in the same transaction.
 func StartAuctionAndBid(session *registrarcontract.RegistrarContractSession, name string, owner *common.Address, amount big.Int, salt string, dummies int) (tx *types.Transaction, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -152,7 +152,7 @@ func StartAuctionAndBid(session *registrarcontract.RegistrarContractSession, nam
 
 // InvalidateName invalidates a non-conformant ENS registration.
 func InvalidateName(session *registrarcontract.RegistrarContractSession, name string) (tx *types.Transaction, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -175,7 +175,7 @@ func NewBid(session *registrarcontract.RegistrarContractSession, name string, ow
 
 // RevealBid reveals an existing bid on an existing auction
 func RevealBid(session *registrarcontract.RegistrarContractSession, name string, owner *common.Address, amount big.Int, salt string) (tx *types.Transaction, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -190,7 +190,7 @@ func RevealBid(session *registrarcontract.RegistrarContractSession, name string,
 
 // FinishAuction reveals an existing bid on an existing auction
 func FinishAuction(session *registrarcontract.RegistrarContractSession, name string) (tx *types.Transaction, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -202,7 +202,7 @@ func FinishAuction(session *registrarcontract.RegistrarContractSession, name str
 
 // Transfer transfers domain ownership to a new address
 func Transfer(session *registrarcontract.RegistrarContractSession, name string, to common.Address) (tx *types.Transaction, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return
@@ -214,7 +214,7 @@ func Transfer(session *registrarcontract.RegistrarContractSession, name string, 
 
 // Entry obtains a registrar entry for a name
 func Entry(contract *registrarcontract.RegistrarContract, client *ethclient.Client, name string) (state string, deedAddress common.Address, registrationDate time.Time, value *big.Int, highestBid *big.Int, err error) {
-	domain, err := Domain(name)
+	domain, err := DomainPart(name, 1)
 	if err != nil {
 		err = fmt.Errorf("invalid name")
 		return

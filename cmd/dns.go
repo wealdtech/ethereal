@@ -19,7 +19,6 @@ import (
 )
 
 var dnsDomain string
-var dnsZonefile string
 var dnsResource string
 var dnsName string
 
@@ -46,7 +45,6 @@ func init() {
 
 func dnsFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&dnsDomain, "domain", "", "Domain against which to operate (e.g. wealdtech.eth)")
-	cmd.Flags().StringVar(&dnsZonefile, "zonefile", "", "Path to DNS zone file")
 	cmd.Flags().StringVar(&dnsResource, "resource", "", "The resource (A, NS, CNAME etc.)")
 	cmd.Flags().StringVar(&dnsName, "name", "", "The name for the resource (end with \".\" for fully-qualified domain, otherwise domain will be added)")
 }

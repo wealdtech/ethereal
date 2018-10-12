@@ -48,7 +48,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		registrarContract, err := ens.RegistrarContract(client, ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 
-		outputIf(verbose, fmt.Sprintf("Name hash is %x", ens.NameHash(ensDomain)))
+		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
 		registry, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 		domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(ensDomain))

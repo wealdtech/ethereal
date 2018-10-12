@@ -22,11 +22,11 @@
     "constant": false,
     "inputs": [
       {
-        "name": "node",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "data",
+        "name": "_data",
         "type": "bytes"
       }
     ],
@@ -45,18 +45,18 @@
       },
       {
         "name": "",
-        "type": "bytes32"
+        "type": "uint16"
       },
       {
         "name": "",
-        "type": "uint16"
+        "type": "bytes32"
       }
     ],
-    "name": "records",
+    "name": "nameEntriesCount",
     "outputs": [
       {
         "name": "",
-        "type": "bytes"
+        "type": "uint16"
       }
     ],
     "payable": false,
@@ -180,7 +180,7 @@
         "type": "bytes32"
       },
       {
-        "name": "x",
+        "name": "_name",
         "type": "bytes32"
       }
     ],
@@ -189,6 +189,37 @@
       {
         "name": "",
         "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "uint16"
+      },
+      {
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "name": "records",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes"
       }
     ],
     "payable": false,
@@ -216,24 +247,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "node",
-        "type": "bytes32"
-      },
-      {
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "setDNSZone",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -278,25 +291,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "zones",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -318,45 +312,22 @@
     "constant": true,
     "inputs": [
       {
-        "name": "",
+        "name": "_node",
         "type": "bytes32"
       },
       {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "nameEntriesCount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "node",
+        "name": "_name",
         "type": "bytes32"
       },
       {
-        "name": "name",
-        "type": "bytes32"
-      },
-      {
-        "name": "resource",
+        "name": "_resource",
         "type": "uint16"
       }
     ],
     "name": "dnsRecord",
     "outputs": [
       {
-        "name": "data",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -394,6 +365,25 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "versions",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -438,25 +428,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "node",
-        "type": "bytes32"
-      }
-    ],
-    "name": "dnsZone",
-    "outputs": [
-      {
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "name": "_registry",
@@ -484,11 +455,6 @@
         "indexed": false,
         "name": "resource",
         "type": "uint16"
-      },
-      {
-        "indexed": false,
-        "name": "length",
-        "type": "uint256"
       }
     ],
     "name": "Updated",
@@ -514,6 +480,18 @@
       }
     ],
     "name": "Deleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "node",
+        "type": "bytes32"
+      }
+    ],
+    "name": "Cleared",
     "type": "event"
   },
   {

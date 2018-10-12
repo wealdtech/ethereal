@@ -40,7 +40,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
-		cli.Assert(ensTransferNewOwnerStr != "", quiet, "--address is required")
+		cli.Assert(ensTransferNewOwnerStr != "", quiet, "--newowner is required")
 		cli.Assert(len(ensDomain) > 10, quiet, "Domain must be at least 7 characters long")
 		cli.Assert(len(strings.Split(ensDomain, ".")) == 2, quiet, "Name must not contain . (except for ending in .eth)")
 
@@ -63,7 +63,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		cli.ErrCheck(err, quiet, fmt.Sprintf("unknown new owner %s", ensTransferNewOwnerStr))
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
-		domain, err := ens.Domain(ensDomain)
+		domain, err := ens.DomainPart(ensDomain, 1)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("failed to parse domain %s", ensDomain))
 		tx, err := registrarContract.Transfer(opts, ens.LabelHash(domain), newOwnerAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
