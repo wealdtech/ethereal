@@ -197,20 +197,20 @@ func ownedInfo(name string) {
 		}
 	}
 
-	// Address owner
+	// Domain owner
 	registry, err := ens.RegistryContract(client)
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 	domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 	if domainOwnerAddress == ens.UnknownAddress {
-		fmt.Println("Address owner not set")
+		fmt.Println("Domain owner not set")
 		return
 	}
 	domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
 	if domainOwnerName == "" {
-		fmt.Println("Address owner is", domainOwnerAddress.Hex())
+		fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 	} else {
-		fmt.Printf("Address owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+		fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 	}
 
 	// Resolver
@@ -229,37 +229,37 @@ func ownedInfo(name string) {
 	// Address
 	address, err := ens.Resolve(client, name)
 	if err != nil || address == ens.UnknownAddress {
-		fmt.Println("Name does not resolve to an address")
+		fmt.Printf("%s does not resolve to an address\n", name)
 		return
 	}
-	fmt.Println("Domain resolves to", address.Hex())
+	fmt.Printf("%s resolves to %s\n", name, address.Hex())
 
 	// Reverse resolution
 	reverseDomain, err := ens.ReverseResolve(client, &address)
 	if err != nil || reverseDomain == "" {
-		fmt.Println("Address does not resolve to a domain")
+		fmt.Printf("%s does not resolve to a domain\n", address.Hex())
 		return
 	}
-	fmt.Println("Address resolves to", reverseDomain)
+	fmt.Printf("%s resolves to %s\n", address.Hex(), reverseDomain)
 
 	// TODO Other common fields (addr, abi, etc.) (if configured)
 }
 
 func subdomainInfo(name string) {
-	// Address owner
+	// Domain owner
 	registry, err := ens.RegistryContract(client)
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 	domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 	if domainOwnerAddress == ens.UnknownAddress {
-		fmt.Println("Address owner not set")
+		fmt.Println("Domain owner not set")
 		return
 	}
 	domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
 	if domainOwnerName == "" {
-		fmt.Println("Address owner is", domainOwnerAddress.Hex())
+		fmt.Println("Domain owner is", domainOwnerAddress.Hex())
 	} else {
-		fmt.Printf("Address owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+		fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 	}
 
 	// Resolver
