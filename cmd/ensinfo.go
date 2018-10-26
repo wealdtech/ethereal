@@ -74,7 +74,12 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 					case "Won":
 						wonInfo(ensDomain)
 					case "Owned":
-						fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
+						domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
+						if domainOwnerName == "" {
+							fmt.Println("Domain owner is", domainOwnerAddress.Hex())
+						} else {
+							fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+						}
 						ownedInfo(ensDomain)
 					default:
 						fmt.Println(state)
@@ -84,7 +89,12 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 				ownedInfo(ensDomain)
 			}
 		} else {
-			fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
+			domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
+			if domainOwnerName == "" {
+				fmt.Println("Domain owner is", domainOwnerAddress.Hex())
+			} else {
+				fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+			}
 			subdomainInfo(ensDomain)
 		}
 	},
