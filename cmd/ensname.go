@@ -14,24 +14,20 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Version of Ethereal",
-	Long: `Obtain the version of Ethereal.  For example:
-
-    ethereal version.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("1.2.212")
-	},
+// ensNameCmd represents the ens name command
+var ensNameCmd = &cobra.Command{
+	Use:   "name",
+	Short: "Manage ENS reverse resolution",
+	Long:  `Set and obtain Ethereum Name Service reverse resolution information`,
 }
 
 func init() {
-	offlineCmds["version"] = true
-	RootCmd.AddCommand(versionCmd)
+	ensCmd.AddCommand(ensNameCmd)
+}
+
+func ensNameFlags(cmd *cobra.Command) {
+	// Most commands require a --domain, this does not so do not include the ENS flags
 }
