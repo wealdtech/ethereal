@@ -23,7 +23,11 @@ import (
 func ErrCheck(err error, quiet bool, msg string) {
 	if err != nil {
 		if !quiet {
-			fmt.Fprintf(os.Stderr, "%s: %s\n", msg, err.Error())
+			if msg == "" {
+				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			} else {
+				fmt.Fprintf(os.Stderr, "%s: %s\n", msg, err.Error())
+			}
 		}
 		os.Exit(1)
 	}
@@ -34,7 +38,11 @@ func ErrAssert(condition bool, err error, quiet bool, msg string) {
 	if !condition {
 		if err != nil {
 			if !quiet {
-				fmt.Fprintf(os.Stderr, "%s: %s\n", msg, err.Error())
+				if msg == "" {
+					fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+				} else {
+					fmt.Fprintf(os.Stderr, "%s: %s\n", msg, err.Error())
+				}
 			}
 			os.Exit(1)
 		}
