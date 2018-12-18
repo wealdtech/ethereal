@@ -69,6 +69,6 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 func init() {
 	ensResolverCmd.AddCommand(ensResolverSetCmd)
 	ensResolverFlags(ensResolverSetCmd)
-	ensResolverSetCmd.Flags().StringVarP(&ensResolverSetResolverStr, "resolver", "r", "", "The resolver's name or address")
+	ensResolverSetCmd.Flags().StringVar(&ensResolverSetResolverStr, "resolver", "", "The resolver's name or address")
 	addTransactionFlags(ensResolverSetCmd, "passphrase for the account that owns the domain")
 }
