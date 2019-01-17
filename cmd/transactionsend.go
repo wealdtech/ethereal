@@ -36,6 +36,7 @@ var transactionSendFromAddress string
 var transactionSendToAddress string
 var transactionSendData string
 var transactionSendRaw string
+var transactionSendRepeat int
 
 // transactionSendCmd represents the transaction send command
 var transactionSendCmd = &cobra.Command{
@@ -124,56 +125,57 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		data, err := hex.DecodeString(transactionSendData)
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
-		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, gasLimit, data)
-		cli.ErrCheck(err, quiet, "Failed to create transaction")
+		for i := 0; i < transactionSendRepeat; i++ {
+			// Create and sign the transaction
+			signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, gasLimit, data)
+			cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		if offline {
-			if !quiet {
-				buf := new(bytes.Buffer)
-				signedTx.EncodeRLP(buf)
-				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
-			}
-		} else {
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-			if toAddress == nil {
-				setupLogging()
-				log.WithFields(log.Fields{
-					"group":         "transaction",
-					"command":       "send",
-					"from":          fromAddress.Hex(),
-					"to":            toAddress.Hex(),
-					"amount":        amount.String(),
-					"data":          hex.EncodeToString(data),
-					"networkid":     chainID,
-					"gas":           signedTx.Gas(),
-					"gasprice":      signedTx.GasPrice().String(),
-					"transactionid": signedTx.Hash().Hex(),
-				}).Info("success")
+			if offline {
+				if !quiet {
+					buf := new(bytes.Buffer)
+					signedTx.EncodeRLP(buf)
+					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+				}
 			} else {
-				setupLogging()
-				log.WithFields(log.Fields{
-					"group":         "transaction",
-					"command":       "send",
-					"from":          fromAddress.Hex(),
-					"to":            toAddress.Hex(),
-					"amount":        amount.String(),
-					"data":          hex.EncodeToString(data),
-					"networkid":     chainID,
-					"gas":           signedTx.Gas(),
-					"gasprice":      signedTx.GasPrice().String(),
-					"transactionid": signedTx.Hash().Hex(),
-				}).Info("success")
-			}
+				ctx, cancel := localContext()
+				defer cancel()
+				err = client.SendTransaction(ctx, signedTx)
+				cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-			if quiet {
-				os.Exit(0)
+				if toAddress == nil {
+					setupLogging()
+					log.WithFields(log.Fields{
+						"group":         "transaction",
+						"command":       "send",
+						"from":          fromAddress.Hex(),
+						"to":            toAddress.Hex(),
+						"amount":        amount.String(),
+						"data":          hex.EncodeToString(data),
+						"networkid":     chainID,
+						"gas":           signedTx.Gas(),
+						"gasprice":      signedTx.GasPrice().String(),
+						"transactionid": signedTx.Hash().Hex(),
+					}).Info("success")
+				} else {
+					setupLogging()
+					log.WithFields(log.Fields{
+						"group":         "transaction",
+						"command":       "send",
+						"from":          fromAddress.Hex(),
+						"to":            toAddress.Hex(),
+						"amount":        amount.String(),
+						"data":          hex.EncodeToString(data),
+						"networkid":     chainID,
+						"gas":           signedTx.Gas(),
+						"gasprice":      signedTx.GasPrice().String(),
+						"transactionid": signedTx.Hash().Hex(),
+					}).Info("success")
+				}
+
+				if !quiet {
+					fmt.Println(signedTx.Hash().Hex())
+				}
 			}
-			fmt.Println(signedTx.Hash().Hex())
 		}
 	},
 }
@@ -185,5 +187,6 @@ func init() {
 	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
 	transactionSendCmd.Flags().StringVar(&transactionSendRaw, "raw", "", "raw transaction (as a hex string).  This overrides all other options")
+	transactionSendCmd.Flags().IntVar(&transactionSendRepeat, "repeat", 1, "Number of time to repeat")
 	addTransactionFlags(transactionSendCmd, "the address from which to transfer Ether")
 }
