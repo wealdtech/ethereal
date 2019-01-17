@@ -25,11 +25,11 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto/sha3"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/ethereal/ens/registrarcontract"
 	"github.com/wealdtech/ethereal/ens/registrycontract"
 	"github.com/wealdtech/ethereal/util"
+	"golang.org/x/crypto/sha3"
 )
 
 // RegistrarContractAddress obtains the registrar contract address for a given domain
@@ -94,7 +94,7 @@ func SealBid(name string, owner *common.Address, amount big.Int, salt string) (h
 	}
 	domainHash := LabelHash(domain)
 
-	sha := sha3.NewKeccak256()
+	sha := sha3.NewLegacyKeccak256()
 	sha.Write(domainHash[:])
 	sha.Write(owner.Bytes())
 	// Amount needs to be exactly 32 bytes
@@ -300,7 +300,7 @@ func NameInState(contract *registrarcontract.RegistrarContract, client *ethclien
 
 // Generate a simple hash for a salt
 func saltHash(salt string) (hash [32]byte) {
-	sha := sha3.NewKeccak256()
+	sha := sha3.NewLegacyKeccak256()
 	sha.Write([]byte(salt))
 	sha.Sum(hash[:0])
 	return
