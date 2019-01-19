@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto/sha3"
+	"golang.org/x/crypto/sha3"
 )
 
 // DNSDomainHash hashes a domain name
 func DNSDomainHash(domain string) (hash [32]byte) {
 	lower := strings.ToLower(domain)
-	sha := sha3.NewKeccak256()
+	sha := sha3.NewLegacyKeccak256()
 	sha.Write([]byte(lower))
 	sha.Sum(hash[:0])
 	return
@@ -20,7 +20,7 @@ func DNSDomainHash(domain string) (hash [32]byte) {
 
 // DNSWireFormatDomainHash hashes a domain name in wire format
 func DNSWireFormatDomainHash(domain string) (hash [32]byte) {
-	sha := sha3.NewKeccak256()
+	sha := sha3.NewLegacyKeccak256()
 	sha.Write(DNSWireFormat(domain))
 	sha.Sum(hash[:0])
 	return
