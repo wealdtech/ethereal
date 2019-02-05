@@ -174,19 +174,15 @@ func SetAbi(session *resolvercontract.ResolverContractSession, name string, abi 
 
 // Abi returns the ABI associated with a name
 func Abi(resolver *resolvercontract.ResolverContract, name string) (abi string, err error) {
-	var result struct {
-		ContentType *big.Int
-		Data        []byte
-	}
 	contentTypes := big.NewInt(3)
-	result, err = resolver.ABI(nil, NameHash(name), contentTypes)
+	contentType, data, err := resolver.ABI(nil, NameHash(name), contentTypes)
 	if err == nil {
-		if result.ContentType.Cmp(big.NewInt(1)) == 0 {
+		if contentType.Cmp(big.NewInt(1)) == 0 {
 			// Uncompressed JSON
-			abi = string(result.Data)
-		} else if result.ContentType.Cmp(big.NewInt(2)) == 0 {
+			abi = string(data)
+		} else if contentType.Cmp(big.NewInt(2)) == 0 {
 			// Zlib-compressed JSON
-			b := bytes.NewReader(result.Data)
+			b := bytes.NewReader(data)
 			var z io.ReadCloser
 			z, err = zlib.NewReader(b)
 			if err != nil {

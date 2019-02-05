@@ -45,7 +45,7 @@ func DataToString(input []byte) string {
 		var buffer bytes.Buffer
 		buffer.WriteString(fmt.Sprintf("%s(", function.name))
 		for i, param := range function.params {
-			t, err := abi.NewType(param)
+			t, err := abi.NewType(param, nil)
 			if err == nil {
 				res, err := contractValueToString(t, uint32(i), input)
 				if err != nil {
@@ -80,7 +80,7 @@ func EventToString(input *types.Log) string {
 
 	curTopic := 1
 	for i, param := range function.params {
-		t, err := abi.NewType(param)
+		t, err := abi.NewType(param, nil)
 		if err == nil {
 			var res string
 			var err error
