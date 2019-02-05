@@ -20,6 +20,7 @@ import (
 	"os"
 	"time"
 
+	ma "github.com/multiformats/go-multiaddr"
 	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -230,18 +231,27 @@ func ownedInfo(name string) {
 	address, err := ens.Resolve(client, name)
 	if err != nil || address == ens.UnknownAddress {
 		fmt.Printf("%s does not resolve to an address\n", name)
-		return
+	} else {
+		fmt.Printf("%s resolves to %s\n", name, address.Hex())
+		// Reverse resolution
+		reverseDomain, err := ens.ReverseResolve(client, &address)
+		if err != nil || reverseDomain == "" {
+			fmt.Printf("%s does not resolve to a domain\n", address.Hex())
+		} else {
+			fmt.Printf("%s resolves to %s\n", address.Hex(), reverseDomain)
+		}
 	}
-	fmt.Printf("%s resolves to %s\n", name, address.Hex())
 
-	// Reverse resolution
-	reverseDomain, err := ens.ReverseResolve(client, &address)
-	if err != nil || reverseDomain == "" {
-		fmt.Printf("%s does not resolve to a domain\n", address.Hex())
-		return
+	resolverContract, err := ens.ResolverContractByAddress(client, resolverAddress)
+	if err == nil {
+		bytes, err := resolverContract.Multiaddr(nil, ens.NameHash(ensDomain))
+		if err == nil && len(bytes) > 0 {
+			multiaddr, err := ma.NewMultiaddrBytes(bytes)
+			if err == nil {
+				fmt.Printf("Multiaddr set to %v\n", multiaddr)
+			}
+		}
 	}
-	fmt.Printf("%s resolves to %s\n", address.Hex(), reverseDomain)
-
 	// TODO Other common fields (addr, abi, etc.) (if configured)
 }
 
