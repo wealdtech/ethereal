@@ -23,6 +23,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/util/funcparser"
 )
 
 var dataStr string
@@ -116,9 +117,9 @@ func argumentsAndValues(items string, types string) (abi.Arguments, []interface{
 	dataTypes, err := parser.Read()
 	cli.ErrCheck(err, quiet, "Failed to parse data types")
 
-	cli.Assert(len(dataItems) == len(dataTypes), quiet, "Mismatch between number of data elements and number of data types")
+	//	cli.Assert(len(dataItems) == len(dataTypes), quiet, "Mismatch between number of data elements and number of data types")
 
-	// Lean on ABI even though we don't have an ABI...
+	// Lean on ABI function parsing even though we don't have an ABI...
 	vals := make([]interface{}, 0)
 	arguments := abi.Arguments{}
 	for i := range dataTypes {
@@ -128,7 +129,7 @@ func argumentsAndValues(items string, types string) (abi.Arguments, []interface{
 			Type: dataType,
 		}
 		arguments = append(arguments, argument)
-		val, err := contractStringToValue(dataType, dataItems[i])
+		val, err := funcparser.StrTo(&dataType, dataItems[i])
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to decode argument %s", dataItems[i]))
 		vals = append(vals, val)
 	}

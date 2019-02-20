@@ -15,18 +15,17 @@ package cmd
 
 import (
 	"bytes"
-	"encoding/csv"
 	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
-	"strings"
 
 	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util/funcparser"
 )
 
 var contractDeployFromAddress string
@@ -60,29 +59,12 @@ In quiet mode this will return 0 if the contract creation transaction is success
 		contract := parseContract(contractDeployData)
 		cli.Assert(len(contract.Binary) > 0, quiet, "failed to obtain contract binary data")
 		if contractDeployConstructor != "" {
-			openBracketPos := strings.Index(contractDeployConstructor, "(")
-			cli.Assert(openBracketPos != -1, quiet, fmt.Sprintf("Missing open bracket in call %s", contractDeployConstructor))
-			closeBracketPos := strings.LastIndex(contractDeployConstructor, ")")
-			cli.Assert(closeBracketPos != -1, quiet, fmt.Sprintf("Missing close bracket in call %s", contractDeployConstructor))
+			_, constructorArgs, err := funcparser.ParseCall(contract, contractDeployConstructor)
+			cli.ErrCheck(err, quiet, "Failed to parse constructor")
 
-			var contractDeployArgs []string
-			if openBracketPos+1 != closeBracketPos {
-				parser := csv.NewReader(strings.NewReader(contractDeployConstructor[openBracketPos+1 : closeBracketPos]))
-				contractDeployArgs, err = parser.Read()
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractDeployConstructor))
-			}
-
-			method := contract.Abi.Constructor
-
-			var methodArgs []interface{}
-			for i, input := range method.Inputs {
-				val, err := contractStringToValue(input.Type, contractDeployArgs[i])
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to decode argument %s", contractDeployArgs[i]))
-				methodArgs = append(methodArgs, val)
-			}
-
-			argData, err := contract.Abi.Pack("", methodArgs...)
-			cli.ErrCheck(err, quiet, "Failed to pack arguments")
+			argData, err := contract.Abi.Pack("", constructorArgs...)
+			cli.ErrCheck(err, quiet, "Failed to convert arguments")
+			outputIf(verbose, fmt.Sprintf("Constructor data is %x", argData))
 			contract.Binary = append(contract.Binary, argData...)
 		}
 

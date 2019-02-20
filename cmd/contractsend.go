@@ -15,18 +15,17 @@ package cmd
 
 import (
 	"bytes"
-	"encoding/csv"
 	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
-	"strings"
 
 	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util/funcparser"
 )
 
 var contractSendAmount string
@@ -53,33 +52,10 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.Assert(contractSendCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
+		method, methodArgs, err := funcparser.ParseCall(contract, contractSendCall)
+		cli.ErrCheck(err, quiet, "Failed to parse call")
 
-		openBracketPos := strings.Index(contractSendCall, "(")
-		cli.Assert(openBracketPos != -1, quiet, fmt.Sprintf("Missing open bracket in call %s", contractSendCall))
-		closeBracketPos := strings.LastIndex(contractSendCall, ")")
-		cli.Assert(closeBracketPos != -1, quiet, fmt.Sprintf("Missing close bracket in call %s", contractSendCall))
-
-		methodName := contractSendCall[0:openBracketPos]
-
-		var contractSendArgs []string
-		if openBracketPos+1 != closeBracketPos {
-			parser := csv.NewReader(strings.NewReader(contractSendCall[openBracketPos+1 : closeBracketPos]))
-			contractSendArgs, err = parser.Read()
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractSendCall))
-		}
-
-		method, exists := contract.Abi.Methods[methodName]
-		cli.Assert(exists, quiet, fmt.Sprintf("Method %s is unknown", methodName))
-
-		cli.Assert(len(method.Inputs) == len(contractSendArgs), quiet, fmt.Sprintf("%s expects %d parameter(s), found %d", methodName, len(method.Inputs), len(contractSendArgs)))
-		var methodArgs []interface{}
-		for i, input := range method.Inputs {
-			val, err := contractStringToValue(input.Type, contractSendArgs[i])
-			cli.ErrCheck(err, quiet, "Failed to decode argument")
-			methodArgs = append(methodArgs, val)
-		}
-
-		data, err := contract.Abi.Pack(methodName, methodArgs...)
+		data, err := contract.Abi.Pack(method.Name, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
 		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 

@@ -17,12 +17,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"math/big"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
-	"unsafe"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -104,170 +102,6 @@ func contractParseAbi(input string) (output abi.ABI, err error) {
 	return abi.JSON(reader)
 }
 
-func contractUnpack(abi abi.ABI, name string, data []byte) (result *[]*interface{}, err error) {
-	method, exists := abi.Methods[name]
-	if !exists {
-		return nil, fmt.Errorf("The method %s does not exist", name)
-	}
-
-	var res []*interface{}
-	result = &res
-	if len(method.Outputs) == 0 {
-		return
-	} else if len(method.Outputs) == 1 {
-		output := reflect.New(method.Outputs[0].Type.Type).Elem().Interface()
-		err = abi.Unpack(&output, name, data)
-		res = append(res, &output)
-	} else {
-		for i := range method.Outputs {
-			output := reflect.New(method.Outputs[i].Type.Type.Elem()).Elem().Interface()
-			res = append(res, &output)
-		}
-		err = abi.Unpack(&res, name, data)
-	}
-	return
-}
-
-func contractStringToValue(argType abi.Type, val string) (interface{}, error) {
-	val = strings.Trim(val, " ")
-	switch argType.T {
-	case abi.IntTy:
-		res := big.NewInt(0)
-		res, success := res.SetString(val, 10)
-		if !success {
-			return nil, fmt.Errorf("Bad integer %s", val)
-		}
-		switch argType.Size {
-		case 8:
-			return int8(res.Uint64()), nil
-		case 16:
-			return int16(res.Uint64()), nil
-		case 32:
-			return int32(res.Uint64()), nil
-		case 64:
-			return int64(res.Uint64()), nil
-		default:
-			return res, nil
-		}
-	case abi.UintTy:
-		res := big.NewInt(0)
-		res, success := res.SetString(val, 10)
-		if !success {
-			return nil, fmt.Errorf("Bad integer %s", val)
-		}
-		switch argType.Size {
-		case 8:
-			return uint8(res.Uint64()), nil
-		case 16:
-			return uint16(res.Uint64()), nil
-		case 32:
-			return uint32(res.Uint64()), nil
-		case 64:
-			return uint64(res.Uint64()), nil
-		default:
-			return res, nil
-		}
-	case abi.BoolTy:
-		if val == "true" || val == "True" || val == "1" {
-			return true, nil
-		}
-		return false, nil
-	case abi.StringTy:
-		return val, nil
-	case abi.SliceTy:
-		return nil, fmt.Errorf("Unhandled type slice (%s)", argType)
-	case abi.ArrayTy:
-		return nil, fmt.Errorf("Unhandled type array (%s)", argType)
-	case abi.AddressTy:
-		return common.HexToAddress(val), nil
-	case abi.FixedBytesTy:
-		slice := make([]byte, argType.Size)
-		var decoded []byte
-		decoded, err = hex.DecodeString(strings.TrimPrefix(val, "0x"))
-		if err == nil {
-			copy(slice[argType.Size-len(decoded):argType.Size], decoded)
-		}
-		hdr := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
-		switch argType.Size {
-		case 1:
-			return *(*[1]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 2:
-			return *(*[2]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 3:
-			return *(*[3]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 4:
-			return *(*[4]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 5:
-			return *(*[5]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 6:
-			return *(*[6]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 7:
-			return *(*[7]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 8:
-			return *(*[8]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 9:
-			return *(*[9]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 10:
-			return *(*[10]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 11:
-			return *(*[11]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 12:
-			return *(*[12]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 13:
-			return *(*[13]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 14:
-			return *(*[14]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 15:
-			return *(*[15]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 16:
-			return *(*[16]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 17:
-			return *(*[17]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 18:
-			return *(*[18]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 19:
-			return *(*[19]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 20:
-			return *(*[20]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 21:
-			return *(*[21]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 22:
-			return *(*[22]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 23:
-			return *(*[23]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 24:
-			return *(*[24]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 25:
-			return *(*[25]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 26:
-			return *(*[26]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 27:
-			return *(*[27]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 28:
-			return *(*[28]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 29:
-			return *(*[29]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 30:
-			return *(*[30]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 31:
-			return *(*[31]uint8)(unsafe.Pointer(hdr.Data)), nil
-		case 32:
-			return *(*[32]uint8)(unsafe.Pointer(hdr.Data)), nil
-		}
-		return nil, fmt.Errorf("Invalid byte size %d", argType.Size)
-	case abi.BytesTy:
-		return hex.DecodeString(strings.TrimPrefix(val, "0x"))
-	case abi.HashTy:
-		return common.HexToHash(val), nil
-	case abi.FixedPointTy:
-		return nil, fmt.Errorf("Unhandled type %v", argType)
-	case abi.FunctionTy:
-		return nil, fmt.Errorf("Unhandled type %v", argType)
-	default:
-		return nil, fmt.Errorf("Unknown type %v", argType)
-	}
-}
-
 func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	switch argType.T {
 	case abi.IntTy:
@@ -317,10 +151,10 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.HashTy:
 		return val.(common.Hash).Hex(), nil
 	case abi.FixedPointTy:
-		return "", fmt.Errorf("Unhandled type %v", argType)
+		return "", fmt.Errorf("unhandled type %v", argType)
 	case abi.FunctionTy:
-		return "", fmt.Errorf("Unhandled type %v", argType)
+		return "", fmt.Errorf("unhandled type %v", argType)
 	default:
-		return "", fmt.Errorf("Unknown type %v", argType)
+		return "", fmt.Errorf("unknown type %v", argType)
 	}
 }

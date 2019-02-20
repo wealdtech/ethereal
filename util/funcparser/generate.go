@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,27 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package funcparser
 
-import (
-	"fmt"
-
-	"github.com/spf13/cobra"
-)
-
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Version of Ethereal",
-	Long: `Obtain the version of Ethereal.  For example:
-
-    ethereal version.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("1.3.373")
-	},
-}
-
-func init() {
-	offlineCmds["version"] = true
-	RootCmd.AddCommand(versionCmd)
-}
+//go:generate java -jar /home/jgm/tools/antlr/antlr-complete.jar -Dlanguage=Go -o parser Func.g4
+//go:generate abigen --abi Tester.abi --pkg funcparser --type tester --out tester.go

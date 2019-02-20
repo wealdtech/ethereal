@@ -14,16 +14,15 @@
 package cmd
 
 import (
-	"encoding/csv"
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/ens"
+	"github.com/wealdtech/ethereal/util/funcparser"
 )
 
 var contractCallFromAddress string
@@ -49,34 +48,10 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
+		method, methodArgs, err := funcparser.ParseCall(contract, contractCallCall)
+		cli.ErrCheck(err, quiet, "Failed to parse call")
 
-		openBracketPos := strings.Index(contractCallCall, "(")
-		cli.Assert(openBracketPos != -1, quiet, fmt.Sprintf("Missing open bracket in call %s", contractCallCall))
-		closeBracketPos := strings.LastIndex(contractCallCall, ")")
-		cli.Assert(closeBracketPos != -1, quiet, fmt.Sprintf("Missing close bracket in call %s", contractCallCall))
-
-		methodName := contractCallCall[0:openBracketPos]
-
-		var contractCallArgs []string
-		if openBracketPos+1 != closeBracketPos {
-			parser := csv.NewReader(strings.NewReader(contractCallCall[openBracketPos+1 : closeBracketPos]))
-			contractCallArgs, err = parser.Read()
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse arguments for %s", contractCallCall))
-		}
-
-		method, exists := contract.Abi.Methods[methodName]
-		cli.Assert(exists, quiet, fmt.Sprintf("Method %s is unknown", methodName))
-
-		cli.Assert(len(method.Inputs) == len(contractCallArgs), quiet, fmt.Sprintf("%s expects %d parameter(s), found %d", methodName, len(method.Inputs), len(contractCallArgs)))
-		var methodArgs []interface{}
-		for i, input := range method.Inputs {
-			val, err := contractStringToValue(input.Type, contractCallArgs[i])
-			cli.ErrCheck(err, quiet, "Failed to decode argument")
-			outputIf(verbose, fmt.Sprintf("input %d is %v (%v)", i, val, reflect.TypeOf(val)))
-			methodArgs = append(methodArgs, val)
-		}
-
-		data, err := contract.Abi.Pack(methodName, methodArgs...)
+		data, err := contract.Abi.Pack(method.Name, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
 		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
@@ -93,20 +68,37 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		ctx, cancel := localContext()
 		defer cancel()
 		result, err := client.CallContract(ctx, msg, nil)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call contract %s", methodName))
-		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return any data", methodName))
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call %s", method.Name))
+		if len(method.Outputs) == 0 {
+			// No output
+			os.Exit(0)
+		}
+		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return expected data", method.Name))
 
 		if quiet {
 			os.Exit(0)
 		}
 
 		outputIf(verbose, fmt.Sprintf("Result is %x", []byte(result)))
-		abiOutput, err := contractUnpack(contract.Abi, methodName, []byte(result))
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid ABI for %s in ABI", methodName))
+
+		var tmp interface{}
+		err = contract.Abi.Unpack(&tmp, method.Name, result)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse output of %s: %v", method.Name, err))
+
+		outputs := make([]interface{}, len(method.Outputs))
+		if len(method.Outputs) == 1 {
+			outputs[0] = tmp
+		} else {
+			for i, x := range tmp.([]interface{}) {
+				outputs[i] = x
+			}
+		}
+
 		results := []string{}
-		for i := range *abiOutput {
-			val, err := contractValueToString(method.Outputs[i].Type, *((*abiOutput)[i]))
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", *((*abiOutput)[i])))
+		for i := range outputs {
+			val, err := contractValueToString(method.Outputs[i].Type, outputs[i])
+			//cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", *((*abiOutput)[i])))
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", outputs[i]))
 			results = append(results, val)
 		}
 
