@@ -55,8 +55,10 @@ In quiet mode this will return 0 if the contract creation transaction is success
 		cli.Assert(contractDeployFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, contractDeployFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractDeployFromAddress))
+		cli.Assert(contractDeployData != "" || contractJSON != "", quiet, "either --data or --json is required")
 
 		contract := parseContract(contractDeployData)
+		cli.Assert(len(contract.Binary) > 0, quiet, "failed to obtain contract binary data")
 		if contractDeployConstructor != "" {
 			openBracketPos := strings.Index(contractDeployConstructor, "(")
 			cli.Assert(openBracketPos != -1, quiet, fmt.Sprintf("Missing open bracket in call %s", contractDeployConstructor))
