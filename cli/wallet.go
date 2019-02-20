@@ -200,6 +200,6 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 
 // VerifyPassphrase confirms that a passphrase is correct for an account
 func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphrase string) bool {
-	_, err := wallet.SignHashWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	_, err := wallet.SignTextWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	return err == nil
 }
