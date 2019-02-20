@@ -67,7 +67,7 @@ func GasPriceForBlocks(client *ethclient.Client, blocks int64, gasRequired uint6
 				fmt.Printf("Block %v contains self-mined transactions; ignoring\n", blockNumber)
 			}
 			blockNumber = blockNumber.Sub(blockNumber, big.NewInt(1))
-			blocks++
+			i++
 			continue
 		}
 
