@@ -18,7 +18,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"os"
 
 	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
@@ -32,6 +31,7 @@ var contractDeployFromAddress string
 var contractDeployConstructor string
 var contractDeployData string
 var contractDeployAmount string
+var contractDeployRepeat int
 
 // contractDeployCmd represents the contract deploy command
 var contractDeployCmd = &cobra.Command{
@@ -74,39 +74,40 @@ In quiet mode this will return 0 if the contract creation transaction is success
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid amount %s", contractDeployAmount))
 		}
 
-		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, nil, amount, gasLimit, contract.Binary)
-		cli.ErrCheck(err, quiet, "Failed to create contract deployment transaction")
+		for i := 0; i < contractDeployRepeat; i++ {
+			// Create and sign the transaction
+			signedTx, err := createSignedTransaction(fromAddress, nil, amount, gasLimit, contract.Binary)
+			cli.ErrCheck(err, quiet, "Failed to create contract deployment transaction")
 
-		if offline {
-			if !quiet {
-				buf := new(bytes.Buffer)
-				signedTx.EncodeRLP(buf)
-				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			if offline {
+				if !quiet {
+					buf := new(bytes.Buffer)
+					signedTx.EncodeRLP(buf)
+					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+				}
+			} else {
+				ctx, cancel := localContext()
+				defer cancel()
+				err = client.SendTransaction(ctx, signedTx)
+				cli.ErrCheck(err, quiet, "Failed to send contract deployment transaction")
+
+				setupLogging()
+				log.WithFields(log.Fields{
+					"group":         "contract",
+					"command":       "deploy",
+					"data":          "0x" + hex.EncodeToString(contract.Binary),
+					"from":          fromAddress.Hex(),
+					"amount":        amount.String(),
+					"networkid":     chainID,
+					"gas":           signedTx.Gas(),
+					"gasprice":      signedTx.GasPrice().String(),
+					"transactionid": signedTx.Hash().Hex(),
+				}).Info("success")
+
+				if !quiet {
+					fmt.Println(signedTx.Hash().Hex())
+				}
 			}
-		} else {
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send contract deployment transaction")
-
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "contract",
-				"command":       "deploy",
-				"data":          "0x" + hex.EncodeToString(contract.Binary),
-				"from":          fromAddress.Hex(),
-				"amount":        amount.String(),
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
-
-			if quiet {
-				os.Exit(0)
-			}
-			fmt.Println(signedTx.Hash().Hex())
 		}
 	},
 }
@@ -118,5 +119,6 @@ func init() {
 	contractDeployCmd.Flags().StringVar(&contractDeployConstructor, "constructor", "", "Constructor invocation (if required)")
 	contractDeployCmd.Flags().StringVar(&contractDeployData, "data", "", "Contract data (as a hex string)")
 	contractDeployCmd.Flags().StringVar(&contractDeployFromAddress, "from", "", "Address from which to deploy the contract")
+	contractDeployCmd.Flags().IntVar(&contractDeployRepeat, "repeat", 1, "Number of time to repeat")
 	addTransactionFlags(contractDeployCmd, "Passphrase for the address from which to deploy the conract")
 }
