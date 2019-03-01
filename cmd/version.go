@@ -27,7 +27,7 @@ var versionCmd = &cobra.Command{
 
     ethereal version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("1.3.373")
+		fmt.Println("1.3.429")
 	},
 }
 
