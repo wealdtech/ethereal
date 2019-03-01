@@ -24,6 +24,7 @@ import (
 )
 
 var networkBlocktimeBlocks int64
+var networkBlocktimeTime time.Duration
 
 // networkBlocktimeCmd represents the network blocktime command
 var networkBlocktimeCmd = &cobra.Command{
@@ -33,46 +34,99 @@ var networkBlocktimeCmd = &cobra.Command{
 
     ethereal network blocktime
 
+Or to find the blocktime over a given time period (in this case the last hour):
+
+    ethereal network blocktime --time=1h
+
 In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var blockNumber *big.Int
-
-		// Fetch current and current-blocks blocks
+		// Fetch current block
 		var lastBlockTime time.Time
+		var lastBlockNumber *big.Int
 		{
 			ctx, cancel := localContext()
 			defer cancel()
-			block, err := client.BlockByNumber(ctx, blockNumber)
+			block, err := client.BlockByNumber(ctx, lastBlockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
-			blockNumber = big.NewInt(0).Set(block.Number())
+			lastBlockNumber = new(big.Int).Set(block.Number())
 			lastBlockTime = time.Unix(block.Time().Int64(), 0)
-			outputIf(verbose, fmt.Sprintf("Block %v mined at %v", blockNumber, lastBlockTime))
+			outputIf(verbose, fmt.Sprintf("Block %v mined at %v", lastBlockNumber, lastBlockTime))
 		}
 
 		var oldBlockTime time.Time
-		blockNumber.Sub(blockNumber, big.NewInt(networkBlocktimeBlocks))
-		{
-			ctx, cancel := localContext()
-			defer cancel()
-			block, err := client.BlockByNumber(ctx, blockNumber)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", blockNumber))
-			blockNumber = big.NewInt(0).Set(block.Number())
-			oldBlockTime = time.Unix(block.Time().Int64(), 0)
-			outputIf(verbose, fmt.Sprintf("Block %v mined at %v", blockNumber, oldBlockTime))
+		var oldBlockNumber *big.Int
+		if networkBlocktimeTime > time.Duration(0) {
+			// Time
+			requiredBlockTime := time.Now().Add(-networkBlocktimeTime)
+
+			// Start off by guessing 15s per block
+			guessBlockNumber := new(big.Int).Sub(lastBlockNumber, big.NewInt(int64(networkBlocktimeTime.Seconds()/15)))
+
+			// Loop until we find a suitable block
+			interval := 14
+			checkedBlocks := make(map[uint64]bool)
+			checkedBlocks[lastBlockNumber.Uint64()] = true
+			oldBlockNumber = lastBlockNumber
+			huntBlockNumber := lastBlockNumber
+			huntBlockTime := lastBlockTime
+			for {
+				ctx, cancel := localContext()
+				defer cancel()
+				block, err := client.BlockByNumber(ctx, guessBlockNumber)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", guessBlockNumber))
+				huntBlockNumber = new(big.Int).Set(block.Number())
+				huntBlockTime = time.Unix(block.Time().Int64(), 0)
+				checkedBlocks[huntBlockNumber.Uint64()] = true
+				// If this block is next to (or equal to) the previous block we're done
+				blockDiff := new(big.Int).Abs(new(big.Int).Sub(huntBlockNumber, oldBlockNumber))
+				if blockDiff.Cmp(big.NewInt(0)) == 0 || blockDiff.Cmp(big.NewInt(1)) == 0 {
+					break
+				}
+
+				// Guess a new block given our diff
+				delta := huntBlockTime.Sub(requiredBlockTime)
+				guessBlockNumber.Sub(guessBlockNumber, big.NewInt(int64(delta.Seconds()/float64(interval))))
+				// If we have already seen this block increase the interval
+				if checkedBlocks[guessBlockNumber.Uint64()] {
+					interval *= 2
+					guessBlockNumber.Add(guessBlockNumber, big.NewInt(int64(delta.Seconds()/float64(interval))))
+				}
+
+				oldBlockTime = huntBlockTime
+				oldBlockNumber = huntBlockNumber
+
+				// If our next guess is the same block as the last one we're done
+				if guessBlockNumber.Cmp(oldBlockNumber) == 0 {
+					break
+				}
+			}
+			outputIf(verbose, fmt.Sprintf("Block %v mined at %v", oldBlockNumber, oldBlockTime))
+		} else {
+			// Number of blocks
+			oldBlockNumber = new(big.Int).Sub(lastBlockNumber, big.NewInt(networkBlocktimeBlocks))
+			{
+				ctx, cancel := localContext()
+				defer cancel()
+				block, err := client.BlockByNumber(ctx, oldBlockNumber)
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", oldBlockNumber))
+				oldBlockTime = time.Unix(block.Time().Int64(), 0)
+				outputIf(verbose, fmt.Sprintf("Block %v mined at %v", oldBlockNumber, oldBlockTime))
+			}
 		}
 
 		if quiet {
 			os.Exit(0)
 		}
 
-		gap := lastBlockTime.Sub(oldBlockTime) / time.Duration(networkBlocktimeBlocks)
+		gap := lastBlockTime.Sub(oldBlockTime) / time.Duration(new(big.Int).Sub(lastBlockNumber, oldBlockNumber).Int64())
 		fmt.Printf("%v\n", gap)
 	},
 }
 
 func init() {
 	networkCmd.AddCommand(networkBlocktimeCmd)
-	networkBlocktimeCmd.Flags().Int64Var(&networkBlocktimeBlocks, "blocks", 5, "Number of blocks over which to calculate blocktime")
+	networkBlocktimeCmd.Flags().Int64Var(&networkBlocktimeBlocks, "blocks", 72, "Number of blocks over which to calculate blocktime")
+	networkBlocktimeCmd.Flags().DurationVar(&networkBlocktimeTime, "time", 0, "Time over which to calculate blocktime")
 
 	networkFlags(networkBlocktimeCmd)
 }
