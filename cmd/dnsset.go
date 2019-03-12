@@ -166,7 +166,6 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 }
 
 func init() {
-	initAliases(dnsSetCmd)
 	dnsCmd.AddCommand(dnsSetCmd)
 	dnsFlags(dnsSetCmd)
 	dnsSetCmd.Flags().DurationVar(&dnsSetTTL, "ttl", time.Duration(0), "The time-to-live for the record")

@@ -115,7 +115,6 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 }
 
 func init() {
-	initAliases(transactionUpCmd)
 	transactionCmd.AddCommand(transactionUpCmd)
 	transactionFlags(transactionUpCmd)
 	addTransactionFlags(transactionUpCmd, "the address that holds the funds")

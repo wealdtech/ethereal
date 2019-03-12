@@ -107,7 +107,6 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
-	initAliases(tokenSweepCmd)
 	tokenCmd.AddCommand(tokenSweepCmd)
 	tokenFlags(tokenSweepCmd)
 	tokenSweepCmd.Flags().StringVar(&tokenSweepFromAddress, "from", "", "Address from which to sweep tokens")

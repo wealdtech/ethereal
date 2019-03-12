@@ -109,7 +109,6 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
-	initAliases(etherTransferCmd)
 	etherCmd.AddCommand(etherTransferCmd)
 	etherTransferCmd.Flags().StringVar(&etherTransferAmount, "amount", "", "Amount of Ether to transfer")
 	etherTransferCmd.Flags().StringVar(&etherTransferFromAddress, "from", "", "Address from which to transfer Ether")

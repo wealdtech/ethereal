@@ -66,7 +66,6 @@ In quiet mode this will return 0 if the storage contains a non-zero value, other
 }
 
 func init() {
-	initAliases(contractStorageCmd)
 	contractCmd.AddCommand(contractStorageCmd)
 	contractFlags(contractStorageCmd)
 	contractStorageCmd.Flags().StringVar(&contractStorageKey, "key", "", "Storage key")

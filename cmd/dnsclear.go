@@ -99,7 +99,6 @@ In quiet mode this will return 0 if the clear transaction is successfully sent, 
 }
 
 func init() {
-	initAliases(dnsClearCmd)
 	dnsCmd.AddCommand(dnsClearCmd)
 	dnsFlags(dnsClearCmd)
 	addTransactionFlags(dnsClearCmd, "the owner of the domain")

@@ -102,7 +102,6 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 }
 
 func init() {
-	initAliases(ensInfoCmd)
 	ensCmd.AddCommand(ensInfoCmd)
 	ensFlags(ensInfoCmd)
 }

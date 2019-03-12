@@ -188,7 +188,6 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 }
 
 func init() {
-	initAliases(transactionSendCmd)
 	transactionCmd.AddCommand(transactionSendCmd)
 	transactionSendCmd.Flags().StringVar(&transactionSendAmount, "amount", "", "Amount of Ether to transfer")
 	transactionSendCmd.Flags().StringVar(&transactionSendFromAddress, "from", "", "Address from which to transfer Ether")

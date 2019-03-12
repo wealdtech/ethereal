@@ -67,7 +67,6 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 }
 
 func init() {
-	initAliases(ensResolverSetCmd)
 	ensResolverCmd.AddCommand(ensResolverSetCmd)
 	ensResolverFlags(ensResolverSetCmd)
 	ensResolverSetCmd.Flags().StringVar(&ensResolverSetResolverStr, "resolver", "", "The resolver's name or address")

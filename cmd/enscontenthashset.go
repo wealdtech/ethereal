@@ -89,7 +89,6 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 }
 
 func init() {
-	initAliases(ensContenthashSetCmd)
 	ensContenthashCmd.AddCommand(ensContenthashSetCmd)
 	ensContenthashFlags(ensContenthashSetCmd)
 	ensContenthashSetCmd.Flags().StringVar(&ensContenthashSetMultiaddrStr, "multiaddr", "", "The multiaddr to set")

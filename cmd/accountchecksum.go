@@ -64,7 +64,6 @@ In quiet mode this will return 0 if the provided address is correctly checksumme
 }
 
 func init() {
-	initAliases(accountChecksumCmd)
 	offlineCmds["account:checksum"] = true
 	accountCmd.AddCommand(accountChecksumCmd)
 	accountChecksumCmd.Flags().StringVar(&accountChecksumAddress, "address", "", "Address of the account for which to verify the checksum")

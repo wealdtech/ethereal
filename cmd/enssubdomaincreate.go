@@ -90,7 +90,6 @@ In quiet mode this will return 0 if the transaction to create the subdomain is s
 }
 
 func init() {
-	initAliases(ensSubdomainCreateCmd)
 	ensSubdomainCmd.AddCommand(ensSubdomainCreateCmd)
 	ensSubdomainFlags(ensSubdomainCreateCmd)
 	ensSubdomainCreateCmd.Flags().StringVar(&ensSubdomainCreateSubdomain, "subdomain", "", "The name of the subdomain")

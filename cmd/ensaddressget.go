@@ -49,7 +49,6 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 }
 
 func init() {
-	initAliases(ensAddressGetCmd)
 	ensAddressFlags(ensAddressGetCmd)
 	ensAddressCmd.AddCommand(ensAddressGetCmd)
 }

@@ -63,7 +63,6 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 }
 
 func init() {
-	initAliases(blockOverviewCmd)
 	blockCmd.AddCommand(blockOverviewCmd)
 	blockOverviewCmd.Flags().Int64Var(&blockOverviewBlocks, "blocks", 5, "Number of blocks to show")
 

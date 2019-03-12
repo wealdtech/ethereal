@@ -60,7 +60,6 @@ In quiet mode this will return 0 if the implementer has an address, otherwise 1.
 }
 
 func init() {
-	initAliases(registryImplementerGetCmd)
 	registryImplementerFlags(registryImplementerGetCmd)
 	registryImplementerCmd.AddCommand(registryImplementerGetCmd)
 }

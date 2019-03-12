@@ -80,7 +80,6 @@ In quiet mode this will return 0 if  the transaction to set the implementer is s
 }
 
 func init() {
-	initAliases(registryImplementerSetCmd)
 	registryImplementerFlags(registryImplementerSetCmd)
 	registryImplementerSetCmd.Flags().StringVar(&registryImplementerSetImplementerStr, "implementer", "", "address that implements the interface")
 	registryImplementerCmd.AddCommand(registryImplementerSetCmd)

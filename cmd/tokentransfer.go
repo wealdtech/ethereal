@@ -117,7 +117,6 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
-	initAliases(tokenTransferCmd)
 	tokenCmd.AddCommand(tokenTransferCmd)
 	tokenFlags(tokenTransferCmd)
 	tokenTransferCmd.Flags().StringVar(&tokenTransferAmount, "amount", "", "Amount to transfer")

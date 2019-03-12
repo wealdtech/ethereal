@@ -102,7 +102,6 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 }
 
 func init() {
-	initAliases(transactionCancelCmd)
 	transactionCmd.AddCommand(transactionCancelCmd)
 	transactionFlags(transactionCancelCmd)
 	transactionCancelCmd.Flags().StringVar(&transactionCancelAmount, "amount", "", "Amount of Ether to transfer")

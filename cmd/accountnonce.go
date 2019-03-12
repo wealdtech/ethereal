@@ -52,7 +52,6 @@ In quiet mode this will return 0 if the nonce can be obtained, otherwise 1.`,
 }
 
 func init() {
-	initAliases(accountNonceCmd)
 	accountCmd.AddCommand(accountNonceCmd)
 	accountNonceCmd.Flags().StringVar(&accountNonceAddress, "address", "", "Address of the account for which to obtain the nonce")
 }

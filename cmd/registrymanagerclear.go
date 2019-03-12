@@ -70,7 +70,6 @@ In quiet mode this will return 0 if the transaction to clear the manager is sent
 }
 
 func init() {
-	initAliases(registryManagerClearCmd)
 	registryManagerFlags(registryManagerClearCmd)
 	registryManagerCmd.AddCommand(registryManagerClearCmd)
 	addTransactionFlags(registryManagerClearCmd, "passphrase for the address")

@@ -62,7 +62,6 @@ In quiet mode this will return 0 if the transaction to set the owner is sent suc
 }
 
 func init() {
-	initAliases(ensOwnerSetCmd)
 	ensOwnerCmd.AddCommand(ensOwnerSetCmd)
 	ensOwnerFlags(ensOwnerSetCmd)
 	ensOwnerSetCmd.Flags().StringVar(&ensOwnerSetOwnerStr, "owner", "", "The owner's name or address")

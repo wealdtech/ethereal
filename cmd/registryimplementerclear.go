@@ -69,7 +69,6 @@ In quiet mode this will return 0 if  the transaction to clear the implementer is
 }
 
 func init() {
-	initAliases(registryImplementerClearCmd)
 	registryImplementerFlags(registryImplementerClearCmd)
 	registryImplementerCmd.AddCommand(registryImplementerClearCmd)
 	addTransactionFlags(registryImplementerClearCmd, "passphrase for the address")

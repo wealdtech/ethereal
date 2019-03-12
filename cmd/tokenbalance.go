@@ -68,7 +68,6 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 }
 
 func init() {
-	initAliases(tokenBalanceCmd)
 	tokenFlags(tokenBalanceCmd)
 	tokenCmd.AddCommand(tokenBalanceCmd)
 	tokenBalanceCmd.Flags().BoolVar(&tokenBalanceRaw, "raw", false, "Display raw output (no decimals)")

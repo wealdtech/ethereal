@@ -91,7 +91,6 @@ provided below:
 }
 
 func init() {
-	initAliases(signatureSignCmd)
 	offlineCmds["signature:sign"] = true
 	signatureCmd.AddCommand(signatureSignCmd)
 	signatureFlags(signatureSignCmd)

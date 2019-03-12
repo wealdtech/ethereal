@@ -103,7 +103,6 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 }
 
 func init() {
-	initAliases(blockInfoCmd)
 	blockCmd.AddCommand(blockInfoCmd)
 	blockInfoCmd.Flags().BoolVar(&blockInfoTransactions, "transactions", false, "Display hashes of all block transactions")
 	blockFlags(blockInfoCmd)

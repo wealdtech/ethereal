@@ -61,7 +61,6 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 }
 
 func init() {
-	initAliases(ensContenthashGetCmd)
 	ensContenthashFlags(ensContenthashGetCmd)
 	ensContenthashCmd.AddCommand(ensContenthashGetCmd)
 }

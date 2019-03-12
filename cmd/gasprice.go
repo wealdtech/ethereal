@@ -141,7 +141,6 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 }
 
 func init() {
-	initAliases(gasPriceCmd)
 	gasCmd.AddCommand(gasPriceCmd)
 	gasPriceCmd.Flags().BoolVar(&gasPriceWei, "wei", false, "Display output in number of Wei")
 	gasPriceCmd.Flags().Int64Var(&gasPriceBlocks, "blocks", 5, "Number of blocks to go back to average gas price")

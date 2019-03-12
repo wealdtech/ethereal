@@ -109,7 +109,6 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 }
 
 func init() {
-	initAliases(contractCallCmd)
 	contractCmd.AddCommand(contractCallCmd)
 	contractFlags(contractCallCmd)
 	contractCallCmd.Flags().StringVar(&contractCallFromAddress, "from", "", "Address from which to call the contract method")

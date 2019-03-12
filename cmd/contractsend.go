@@ -110,7 +110,6 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 }
 
 func init() {
-	initAliases(contractSendCmd)
 	contractCmd.AddCommand(contractSendCmd)
 	contractFlags(contractSendCmd)
 	contractSendCmd.Flags().StringVar(&contractSendAmount, "amount", "", "Amount of Ether to send with the contract method")

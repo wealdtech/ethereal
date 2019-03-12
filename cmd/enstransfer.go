@@ -79,7 +79,6 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 }
 
 func init() {
-	initAliases(ensTransferCmd)
 	ensCmd.AddCommand(ensTransferCmd)
 	ensFlags(ensTransferCmd)
 	ensTransferCmd.Flags().StringVar(&ensTransferNewOwnerStr, "newowner", "", "The new owner of the domain")

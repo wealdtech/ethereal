@@ -60,7 +60,6 @@ In quiet mode this will return 0 if the transaction is mined before the time lim
 }
 
 func init() {
-	initAliases(transactionWaitCmd)
 	transactionCmd.AddCommand(transactionWaitCmd)
 	transactionFlags(transactionWaitCmd)
 	transactionWaitCmd.Flags().DurationVar(&transactionWaitLimit, "limit", 0, "maximum time to wait before failing (default forever)")

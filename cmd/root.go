@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -35,7 +35,6 @@ import (
 	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 )
@@ -94,18 +93,17 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		offline = true
 	}
 
-	if offline {
-		// Also need chain ID
-		chainID = big.NewInt(viper.GetInt64("chainid"))
-	}
-	if viper.GetBool("ropsten") {
+	switch viper.GetString("network") {
+	case "mainnet":
+		chainID = big.NewInt(1)
+	case "ropsten":
 		chainID = big.NewInt(3)
-	} else if viper.GetBool("rinkeby") {
+	case "rinkeby":
 		chainID = big.NewInt(4)
-	} else if viper.GetBool("kovan") {
-		chainID = big.NewInt(42)
-	} else if viper.GetBool("goerli") {
+	case "goerli", "gorli", "görli":
 		chainID = big.NewInt(5)
+	case "kovan":
+		chainID = big.NewInt(42)
 	}
 
 	if quiet && verbose {
@@ -170,24 +168,29 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 // connect connects to an Ethereum node
 func connect() error {
 	var err error
-	if viper.GetBool("ropsten") {
-		outputIf(debug, "Connecting to ropsten")
-		client, err = ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-	} else if viper.GetBool("rinkeby") {
-		outputIf(debug, "Connecting to rinkeby")
-		client, err = ethclient.Dial("https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-	} else if viper.GetBool("kovan") {
-		outputIf(debug, "Connecting to kovan")
-		client, err = ethclient.Dial("https://kovan.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-	} else if viper.GetBool("goerli") {
-		outputIf(debug, "Connecting to goerli")
-		client, err = ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-	} else {
+	if viper.GetString("connection") != "" {
 		outputIf(debug, fmt.Sprintf("Connecting to %s", viper.GetString("connection")))
 		client, err = ethclient.Dial(viper.GetString("connection"))
-	}
-	if err != nil {
-		return err
+	} else {
+		switch viper.GetString("network") {
+		case "mainnet":
+			outputIf(debug, "Connecting to mainnet")
+			client, err = ethclient.Dial("https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		case "ropsten":
+			outputIf(debug, "Connecting to ropsten")
+			client, err = ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		case "rinkeby":
+			outputIf(debug, "Connecting to rinkeby")
+			client, err = ethclient.Dial("https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		case "goerli", "gorli", "görli":
+			outputIf(debug, "Connecting to goerli")
+			client, err = ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		case "kovan":
+			outputIf(debug, "Connecting to kovan")
+			client, err = ethclient.Dial("https://kovan.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		default:
+			cli.Err(quiet, fmt.Sprintf("Unknown network %s", viper.GetString("network")))
+		}
 	}
 	// Fetch the chain ID
 	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
@@ -240,16 +243,10 @@ func init() {
 	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
 	RootCmd.PersistentFlags().Bool("debug", false, "generate debug output")
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
-	RootCmd.PersistentFlags().String("connection", "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", "the IPC or RPC path to an Ethereum node.  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
+	RootCmd.PersistentFlags().String("connection", "", "the custom IPC or RPC path to an Ethereum node (overrides network option).  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
 	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
-	RootCmd.PersistentFlags().Bool("ropsten", false, "connect to Infura ropsten node")
-	viper.BindPFlag("ropsten", RootCmd.PersistentFlags().Lookup("ropsten"))
-	RootCmd.PersistentFlags().Bool("rinkeby", false, "connect to Infura rinkeby node")
-	viper.BindPFlag("rinkeby", RootCmd.PersistentFlags().Lookup("rinkeby"))
-	RootCmd.PersistentFlags().Bool("kovan", false, "connect to Infura kovan node")
-	viper.BindPFlag("kovan", RootCmd.PersistentFlags().Lookup("kovan"))
-	RootCmd.PersistentFlags().Bool("goerli", false, "connect to Infura Görli node")
-	viper.BindPFlag("goerli", RootCmd.PersistentFlags().Lookup("goerli"))
+	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/rinkeby/goerli) (overridden by connection option)")
+	viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network"))
 	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "the time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
@@ -258,20 +255,6 @@ func init() {
 	viper.BindPFlag("chainid", RootCmd.PersistentFlags().Lookup("chainid"))
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
 	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
-}
-
-func initAliases(cmd *cobra.Command) {
-	cmd.Flags().SetNormalizeFunc(fixAliases)
-}
-
-// fixAliases sets aliases for awkward names
-func fixAliases(f *pflag.FlagSet, name string) pflag.NormalizedName {
-	switch name {
-	case "gorli", "görli":
-		name = "goerli"
-		break
-	}
-	return pflag.NormalizedName(name)
 }
 
 // initConfig reads in config file and ENV variables if set.

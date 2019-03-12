@@ -115,7 +115,6 @@ In quiet mode this will return 0 if the contract creation transaction is success
 }
 
 func init() {
-	initAliases(contractDeployCmd)
 	contractCmd.AddCommand(contractDeployCmd)
 	contractFlags(contractDeployCmd)
 	contractDeployCmd.Flags().StringVar(&contractDeployAmount, "amount", "", "Amount of Ether to send with the contract deployment")

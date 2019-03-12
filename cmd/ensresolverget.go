@@ -49,7 +49,6 @@ In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 }
 
 func init() {
-	initAliases(ensResolverGetCmd)
 	ensResolverFlags(ensResolverGetCmd)
 	ensResolverCmd.AddCommand(ensResolverGetCmd)
 }

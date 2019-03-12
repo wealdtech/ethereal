@@ -83,7 +83,6 @@ In quiet mode this will return 0 if the transaction to set the address is sent s
 }
 
 func init() {
-	initAliases(ensAddressSetCmd)
 	ensAddressCmd.AddCommand(ensAddressSetCmd)
 	ensAddressFlags(ensAddressSetCmd)
 	ensAddressSetCmd.Flags().StringVar(&ensAddressSetAddressStr, "address", "", "The name or address to which to resolve")

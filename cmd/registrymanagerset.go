@@ -83,7 +83,6 @@ In quiet mode this will return 0 if  the transaction to set the manager is sent 
 }
 
 func init() {
-	initAliases(registryManagerSetCmd)
 	registryManagerFlags(registryManagerSetCmd)
 	registryManagerSetCmd.Flags().StringVar(&registryManagerSetManagerStr, "manager", "", "manager for the address")
 	registryManagerCmd.AddCommand(registryManagerSetCmd)

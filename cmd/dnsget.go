@@ -103,7 +103,6 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 }
 
 func init() {
-	initAliases(dnsGetCmd)
 	dnsCmd.AddCommand(dnsGetCmd)
 	dnsFlags(dnsGetCmd)
 	dnsGetCmd.Flags().BoolVar(&dnsGetWire, "wire", false, "Display the output as hex in wire format")

@@ -46,7 +46,6 @@ In quiet mode this will return 0 if the name has an owner, otherwise 1.`,
 }
 
 func init() {
-	initAliases(ensOwnerGetCmd)
 	ensOwnerFlags(ensOwnerGetCmd)
 	ensOwnerCmd.AddCommand(ensOwnerGetCmd)
 }

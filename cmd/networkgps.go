@@ -81,7 +81,6 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 }
 
 func init() {
-	initAliases(networkGPSCmd)
 	networkCmd.AddCommand(networkGPSCmd)
 	networkGPSCmd.Flags().Int64Var(&networkGPSBlocks, "blocks", 5, "Number of blocks to use")
 

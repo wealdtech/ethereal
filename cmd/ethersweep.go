@@ -101,7 +101,6 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 }
 
 func init() {
-	initAliases(etherSweepCmd)
 	etherCmd.AddCommand(etherSweepCmd)
 	etherSweepCmd.Flags().StringVar(&etherSweepFromAddress, "from", "", "Address from which to sweep Ether")
 	etherSweepCmd.Flags().StringVar(&etherSweepToAddress, "to", "", "Address to which to sweep Ether")

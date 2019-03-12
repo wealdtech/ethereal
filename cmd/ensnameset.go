@@ -77,7 +77,6 @@ In quiet mode this will return 0 if the transaction to set the name is sent succ
 }
 
 func init() {
-	initAliases(ensNameSetCmd)
 	ensNameCmd.AddCommand(ensNameSetCmd)
 	ensNameFlags(ensNameSetCmd)
 	ensNameSetCmd.Flags().StringVar(&ensNameSetAddress, "address", "", "Address for which to set reverse resolution")

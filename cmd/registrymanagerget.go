@@ -60,7 +60,6 @@ In quiet mode this will return 0 if the manager was obtained without error, othe
 }
 
 func init() {
-	initAliases(registryManagerGetCmd)
 	registryManagerFlags(registryManagerGetCmd)
 	registryManagerCmd.AddCommand(registryManagerGetCmd)
 }
