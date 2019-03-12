@@ -52,8 +52,14 @@ TODO
 ### Quiet, Verbose and Debug
 TODO
 
-### Transaction logging
-TODO
+### Transaction
+TODO Options
+TODO CLI output
+TODO Logging
+
+### ENS
+
+Ethereal fully supports ENS.  Wherever an address is seen in the examples below an ENS name can be used instead.
 
 ### `account` commands
 
@@ -212,10 +218,11 @@ which is compiled using the command line:
 $ solc --optimize --combined-json=bin,abi SampleContract.sol >SampleContract.json
 ```
 
-The binary to deploy can be supplied in two different ways.  The simplest is to compile the contract using the `--combined-json=abi,json` option of `solc` to provide a JSON file containing both the binary data and the contract's ABI and deploy using that.  For example:
+Note that best results the names of the files should be the same as the name of the contract (ignoring the suffix), as per the example above.
+
 #### `call`
 
-`ethereal contract call` calls a view or pure contract function.  For example:
+`ethereal contract call` calls a contract function locally on the connected node.  For example:
 
 ```sh
 $ ethereal contract call --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF --json=SampleContract.json --call='getValue()' --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
@@ -224,7 +231,7 @@ $ ethereal contract call --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF -
 
 #### `deploy`
 
-`ethereal contract deploy` deploys a contract to the Ethereum block chain.
+`ethereal contract deploy` deploys a contract to the Ethereum blockchain.
 
 The binary to deploy can be supplied in two different ways.  The simplest is to compile the contract using the `--combined-json=abi,json` option of `solc` to provide a JSON file containing both the binary data and the contract's ABI and deploy using that.  For example:
 
@@ -237,12 +244,12 @@ Alternatively the binary data and constructor arguments can be supplied directly
 ```sh
 $ BIN=`solc --optimize --bin SampleContract.sol | egrep -A 2 SampleContract.sol:SampleContract | tail -1`
 $ CONSTRUCTORARGS=`0000000000000000000000000000000000000000000000000000000000000005`
-$ ethereal contract deploy --data="${BIN}${CONSTRUCTORARGS}"
+$ ethereal contract deploy --data="${BIN}${CONSTRUCTORARGS}" --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
 ```
 
 #### `send`
 
-`ethereal contract send`
+`ethereal contract send` sends a contract transaction to the Ethereum blockchain.  For example:
 
 ```sh
 $ ethereal contract send --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF --json=SampleContract.json --call='setValue(6)' --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
@@ -250,7 +257,7 @@ $ ethereal contract send --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF -
 
 #### `storage`
 
-`ethereal contract storage`
+`ethereal contract storage` accesses contract storage directly.  Key values depend on the value stored; for more details see [this article](https://medium.com/aigang-network/how-to-read-ethereum-contract-storage-44252c8af925).
 
 ```sh
 $ ethereal contract storage --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF --key=0x00
