@@ -45,7 +45,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		cli.Assert(len(strings.Split(ensDomain, ".")) == 2, quiet, "Name must not contain . (except for ending in .eth)")
 
 		// Ensure that the name is in a suitable state
-		registrarContract, err := ens.RegistrarContract(client, ens.Tld(ensDomain))
+		registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registrar contract")
 
 		// Obtain the registry contract

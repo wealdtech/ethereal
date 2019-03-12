@@ -46,7 +46,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
 
 		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
-		registrarContract, err := ens.RegistrarContract(client, ens.Tld(ensDomain))
+		registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 
 		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
@@ -116,7 +116,7 @@ func availableInfo(name string) {
 }
 
 func biddingInfo(name string) {
-	registrarContract, err := ens.RegistrarContract(client, ens.Tld(name))
+	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 	_, _, registrationDate, _, _, err := ens.Entry(registrarContract, client, name)
 	cli.ErrCheck(err, quiet, "Cannot obtain auction status")
@@ -125,7 +125,7 @@ func biddingInfo(name string) {
 }
 
 func revealingInfo(name string) {
-	registrarContract, err := ens.RegistrarContract(client, ens.Tld(name))
+	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 	_, _, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
 	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
@@ -140,7 +140,7 @@ func revealingInfo(name string) {
 }
 
 func wonInfo(name string) {
-	registrarContract, err := ens.RegistrarContract(client, ens.Tld(name))
+	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 	_, deedAddress, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
 	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
@@ -166,7 +166,7 @@ func wonInfo(name string) {
 }
 
 func ownedInfo(name string) {
-	registrarContract, err := ens.RegistrarContract(client, ens.Tld(name))
+	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
 	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
 	_, deedAddress, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
 	if err == nil {

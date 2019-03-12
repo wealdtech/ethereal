@@ -29,7 +29,7 @@ var ensCmd = &cobra.Command{
 
 // Ensure that a domain is in a suitable state
 func inState(domain string, state string) (inState bool) {
-	registrarContract, err := ens.RegistrarContract(client, domain)
+	registrarContract, err := ens.AuctionRegistrarContract(client, domain)
 	if err == nil {
 		inState, err = ens.NameInState(registrarContract, client, domain, state)
 		if err != nil {

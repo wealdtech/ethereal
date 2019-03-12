@@ -162,33 +162,38 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 
 	// Create a connection to an Ethereum node
 	if !offline {
-		client, err = connect()
+		err = connect()
 		cli.ErrCheck(err, quiet, "Failed to connect to Ethereum node")
-		// Fetch the chain ID
-		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
-		defer cancel()
-		chainID, err = client.NetworkID(ctx)
-		cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
 	}
 }
 
 // connect connects to an Ethereum node
-func connect() (*ethclient.Client, error) {
+func connect() error {
+	var err error
 	if viper.GetBool("ropsten") {
 		outputIf(debug, "Connecting to ropsten")
-		return ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		client, err = ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
 	} else if viper.GetBool("rinkeby") {
 		outputIf(debug, "Connecting to rinkeby")
-		return ethclient.Dial("https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		client, err = ethclient.Dial("https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
 	} else if viper.GetBool("kovan") {
 		outputIf(debug, "Connecting to kovan")
-		return ethclient.Dial("https://kovan.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		client, err = ethclient.Dial("https://kovan.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
 	} else if viper.GetBool("goerli") {
 		outputIf(debug, "Connecting to goerli")
-		return ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		client, err = ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	} else {
+		outputIf(debug, fmt.Sprintf("Connecting to %s", viper.GetString("connection")))
+		client, err = ethclient.Dial(viper.GetString("connection"))
 	}
-	outputIf(debug, fmt.Sprintf("Connecting to %s", viper.GetString("connection")))
-	return ethclient.Dial(viper.GetString("connection"))
+	if err != nil {
+		return err
+	}
+	// Fetch the chain ID
+	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+	defer cancel()
+	chainID, err = client.NetworkID(ctx)
+	return err
 }
 
 // cmdPath recurses up the command information to create a path for this command through commands and subcommands
@@ -307,22 +312,28 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 }
 
 // Obtain the current nonce for the given address
-func currentNonce(address common.Address) (currentNonce uint64, err error) {
+func currentNonce(address common.Address) (uint64, error) {
+	var currentNonce uint64
 	if nonce == -1 {
+		if client == nil {
+			err := connect()
+			if err != nil {
+				return 0, err
+			}
+		}
+
 		var tmpNonce uint64
 		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 		defer cancel()
 		tmpNonce, err = client.PendingNonceAt(ctx, address)
 		if err != nil {
-			err = fmt.Errorf("failed to obtain nonce for %s: %v", address.Hex(), err)
-			return
+			return 0, fmt.Errorf("failed to obtain nonce for %s: %v", address.Hex(), err)
 		}
-		nonce = int64(tmpNonce)
-		currentNonce = uint64(nonce)
+		currentNonce = uint64(tmpNonce)
 	} else {
 		currentNonce = uint64(nonce)
 	}
-	return
+	return currentNonce, nil
 }
 
 // Obtain the next nonce for the given address

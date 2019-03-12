@@ -4,7 +4,6 @@
 [![License](https://img.shields.io/github/license/wealdtech/ethereal.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/wealdtech/ethereal?status.svg)](https://godoc.org/github.com/wealdtech/ethereal)
 [![Travis CI](https://img.shields.io/travis/wealdtech/ethereal.svg)](https://travis-ci.org/wealdtech/ethereal)
-[![codecov.io](https://img.shields.io/codecov/c/github/wealdtech/ethereal.svg)](https://codecov.io/github/wealdtech/ethereal)
 
 A command-line tool for managing common tasks in Ethereum.
 
@@ -185,21 +184,78 @@ The number of blocks displayed in the overview can be altered using the `--block
 
 Contract commands focus on deploying and interacting with Ethereum smart contracts.
 
+The examples of the commands below use the following contract at `SampleContract.sol`:
+
+```solidity
+pragma solidity ^0.5.0;
+  
+contract SampleContract {
+    uint256 private value;
+
+    constructor(uint256 _value) public {
+        value = _value;
+    }
+
+    function getValue() public view returns (uint256) {
+        return value;
+    }
+
+    function setValue(uint256 _value) public {
+        value = _value;
+    }
+}
+```
+
+which is compiled using the command line:
+
+```sh
+$ solc --optimize --combined-json=bin,abi SampleContract.sol >SampleContract.json
+```
+
+The binary to deploy can be supplied in two different ways.  The simplest is to compile the contract using the `--combined-json=abi,json` option of `solc` to provide a JSON file containing both the binary data and the contract's ABI and deploy using that.  For example:
 #### `call`
 
-`ethereal contract call`
+`ethereal contract call` calls a view or pure contract function.  For example:
+
+```sh
+$ ethereal contract call --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF --json=SampleContract.json --call='getValue()' --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+5
+```
 
 #### `deploy`
 
-`ethereal contract deploy`
+`ethereal contract deploy` deploys a contract to the Ethereum block chain.
+
+The binary to deploy can be supplied in two different ways.  The simplest is to compile the contract using the `--combined-json=abi,json` option of `solc` to provide a JSON file containing both the binary data and the contract's ABI and deploy using that.  For example:
+
+```sh
+$ ethereal contract deploy --json=SampleContract.json --constructor='constructor(5)' --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
+
+Alternatively the binary data and constructor arguments can be supplied directly on the command-line.  For example:
+
+```sh
+$ BIN=`solc --optimize --bin SampleContract.sol | egrep -A 2 SampleContract.sol:SampleContract | tail -1`
+$ CONSTRUCTORARGS=`0000000000000000000000000000000000000000000000000000000000000005`
+$ ethereal contract deploy --data="${BIN}${CONSTRUCTORARGS}"
+```
 
 #### `send`
 
 `ethereal contract send`
 
+```sh
+$ ethereal contract send --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF --json=SampleContract.json --call='setValue(6)' --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
+
 #### `storage`
 
 `ethereal contract storage`
+
+```sh
+$ ethereal contract storage --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF --key=0x00
+0x0000000000000000000000000000000000000000000000000000000000000006
+```
 
 ### `dns` commands
 
