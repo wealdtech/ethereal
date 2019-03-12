@@ -32,6 +32,9 @@ type FuncListener interface {
 	// EnterBoolArg is called when entering the boolArg production.
 	EnterBoolArg(c *BoolArgContext)
 
+	// EnterDomainArg is called when entering the domainArg production.
+	EnterDomainArg(c *DomainArgContext)
+
 	// EnterArrayArg is called when entering the arrayArg production.
 	EnterArrayArg(c *ArrayArgContext)
 
@@ -58,6 +61,9 @@ type FuncListener interface {
 
 	// ExitBoolArg is called when exiting the boolArg production.
 	ExitBoolArg(c *BoolArgContext)
+
+	// ExitDomainArg is called when exiting the domainArg production.
+	ExitDomainArg(c *DomainArgContext)
 
 	// ExitArrayArg is called when exiting the arrayArg production.
 	ExitArrayArg(c *ArrayArgContext)

@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var tokenAllowanceRaw bool
@@ -73,6 +73,7 @@ In quiet mode this will return 0 if the allowance is greater than 0, otherwise 1
 }
 
 func init() {
+	initAliases(tokenAllowanceCmd)
 	tokenCmd.AddCommand(tokenAllowanceCmd)
 	tokenFlags(tokenAllowanceCmd)
 	tokenAllowanceCmd.Flags().BoolVar(&tokenAllowanceRaw, "raw", false, "Display raw output (no decimals)")

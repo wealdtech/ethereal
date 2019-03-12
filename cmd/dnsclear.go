@@ -23,7 +23,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 // dnsClearCmd represents the dns clear command
@@ -99,6 +99,7 @@ In quiet mode this will return 0 if the clear transaction is successfully sent, 
 }
 
 func init() {
+	initAliases(dnsClearCmd)
 	dnsCmd.AddCommand(dnsClearCmd)
 	dnsFlags(dnsClearCmd)
 	addTransactionFlags(dnsClearCmd, "the owner of the domain")

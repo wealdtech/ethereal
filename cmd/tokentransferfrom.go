@@ -22,8 +22,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var tokenTransferFromAmount string
@@ -114,6 +114,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
+	initAliases(tokenTransferFromCmd)
 	tokenCmd.AddCommand(tokenTransferFromCmd)
 	tokenFlags(tokenTransferFromCmd)
 	tokenTransferFromCmd.Flags().StringVar(&tokenTransferFromAmount, "amount", "", "Amount to transfer")

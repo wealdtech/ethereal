@@ -124,6 +124,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 }
 
 func init() {
+	initAliases(networkBlocktimeCmd)
 	networkCmd.AddCommand(networkBlocktimeCmd)
 	networkBlocktimeCmd.Flags().Int64Var(&networkBlocktimeBlocks, "blocks", 72, "Number of blocks over which to calculate blocktime")
 	networkBlocktimeCmd.Flags().DurationVar(&networkBlocktimeTime, "time", 0, "Time over which to calculate blocktime")

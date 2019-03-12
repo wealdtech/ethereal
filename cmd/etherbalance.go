@@ -23,7 +23,7 @@ import (
 	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var etherBalanceAddress string
@@ -83,6 +83,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 }
 
 func init() {
+	initAliases(etherBalanceCmd)
 	etherCmd.AddCommand(etherBalanceCmd)
 	etherBalanceCmd.Flags().BoolVar(&etherBalanceWei, "wei", false, "Display output in number of Wei")
 	etherBalanceCmd.Flags().StringVar(&etherBalanceAddress, "address", "", "Address to show Ether balance")

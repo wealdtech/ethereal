@@ -17,19 +17,22 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"os"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var tokenTransferAmount string
 var tokenTransferFromAddress string
 var tokenTransferToAddress string
 var tokenTransferData string
+var tokenTransferDecimals string
 
 // tokenTransferCmd represents the token transfer command
 var tokenTransferCmd = &cobra.Command{
@@ -53,17 +56,29 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 		token, err := tokenContract(tokenStr)
 		cli.ErrCheck(err, quiet, "Failed to obtain token contract")
 
-		decimals, err := token.Decimals(nil)
-		cli.ErrCheck(err, quiet, "Failed to obtain token decimals")
+		var decimals uint8
+		if offline {
+			cli.Assert(chainID.Cmp(big.NewInt(0)) != 0, quiet, "--chainid is required if offline")
+			cli.Assert(gasLimit != 0, quiet, "--gaslimit is required if offline")
+			cli.Assert(tokenTransferDecimals != "", quiet, "--decimals is required if offline")
+			tmpDecimals, err := strconv.Atoi(tokenTransferDecimals)
+			cli.ErrCheck(err, quiet, "Failed to obtain token decimals")
+			decimals = uint8(tmpDecimals)
+		} else {
+			decimals, err = token.Decimals(nil)
+			cli.ErrCheck(err, quiet, "Failed to obtain token decimals")
+		}
 
 		cli.Assert(tokenTransferAmount != "", quiet, "--amount is required")
 		amount, err := util.StringToTokenValue(tokenTransferAmount, decimals)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
-		// Obtain the balance of the address
-		balance, err := token.BalanceOf(nil, fromAddress)
-		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(amount) >= 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", util.TokenValueToString(balance, decimals, false)))
+		// Obtain the balance of the address (if online)
+		if !offline {
+			balance, err := token.BalanceOf(nil, fromAddress)
+			cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
+			cli.Assert(balance.Cmp(amount) >= 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", util.TokenValueToString(balance, decimals, false)))
+		}
 
 		opts, err := generateTxOpts(fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
@@ -102,10 +117,12 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
+	initAliases(tokenTransferCmd)
 	tokenCmd.AddCommand(tokenTransferCmd)
 	tokenFlags(tokenTransferCmd)
 	tokenTransferCmd.Flags().StringVar(&tokenTransferAmount, "amount", "", "Amount to transfer")
 	tokenTransferCmd.Flags().StringVar(&tokenTransferFromAddress, "from", "", "Address from which to transfer tokens")
 	tokenTransferCmd.Flags().StringVar(&tokenTransferToAddress, "to", "", "Address to which to transfer tokens")
+	tokenTransferCmd.Flags().StringVar(&tokenTransferDecimals, "decimals", "18", "Number of decimals for the transfer (only required if offline)")
 	addTransactionFlags(tokenTransferCmd, "the address from which to transfer tokens")
 }

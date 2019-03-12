@@ -23,8 +23,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util/funcparser"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var contractDeployFromAddress string
@@ -59,7 +59,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 		contract := parseContract(contractDeployData)
 		cli.Assert(len(contract.Binary) > 0, quiet, "failed to obtain contract binary data")
 		if contractDeployConstructor != "" {
-			_, constructorArgs, err := funcparser.ParseCall(contract, contractDeployConstructor)
+			_, constructorArgs, err := funcparser.ParseCall(client, contract, contractDeployConstructor)
 			cli.ErrCheck(err, quiet, "Failed to parse constructor")
 
 			argData, err := contract.Abi.Pack("", constructorArgs...)
@@ -78,6 +78,8 @@ In quiet mode this will return 0 if the contract creation transaction is success
 			// Create and sign the transaction
 			signedTx, err := createSignedTransaction(fromAddress, nil, amount, gasLimit, contract.Binary)
 			cli.ErrCheck(err, quiet, "Failed to create contract deployment transaction")
+			outputIf(verbose, fmt.Sprintf("Transaction data is %x", signedTx.Data()))
+			outputIf(verbose, fmt.Sprintf("Transaction data size is %d", len(signedTx.Data())))
 
 			if offline {
 				if !quiet {
@@ -113,6 +115,7 @@ In quiet mode this will return 0 if the contract creation transaction is success
 }
 
 func init() {
+	initAliases(contractDeployCmd)
 	contractCmd.AddCommand(contractDeployCmd)
 	contractFlags(contractDeployCmd)
 	contractDeployCmd.Flags().StringVar(&contractDeployAmount, "amount", "", "Amount of Ether to send with the contract deployment")

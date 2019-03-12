@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var ensNameGetAddress string
@@ -52,6 +52,7 @@ In quiet mode this will return 0 if the address has a reverse resolution, otherw
 }
 
 func init() {
+	initAliases(ensNameGetCmd)
 	ensNameCmd.AddCommand(ensNameGetCmd)
 	ensNameFlags(ensNameGetCmd)
 	ensNameGetCmd.Flags().StringVar(&ensNameGetAddress, "address", "", "Address for which to obtain reverse resolution")

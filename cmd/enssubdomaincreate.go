@@ -1,0 +1,99 @@
+// Copyright © 2017 Weald Technology Trading
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package cmd
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+
+	"github.com/ethereum/go-ethereum/common"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"github.com/wealdtech/ethereal/cli"
+	ens "github.com/wealdtech/go-ens"
+)
+
+var ensSubdomainCreateSubdomain string
+var ensSubdomainCreateOwnerStr string
+
+// ensSubdomainCreateCmd represents the ens subdomain create command
+var ensSubdomainCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a subdomain of an ENS domain",
+	Long: `Create a subdomain of a domain registered with the Ethereum Name Service (ENS).  For example:
+
+    ethereal ens subdomain create --domain=enstest.eth --subdomain=sub --passphrase="my secret passphrase"
+
+The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
+
+In quiet mode this will return 0 if the transaction to create the subdomain is sent successfully, otherwise 1.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
+		cli.Assert(ensDomain != "", quiet, "--domain is required")
+
+		cli.Assert(ensSubdomainCreateSubdomain != "", quiet, "--subdomain is required")
+
+		registryContract, err := ens.RegistryContract(client)
+		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
+
+		// Fetch the owner of the name
+		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
+		cli.ErrCheck(err, quiet, "cannot obtain owner")
+		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
+
+		// Work out the owner of the subdomain
+		var subdomainOwner common.Address
+		if ensSubdomainCreateOwnerStr == "" {
+			// Subdomain owner == domain owner
+			subdomainOwner = owner
+		} else {
+			subdomainOwner, err = ens.Resolve(client, ensSubdomainCreateOwnerStr)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("invalid subdomain name/address %s", ensSubdomainCreateOwnerStr))
+		}
+
+		// Create the subdomain
+		opts, err := generateTxOpts(owner)
+		cli.ErrCheck(err, quiet, "failed to generate transaction options")
+		signedTx, err := registryContract.SetSubnodeOwner(opts, ens.NameHash(ensDomain), ens.LabelHash(ensSubdomainCreateSubdomain), subdomainOwner)
+
+		setupLogging()
+		log.WithFields(log.Fields{
+			"group":         "ens/subdomain",
+			"command":       "create",
+			"domain":        ensDomain,
+			"subdomain":     ensSubdomainCreateSubdomain,
+			"owner":         subdomainOwner.Hex(),
+			"networkid":     chainID,
+			"gas":           signedTx.Gas(),
+			"gasprice":      signedTx.GasPrice().String(),
+			"transactionid": signedTx.Hash().Hex(),
+		}).Info("success")
+
+		if quiet {
+			os.Exit(0)
+		}
+
+		fmt.Println(signedTx.Hash().Hex())
+	},
+}
+
+func init() {
+	initAliases(ensSubdomainCreateCmd)
+	ensSubdomainCmd.AddCommand(ensSubdomainCreateCmd)
+	ensSubdomainFlags(ensSubdomainCreateCmd)
+	ensSubdomainCreateCmd.Flags().StringVar(&ensSubdomainCreateSubdomain, "subdomain", "", "The name of the subdomain")
+	ensSubdomainCreateCmd.Flags().StringVar(&ensSubdomainCreateOwnerStr, "owner", "", "The owner of the subdomain (defaults to the owner of the domain)")
+	addTransactionFlags(ensSubdomainCreateCmd, "passphrase for the account that owns the domain")
+}

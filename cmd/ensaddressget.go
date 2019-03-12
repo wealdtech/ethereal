@@ -15,10 +15,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 // ensAddressGetCmd represents the address get command
@@ -39,10 +40,16 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 		if !quiet {
 			fmt.Println(address.Hex())
 		}
+
+		if address == ens.UnknownAddress {
+			os.Exit(1)
+		}
+		os.Exit(0)
 	},
 }
 
 func init() {
+	initAliases(ensAddressGetCmd)
 	ensAddressFlags(ensAddressGetCmd)
 	ensAddressCmd.AddCommand(ensAddressGetCmd)
 }

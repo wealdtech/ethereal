@@ -19,12 +19,15 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/funcparser/parser"
+	ens "github.com/wealdtech/go-ens"
 )
 
 type methodListener struct {
 	*parser.BaseFuncListener
+	client   *ethclient.Client
 	contract *util.Contract
 	curArg   int
 	// Arrays are all of the same type but can be nested.
@@ -37,8 +40,9 @@ type methodListener struct {
 }
 
 // newMethodListener creates a new method listener
-func newMethodListener(contract *util.Contract) *methodListener {
+func newMethodListener(client *ethclient.Client, contract *util.Contract) *methodListener {
 	return &methodListener{
+		client:   client,
 		contract: contract,
 		curArg:   0,
 		args:     make([]interface{}, 0),
@@ -70,6 +74,8 @@ func (l *methodListener) EnterIntArg(c *parser.IntArgContext) {
 			arg, err = StrToInt(baseType, c.GetText())
 		case abi.UintTy:
 			arg, err = StrToUint(baseType, c.GetText())
+		case abi.AddressTy:
+			err = fmt.Errorf("address \"%s\" looks like number; prefix it with \"0x\"", c.GetText())
 		default:
 			err = fmt.Errorf("unexpected type %v", baseType)
 		}
@@ -233,6 +239,26 @@ func (l *methodListener) ExitArrayArg(c *parser.ArrayArgContext) {
 			}
 		}
 		l.curArray = l.curArray[:len(l.curArray)-1]
+	}
+}
+
+func (l *methodListener) EnterDomainArg(c *parser.DomainArgContext) {
+	if l.err == nil {
+		input := l.method.Inputs[l.curArg]
+		var err error
+		var arg interface{}
+		baseType := baseType(&input.Type)
+		switch baseType.T {
+		case abi.AddressTy:
+			arg, err = ens.Resolve(l.client, c.GetText()[1:])
+		default:
+			err = fmt.Errorf("unexpected type %v", baseType)
+		}
+		if err != nil {
+			l.err = err
+		} else {
+			l.pushArg(arg)
+		}
 	}
 }
 

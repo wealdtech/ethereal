@@ -20,7 +20,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var ensNameSetAddress string
@@ -77,6 +77,7 @@ In quiet mode this will return 0 if the transaction to set the name is sent succ
 }
 
 func init() {
+	initAliases(ensNameSetCmd)
 	ensNameCmd.AddCommand(ensNameSetCmd)
 	ensNameFlags(ensNameSetCmd)
 	ensNameSetCmd.Flags().StringVar(&ensNameSetAddress, "address", "", "Address for which to set reverse resolution")

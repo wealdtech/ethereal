@@ -57,6 +57,7 @@ In quiet mode this will return 0 if the signature provides a valid signer, other
 }
 
 func init() {
+	initAliases(signatureSignerCmd)
 	offlineCmds["signature:signer"] = true
 	signatureCmd.AddCommand(signatureSignerCmd)
 	signatureFlags(signatureSignerCmd)

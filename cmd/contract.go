@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -31,6 +32,7 @@ import (
 
 var contractStr string
 var contractAbi string
+var contractFunction string
 var contractJSON string
 var contractName string
 
@@ -48,6 +50,7 @@ func init() {
 func contractFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&contractStr, "contract", "", "address of the contract")
 	cmd.Flags().StringVar(&contractAbi, "abi", "", "ABI, or path to ABI, for the contract")
+	cmd.Flags().StringVar(&contractFunction, "function", "", "Signature of function")
 	cmd.Flags().StringVar(&contractJSON, "json", "", "JSON, or path to JSON, for the contract as output by solc --combined-json=bin,abi")
 	cmd.Flags().StringVar(&contractName, "name", "", "Name of the contract (required when using json)")
 }
@@ -76,11 +79,15 @@ func parseContract(binStr string) *util.Contract {
 		cli.ErrCheck(err, quiet, "Failed to decode data")
 		contract = &util.Contract{Binary: bin}
 
-		// Add ABI if present
+		// Add ABI if present either directly or via a function
 		if contractAbi != "" {
 			abi, err := contractParseAbi(contractAbi)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse ABI %s", contractAbi))
 			contract.Abi = abi
+		} else if contractFunction != "" {
+			abi, err := contractParseFunction(contractFunction)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse function %s", contractFunction))
+			contract.Abi = *abi
 		}
 	}
 	return contract
@@ -100,6 +107,68 @@ func contractParseAbi(input string) (output abi.ABI, err error) {
 		}
 	}
 	return abi.JSON(reader)
+}
+
+var intFixRe = regexp.MustCompile(`^([u]?int)($|[^0-9])`)
+
+// contractParseFunction turns a function definition in to an ABI
+// function definition is  a string of form "methodName(argtype [argname],...) returns (outputtype [outputname],...)"
+func contractParseFunction(input string) (*abi.ABI, error) {
+
+	input = strings.TrimSpace(input)
+	bits := strings.Split(input, "(")
+	// Method name is part before first "("
+	methodName := bits[0]
+	// Method arguments are comma-separated values before first ")"
+	argsBits := strings.Split(strings.Split(bits[1], ")")[0], ",")
+	methodArgs := make([]abi.Argument, len(argsBits))
+	for i, argsBit := range argsBits {
+		argBits := strings.Split(argsBit, " ")
+		argType := argBits[0]
+		var argName string
+		if len(argBits) > 1 {
+			argName = argBits[len(argBits)-1]
+		}
+		argType = intFixRe.ReplaceAllString(argType, `${1}256${2}`)
+		t, err := abi.NewType(argType, nil)
+		if err != nil {
+			return nil, err
+		}
+		methodArgs[i] = abi.Argument{
+			Name: argName,
+			Type: t,
+		}
+	}
+	var methodOutputs []abi.Argument
+	if len(bits) > 2 {
+		// Method outputs are comma-separated values after last "("
+		outputTypes := strings.Split(strings.TrimSuffix(bits[2], ")"), ",")
+		methodOutputs = make([]abi.Argument, len(outputTypes))
+		for i, outputType := range outputTypes {
+			outputType = strings.Split(outputType, " ")[0]
+			outputType = intFixRe.ReplaceAllString(outputType, `${1}256${2}`)
+			t, err := abi.NewType(outputType, nil)
+			if err != nil {
+				return nil, err
+			}
+			methodOutputs[i] = abi.Argument{
+				Type: t,
+			}
+		}
+	}
+
+	method := abi.Method{
+		Name:    methodName,
+		Inputs:  methodArgs,
+		Outputs: methodOutputs,
+	}
+
+	res := &abi.ABI{
+		Methods: make(map[string]abi.Method),
+	}
+	res.Methods[methodName] = method
+
+	return res, nil
 }
 
 func contractValueToString(argType abi.Type, val interface{}) (string, error) {

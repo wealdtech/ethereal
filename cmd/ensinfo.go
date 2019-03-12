@@ -24,7 +24,7 @@ import (
 	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var zero = big.NewInt(0)
@@ -102,6 +102,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 }
 
 func init() {
+	initAliases(ensInfoCmd)
 	ensCmd.AddCommand(ensInfoCmd)
 	ensFlags(ensInfoCmd)
 }
@@ -244,11 +245,11 @@ func ownedInfo(name string) {
 
 	resolverContract, err := ens.ResolverContractByAddress(client, resolverAddress)
 	if err == nil {
-		bytes, err := resolverContract.Multiaddr(nil, ens.NameHash(ensDomain))
+		bytes, err := resolverContract.Contenthash(nil, ens.NameHash(ensDomain))
 		if err == nil && len(bytes) > 0 {
-			multiaddr, err := ma.NewMultiaddrBytes(bytes)
+			contentHash, err := ma.NewMultiaddrBytes(bytes)
 			if err == nil {
-				fmt.Printf("Multiaddr set to %v\n", multiaddr)
+				fmt.Printf("Content hash set to %v\n", contentHash)
 			}
 		}
 	}

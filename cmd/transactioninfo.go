@@ -26,8 +26,8 @@ import (
 	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util/txdata"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var transactionInfoRaw bool
@@ -193,6 +193,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 }
 
 func init() {
+	initAliases(transactionInfoCmd)
 	transactionCmd.AddCommand(transactionInfoCmd)
 	transactionFlags(transactionInfoCmd)
 	transactionInfoCmd.Flags().BoolVar(&transactionInfoRaw, "raw", false, "Output the transaction as raw hex")

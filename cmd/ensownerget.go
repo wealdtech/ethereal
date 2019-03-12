@@ -18,7 +18,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 // ensOwnerGetCmd represents the owner get command
@@ -46,6 +46,7 @@ In quiet mode this will return 0 if the name has an owner, otherwise 1.`,
 }
 
 func init() {
+	initAliases(ensOwnerGetCmd)
 	ensOwnerFlags(ensOwnerGetCmd)
 	ensOwnerCmd.AddCommand(ensOwnerGetCmd)
 }

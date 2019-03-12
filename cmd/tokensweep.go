@@ -23,8 +23,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var tokenSweepFromAddress string
@@ -107,6 +107,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
+	initAliases(tokenSweepCmd)
 	tokenCmd.AddCommand(tokenSweepCmd)
 	tokenFlags(tokenSweepCmd)
 	tokenSweepCmd.Flags().StringVar(&tokenSweepFromAddress, "from", "", "Address from which to sweep tokens")

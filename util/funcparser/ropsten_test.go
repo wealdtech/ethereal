@@ -151,7 +151,7 @@ func TestRopsten(t *testing.T) {
 	fromAddress := common.HexToAddress("0x0000000000000000000000000000000000000000")
 	contractAddress := common.HexToAddress("0x8672a0a4AE5DB04AE30cD2bd58dd8E846432f5f3")
 	for i, test := range tests {
-		method, args, err := ParseCall(contract, test.input)
+		method, args, err := ParseCall(conn, contract, test.input)
 		require.Nil(t, err, fmt.Sprintf("failed to parse call at test %d", i))
 		data, err := contract.Abi.Pack(method.Name, args...)
 		assert.Nil(t, err, fmt.Sprintf("failed to pack data at test %d", i))

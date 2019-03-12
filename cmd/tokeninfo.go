@@ -70,6 +70,7 @@ In quiet mode this will return 0 if the token exists, otherwise 1.`,
 }
 
 func init() {
+	initAliases(tokenInfoCmd)
 	tokenFlags(tokenInfoCmd)
 	tokenCmd.AddCommand(tokenInfoCmd)
 }

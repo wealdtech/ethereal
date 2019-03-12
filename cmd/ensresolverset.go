@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var ensResolverSetResolverStr string
@@ -67,6 +67,7 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 }
 
 func init() {
+	initAliases(ensResolverSetCmd)
 	ensResolverCmd.AddCommand(ensResolverSetCmd)
 	ensResolverFlags(ensResolverSetCmd)
 	ensResolverSetCmd.Flags().StringVar(&ensResolverSetResolverStr, "resolver", "", "The resolver's name or address")

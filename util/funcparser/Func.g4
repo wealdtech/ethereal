@@ -17,6 +17,7 @@ arg
    | hexArg
    | stringArg
    | boolArg
+   | domainArg
    | arrayArg
    ;
 
@@ -35,6 +36,10 @@ stringArg
 boolArg
    : 'true'
    | 'false'
+   ;
+
+domainArg
+   : DOMAIN
    ;
 
 arrayArg
@@ -61,6 +66,15 @@ STRING
 BOOL
    : TRUE
    | FALSE
+   ;
+
+DOMAIN
+   : '@' ~[,)]+
+   ;
+
+fragment
+ENSCHAR
+   : ('0' .. '9' | 'A' .. 'Z' | 'a' .. 'z')
    ;
 
 fragment

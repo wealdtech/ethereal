@@ -22,8 +22,8 @@ import (
 	"github.com/miekg/dns"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var dnsGetWire bool
@@ -103,6 +103,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 }
 
 func init() {
+	initAliases(dnsGetCmd)
 	dnsCmd.AddCommand(dnsGetCmd)
 	dnsFlags(dnsGetCmd)
 	dnsGetCmd.Flags().BoolVar(&dnsGetWire, "wire", false, "Display the output as hex in wire format")

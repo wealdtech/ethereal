@@ -24,8 +24,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util/funcparser"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var contractSendAmount string
@@ -41,6 +41,8 @@ var contractSendCmd = &cobra.Command{
 
    ethereal contract send --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --abi="./erc20.abi" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="transfer(0x5FfC014343cd971B7eb70732021E26C35B744cc4, 10)" --passphrase=secret
 
+   ethereal contract send --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --signature="transfer(address,uint256)" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="transfer(0x5FfC014343cd971B7eb70732021E26C35B744cc4, 10)" --passphrase=secret
+
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Aliases: []string{"transaction", "transmit"},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -52,7 +54,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.Assert(contractSendCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
-		method, methodArgs, err := funcparser.ParseCall(contract, contractSendCall)
+		method, methodArgs, err := funcparser.ParseCall(client, contract, contractSendCall)
 		cli.ErrCheck(err, quiet, "Failed to parse call")
 
 		data, err := contract.Abi.Pack(method.Name, methodArgs...)
@@ -108,6 +110,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 }
 
 func init() {
+	initAliases(contractSendCmd)
 	contractCmd.AddCommand(contractSendCmd)
 	contractFlags(contractSendCmd)
 	contractSendCmd.Flags().StringVar(&contractSendAmount, "amount", "", "Amount of Ether to send with the contract method")

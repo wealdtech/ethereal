@@ -21,7 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var contractStorageFromAddress string
@@ -66,6 +66,7 @@ In quiet mode this will return 0 if the storage contains a non-zero value, other
 }
 
 func init() {
+	initAliases(contractStorageCmd)
 	contractCmd.AddCommand(contractStorageCmd)
 	contractFlags(contractStorageCmd)
 	contractStorageCmd.Flags().StringVar(&contractStorageKey, "key", "", "Storage key")

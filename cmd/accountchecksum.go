@@ -21,7 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var accountChecksumAddress string
@@ -64,6 +64,7 @@ In quiet mode this will return 0 if the provided address is correctly checksumme
 }
 
 func init() {
+	initAliases(accountChecksumCmd)
 	offlineCmds["account:checksum"] = true
 	accountCmd.AddCommand(accountChecksumCmd)
 	accountChecksumCmd.Flags().StringVar(&accountChecksumAddress, "address", "", "Address of the account for which to verify the checksum")

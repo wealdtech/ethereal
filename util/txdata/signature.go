@@ -63,7 +63,7 @@ func DataToString(input []byte) string {
 	return fmt.Sprintf("%x", input)
 }
 
-// EventToString takes a transaction's event information and converts it to a useful representatino if one exists
+// EventToString takes a transaction's event information and converts it to a useful representation if one exists
 func EventToString(input *types.Log) string {
 	function, exists := events[input.Topics[0]]
 	if !exists {
@@ -177,5 +177,30 @@ func AddFunctionSignature(signature string) {
 
 	functions[sig] = function{name: name, params: params}
 	// Also add to events
+	events[hash] = function{name: name, params: params}
+}
+
+// AddEventSignature adds an event signature to the translation list
+func AddEventSignature(signature string) {
+	// Start off removing parameter names if present
+	sigBits := strings.Split(strings.TrimSuffix(signature, ")"), "(")
+	name := sigBits[0]
+	params := strings.Split(sigBits[1], ",")
+	if params[0] == "" {
+		params = make([]string, 0)
+	}
+	for i := range params {
+		params[i] = strings.TrimSpace(params[i])
+		params[i] = strings.Split(params[i], " ")[0]
+	}
+	signature = fmt.Sprintf("%s(%s)", name, strings.Join(params, ","))
+
+	var hash [32]byte
+	sha := sha3.NewLegacyKeccak256()
+	sha.Write([]byte(signature))
+	sha.Sum(hash[:0])
+	var sig [4]byte
+	copy(sig[:], hash[:4])
+
 	events[hash] = function{name: name, params: params}
 }

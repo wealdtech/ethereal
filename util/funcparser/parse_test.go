@@ -159,7 +159,7 @@ func TestParse(t *testing.T) {
 	for i, test := range tests {
 		contract, err := util.ParseCombinedJSON(test.json, "Test")
 		require.Nil(t, err, fmt.Sprintf("failed to parse contract JSON at test %d", i))
-		_, args, err := ParseCall(contract, test.input)
+		_, args, err := ParseCall(nil, contract, test.input)
 		assert.Nil(t, err, fmt.Sprintf("failed to parse call at test %d", i))
 		if test.output != nil {
 			assert.Equal(t, test.output, args, fmt.Sprintf("incorrect value at test %d", i))

@@ -19,8 +19,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util/contracts"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var tokenStr string

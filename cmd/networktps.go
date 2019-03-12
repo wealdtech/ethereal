@@ -81,6 +81,7 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 }
 
 func init() {
+	initAliases(networkTPSCmd)
 	networkCmd.AddCommand(networkTPSCmd)
 	networkTPSCmd.Flags().Int64Var(&networkTPSBlocks, "blocks", 5, "Number of blocks to use")
 

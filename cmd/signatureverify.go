@@ -57,6 +57,7 @@ In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 }
 
 func init() {
+	initAliases(signatureVerifyCmd)
 	offlineCmds["signature:verify"] = true
 	signatureCmd.AddCommand(signatureVerifyCmd)
 	signatureFlags(signatureVerifyCmd)

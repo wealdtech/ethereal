@@ -21,7 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var ensTransferNewOwnerStr string
@@ -79,6 +79,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 }
 
 func init() {
+	initAliases(ensTransferCmd)
 	ensCmd.AddCommand(ensTransferCmd)
 	ensFlags(ensTransferCmd)
 	ensTransferCmd.Flags().StringVar(&ensTransferNewOwnerStr, "newowner", "", "The new owner of the domain")

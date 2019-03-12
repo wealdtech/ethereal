@@ -24,7 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var blockInfoTransactions bool
@@ -103,6 +103,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 }
 
 func init() {
+	initAliases(blockInfoCmd)
 	blockCmd.AddCommand(blockInfoCmd)
 	blockInfoCmd.Flags().BoolVar(&blockInfoTransactions, "transactions", false, "Display hashes of all block transactions")
 	blockFlags(blockInfoCmd)

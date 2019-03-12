@@ -16,29 +16,32 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 16, 61, 4,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 17, 66, 4,
 	2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7, 4,
-	8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2,
-	3, 3, 3, 3, 3, 4, 3, 4, 3, 4, 7, 4, 32, 10, 4, 12, 4, 14, 4, 35, 11, 4,
-	5, 4, 37, 10, 4, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 5, 5, 44, 10, 5, 3, 6, 5,
-	6, 47, 10, 6, 3, 6, 3, 6, 3, 7, 3, 7, 3, 8, 3, 8, 3, 9, 3, 9, 3, 10, 3,
-	10, 3, 10, 3, 10, 3, 10, 2, 2, 11, 2, 4, 6, 8, 10, 12, 14, 16, 18, 2, 3,
-	3, 2, 7, 8, 2, 58, 2, 20, 3, 2, 2, 2, 4, 26, 3, 2, 2, 2, 6, 36, 3, 2, 2,
-	2, 8, 43, 3, 2, 2, 2, 10, 46, 3, 2, 2, 2, 12, 50, 3, 2, 2, 2, 14, 52, 3,
-	2, 2, 2, 16, 54, 3, 2, 2, 2, 18, 56, 3, 2, 2, 2, 20, 21, 5, 4, 3, 2, 21,
-	22, 7, 3, 2, 2, 22, 23, 5, 6, 4, 2, 23, 24, 7, 4, 2, 2, 24, 25, 7, 2, 2,
-	3, 25, 3, 3, 2, 2, 2, 26, 27, 7, 11, 2, 2, 27, 5, 3, 2, 2, 2, 28, 33, 5,
-	8, 5, 2, 29, 30, 7, 5, 2, 2, 30, 32, 5, 8, 5, 2, 31, 29, 3, 2, 2, 2, 32,
-	35, 3, 2, 2, 2, 33, 31, 3, 2, 2, 2, 33, 34, 3, 2, 2, 2, 34, 37, 3, 2, 2,
-	2, 35, 33, 3, 2, 2, 2, 36, 28, 3, 2, 2, 2, 36, 37, 3, 2, 2, 2, 37, 7, 3,
-	2, 2, 2, 38, 44, 5, 10, 6, 2, 39, 44, 5, 12, 7, 2, 40, 44, 5, 14, 8, 2,
-	41, 44, 5, 16, 9, 2, 42, 44, 5, 18, 10, 2, 43, 38, 3, 2, 2, 2, 43, 39,
-	3, 2, 2, 2, 43, 40, 3, 2, 2, 2, 43, 41, 3, 2, 2, 2, 43, 42, 3, 2, 2, 2,
-	44, 9, 3, 2, 2, 2, 45, 47, 7, 6, 2, 2, 46, 45, 3, 2, 2, 2, 46, 47, 3, 2,
-	2, 2, 47, 48, 3, 2, 2, 2, 48, 49, 7, 12, 2, 2, 49, 11, 3, 2, 2, 2, 50,
-	51, 7, 13, 2, 2, 51, 13, 3, 2, 2, 2, 52, 53, 7, 14, 2, 2, 53, 15, 3, 2,
-	2, 2, 54, 55, 9, 2, 2, 2, 55, 17, 3, 2, 2, 2, 56, 57, 7, 9, 2, 2, 57, 58,
-	5, 6, 4, 2, 58, 59, 7, 10, 2, 2, 59, 19, 3, 2, 2, 2, 6, 33, 36, 43, 46,
+	8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 4, 11, 9, 11, 3, 2, 3, 2, 3, 2, 3, 2,
+	3, 2, 3, 2, 3, 3, 3, 3, 3, 4, 3, 4, 3, 4, 7, 4, 34, 10, 4, 12, 4, 14, 4,
+	37, 11, 4, 5, 4, 39, 10, 4, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 5, 5, 47,
+	10, 5, 3, 6, 5, 6, 50, 10, 6, 3, 6, 3, 6, 3, 7, 3, 7, 3, 8, 3, 8, 3, 9,
+	3, 9, 3, 10, 3, 10, 3, 11, 3, 11, 3, 11, 3, 11, 3, 11, 2, 2, 12, 2, 4,
+	6, 8, 10, 12, 14, 16, 18, 20, 2, 3, 3, 2, 7, 8, 2, 63, 2, 22, 3, 2, 2,
+	2, 4, 28, 3, 2, 2, 2, 6, 38, 3, 2, 2, 2, 8, 46, 3, 2, 2, 2, 10, 49, 3,
+	2, 2, 2, 12, 53, 3, 2, 2, 2, 14, 55, 3, 2, 2, 2, 16, 57, 3, 2, 2, 2, 18,
+	59, 3, 2, 2, 2, 20, 61, 3, 2, 2, 2, 22, 23, 5, 4, 3, 2, 23, 24, 7, 3, 2,
+	2, 24, 25, 5, 6, 4, 2, 25, 26, 7, 4, 2, 2, 26, 27, 7, 2, 2, 3, 27, 3, 3,
+	2, 2, 2, 28, 29, 7, 11, 2, 2, 29, 5, 3, 2, 2, 2, 30, 35, 5, 8, 5, 2, 31,
+	32, 7, 5, 2, 2, 32, 34, 5, 8, 5, 2, 33, 31, 3, 2, 2, 2, 34, 37, 3, 2, 2,
+	2, 35, 33, 3, 2, 2, 2, 35, 36, 3, 2, 2, 2, 36, 39, 3, 2, 2, 2, 37, 35,
+	3, 2, 2, 2, 38, 30, 3, 2, 2, 2, 38, 39, 3, 2, 2, 2, 39, 7, 3, 2, 2, 2,
+	40, 47, 5, 10, 6, 2, 41, 47, 5, 12, 7, 2, 42, 47, 5, 14, 8, 2, 43, 47,
+	5, 16, 9, 2, 44, 47, 5, 18, 10, 2, 45, 47, 5, 20, 11, 2, 46, 40, 3, 2,
+	2, 2, 46, 41, 3, 2, 2, 2, 46, 42, 3, 2, 2, 2, 46, 43, 3, 2, 2, 2, 46, 44,
+	3, 2, 2, 2, 46, 45, 3, 2, 2, 2, 47, 9, 3, 2, 2, 2, 48, 50, 7, 6, 2, 2,
+	49, 48, 3, 2, 2, 2, 49, 50, 3, 2, 2, 2, 50, 51, 3, 2, 2, 2, 51, 52, 7,
+	12, 2, 2, 52, 11, 3, 2, 2, 2, 53, 54, 7, 13, 2, 2, 54, 13, 3, 2, 2, 2,
+	55, 56, 7, 14, 2, 2, 56, 15, 3, 2, 2, 2, 57, 58, 9, 2, 2, 2, 58, 17, 3,
+	2, 2, 2, 59, 60, 7, 16, 2, 2, 60, 19, 3, 2, 2, 2, 61, 62, 7, 9, 2, 2, 62,
+	63, 5, 6, 4, 2, 63, 64, 7, 10, 2, 2, 64, 21, 3, 2, 2, 2, 6, 35, 38, 46,
+	49,
 }
 var deserializer = antlr.NewATNDeserializer(nil)
 var deserializedATN = deserializer.DeserializeFromUInt16(parserATN)
@@ -48,12 +51,12 @@ var literalNames = []string{
 }
 var symbolicNames = []string{
 	"", "", "", "", "", "", "", "", "", "NAME", "INT", "HEX", "STRING", "BOOL",
-	"WS",
+	"DOMAIN", "WS",
 }
 
 var ruleNames = []string{
 	"start", "funcName", "funcArgs", "arg", "intArg", "hexArg", "stringArg",
-	"boolArg", "arrayArg",
+	"boolArg", "domainArg", "arrayArg",
 }
 var decisionToDFA = make([]*antlr.DFA, len(deserializedATN.DecisionToState))
 
@@ -97,7 +100,8 @@ const (
 	FuncParserHEX    = 11
 	FuncParserSTRING = 12
 	FuncParserBOOL   = 13
-	FuncParserWS     = 14
+	FuncParserDOMAIN = 14
+	FuncParserWS     = 15
 )
 
 // FuncParser rules.
@@ -110,7 +114,8 @@ const (
 	FuncParserRULE_hexArg    = 5
 	FuncParserRULE_stringArg = 6
 	FuncParserRULE_boolArg   = 7
-	FuncParserRULE_arrayArg  = 8
+	FuncParserRULE_domainArg = 8
+	FuncParserRULE_arrayArg  = 9
 )
 
 // IStartContext is an interface to support dynamic dispatch.
@@ -217,23 +222,23 @@ func (p *FuncParser) Start() (localctx IStartContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(18)
+		p.SetState(20)
 		p.FuncName()
 	}
 	{
-		p.SetState(19)
+		p.SetState(21)
 		p.Match(FuncParserT__0)
 	}
 	{
-		p.SetState(20)
+		p.SetState(22)
 		p.FuncArgs()
 	}
 	{
-		p.SetState(21)
+		p.SetState(23)
 		p.Match(FuncParserT__1)
 	}
 	{
-		p.SetState(22)
+		p.SetState(24)
 		p.Match(FuncParserEOF)
 	}
 
@@ -324,7 +329,7 @@ func (p *FuncParser) FuncName() (localctx IFuncNameContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(24)
+		p.SetState(26)
 		p.Match(FuncParserNAME)
 	}
 
@@ -434,30 +439,30 @@ func (p *FuncParser) FuncArgs() (localctx IFuncArgsContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(34)
+	p.SetState(36)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<FuncParserT__3)|(1<<FuncParserT__4)|(1<<FuncParserT__5)|(1<<FuncParserT__6)|(1<<FuncParserINT)|(1<<FuncParserHEX)|(1<<FuncParserSTRING))) != 0 {
+	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<FuncParserT__3)|(1<<FuncParserT__4)|(1<<FuncParserT__5)|(1<<FuncParserT__6)|(1<<FuncParserINT)|(1<<FuncParserHEX)|(1<<FuncParserSTRING)|(1<<FuncParserDOMAIN))) != 0 {
 		{
-			p.SetState(26)
+			p.SetState(28)
 			p.Arg()
 		}
-		p.SetState(31)
+		p.SetState(33)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		for _la == FuncParserT__2 {
 			{
-				p.SetState(27)
+				p.SetState(29)
 				p.Match(FuncParserT__2)
 			}
 			{
-				p.SetState(28)
+				p.SetState(30)
 				p.Arg()
 			}
 
-			p.SetState(33)
+			p.SetState(35)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
@@ -545,6 +550,16 @@ func (s *ArgContext) BoolArg() IBoolArgContext {
 	return t.(IBoolArgContext)
 }
 
+func (s *ArgContext) DomainArg() IDomainArgContext {
+	var t = s.GetTypedRuleContext(reflect.TypeOf((*IDomainArgContext)(nil)).Elem(), 0)
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDomainArgContext)
+}
+
 func (s *ArgContext) ArrayArg() IArrayArgContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IArrayArgContext)(nil)).Elem(), 0)
 
@@ -595,42 +610,49 @@ func (p *FuncParser) Arg() (localctx IArgContext) {
 		}
 	}()
 
-	p.SetState(41)
+	p.SetState(44)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
 	case FuncParserT__3, FuncParserINT:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(36)
+			p.SetState(38)
 			p.IntArg()
 		}
 
 	case FuncParserHEX:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(37)
+			p.SetState(39)
 			p.HexArg()
 		}
 
 	case FuncParserSTRING:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(38)
+			p.SetState(40)
 			p.StringArg()
 		}
 
 	case FuncParserT__4, FuncParserT__5:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(39)
+			p.SetState(41)
 			p.BoolArg()
 		}
 
-	case FuncParserT__6:
+	case FuncParserDOMAIN:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(40)
+			p.SetState(42)
+			p.DomainArg()
+		}
+
+	case FuncParserT__6:
+		p.EnterOuterAlt(localctx, 6)
+		{
+			p.SetState(43)
 			p.ArrayArg()
 		}
 
@@ -725,19 +747,19 @@ func (p *FuncParser) IntArg() (localctx IIntArgContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(44)
+	p.SetState(47)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == FuncParserT__3 {
 		{
-			p.SetState(43)
+			p.SetState(46)
 			p.Match(FuncParserT__3)
 		}
 
 	}
 	{
-		p.SetState(46)
+		p.SetState(49)
 		p.Match(FuncParserINT)
 	}
 
@@ -828,7 +850,7 @@ func (p *FuncParser) HexArg() (localctx IHexArgContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(48)
+		p.SetState(51)
 		p.Match(FuncParserHEX)
 	}
 
@@ -919,7 +941,7 @@ func (p *FuncParser) StringArg() (localctx IStringArgContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(50)
+		p.SetState(53)
 		p.Match(FuncParserSTRING)
 	}
 
@@ -1006,7 +1028,7 @@ func (p *FuncParser) BoolArg() (localctx IBoolArgContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(52)
+		p.SetState(55)
 		_la = p.GetTokenStream().LA(1)
 
 		if !(_la == FuncParserT__4 || _la == FuncParserT__5) {
@@ -1015,6 +1037,97 @@ func (p *FuncParser) BoolArg() (localctx IBoolArgContext) {
 			p.GetErrorHandler().ReportMatch(p)
 			p.Consume()
 		}
+	}
+
+	return localctx
+}
+
+// IDomainArgContext is an interface to support dynamic dispatch.
+type IDomainArgContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsDomainArgContext differentiates from other interfaces.
+	IsDomainArgContext()
+}
+
+type DomainArgContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyDomainArgContext() *DomainArgContext {
+	var p = new(DomainArgContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = FuncParserRULE_domainArg
+	return p
+}
+
+func (*DomainArgContext) IsDomainArgContext() {}
+
+func NewDomainArgContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *DomainArgContext {
+	var p = new(DomainArgContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = FuncParserRULE_domainArg
+
+	return p
+}
+
+func (s *DomainArgContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *DomainArgContext) DOMAIN() antlr.TerminalNode {
+	return s.GetToken(FuncParserDOMAIN, 0)
+}
+
+func (s *DomainArgContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *DomainArgContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *DomainArgContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(FuncListener); ok {
+		listenerT.EnterDomainArg(s)
+	}
+}
+
+func (s *DomainArgContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(FuncListener); ok {
+		listenerT.ExitDomainArg(s)
+	}
+}
+
+func (p *FuncParser) DomainArg() (localctx IDomainArgContext) {
+	localctx = NewDomainArgContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 16, FuncParserRULE_domainArg)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(57)
+		p.Match(FuncParserDOMAIN)
 	}
 
 	return localctx
@@ -1090,7 +1203,7 @@ func (s *ArrayArgContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *FuncParser) ArrayArg() (localctx IArrayArgContext) {
 	localctx = NewArrayArgContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 16, FuncParserRULE_arrayArg)
+	p.EnterRule(localctx, 18, FuncParserRULE_arrayArg)
 
 	defer func() {
 		p.ExitRule()
@@ -1110,15 +1223,15 @@ func (p *FuncParser) ArrayArg() (localctx IArrayArgContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(54)
+		p.SetState(59)
 		p.Match(FuncParserT__6)
 	}
 	{
-		p.SetState(55)
+		p.SetState(60)
 		p.FuncArgs()
 	}
 	{
-		p.SetState(56)
+		p.SetState(61)
 		p.Match(FuncParserT__7)
 	}
 

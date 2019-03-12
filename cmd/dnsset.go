@@ -26,8 +26,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var dnsSetTTL time.Duration
@@ -166,6 +166,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 }
 
 func init() {
+	initAliases(dnsSetCmd)
 	dnsCmd.AddCommand(dnsSetCmd)
 	dnsFlags(dnsSetCmd)
 	dnsSetCmd.Flags().DurationVar(&dnsSetTTL, "ttl", time.Duration(0), "The time-to-live for the record")

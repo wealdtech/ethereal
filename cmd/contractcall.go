@@ -21,8 +21,8 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util/funcparser"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var contractCallFromAddress string
@@ -37,6 +37,8 @@ var contractCallCmd = &cobra.Command{
 
    ethereal contract call --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --abi="./erc20.abi" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="totalSupply()"
 
+   ethereal contract call --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --signature="balanceOf(address)" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="balanceOf(@wealdtech.eth)"
+
 In quiet mode this will return 0 if the contract is successfully called, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -48,7 +50,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
-		method, methodArgs, err := funcparser.ParseCall(contract, contractCallCall)
+		method, methodArgs, err := funcparser.ParseCall(client, contract, contractCallCall)
 		cli.ErrCheck(err, quiet, "Failed to parse call")
 
 		data, err := contract.Abi.Pack(method.Name, methodArgs...)
@@ -97,7 +99,6 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		results := []string{}
 		for i := range outputs {
 			val, err := contractValueToString(method.Outputs[i].Type, outputs[i])
-			//cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", *((*abiOutput)[i])))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to turn value %v in to suitable output", outputs[i]))
 			results = append(results, val)
 		}
@@ -108,6 +109,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 }
 
 func init() {
+	initAliases(contractCallCmd)
 	contractCmd.AddCommand(contractCallCmd)
 	contractFlags(contractCallCmd)
 	contractCallCmd.Flags().StringVar(&contractCallFromAddress, "from", "", "Address from which to call the contract method")

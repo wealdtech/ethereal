@@ -21,6 +21,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	ethereum "github.com/ethereum/go-ethereum"
@@ -34,6 +35,7 @@ import (
 	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 )
@@ -41,6 +43,7 @@ import (
 var cfgFile string
 var quiet bool
 var verbose bool
+var debug bool
 var offline bool
 
 var client *ethclient.Client
@@ -83,6 +86,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	// We bind viper here so that we bind to the correct command
 	quiet = viper.GetBool("quiet")
 	verbose = viper.GetBool("verbose")
+	debug = viper.GetBool("debug")
 	offline = viper.GetBool("offline")
 
 	// If the command does not require access to the chain then override offline accordingly
@@ -94,9 +98,23 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		// Also need chain ID
 		chainID = big.NewInt(viper.GetInt64("chainid"))
 	}
+	if viper.GetBool("ropsten") {
+		chainID = big.NewInt(3)
+	} else if viper.GetBool("rinkeby") {
+		chainID = big.NewInt(4)
+	} else if viper.GetBool("kovan") {
+		chainID = big.NewInt(42)
+	} else if viper.GetBool("goerli") {
+		chainID = big.NewInt(5)
+	}
+
 	if quiet && verbose {
 		cli.Err(quiet, "Cannot supply both quiet and verbose flags")
 	}
+	if quiet && debug {
+		cli.Err(quiet, "Cannot supply both quiet and debug flags")
+	}
+
 	// ...lots of commands have (e.g.) 'passphrase' as an option but we want to
 	// bind it to this particular command and this is the first chance we get
 	if cmd.Flags().Lookup("passphrase") != nil {
@@ -115,10 +133,23 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 			gasPrice, err = etherutils.StringToWei("4 GWei")
 			cli.ErrCheck(err, quiet, "Invalid gas price")
 		} else {
-			gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
-			cli.ErrCheck(err, quiet, "Invalid gas price")
+			if strings.Contains(viper.GetString("gasprice"), "block") {
+				// Block-based gas price
+				outputIf(verbose, fmt.Sprintf("xx"))
+				// fmt.Printf("Gas price is %v\n", etherutils.WeiToString(gasPrice, true))
+				os.Exit(0)
+			} else if strings.Contains(viper.GetString("gasprice"), "minute") {
+				// Time-based gas price
+				outputIf(verbose, fmt.Sprintf("yy"))
+				// fmt.Printf("Gas price is %v\n", etherutils.WeiToString(gasPrice, true))
+				os.Exit(0)
+			} else {
+				gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
+				cli.ErrCheck(err, quiet, "Invalid gas price")
+			}
 		}
 	}
+
 	// Set up nonce if we have it
 	nonce = viper.GetInt64("nonce")
 
@@ -131,14 +162,33 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 
 	// Create a connection to an Ethereum node
 	if !offline {
-		client, err = ethclient.Dial(viper.GetString("connection"))
-		cli.ErrCheck(err, quiet, "Failed to connect to Ethereum")
+		client, err = connect()
+		cli.ErrCheck(err, quiet, "Failed to connect to Ethereum node")
 		// Fetch the chain ID
 		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 		defer cancel()
 		chainID, err = client.NetworkID(ctx)
 		cli.ErrCheck(err, quiet, "Failed to obtain chain ID")
 	}
+}
+
+// connect connects to an Ethereum node
+func connect() (*ethclient.Client, error) {
+	if viper.GetBool("ropsten") {
+		outputIf(debug, "Connecting to ropsten")
+		return ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	} else if viper.GetBool("rinkeby") {
+		outputIf(debug, "Connecting to rinkeby")
+		return ethclient.Dial("https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	} else if viper.GetBool("kovan") {
+		outputIf(debug, "Connecting to kovan")
+		return ethclient.Dial("https://kovan.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	} else if viper.GetBool("goerli") {
+		outputIf(debug, "Connecting to goerli")
+		return ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	}
+	outputIf(debug, fmt.Sprintf("Connecting to %s", viper.GetString("connection")))
+	return ethclient.Dial(viper.GetString("connection"))
 }
 
 // cmdPath recurses up the command information to create a path for this command through commands and subcommands
@@ -183,8 +233,18 @@ func init() {
 	viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet"))
 	RootCmd.PersistentFlags().Bool("verbose", false, "generate additional output where appropriate")
 	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
-	RootCmd.PersistentFlags().String("connection", "https://api.orinocopay.com:8546/", "the IPC or RPC path to an Ethereum node.  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
+	RootCmd.PersistentFlags().Bool("debug", false, "generate debug output")
+	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
+	RootCmd.PersistentFlags().String("connection", "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", "the IPC or RPC path to an Ethereum node.  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
 	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
+	RootCmd.PersistentFlags().Bool("ropsten", false, "connect to Infura ropsten node")
+	viper.BindPFlag("ropsten", RootCmd.PersistentFlags().Lookup("ropsten"))
+	RootCmd.PersistentFlags().Bool("rinkeby", false, "connect to Infura rinkeby node")
+	viper.BindPFlag("rinkeby", RootCmd.PersistentFlags().Lookup("rinkeby"))
+	RootCmd.PersistentFlags().Bool("kovan", false, "connect to Infura kovan node")
+	viper.BindPFlag("kovan", RootCmd.PersistentFlags().Lookup("kovan"))
+	RootCmd.PersistentFlags().Bool("goerli", false, "connect to Infura Görli node")
+	viper.BindPFlag("goerli", RootCmd.PersistentFlags().Lookup("goerli"))
 	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "the time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
@@ -193,6 +253,20 @@ func init() {
 	viper.BindPFlag("chainid", RootCmd.PersistentFlags().Lookup("chainid"))
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
 	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
+}
+
+func initAliases(cmd *cobra.Command) {
+	cmd.Flags().SetNormalizeFunc(fixAliases)
+}
+
+// fixAliases sets aliases for awkward names
+func fixAliases(f *pflag.FlagSet, name string) pflag.NormalizedName {
+	switch name {
+	case "gorli", "görli":
+		name = "goerli"
+		break
+	}
+	return pflag.NormalizedName(name)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -293,6 +367,8 @@ func createTransaction(fromAddress common.Address, toAddress *common.Address, am
 		}
 	}
 
+	// TODO Gas price now that we know the gas limit
+
 	// Create the transaction
 	if toAddress == nil {
 		tx = types.NewContractCreation(txNonce, amount, gasLimit, gasPrice, data)
@@ -355,7 +431,7 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		From:     sender,
 		Signer:   signer,
 		GasPrice: gasPrice,
-		// DoNotSend: offline,
+		//DoNotSend: offline,
 		Nonce: big.NewInt(0).SetInt64(nonce),
 	}
 

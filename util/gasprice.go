@@ -114,9 +114,8 @@ func GasPriceForBlocks(client *ethclient.Client, blocks int64, gasRequired uint6
 	return lowestGasPrice, nil
 }
 
+// BlockHasMinerTransactions returns true if the block contains any transactions signed by the same account that mined the block.
 func BlockHasMinerTransactions(block *types.Block, chainID *big.Int) bool {
-	// We check the block to see if it contains transactions from the miner, and if so ignore it.  This is because self-mined
-	// transactions do not represent market value for gas price
 	signer := types.NewEIP155Signer(chainID)
 	for _, tx := range block.Transactions() {
 		sender, err := types.Sender(signer, tx)

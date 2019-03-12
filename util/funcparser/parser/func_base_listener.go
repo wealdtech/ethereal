@@ -69,6 +69,12 @@ func (s *BaseFuncListener) EnterBoolArg(ctx *BoolArgContext) {}
 // ExitBoolArg is called when production boolArg is exited.
 func (s *BaseFuncListener) ExitBoolArg(ctx *BoolArgContext) {}
 
+// EnterDomainArg is called when production domainArg is entered.
+func (s *BaseFuncListener) EnterDomainArg(ctx *DomainArgContext) {}
+
+// ExitDomainArg is called when production domainArg is exited.
+func (s *BaseFuncListener) ExitDomainArg(ctx *DomainArgContext) {}
+
 // EnterArrayArg is called when production arrayArg is entered.
 func (s *BaseFuncListener) EnterArrayArg(ctx *ArrayArgContext) {}
 

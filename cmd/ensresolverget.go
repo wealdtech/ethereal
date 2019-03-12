@@ -18,7 +18,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 // ensResolverGetCmd represents the resolver get command
@@ -49,6 +49,7 @@ In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 }
 
 func init() {
+	initAliases(ensResolverGetCmd)
 	ensResolverFlags(ensResolverGetCmd)
 	ensResolverCmd.AddCommand(ensResolverGetCmd)
 }

@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var accountNonceAddress string
@@ -52,6 +52,7 @@ In quiet mode this will return 0 if the nonce can be obtained, otherwise 1.`,
 }
 
 func init() {
+	initAliases(accountNonceCmd)
 	accountCmd.AddCommand(accountNonceCmd)
 	accountNonceCmd.Flags().StringVar(&accountNonceAddress, "address", "", "Address of the account for which to obtain the nonce")
 }

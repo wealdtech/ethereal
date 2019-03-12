@@ -23,8 +23,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var tokenApproveAmount string
@@ -105,6 +105,7 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 }
 
 func init() {
+	initAliases(tokenApproveCmd)
 	tokenCmd.AddCommand(tokenApproveCmd)
 	tokenFlags(tokenApproveCmd)
 	tokenApproveCmd.Flags().StringVar(&tokenApproveAmount, "amount", "", "Amount to approve")

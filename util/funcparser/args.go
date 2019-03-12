@@ -18,12 +18,13 @@ import (
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/funcparser/parser"
 )
 
 // ParseCall parses a call string and returns a suitable Method
-func ParseCall(contract *util.Contract, call string) (*abi.Method, []interface{}, error) {
+func ParseCall(client *ethclient.Client, contract *util.Contract, call string) (*abi.Method, []interface{}, error) {
 	if contract == nil {
 		return nil, nil, errors.New("no contract")
 	}
@@ -32,7 +33,7 @@ func ParseCall(contract *util.Contract, call string) (*abi.Method, []interface{}
 	lexer := parser.NewFuncLexer(is)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	tree := parser.NewFuncParser(stream).Start()
-	methodListener := newMethodListener(contract)
+	methodListener := newMethodListener(client, contract)
 	antlr.ParseTreeWalkerDefault.Walk(methodListener, tree)
 
 	return methodListener.method, methodListener.args, methodListener.err

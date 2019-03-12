@@ -68,7 +68,7 @@ func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, er
 		return wallet, err
 	}
 
-	return wallet, fmt.Errorf("Failed to obtain wallet")
+	return wallet, fmt.Errorf("failed to obtain wallet for %s", address.Hex())
 }
 
 func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
@@ -79,6 +79,8 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
+	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
@@ -97,6 +99,8 @@ func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
+	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
@@ -200,6 +204,6 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 
 // VerifyPassphrase confirms that a passphrase is correct for an account
 func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphrase string) bool {
-	_, err := wallet.SignTextWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	_, err := wallet.SignHashWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	return err == nil
 }

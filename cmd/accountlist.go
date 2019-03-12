@@ -20,7 +20,7 @@ import (
 	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 // accountListCmd represents the account list command
@@ -79,5 +79,6 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 }
 
 func init() {
+	initAliases(accountListCmd)
 	accountCmd.AddCommand(accountListCmd)
 }

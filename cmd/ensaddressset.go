@@ -21,7 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var ensAddressSetAddressStr string
@@ -83,6 +83,7 @@ In quiet mode this will return 0 if the transaction to set the address is sent s
 }
 
 func init() {
+	initAliases(ensAddressSetCmd)
 	ensAddressCmd.AddCommand(ensAddressSetCmd)
 	ensAddressFlags(ensAddressSetCmd)
 	ensAddressSetCmd.Flags().StringVar(&ensAddressSetAddressStr, "address", "", "The name or address to which to resolve")

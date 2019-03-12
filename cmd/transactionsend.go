@@ -28,7 +28,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var transactionSendAmount string
@@ -67,12 +67,19 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			fromAddress, err := txFrom(signedTx)
 			cli.ErrCheck(err, quiet, "Failed to obtain from address")
 
+			// Contract creations have a nil To() so check for this
+			to := signedTx.To()
+			if to == nil {
+				tmp := common.HexToAddress("00")
+				to = &tmp
+			}
+
 			setupLogging()
 			log.WithFields(log.Fields{
 				"group":         "transaction",
 				"command":       "send",
 				"from":          fromAddress.Hex(),
-				"to":            signedTx.To().Hex(),
+				"to":            to.Hex(),
 				"amount":        signedTx.Value().String(),
 				"data":          hex.EncodeToString(signedTx.Data()),
 				"networkid":     chainID,
@@ -181,6 +188,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 }
 
 func init() {
+	initAliases(transactionSendCmd)
 	transactionCmd.AddCommand(transactionSendCmd)
 	transactionSendCmd.Flags().StringVar(&transactionSendAmount, "amount", "", "Amount of Ether to transfer")
 	transactionSendCmd.Flags().StringVar(&transactionSendFromAddress, "from", "", "Address from which to transfer Ether")

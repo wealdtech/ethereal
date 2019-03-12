@@ -24,7 +24,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/ens"
+	ens "github.com/wealdtech/go-ens"
 )
 
 var etherTransferAmount string
@@ -109,6 +109,7 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 }
 
 func init() {
+	initAliases(etherTransferCmd)
 	etherCmd.AddCommand(etherTransferCmd)
 	etherTransferCmd.Flags().StringVar(&etherTransferAmount, "amount", "", "Amount of Ether to transfer")
 	etherTransferCmd.Flags().StringVar(&etherTransferFromAddress, "from", "", "Address from which to transfer Ether")
