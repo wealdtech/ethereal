@@ -16,7 +16,9 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens"
@@ -42,27 +44,45 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		registryContract, err := ens.RegistryContract(client)
-		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
+		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
 		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
-		cli.ErrCheck(err, quiet, "cannot obtain owner")
+		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		// Set the resolver from either command-line or default
-		resolverAddress, err := ens.Resolve(client, ensResolverSetResolverStr)
-		if err != nil {
+		if ensResolverSetResolverStr == "" {
 			resolverAddress, err = ens.PublicResolver(client)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("no public resolver for network id %v", chainID))
+			cli.ErrCheck(err, quiet, fmt.Sprintf("No public resolver for network id %v", chainID))
+		} else {
+			resolverAddress, err := ens.Resolve(client, ensResolverSetResolverStr)
+			cli.Assert(bytes.Compare(resolverAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Invalid resolver; if you are trying to clear an existing resolver use \"ens resolver clear\"")
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 		}
 
 		opts, err := generateTxOpts(owner)
-		cli.ErrCheck(err, quiet, "failed to generate transaction options")
+		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 		tx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), resolverAddress)
-		cli.ErrCheck(err, quiet, "failed to send transaction")
-		if !quiet {
-			fmt.Println("Transaction ID is", tx.Hash().Hex())
+		cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+		setupLogging()
+		log.WithFields(log.Fields{
+			"group":         "ens/resolver",
+			"command":       "set",
+			"domain":        ensDomain,
+			"resolver":      resolverAddress.Hex(),
+			"networkid":     chainID,
+			"gas":           signedTx.Gas(),
+			"gasprice":      signedTx.GasPrice().String(),
+			"transactionid": signedTx.Hash().Hex(),
+		}).Info("success")
+
+		if quiet {
+			os.Exit(0)
 		}
+
+		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

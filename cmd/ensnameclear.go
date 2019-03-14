@@ -23,28 +23,23 @@ import (
 	ens "github.com/wealdtech/go-ens"
 )
 
-var ensNameSetAddress string
-var ensNameSetDomain string
+var ensNameClearAddress string
 
-// ensNameSetCmd represents the ens name set command
-var ensNameSetCmd = &cobra.Command{
-	Use:   "set",
-	Short: "Set the ENS name of an address",
-	Long: `Set the Ethereum Name Service (ENS) name for an address.  For example:
+// ensNameClearCmd represents the ens name set command
+var ensNameClearCmd = &cobra.Command{
+	Use:   "clear",
+	Short: "Clear the ENS name of an address",
+	Long: `Clear the Ethereum Name Service (ENS) name for an address.  For example:
 
-    ethereal ens name set --domain=enstest.eth --address=0x1234...5678 --passphrase="my secret passphrase"
+    ethereal ens name clear --address=0x1234...5678 --passphrase="my secret passphrase"
 
-The keystore for the address name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
+The keystore for the address must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
-In quiet mode this will return 0 if the transaction to set the name is sent successfully, otherwise 1.`,
+In quiet mode this will return 0 if the transaction to clear the name is sent successfully, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
-		cli.Assert(ensNameSetAddress != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, ensNameSetAddress)
-		cli.ErrCheck(err, quiet, "Failed to obtain address to set name; to clear the name use \"ens name clear\"")
-
-		cli.Assert(ensNameSetDomain != "", quiet, "--domain is required")
+		cli.Assert(ensNameClearDomain != "", quiet, "--domain is required")
 
 		// Obtain the reverse registrar
 		registrar, err := ens.ReverseRegistrarContract(client)
@@ -52,15 +47,13 @@ In quiet mode this will return 0 if the transaction to set the name is sent succ
 
 		opts, err := generateTxOpts(address)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		ensNameSetDomain = ens.Normalize(ensNameSetDomain)
-		signedTx, err := registrar.SetName(opts, ensNameSetDomain)
+		signedTx, err := registrar.SetName(opts, "")
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 		setupLogging()
 		log.WithFields(log.Fields{
 			"group":         "ens/name",
-			"command":       "set",
-			"domain":        ensDomain,
+			"command":       "clear",
 			"address":       address.Hex(),
 			"networkid":     chainID,
 			"gas":           signedTx.Gas(),
@@ -77,9 +70,8 @@ In quiet mode this will return 0 if the transaction to set the name is sent succ
 }
 
 func init() {
-	ensNameCmd.AddCommand(ensNameSetCmd)
-	ensNameFlags(ensNameSetCmd)
-	ensNameSetCmd.Flags().StringVar(&ensNameSetAddress, "address", "", "Address for which to set reverse resolution")
-	ensNameSetCmd.Flags().StringVar(&ensNameSetDomain, "domain", "", "The reverse resolution domain")
-	addTransactionFlags(ensNameSetCmd, "passphrase for the account that owns the address")
+	ensNameCmd.AddCommand(ensNameClearCmd)
+	ensNameFlags(ensNameClearCmd)
+	ensNameClearCmd.Flags().StringVar(&ensNameClearAddress, "address", "", "Address for which to clear reverse resolution")
+	addTransactionFlags(ensNameClearCmd, "passphrase for the account that owns the address")
 }

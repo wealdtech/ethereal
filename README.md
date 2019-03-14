@@ -36,7 +36,7 @@ If you use Parity and want to import a private key or a wallet from another syst
 
 If you use Geth and want to import a private key or a wallet from another system please see https://github.com/ethereum/go-ethereum/wiki/Managing-your-accounts
 
-When accessing local wallets a `--passphrase` option is required to unlock the account.
+When accessing local wallets a `--passphrase` option is required to unlock the account.  Note that this is not shown in the examples
 
 Alternatively you can use a private key directly with the `--privatekey` option, although be aware that this can leave your private key in command history.
 
@@ -268,29 +268,71 @@ $ ethereal contract storage --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8c
 
 DNS commands focus on interacting with the [EthDNS](https://medium.com/@jgm.orinoco/ethdns-an-ethereum-backend-for-the-domain-name-system-d52dabd904b3) system to allow DNS records to be stored on Ethereum.
 
+Getting and setting DNS records works on the basis of a DNS resource record set.  A resource record set is defined by the tuple (domain,name,resource record type) for example (ehdns.xyz,www.ethdns.xyz,A) would return all 'A' (address) records help for www.ethdns.xyz in the domain ethdns.xyz.
+
 #### `clear`
 
-`ethereal dns clear`
+`ethereal dns clear` clears all resource records for a DNS zone.
 
 #### `get`
 
-`ethereal dns get`
+`ethereal dns get` obtains a single resource record set for the (domain,name,resource record type) tuple.  For example:
+
+```sh
+$ ethereal dns get --domain=ethdns.xyz --name=www --resource=CNAME
+www.ethdns.xyz. 21600   IN      CNAME   ethdns.xyz.
+```
+
+Resource record sets on the root domain can be fetched by omitting the `name` argument. For example:
+
+```sh
+$ ethereal dns get --domain=ethdns.xyz --resource=NS
+ethdns.xyz.     43200   IN      NS      ns1.ethdns.xyz.
+ethdns.xyz.     43200   IN      NS      ns2.ethdns.xyz.
+```
 
 #### `set`
 
-`ethereal dns set`
+`ethereal dns set` sets a single resource record set for the
+
+```sh
+$ ethereal dns set --domain=ethdns.xyz --name=www --resource=CNAME --value="ethdns.xyz."
+```
+
+Resource record sets with multiple values can be supplied by separating them with "&&".  For example:
+
+```sh
+$ ethereal dns set --domain=ethdns.xyz --resource=NS --value="ns1.ethdns.xyz&&ns2.ethdns.xyz"
+```
 
 ### `ens` commands
 
 ENS commands focus on interacting with the [Ethereum Name Service](https://ens.domains/) contracts that address resources using human-readable names.
 
+#### `address clear`
+
+`ethereal ens address clear` removes an address associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens address clear --domain=mydomain.eth
+```
+
 #### `address get`
 
-`ethereal ens address set`
+`ethereal ens address get` gets the address associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens address get --domain=mydomain.eth
+0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
 
 #### `address set`
 
-`ethereal ens address set`
+`ethereal ens address set` sets the address associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens address set --domain=mydomain.eth --address=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
 
 #### `contenthash clear`
 
@@ -306,39 +348,131 @@ ENS commands focus on interacting with the [Ethereum Name Service](https://ens.d
 
 #### `info`
 
-`ethereal ens info`
+`ethereal ens info` obtains various information about a domain.  For example:
+
+```sh
+$ ethereal ens info --domain=mydomain.eth
+Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+Owned since 2017-05-22 15:40:25 +0100 BST
+Locked value is 0.01 Ether
+Highest bid was 0.01 Ether
+Deed owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 does not resolve to a domain
+```
+
+With the `--verbose` flag this will provide more information about the domain.  For example:
+
+```sh
+$ ethereal ens info --domain=mydomain.eth --verbose
+Normalised domain is mydomain.eth
+Top-level domain is eth
+Name hash is 0x2ae48b85f1a7764f6b87d040180e633b395ca2471ceadf46a0cd8e6cb91d7ed7
+Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+Owned since 2017-05-22 15:40:25 +0100 BST
+Locked value is 0.01 Ether
+Highest bid was 0.01 Ether
+Deed owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
+mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 does not resolve to a domain
+```
+
+#### `name clear`
+
+`ethereal ens name clear` clears the ENS reverse resolution name of an address.  For example:
+
+```sh
+$ ethereal ens name clear --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+```
 
 #### `name get`
 
-`ethereal ens name get`
+`ethereal ens name get` gets the ENS reverse resolution name of an address.  For example:
+
+```sh
+$ ethereal ens name get --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+mydomain.eth
+```
 
 #### `name set`
 
-`ethereal ens name set`
+`ethereal ens name set` sets the ENS reverse resolution name of an address.  For example:
+
+```sh
+$ ethereal ens name set --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 --name=mydomain.eth
+```
 
 #### `owner get`
 
-`ethereal ens owner get`
+`ethereal ens owner get` gets the owner of the domain.  For example:
+
+```sh
+$ ethereal ens owner get --domain=mydomain.eth
+0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
 
 #### `owner set`
 
-`ethereal ens owner set`
+`ethereal ens owner set` sets the owner of the domain.  For example:
+
+```sh
+$ ethereal ens owner set --domain=mydomain.eth --owner=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
+
+#### `resolver clear`
+
+`ethereal ens resolver clear` clears the resolver contract for the domain.  For example:
+
+```sh
+$ ethereal ens resolver clear --domain=mydomain.eth
+```
 
 #### `resolver get`
 
-`ethereal ens resolver get`
+`ethereal ens resolver get` gets the address of the resolver contract for the domain.  For example:
+
+```sh
+$ ethereal ens resolver get --domain=mydomain.eth
+0x5FfC014343cd971B7eb70732021E26C35B744cc4
+```
 
 #### `resolver set`
 
-`ethereal ens resolver set`
+`ethereal ens resolver set` sets the resolver contract for the domain.  If the standard public resolver (found at `resolver.eth`) is required then just the domain is required to set it.  For example:
+
+```sh
+$ ethereal ens resolver set --domain=mydomain.eth
+```
+
+If a non-standard resolver is required it can be supplied with the `--resolver` argument.  For example:
+
+```sh
+$ ethereal ens resolver set --domain=mydomain.eth --resolver=0x4d9b7D10e3a42E81659A90fDbaB51Bf19DD9bba7
+```
 
 #### `subdomain create`
 
-`ethereal ens subdomain create`
+`ethereal ens subdomain create` creates a subdomain of an existing ENS domain.  For example:
+
+```sh
+$ ethereal ens subdomain create --domain=mydomain.eth --subdomain=mysub
+```
+
+The subdomain will be owned by the domain owner.
 
 #### `transfer`
 
-`ethereal ens transfer`
+`ethereal ens transfer` transfers ownership of a name and its associated deed to another address.  For example:
+
+```sh
+$ ethereal ens transfer --domain=mydomain.eth --newowner=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
 
 ### `ether` commands
 
@@ -409,7 +543,7 @@ Note that for most of the examples below additional information can be obtained 
 You have submitted a transaction to the network but it's taking a long time to process because the gas price is too low.
 
 ```
-ethereal transaction up --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --gasprice=20GWei --passphrase=secret
+ethereal transaction up --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --gasprice=20GWei
 ```
 where `transaction` is the hash of the pending transactions, `gasprice` is the price you want to set for gas, and `passphrase` is the passphrase for the account that sent the transaction.
 
