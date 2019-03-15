@@ -579,19 +579,35 @@ With the `--verbose` flag this will provide more information about each block.  
 
 ```sh
 $ ethereal network tps --blocks=5 --verbose
-Block 7370160 processed 5 transactions in 3 seconds
-Block 7370159 processed 30 transactions in 5 seconds
-Block 7370158 processed 40 transactions in 8 seconds
-Block 7370157 processed 48 transactions in 9 seconds
-Block 7370156 processed 31 transactions in 2 seconds
+Block 7373054 processed 143 transactions in 13 seconds
+Block 7373053 processed 149 transactions in 36 seconds
+Block 7373052 processed 172 transactions in 7 seconds
+Block 7373051 processed 92 transactions in 6 seconds
+Block 7373050 processed 50 transactions in 5 seconds
+9.04
 ```
-
-5.70
-
 
 ### `registry` commands
 
-Ether commands focus on use of the ERC-1820 registry.
+Ether commands focus on use of the [ERC-1820](https://eips.ethereum.org/EIPS/eip-1820) registry.
+
+#### `implementer get`
+
+`ethereal registry implementer get` gets the contract that implements a specified interface for a specified address.  For example:
+
+```sh
+$ ethereal registry implementer get --interface="ERC777Token" --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF
+```
+
+#### `implementer set`
+
+`ethereal registry implementer set` sets the contract that implements a specified interface for a specified address.  For example:
+
+```sh
+$ ethereal registry implementer set --interface="ERC777Token" --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF --implementer=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF
+```
+
 
 ### `signature` commands
 

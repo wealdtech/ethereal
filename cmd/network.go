@@ -17,8 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var networkStr string
-
 // networkCmd represents the network command
 var networkCmd = &cobra.Command{
 	Use:   "network",
@@ -29,6 +27,6 @@ var networkCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(networkCmd)
 }
+
 func networkFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&networkStr, "network", "", "network hash or number")
 }

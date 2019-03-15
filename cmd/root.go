@@ -107,10 +107,10 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	}
 
 	if quiet && verbose {
-		cli.Err(quiet, "Cannot supply both quiet and verbose flags")
+		cli.Err(false, "Cannot supply both quiet and verbose flags")
 	}
 	if quiet && debug {
-		cli.Err(quiet, "Cannot supply both quiet and debug flags")
+		cli.Err(false, "Cannot supply both quiet and debug flags")
 	}
 
 	// ...lots of commands have (e.g.) 'passphrase' as an option but we want to
