@@ -192,6 +192,7 @@ func connect() error {
 			cli.Err(quiet, fmt.Sprintf("Unknown network %s", viper.GetString("network")))
 		}
 	}
+	cli.ErrCheck(err, quiet, "Failed to connect to network")
 	// Fetch the chain ID
 	ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 	defer cancel()
@@ -219,7 +220,17 @@ func setupLogging() {
 	cli.ErrCheck(err, quiet, "Failed to open log file")
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
+}
 
+// logTransaction logs a transaction
+func logTransaction(tx *types.Transaction, fields log.Fields) {
+	setupLogging()
+	log.WithFields(fields).WithFields(log.Fields{
+		"networkid":     chainID,
+		"gas":           tx.Gas(),
+		"gasprice":      tx.GasPrice().String(),
+		"transactionid": tx.Hash().Hex(),
+	}).Info("success")
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

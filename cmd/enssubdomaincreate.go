@@ -68,18 +68,12 @@ In quiet mode this will return 0 if the transaction to create the subdomain is s
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		signedTx, err := registryContract.SetSubnodeOwner(opts, ens.NameHash(ensDomain), ens.LabelHash(ensSubdomainCreateSubdomain), subdomainOwner)
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/subdomain",
-			"command":       "create",
-			"domain":        ensDomain,
-			"subdomain":     ensSubdomainCreateSubdomain,
-			"owner":         subdomainOwner.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":     "ens/subdomain",
+			"command":   "create",
+			"domain":    ensDomain,
+			"subdomain": ensSubdomainCreateSubdomain,
+		})
 
 		if quiet {
 			os.Exit(0)

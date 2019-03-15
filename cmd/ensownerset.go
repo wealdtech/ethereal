@@ -51,25 +51,20 @@ In quiet mode this will return 0 if the transaction to set the owner is sent suc
 
 		cli.Assert(ensOwnerSetOwnerStr != "", quiet, "--owner is required")
 		newOwnerAddress, err := ens.Resolve(client, ensOwnerSetOwnerStr)
-		cli.Assert(bytes.Compare(address.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Attempt to set owner to 0x00 disallowed")
+		cli.Assert(bytes.Compare(newOwnerAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Attempt to set owner to 0x00 disallowed")
 		cli.ErrCheck(err, quiet, "Failed to obtain new owner address")
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		tx, err := registryContract.SetOwner(opts, ens.NameHash(ensDomain), newOwnerAddress)
+		signedTx, err := registryContract.SetOwner(opts, ens.NameHash(ensDomain), newOwnerAddress)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/owner",
-			"command":       "set",
-			"domain":        ensDomain,
-			"owner":         newOwnerAddress.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "ens/owner",
+			"command": "set",
+			"domain":  ensDomain,
+			"owner":   newOwnerAddress.Hex(),
+		})
 
 		if quiet {
 			os.Exit(0)

@@ -48,16 +48,11 @@ In quiet mode this will return 0 if  the transaction to clear the implementer is
 		signedTx, err := registry.SetInterfaceImplementer(opts, registryImplementerInterface, &address, &ens.UnknownAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "registry/implementer",
-			"command":       "clear",
-			"address":       address.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "registry/implementer",
+			"command": "clear",
+			"address": address.Hex(),
+		})
 
 		if quiet {
 			os.Exit(0)

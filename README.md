@@ -293,7 +293,7 @@ ethdns.xyz.     43200   IN      NS      ns2.ethdns.xyz.
 
 #### `set`
 
-`ethereal dns set` sets a single resource record set for the
+`ethereal dns set` sets a single resource record set for the (domain,name,resource record type) tuple.  For example:
 
 ```sh
 $ ethereal dns set --domain=ethdns.xyz --name=www --resource=CNAME --value="ethdns.xyz."
@@ -480,35 +480,114 @@ Ether commands focus on information about and movement of Ether.
 
 #### `balance`
 
-`ethereal ether balance`
+`ethereal ether balance` provides the Ether balance of an address.  For example:
+
+```sh
+$ ethereal ether balance --address=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+5189.916425903288395771 Ether
+```
+
+If required the balance can be supplied in Wei with the `--wei` option.  For example:
+
+```sh
+$ ethereal ether balance --address=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf --wei
+5189916425903288395771
+```
 
 #### `sweep`
 
-`ethereal ether sweep`
+`ethereal ether sweep` sweeps all Ether from one address to another, leaving 0 behind.  For example:
+
+```sh
+$ ethereal ether sweep --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf --to=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
 
 #### `transfer`
 
-`ethereal ether transfer`
+`ethereal ether transfer` transfers a set amount of Ether from one address to another.  For example:
+
+```sh
+$ ethereal ether transfer --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf --to=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF --amount="1.2 Ether"
+```
 
 ### `gas` commands
 
 #### `price`
 
-`ethereal gas price`
+`ethereal gas price` calaculates a gas price from historical information that should allow a transaction to be included within a certain number of blocks.  For example:
+
+```sh
+TODO
+```
 
 ### `network` commands
 
 #### `blocktime`
 
-`ethereal network blocktime`
+`ethereal network blocktime` calculates the average blocktime over a number of blocks.  For example:
 
+```sh
+$ ethereal network blocktime --blocks=30
+11.76s
+```
+
+Instead of using `--blocks` it is possible to specify the time over which to calculate the blocktime.  For example:
+
+```sh
+$ ethereal network blocktime --time=24h
+11.52s
+```
+
+With the `--verbose` flag this will provide more information about the start and end block for the calculation.  For example:
+
+```sh
+$ ethereal network blocktime --time=2h --verbose
+Block 7370164 mined at 2019-03-14 23:48:53 +0000 GMT
+Block 7369614 mined at 2019-03-14 21:49:28 +0000 GMT
+13.02s
+```
 #### `gps`
 
-`ethereal network gps`
+`ethereal network gps` provides a gas-per-second metric for the Ethereum network over a number of blocks.  For example:
+
+```sh
+$ ethereal network gps --blocks=20
+339950
+```
+
+With the `--verbose` flag this will provide more information about each block.  For example:
+
+```sh
+$ ethereal network gps --blocks=5 --verbose
+Block 7370156 used 7407093 gas in 2 seconds
+Block 7370155 used 6831267 gas in 9 seconds
+Block 7370154 used 7787059 gas in 2 seconds
+Block 7370153 used 219751 gas in 4 seconds
+Block 7370152 used 1113156 gas in 6 seconds
+1015579
+```
 
 #### `tps`
 
-`ethereal network tps`
+`ethereal network tps` provides a transactions-per-second metric for the Ethereum network over a number of blocks.  For example:
+
+```sh
+$ ethereal network tps --blocks=20
+4.72
+```
+With the `--verbose` flag this will provide more information about each block.  For example:
+
+```sh
+$ ethereal network tps --blocks=5 --verbose
+Block 7370160 processed 5 transactions in 3 seconds
+Block 7370159 processed 30 transactions in 5 seconds
+Block 7370158 processed 40 transactions in 8 seconds
+Block 7370157 processed 48 transactions in 9 seconds
+Block 7370156 processed 31 transactions in 2 seconds
+```
+
+5.70
+
 
 ### `registry` commands
 

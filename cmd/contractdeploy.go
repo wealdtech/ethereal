@@ -93,18 +93,13 @@ In quiet mode this will return 0 if the contract creation transaction is success
 				err = client.SendTransaction(ctx, signedTx)
 				cli.ErrCheck(err, quiet, "Failed to send contract deployment transaction")
 
-				setupLogging()
-				log.WithFields(log.Fields{
-					"group":         "contract",
-					"command":       "deploy",
-					"data":          "0x" + hex.EncodeToString(contract.Binary),
-					"from":          fromAddress.Hex(),
-					"amount":        amount.String(),
-					"networkid":     chainID,
-					"gas":           signedTx.Gas(),
-					"gasprice":      signedTx.GasPrice().String(),
-					"transactionid": signedTx.Hash().Hex(),
-				}).Info("success")
+				logTransaction(signedTx, log.Fields{
+					"group":   "contract",
+					"command": "deploy",
+					"data":    "0x" + hex.EncodeToString(contract.Binary),
+					"from":    fromAddress.Hex(),
+					"amount":  amount.String(),
+				})
 
 				if !quiet {
 					fmt.Println(signedTx.Hash().Hex())

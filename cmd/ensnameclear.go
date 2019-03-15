@@ -39,7 +39,9 @@ In quiet mode this will return 0 if the transaction to clear the name is sent su
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
-		cli.Assert(ensNameClearDomain != "", quiet, "--domain is required")
+		cli.Assert(ensNameClearAddress != "", quiet, "--address is required")
+		address, err := ens.Resolve(client, ensNameClearAddress)
+		cli.ErrCheck(err, quiet, "Failed to obtain address to clear name")
 
 		// Obtain the reverse registrar
 		registrar, err := ens.ReverseRegistrarContract(client)
@@ -50,16 +52,11 @@ In quiet mode this will return 0 if the transaction to clear the name is sent su
 		signedTx, err := registrar.SetName(opts, "")
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/name",
-			"command":       "clear",
-			"address":       address.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "ens/name",
+			"command": "clear",
+			"address": address.Hex(),
+		})
 
 		if quiet {
 			os.Exit(0)

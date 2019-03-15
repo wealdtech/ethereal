@@ -81,19 +81,14 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "token",
-				"command":       "approve",
-				"token":         tokenStr,
-				"holder":        holderAddress.Hex(),
-				"spender":       spenderAddress.Hex(),
-				"amount":        amount.String(),
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			logTransaction(signedTx, log.Fields{
+				"group":   "token",
+				"command": "approve",
+				"token":   tokenStr,
+				"holder":  holderAddress.Hex(),
+				"spender": spenderAddress.Hex(),
+				"amount":  amount.String(),
+			})
 
 			if quiet {
 				os.Exit(0)

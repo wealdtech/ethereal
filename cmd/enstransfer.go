@@ -65,16 +65,19 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		domain, err := ens.DomainPart(ensDomain, 1)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("failed to parse domain %s", ensDomain))
-		tx, err := registrarContract.Transfer(opts, ens.LabelHash(domain), newOwnerAddress)
+		signedTx, err := registrarContract.Transfer(opts, ens.LabelHash(domain), newOwnerAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
+
+		logTransaction(signedTx, log.Fields{
+			"group":    "ens",
+			"command":  "transfer",
+			"domain":   ensDomain,
+			"newowner": newOwnerAddress.Hex(),
+		})
+
 		if !quiet {
-			fmt.Println(tx.Hash().Hex())
+			fmt.Println(signedTx.Hash().Hex())
 		}
-		setupLogging()
-		log.WithFields(log.Fields{"transactionid": tx.Hash().Hex(),
-			"domain":    ensDomain,
-			"networkid": chainID,
-			"newowner":  newOwnerAddress.Hex()}).Info("ENS transfer")
 	},
 }
 

@@ -77,17 +77,11 @@ In quiet mode this will return 0 if the clear transaction is successfully sent, 
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "dns",
-				"command":       "clear",
-				"domain":        dnsDomain,
-				"owner":         domainOwner,
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			logTransaction(signedTx, log.Fields{
+				"group":   "dns",
+				"command": "clear",
+				"domain":  dnsDomain,
+			})
 
 			if quiet {
 				os.Exit(0)

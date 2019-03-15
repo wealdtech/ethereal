@@ -56,17 +56,12 @@ In quiet mode this will return 0 if the transaction to set the name is sent succ
 		signedTx, err := registrar.SetName(opts, ensNameSetDomain)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/name",
-			"command":       "set",
-			"domain":        ensDomain,
-			"address":       address.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "ens/name",
+			"command": "set",
+			"domain":  ensDomain,
+			"address": address.Hex(),
+		})
 
 		if quiet {
 			os.Exit(0)

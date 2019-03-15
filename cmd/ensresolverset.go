@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -52,6 +53,7 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		// Set the resolver from either command-line or default
+		var resolverAddress common.Address
 		if ensResolverSetResolverStr == "" {
 			resolverAddress, err = ens.PublicResolver(client)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("No public resolver for network id %v", chainID))
@@ -63,20 +65,15 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		tx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), resolverAddress)
+		signedTx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), resolverAddress)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/resolver",
-			"command":       "set",
-			"domain":        ensDomain,
-			"resolver":      resolverAddress.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":    "ens/resolver",
+			"command":  "set",
+			"domain":   ensDomain,
+			"resolver": resolverAddress.Hex(),
+		})
 
 		if quiet {
 			os.Exit(0)

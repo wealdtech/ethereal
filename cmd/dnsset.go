@@ -140,21 +140,15 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 		} else {
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "dns",
-				"command":       "set",
-				"resource":      dnsResource,
-				"domain":        dnsDomain,
-				"name":          dnsName,
-				"value":         dnsSetValue,
-				"ttl":           dnsSetTTL,
-				"owner":         domainOwner,
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			logTransaction(signedTx, log.Fields{
+				"group":    "dns",
+				"command":  "set",
+				"resource": dnsResource,
+				"domain":   dnsDomain,
+				"name":     dnsName,
+				"value":    dnsSetValue,
+				"ttl":      dnsSetTTL,
+			})
 
 			if quiet {
 				os.Exit(0)

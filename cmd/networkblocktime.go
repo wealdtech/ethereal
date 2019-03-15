@@ -119,7 +119,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 		}
 
 		gap := lastBlockTime.Sub(oldBlockTime) / time.Duration(new(big.Int).Sub(lastBlockNumber, oldBlockNumber).Int64())
-		fmt.Printf("%v\n", gap)
+		fmt.Printf("%v\n", (gap/10000000)*10000000)
 	},
 }
 

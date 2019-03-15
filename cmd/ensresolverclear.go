@@ -49,19 +49,14 @@ In quiet mode this will return 0 if the transaction to clear the resolver is sen
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
-		tx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), ens.UnknownAddress)
+		signedTx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), ens.UnknownAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/resolver",
-			"command":       "clear",
-			"domain":        ensDomain,
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "ens/resolver",
+			"command": "clear",
+			"domain":  ensDomain,
+		})
 
 		if quiet {
 			os.Exit(0)

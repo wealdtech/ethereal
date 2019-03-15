@@ -87,19 +87,14 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send contract method transaction")
 
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "contract",
-				"command":       "send",
-				"data":          "0x" + hex.EncodeToString(data),
-				"from":          fromAddress.Hex(),
-				"contract":      contractAddress.Hex(),
-				"amount":        amount.String(),
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			logTransaction(signedTx, log.Fields{
+				"group":    "contract",
+				"command":  "send",
+				"data":     "0x" + hex.EncodeToString(data),
+				"from":     fromAddress.Hex(),
+				"contract": contractAddress.Hex(),
+				"amount":   amount.String(),
+			})
 
 			if quiet {
 				os.Exit(0)

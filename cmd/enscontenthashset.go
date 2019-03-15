@@ -68,17 +68,12 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 		signedTx, err := resolver.SetContenthash(opts, ens.NameHash(ensDomain), multiaddr.Bytes())
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/contenthash",
-			"command":       "set",
-			"domain":        ensDomain,
-			"multiaddr":     multiaddr.String(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":     "ens/contenthash",
+			"command":   "set",
+			"domain":    ensDomain,
+			"multiaddr": multiaddr.String(),
+		})
 
 		if quiet {
 			os.Exit(0)

@@ -164,19 +164,14 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 						"transactionid": signedTx.Hash().Hex(),
 					}).Info("success")
 				} else {
-					setupLogging()
-					log.WithFields(log.Fields{
-						"group":         "transaction",
-						"command":       "send",
-						"from":          fromAddress.Hex(),
-						"to":            toAddress.Hex(),
-						"amount":        amount.String(),
-						"data":          hex.EncodeToString(data),
-						"networkid":     chainID,
-						"gas":           signedTx.Gas(),
-						"gasprice":      signedTx.GasPrice().String(),
-						"transactionid": signedTx.Hash().Hex(),
-					}).Info("success")
+					logTransaction(signedTx, log.Fields{
+						"group":   "transaction",
+						"command": "send",
+						"from":    fromAddress.Hex(),
+						"to":      toAddress.Hex(),
+						"amount":  amount.String(),
+						"data":    hex.EncodeToString(data),
+					})
 				}
 
 				if !quiet {

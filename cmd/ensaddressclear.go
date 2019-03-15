@@ -56,16 +56,11 @@ In quiet mode this will return 0 if the transaction to clear the address is sent
 		signedTx, err := resolver.SetAddr(opts, ens.NameHash(ensDomain), ens.UnknownAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "ens/address",
-			"command":       "clear",
-			"domain":        ensDomain,
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "ens/address",
+			"command": "clear",
+			"domain":  ensDomain,
+		})
 
 		if quiet {
 			os.Exit(0)

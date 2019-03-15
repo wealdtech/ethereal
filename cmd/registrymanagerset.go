@@ -61,17 +61,12 @@ In quiet mode this will return 0 if  the transaction to set the manager is sent 
 		signedTx, err := registry.SetManager(opts, &address, &manager)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		setupLogging()
-		log.WithFields(log.Fields{
-			"group":         "registry/manager",
-			"command":       "set",
-			"address":       address.Hex(),
-			"manager":       manager.Hex(),
-			"networkid":     chainID,
-			"gas":           signedTx.Gas(),
-			"gasprice":      signedTx.GasPrice().String(),
-			"transactionid": signedTx.Hash().Hex(),
-		}).Info("success")
+		logTransaction(signedTx, log.Fields{
+			"group":   "registry/manager",
+			"command": "set",
+			"address": address.Hex(),
+			"manager": manager.Hex(),
+		})
 
 		if quiet {
 			os.Exit(0)

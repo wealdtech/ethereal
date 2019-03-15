@@ -87,18 +87,13 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "ether",
-				"command":       "transfer",
-				"from":          fromAddress.Hex(),
-				"to":            toAddress.Hex(),
-				"amount":        amount.String(),
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			logTransaction(signedTx, log.Fields{
+				"group":   "ether",
+				"command": "transfer",
+				"from":    fromAddress.Hex(),
+				"to":      toAddress.Hex(),
+				"amount":  amount.String(),
+			})
 
 			if quiet {
 				os.Exit(0)
