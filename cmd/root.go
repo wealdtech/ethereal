@@ -411,7 +411,7 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 	if viper.GetString("passphrase") != "" {
 		var wallet accounts.Wallet
 		var account *accounts.Account
-		wallet, account, err = obtainWalletAndAccount(sender)
+		wallet, account, err = cli.ObtainWalletAndAccount(chainID, sender)
 		if err != nil {
 			return
 		}
@@ -446,19 +446,11 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 	return
 }
 
-func obtainWalletAndAccount(address common.Address) (wallet accounts.Wallet, account *accounts.Account, err error) {
-	wallet, err = cli.ObtainWallet(chainID, address)
-	if err == nil {
-		account, err = cli.ObtainAccount(&wallet, &address, viper.GetString("passphrase"))
-	}
-	return wallet, account, err
-}
-
 func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *types.Transaction, err error) {
 	if viper.GetString("passphrase") != "" {
 		if wallet == nil {
 			// Fetch the wallet and account for the sender
-			wallet, account, err = obtainWalletAndAccount(signer)
+			wallet, account, err = cli.ObtainWalletAndAccount(chainID, signer)
 			if err != nil {
 				return
 			}

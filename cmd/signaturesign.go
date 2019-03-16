@@ -14,19 +14,21 @@
 package cmd
 
 import (
-	"errors"
+	"crypto/ecdsa"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var signatureSignSigner string
 var signatureSignPrivateKey string
+var signatureSignPassphrase string
 
 // signatureSignCmd represents the signature sign command
 var signatureSignCmd = &cobra.Command{
@@ -58,29 +60,26 @@ provided below:
   - the message is signed with the provided account or private key
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(dataStr != "", quiet, "--data is required")
+		cli.Assert(signatureDataStr != "", quiet, "--data is required")
 
 		dataHash := generateDataHash()
 
 		// Sign the hash
 		var signature []byte
-		if viper.GetString("passphrase") != "" {
-			cli.Assert(false, quiet, "passphrase not supported")
-			//			if wallet == nil {
-			//				// Fetch the wallet and account for the sender
-			//				wallet, account, err = obtainWalletAndAccount(signer)
-			//				if err != nil {
-			//					return
-			//				}
-			//			}
-		} else if viper.GetString("privatekey") != "" {
-			key, err := crypto.HexToECDSA(strings.TrimPrefix(viper.GetString("privatekey"), "0x"))
+		var key *ecdsa.PrivateKey
+		var err error
+		if signatureSignPassphrase != "" {
+			signer := common.HexToAddress(signatureSignSigner)
+			key, err = util.PrivateKeyForAccount(chainID, signer, signatureSignPassphrase)
+			cli.ErrCheck(err, quiet, "Invalid account or passphrse")
+		} else if signatureSignPrivateKey != "" {
+			key, err = crypto.HexToECDSA(strings.TrimPrefix(signatureSignPrivateKey, "0x"))
 			cli.ErrCheck(err, quiet, "Invalid private key")
-			signature, err = crypto.Sign(dataHash, key)
-			cli.ErrCheck(err, quiet, "Failed to sign data")
 		} else {
-			err = errors.New("no passphrase or private key; cannot sign")
+			cli.Err(quiet, fmt.Sprintf("no passphrase or private key; cannot sign"))
 		}
+		signature, err = crypto.Sign(dataHash, key)
+		cli.ErrCheck(err, quiet, "Failed to sign data")
 
 		if quiet {
 			os.Exit(0)
@@ -95,5 +94,6 @@ func init() {
 	signatureCmd.AddCommand(signatureSignCmd)
 	signatureFlags(signatureSignCmd)
 	signatureSignCmd.Flags().StringVar(&signatureSignSigner, "signer", "", "Address of the account to sign the data")
+	signatureSignCmd.Flags().StringVar(&signatureSignPassphrase, "passphrase", "", "Passphrase of the account to sign the data")
 	signatureSignCmd.Flags().StringVar(&signatureSignPrivateKey, "privatekey", "", "Private key to sign the data")
 }

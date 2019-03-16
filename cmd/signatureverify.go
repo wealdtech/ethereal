@@ -14,17 +14,19 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/hex"
-	"fmt"
 	"os"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 )
 
 var signatureVerifySignature string
+var signatureVerifySigner string
 
 // signatureVerifyCmd represents the signature verify command
 var signatureVerifyCmd = &cobra.Command{
@@ -36,7 +38,8 @@ var signatureVerifyCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(dataStr != "", quiet, "--data is required")
+		cli.Assert(signatureDataStr != "", quiet, "--data is required")
+		cli.Assert(signatureVerifySigner != "", quiet, "--signer is required")
 
 		dataHash := generateDataHash()
 
@@ -46,13 +49,18 @@ In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 		key, err := crypto.SigToPub(dataHash, []byte(signature))
 		cli.ErrCheck(err, quiet, "Failed to signer signature")
 		cli.Assert(key != nil, quiet, "Invalid signature")
-		address := crypto.PubkeyToAddress(*key)
+		signer := crypto.PubkeyToAddress(*key)
 
-		if quiet {
+		verifySigner := common.HexToAddress(signatureVerifySigner)
+
+		verified := bytes.Compare(signer.Bytes(), verifySigner.Bytes()) == 0
+		if verified {
+			outputIf(!quiet, "Verified")
 			os.Exit(0)
+		} else {
+			outputIf(!quiet, "Not verified")
+			os.Exit(1)
 		}
-
-		fmt.Printf("%x\n", address)
 	},
 }
 
@@ -60,5 +68,6 @@ func init() {
 	offlineCmds["signature:verify"] = true
 	signatureCmd.AddCommand(signatureVerifyCmd)
 	signatureFlags(signatureVerifyCmd)
-	signatureVerifyCmd.Flags().StringVar(&signatureVerifySignature, "signature", "", "Hex string signature from which to obtain the signer")
+	signatureVerifyCmd.Flags().StringVar(&signatureVerifySignature, "signature", "", "Hex string signature from which to verify the signer")
+	signatureVerifyCmd.Flags().StringVar(&signatureVerifySigner, "signer", "", "Address of the signer")
 }

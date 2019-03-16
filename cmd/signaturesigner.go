@@ -36,7 +36,7 @@ var signatureSignerCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the signature provides a valid signer, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(dataStr != "", quiet, "--data is required")
+		cli.Assert(signatureDataStr != "", quiet, "--data is required")
 
 		dataHash := generateDataHash()
 
@@ -52,7 +52,7 @@ In quiet mode this will return 0 if the signature provides a valid signer, other
 			os.Exit(0)
 		}
 
-		fmt.Printf("%x\n", address)
+		fmt.Printf("%s\n", address.Hex())
 	},
 }
 

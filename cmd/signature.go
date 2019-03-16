@@ -26,9 +26,9 @@ import (
 	"github.com/wealdtech/ethereal/util/funcparser"
 )
 
-var dataStr string
+var signatureDataStr string
 var signatureTypes string
-var signatureHash string
+var signatureNoHash bool
 var signaturePacked bool
 
 // signatureCmd represents the signature command
@@ -40,22 +40,20 @@ var signatureCmd = &cobra.Command{
 }
 
 func generateDataHash() []byte {
-	hashData := false
 	var data []byte
 	if signatureTypes == "" {
 		// No types; might be a hex string or a non-hex string
-		bytes, err := hex.DecodeString(strings.TrimPrefix(dataStr, "0x"))
+		bytes, err := hex.DecodeString(strings.TrimPrefix(signatureDataStr, "0x"))
 		if err != nil {
 			// Not a hex string; keep it as a normal string
-			data = []byte(dataStr)
+			data = []byte(signatureDataStr)
 		} else {
 			// Is a hex string
 			data = bytes
-			hashData = true
 		}
 	} else {
 		// Types are present; Ethereum types
-		args, vals := argumentsAndValues(dataStr, signatureTypes)
+		args, vals := argumentsAndValues(signatureDataStr, signatureTypes)
 		var err error
 		if signaturePacked {
 			hexStr := ""
@@ -87,15 +85,11 @@ func generateDataHash() []byte {
 			data, err = args.Pack(vals...)
 			cli.ErrCheck(err, quiet, "Failed to pack data")
 		}
-		hashData = true
 	}
 	outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
-	// See if user has over-ridden default hash selection
-	if signatureHash != "" {
-		hashData = strings.ToLower(signatureHash) == "true"
-	}
-	if hashData {
+	// Hash if required
+	if !signatureNoHash {
 		// Hash the data
 		data = crypto.Keccak256(data)
 		outputIf(verbose, fmt.Sprintf("Hashed data is %x", data))
@@ -142,8 +136,8 @@ func init() {
 }
 
 func signatureFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&dataStr, "data", "", "the data")
+	cmd.Flags().StringVar(&signatureDataStr, "data", "", "the data")
 	cmd.Flags().StringVar(&signatureTypes, "types", "", "Comma-separated list of data types")
-	cmd.Flags().StringVar(&signatureHash, "hash", "", "hash the message prior to signing (default false for text messages, true for other types)")
+	cmd.Flags().BoolVar(&signatureNoHash, "nohash", false, "do not hash the message prior to signing")
 	cmd.Flags().BoolVar(&signaturePacked, "packed", false, "use Solidity packed encoding")
 }

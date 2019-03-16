@@ -608,10 +608,81 @@ $ ethereal registry implementer get --interface="ERC777Token" --address=0x2B5AD5
 $ ethereal registry implementer set --interface="ERC777Token" --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF --implementer=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF
 ```
 
+#### `manager get`
+
+`ethereal registry manager get` gets the manager for a specified address.  For example:
+
+```sh
+$ ethereal registry manager get --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+```
+
+Note that if there is no manager set for the address then this will return the provided address.  For example:
+
+```sh
+$ ethereal registry manager get --address=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
+
+### `manager set`
+
+`ethereal registry manager set` sets the manager for a specified address.  For example:
+
+```sh
+$ ethereal registry manager set --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF --manager=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+```
 
 ### `signature` commands
 
 Signature commands focus on generation and verification of signatures within Ethereum.
+
+### `signature sign`
+
+`ethereal signature sign` signs provided data.  For example:
+
+```sh
+$ ethereal signature sign --data="false,2,0x5FfC014343cd971B7eb70732021E26C35B744cc4" --types="bool,uint256,address" --signer=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+08140077a94642919041503caf5cc1795b23ecf256578655de186858540a45ba44fddebfb97ba6f74d12611263a97174f5ac1ee9db30a79fe16c9a2346ef23b301
+```
+
+There are two types of information that can be signed: text and data.  A text string is a simple value for data, for example:
+
+```sh
+$ ethereal signature sign --data="Hello, world" --signer=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+fdb006b0359c64152f36022662b3ecd2c315e88c937444f337dabf18208cc111063b100ada7dc86647a8337d50c819cac7e04f90f1b2ea509ccd3a0ae82e7de700
+```
+
+Data is a set of comma-separated values with types supplied in the `--types` argument.  In this situation the data is turned in to an [ABI-encoded](https://solidity.readthedocs.io/en/develop/abi-spec.html) value; by default the data is encoded in full but can be encoded packed with the `--packed` argument.
+
+By default the data is hashed prior to being signed; this can be overridden by supplying the `--nohash` argument.  For example:
+
+```sh
+$ ethereal signature sign --data="Hello, world" --nohash --signer=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+16f7a3ddacbffa12a1c416c72b4d3aed54fe605490c48bbca1cdf6ff2b3c3b122102a40374587a963968fae5cf75dda47f97f8f2e5992144edd59b1e7827821500
+```
+
+After hashing but before being signed the data has the standard Ethereum header added to it.  This is the data prepended with the standard Ethereum signing message of "\\x19Ethereum Signed Message:\n" followed by the number of bytes in the data and finally the data itself, for example in the prior example this would be "\\x19Ethereum Signed Message:\n12Hello, world".
+
+### `signature signer`
+
+`ethereal signature signer` obtains the address of the signer given a signature and the related data.  For example:
+
+```sh
+$ ethereal signature signer --data="Hello, world" --nohash --signature=16f7a3ddacbffa12a1c416c72b4d3aed54fe605490c48bbca1cdf6ff2b3c3b122102a40374587a963968fae5cf75dda47f97f8f2e5992144edd59b1e7827821500
+0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
+
+The same rules apply to `ethereal signature signer` as those in `ethereal signature sign` above.
+
+### `signature verify`
+
+`ethereal signature verify` verifies the address of the signer given an address, signature and the related data.  For example:
+
+```sh
+$ ethereal signature verify --data="false,2,0x5FfC014343cd971B7eb70732021E26C35B744cc4" --types="bool,uint256,address" --signature=08140077a94642919041503caf5cc1795b23ecf256578655de186858540a45ba44fddebfb97ba6f74d12611263a97174f5ac1ee9db30a79fe16c9a2346ef23b301 --signer=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+```
+
+The same rules apply to `ethereal signature verify` as those in `ethereal signature sign` above.
 
 ### `token` commands
 

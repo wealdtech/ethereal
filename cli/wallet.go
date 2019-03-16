@@ -56,6 +56,16 @@ func ObtainWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	return wallets, nil
 }
 
+// ObtainWalletAndAccount obtains the wallet and account for an address
+func ObtainWalletAndAccount(chainID *big.Int, address common.Address) (accounts.Wallet, *accounts.Account, error) {
+	var account *accounts.Account
+	wallet, err := ObtainWallet(chainID, address)
+	if err == nil {
+		account, err = ObtainAccount(&wallet, &address, viper.GetString("passphrase"))
+	}
+	return wallet, account, err
+}
+
 // ObtainWallet fetches the wallet for a given address
 func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
 	wallet, err := obtainGethWallet(chainID, address)
