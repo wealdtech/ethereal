@@ -49,16 +49,14 @@ In quiet mode this will return 0 if  the transaction to clear the implementer is
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		logTransaction(signedTx, log.Fields{
-			"group":   "registry/implementer",
-			"command": "clear",
-			"address": address.Hex(),
+			"group":           "registry/implementer",
+			"command":         "clear",
+			"registryaddress": address.Hex(),
 		})
 
-		if quiet {
-			os.Exit(0)
+		if !quiet {
+			fmt.Printf("%s\n", signedTx.Hash().Hex())
 		}
-
-		fmt.Println(signedTx.Hash().Hex())
 		os.Exit(0)
 	},
 }

@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -69,17 +69,16 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		logTransaction(signedTx, log.Fields{
-			"group":     "ens/contenthash",
-			"command":   "set",
-			"domain":    ensDomain,
-			"multiaddr": multiaddr.String(),
+			"group":        "ens/contenthash",
+			"command":      "set",
+			"ensdomain":    ensDomain,
+			"ensmultiaddr": multiaddr.String(),
 		})
 
-		if quiet {
-			os.Exit(0)
+		if !quiet {
+			fmt.Printf("%s\n", signedTx.Hash().Hex())
 		}
-
-		fmt.Println(signedTx.Hash().Hex())
+		os.Exit(0)
 	},
 }
 

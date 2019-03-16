@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -53,16 +53,16 @@ In quiet mode this will return 0 if the transaction to clear the name is sent su
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 		logTransaction(signedTx, log.Fields{
-			"group":   "ens/name",
-			"command": "clear",
-			"address": address.Hex(),
+			"group":      "ens/name",
+			"command":    "clear",
+			"ensaddress": address.Hex(),
 		})
 
-		if quiet {
-			os.Exit(0)
+		if !quiet {
+			fmt.Printf("%s\n", signedTx.Hash().Hex())
 		}
+		os.Exit(0)
 
-		fmt.Println(signedTx.Hash().Hex())
 	},
 }
 

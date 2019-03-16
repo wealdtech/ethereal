@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -41,7 +41,7 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 					foundAccounts = true
 					if !quiet {
 						if !verbose {
-							fmt.Println(account.Address.Hex())
+							fmt.Printf(account.Address.Hex())
 						} else {
 							fmt.Printf("Location:\t%s\n", account.URL)
 							fmt.Printf("Address:\t%s\n", account.Address.Hex())

@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -66,12 +66,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		fmt.Printf("Block time:\t\t%v (%v)\n", block.Time(), time.Unix(block.Time().Int64(), 0))
 		if verbose {
 			coinbase := block.Coinbase()
-			coinbaseName, err := ens.ReverseResolve(client, &coinbase)
-			if err == nil {
-				fmt.Printf("Mined by:\t\t%v (%s)\n", coinbaseName, block.Coinbase().Hex())
-			} else {
-				fmt.Printf("Mined by:\t\t%v\n", block.Coinbase().Hex())
-			}
+			fmt.Printf("Mined by:\t\t%s\n", ens.Format(client, &coinbase))
 		}
 		outputIf(verbose, fmt.Sprintf("Extra:\t\t\t%s", block.Extra()))
 		outputIf(verbose, fmt.Sprintf("Difficulty:\t\t%v", block.Difficulty()))

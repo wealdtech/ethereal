@@ -16,6 +16,7 @@ package cmd
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"math/big"
@@ -225,12 +226,24 @@ func setupLogging() {
 // logTransaction logs a transaction
 func logTransaction(tx *types.Transaction, fields log.Fields) {
 	setupLogging()
-	log.WithFields(fields).WithFields(log.Fields{
+
+	txFields := log.Fields{
 		"networkid":     chainID,
+		"transactionid": tx.Hash().Hex(),
 		"gas":           tx.Gas(),
 		"gasprice":      tx.GasPrice().String(),
-		"transactionid": tx.Hash().Hex(),
-	}).Info("success")
+		"value":         tx.Value().String(),
+		"data":          hex.EncodeToString(tx.Data()),
+	}
+	fromAddress, err := txFrom(tx)
+	if err == nil {
+		txFields["from"] = fromAddress.Hex()
+	}
+	if tx.To() != nil {
+		txFields["to"] = tx.To().Hex()
+	}
+
+	log.WithFields(fields).WithFields(txFields).Info("transaction submitted")
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

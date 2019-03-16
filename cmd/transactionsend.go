@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -64,29 +64,10 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-			fromAddress, err := txFrom(signedTx)
-			cli.ErrCheck(err, quiet, "Failed to obtain from address")
-
-			// Contract creations have a nil To() so check for this
-			to := signedTx.To()
-			if to == nil {
-				tmp := common.HexToAddress("00")
-				to = &tmp
-			}
-
-			setupLogging()
-			log.WithFields(log.Fields{
-				"group":         "transaction",
-				"command":       "send",
-				"from":          fromAddress.Hex(),
-				"to":            to.Hex(),
-				"amount":        signedTx.Value().String(),
-				"data":          hex.EncodeToString(signedTx.Data()),
-				"networkid":     chainID,
-				"gas":           signedTx.Gas(),
-				"gasprice":      signedTx.GasPrice().String(),
-				"transactionid": signedTx.Hash().Hex(),
-			}).Info("success")
+			logTransaction(signedTx, log.Fields{
+				"group":   "transaction",
+				"command": "send",
+			})
 
 			if !quiet {
 				fmt.Println(signedTx.Hash().Hex())
@@ -117,11 +98,13 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		}
 
 		// Obtain the balance of the address
-		ctx, cancel := localContext()
-		defer cancel()
-		balance, err := client.BalanceAt(ctx, fromAddress, nil)
-		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
+		if client != nil {
+			ctx, cancel := localContext()
+			defer cancel()
+			balance, err := client.BalanceAt(ctx, fromAddress, nil)
+			cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
+			cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
+		}
 
 		// Turn the data string in to hex
 		transactionSendData = strings.TrimPrefix(transactionSendData, "0x")
@@ -143,41 +126,23 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 					signedTx.EncodeRLP(buf)
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
-			} else {
-				ctx, cancel := localContext()
-				defer cancel()
-				err = client.SendTransaction(ctx, signedTx)
-				cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-				if toAddress == nil {
-					setupLogging()
-					log.WithFields(log.Fields{
-						"group":         "transaction",
-						"command":       "send",
-						"from":          fromAddress.Hex(),
-						"to":            toAddress.Hex(),
-						"amount":        amount.String(),
-						"data":          hex.EncodeToString(data),
-						"networkid":     chainID,
-						"gas":           signedTx.Gas(),
-						"gasprice":      signedTx.GasPrice().String(),
-						"transactionid": signedTx.Hash().Hex(),
-					}).Info("success")
-				} else {
-					logTransaction(signedTx, log.Fields{
-						"group":   "transaction",
-						"command": "send",
-						"from":    fromAddress.Hex(),
-						"to":      toAddress.Hex(),
-						"amount":  amount.String(),
-						"data":    hex.EncodeToString(data),
-					})
-				}
-
-				if !quiet {
-					fmt.Println(signedTx.Hash().Hex())
-				}
+				os.Exit(0)
 			}
+
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+			logTransaction(signedTx, log.Fields{
+				"group":   "transaction",
+				"command": "send",
+			})
+
+			if !quiet {
+				fmt.Printf("%s\n", signedTx.Hash().Hex())
+			}
+			os.Exit(0)
 		}
 	},
 }
@@ -189,6 +154,6 @@ func init() {
 	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
 	transactionSendCmd.Flags().StringVar(&transactionSendRaw, "raw", "", "raw transaction (as a hex string).  This overrides all other options")
-	transactionSendCmd.Flags().IntVar(&transactionSendRepeat, "repeat", 1, "Number of time to repeat")
+	transactionSendCmd.Flags().IntVar(&transactionSendRepeat, "repeat", 1, "Number of transactions to send with the same data")
 	addTransactionFlags(transactionSendCmd, "the address from which to transfer Ether")
 }

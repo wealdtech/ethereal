@@ -49,11 +49,7 @@ In quiet mode this will return 0 if the implementer has an address, otherwise 1.
 			os.Exit(1)
 		}
 		if !quiet {
-			name, _ := ens.ReverseResolve(client, implementer)
-			if name == "" {
-				name = implementer.Hex()
-			}
-			fmt.Printf("%s\n", name)
+			fmt.Printf("%s\n", ens.Format(client, implementer))
 		}
 		os.Exit(0)
 	},

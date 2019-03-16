@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -88,18 +88,14 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			cli.ErrCheck(err, quiet, "Failed to send contract method transaction")
 
 			logTransaction(signedTx, log.Fields{
-				"group":    "contract",
-				"command":  "send",
-				"data":     "0x" + hex.EncodeToString(data),
-				"from":     fromAddress.Hex(),
-				"contract": contractAddress.Hex(),
-				"amount":   amount.String(),
+				"group":   "contract",
+				"command": "send",
 			})
 
-			if quiet {
-				os.Exit(0)
+			if !quiet {
+				fmt.Printf("%s\n", signedTx.Hash().Hex())
 			}
-			fmt.Println(signedTx.Hash().Hex())
+			os.Exit(0)
 		}
 	},
 }

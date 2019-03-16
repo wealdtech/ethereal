@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -56,14 +56,14 @@ In quiet mode this will return 0 if the clear transaction is successfully sent, 
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(bytes.Compare(domainOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Owner is not set")
-		outputIf(verbose, fmt.Sprintf("Domain owner is %s", domainOwner.Hex()))
+		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, &domainOwner)))
 
 		// Obtain resolver for the domain
 		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
 		resolverContract, err := ens.DNSResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
-		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
+		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
 
 		// Build the transaction
 		opts, err := generateTxOpts(domainOwner)
@@ -83,12 +83,11 @@ In quiet mode this will return 0 if the clear transaction is successfully sent, 
 				"domain":  dnsDomain,
 			})
 
-			if quiet {
-				os.Exit(0)
+			if !quiet {
+				fmt.Printf("%s\n", signedTx.Hash().Hex())
 			}
-
-			fmt.Println(signedTx.Hash().Hex())
 		}
+		os.Exit(0)
 	},
 }
 

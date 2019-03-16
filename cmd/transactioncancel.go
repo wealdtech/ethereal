@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -39,7 +39,7 @@ var transactionCancelCmd = &cobra.Command{
 
     ethereal transaction cancel --transaction=0x454d2274155cce506359de6358785ce5366f6c13e825263674c272eec8532c0c
 
-Note that Ethereum does not have the ability to cancel a pending transaction, so this overwrites the pending transaction with a 0-value transfer back to the address sender.  It will, however, still need to be mined so choose an appropriate gas price.  If not supplied then the gas price will default to 11% higher than the gas price of the transaction to be cancelled.
+Note that Ethereum does not have the ability to cancel a pending transaction, so this overwrites the pending transaction with a 0-value transfer back to the address sender.  It will, however, still need to be mined so choose an appropriate gas price.  If not supplied then the gas price will default to just over 10% higher than the gas price of the transaction to be cancelled.
 
 The cancellation transaction will cost 21000 gas.
 
@@ -53,13 +53,13 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 		cli.Assert(pending, quiet, fmt.Sprintf("Transaction %s has already been mined", txHash.Hex()))
 
-		minGasPrice := big.NewInt(0).Add(big.NewInt(0).Add(tx.GasPrice(), big.NewInt(0).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(10))
+		minGasPrice := new(big.Int).Add(new(big.Int).Add(tx.GasPrice(), new(big.Int).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(1))
 		if viper.GetString("gasprice") == "" {
 			// No gas price supplied; use the calculated minimum
 			gasPrice = minGasPrice
 		} else {
-			// Gas price supplied; ensure it is at least 10% more than the current gas price
-			cli.Assert(gasPrice.Cmp(minGasPrice) >= 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
+			// Gas price supplied; ensure it is over 10% more than the current gas price
+			cli.Assert(gasPrice.Cmp(minGasPrice) > 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
 		}
 
 		// Create and sign the transaction
@@ -83,15 +83,15 @@ In quiet mode this will return 0 if the cancel transaction is successfully sent,
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 			logTransaction(signedTx, log.Fields{
-				"group":   "transaction",
-				"command": "cancel",
-				"address": fromAddress.Hex(),
+				"group":            "transaction",
+				"command":          "cancel",
+				"oldtransactionid": txHash.Hex(),
 			})
 
-			if quiet {
-				os.Exit(0)
+			if !quiet {
+				fmt.Printf("%s\n", signedTx.Hash().Hex())
 			}
-			fmt.Println(signedTx.Hash().Hex())
+			os.Exit(0)
 		}
 	},
 }

@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -84,19 +84,16 @@ In quiet mode this will return 0 if the transfer transaction is successfully sen
 			}
 		} else {
 			logTransaction(signedTx, log.Fields{
-				"group":   "token",
-				"command": "sweep",
-				"token":   tokenStr,
-				"from":    fromAddress.Hex(),
-				"to":      toAddress.Hex(),
-				"amount":  balance.String(),
+				"group":       "token",
+				"command":     "sweep",
+				"token":       tokenStr,
+				"tokenamount": balance.String(),
 			})
 
-			if quiet {
-				os.Exit(0)
+			if !quiet {
+				fmt.Printf("%s\n", signedTx.Hash().Hex())
 			}
-
-			fmt.Println(signedTx.Hash().Hex())
+			os.Exit(0)
 		}
 	},
 }

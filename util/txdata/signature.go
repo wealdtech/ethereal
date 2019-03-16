@@ -21,7 +21,10 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
+	ens "github.com/wealdtech/go-ens"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -34,37 +37,40 @@ type function struct {
 }
 
 // DataToString takes a transaction's data bytes and converts it in to a useful representation if one exists
-func DataToString(input []byte) string {
+func DataToString(client *ethclient.Client, input []byte) string {
 	if len(input) == 0 {
 		return ""
+	}
+	if len(input) < 4 {
+		return fmt.Sprintf("0x%x", input)
 	}
 	var sig [4]byte
 	copy(sig[:], input[:4])
 	function, exists := functions[sig]
-	if exists {
-		var buffer bytes.Buffer
-		buffer.WriteString(fmt.Sprintf("%s(", function.name))
-		for i, param := range function.params {
-			t, err := abi.NewType(param, nil)
-			if err == nil {
-				res, err := contractValueToString(t, uint32(i), input)
-				if err != nil {
-					res = err.Error()
-				}
-				buffer.WriteString(fmt.Sprintf("%s", res))
-				if i < len(function.params)-1 {
-					buffer.WriteString(fmt.Sprintf(","))
-				}
+	if !exists {
+		return fmt.Sprintf("0x%x", input)
+	}
+	var buffer bytes.Buffer
+	buffer.WriteString(fmt.Sprintf("%s(", function.name))
+	for i, param := range function.params {
+		t, err := abi.NewType(param, nil)
+		if err == nil {
+			res, err := contractValueToString(client, t, uint32(i), input)
+			if err != nil {
+				res = err.Error()
+			}
+			buffer.WriteString(fmt.Sprintf("%s", res))
+			if i < len(function.params)-1 {
+				buffer.WriteString(fmt.Sprintf(","))
 			}
 		}
-		buffer.WriteString(")")
-		return buffer.String()
 	}
-	return fmt.Sprintf("%x", input)
+	buffer.WriteString(")")
+	return buffer.String()
 }
 
 // EventToString takes a transaction's event information and converts it to a useful representation if one exists
-func EventToString(input *types.Log) string {
+func EventToString(client *ethclient.Client, input *types.Log) string {
 	function, exists := events[input.Topics[0]]
 	if !exists {
 		return ""
@@ -85,10 +91,10 @@ func EventToString(input *types.Log) string {
 			var res string
 			var err error
 			if len(input.Topics) > curTopic {
-				res, err = valueToString(t, uint32(curTopic), 0, topics)
+				res, err = valueToString(client, t, uint32(curTopic), 0, topics)
 				curTopic++
 			} else {
-				res, err = valueToString(t, uint32(i+1-curTopic), 0, input.Data)
+				res, err = valueToString(client, t, uint32(i+1-curTopic), 0, input.Data)
 			}
 			if err != nil {
 				res = err.Error()
@@ -103,11 +109,11 @@ func EventToString(input *types.Log) string {
 	return buffer.String()
 }
 
-func contractValueToString(argType abi.Type, index uint32, data []byte) (string, error) {
-	return valueToString(argType, index, 4, data)
+func contractValueToString(client *ethclient.Client, argType abi.Type, index uint32, data []byte) (string, error) {
+	return valueToString(client, argType, index, 4, data)
 }
 
-func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (string, error) {
+func valueToString(client *ethclient.Client, argType abi.Type, index uint32, offset uint32, data []byte) (string, error) {
 	switch argType.T {
 	case abi.IntTy:
 		return big.NewInt(0).SetBytes(data[offset+index*32 : offset+index*32+32]).String(), nil
@@ -127,7 +133,7 @@ func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
 		entries := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
 		for i := uint32(0); i < entries; i++ {
-			elemRes, err := valueToString(*argType.Elem, 1+start/32+i, offset, data)
+			elemRes, err := valueToString(client, *argType.Elem, 1+start/32+i, offset, data)
 			if err != nil {
 				return "", err
 			}
@@ -135,7 +141,8 @@ func valueToString(argType abi.Type, index uint32, offset uint32, data []byte) (
 		}
 		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.AddressTy:
-		return fmt.Sprintf("0x%x", data[offset+index*32+12:offset+index*32+32]), nil
+		address := common.BytesToAddress(data[offset+index*32+12 : offset+index*32+32])
+		return ens.Format(client, &address), nil
 	case abi.FixedBytesTy:
 		return fmt.Sprintf("0x%x", data[offset+index*32+32-uint32(argType.Size):offset+index*32+32]), nil
 	case abi.BytesTy:

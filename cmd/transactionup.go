@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -36,7 +36,7 @@ var transactionUpCmd = &cobra.Command{
 
     ethereal transaction up --gasprice=20gwei --passphrase=secret --transaction=0x454d2274155cce506359de6358785ce5366f6c13e825263674c272eec8532c0c
 
-If no gas price is supplied then it will default to 10% higher than the current gas price for the transaction.
+If no gas price is supplied then it will default to just over 10% higher than the current gas price for the transaction.
 
 In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -48,13 +48,13 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 		cli.Assert(pending, quiet, fmt.Sprintf("Transaction %s has already been mined", txHash.Hex()))
 
-		minGasPrice := big.NewInt(0).Add(big.NewInt(0).Add(tx.GasPrice(), big.NewInt(0).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(10))
+		minGasPrice := new(big.Int).Add(new(big.Int).Add(tx.GasPrice(), new(big.Int).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(1))
 		if viper.GetString("gasprice") == "" {
 			// No gas price supplied; use the calculated minimum
 			gasPrice = minGasPrice
 		} else {
-			// Gas price supplied; ensure it is at least 10% more than the current gas price
-			cli.Assert(gasPrice.Cmp(minGasPrice) >= 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
+			// Gas price supplied; ensure it is over 10% more than the current gas price
+			cli.Assert(gasPrice.Cmp(minGasPrice) > 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
 		}
 
 		// Create and sign the transaction
@@ -71,41 +71,24 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				signedTx.EncodeRLP(buf)
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-		} else {
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-			if tx.To() == nil {
-				setupLogging()
-				log.WithFields(log.Fields{
-					"group":         "transaction",
-					"command":       "up",
-					"from":          fromAddress.Hex(),
-					"amount":        tx.Value().String(),
-					"data":          hex.EncodeToString(tx.Data()),
-					"networkid":     chainID,
-					"gas":           signedTx.Gas(),
-					"gasprice":      signedTx.GasPrice().String(),
-					"transactionid": signedTx.Hash().Hex(),
-				}).Info("success")
-			} else {
-				logTransaction(signedTx, log.Fields{
-					"group":   "transaction",
-					"command": "up",
-					"from":    fromAddress.Hex(),
-					"to":      tx.To().Hex(),
-					"amount":  tx.Value().String(),
-					"data":    hex.EncodeToString(tx.Data()),
-				})
-			}
-
-			if quiet {
-				os.Exit(0)
-			}
-			fmt.Println(signedTx.Hash().Hex())
+			os.Exit(0)
 		}
+
+		ctx, cancel = localContext()
+		defer cancel()
+		err = client.SendTransaction(ctx, signedTx)
+		cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+		logTransaction(signedTx, log.Fields{
+			"group":       "transaction",
+			"command":     "up",
+			"oldgasprice": tx.GasPrice().String(),
+		})
+
+		if !quiet {
+			fmt.Printf("%s\n", signedTx.Hash().Hex())
+		}
+		os.Exit(0)
 	},
 }
 

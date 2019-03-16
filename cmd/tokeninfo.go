@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
+	ens "github.com/wealdtech/go-ens"
 )
 
 // tokenInfoCmd represents the token info command
@@ -48,7 +49,7 @@ In quiet mode this will return 0 if the token exists, otherwise 1.`,
 		if verbose {
 			address, err := tokenContractAddress(tokenStr)
 			if err == nil {
-				fmt.Printf("Address:\t%s\n", address.Hex())
+				fmt.Printf("Address:\t%s\n", ens.Format(client, &address))
 			}
 		}
 

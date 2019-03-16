@@ -692,6 +692,83 @@ Token commands focus on information and management of ERC-20 and ERC-777 tokens.
 
 Transaction commands focus on information and management of Ethereum transactions.
 
+#### `cancel`
+
+`ethereal transaction cancel` cancels a pending transaction.  For example:
+
+```sh
+$ ethereal transaction cancel --transaction="0x19f5c8369d49bf96e82941e938d3978f4ce9bf20e09598cf16e7c55018006f4e"
+0x4dada7ddd3841d9e754fa1caa4232155d1a6d976fef610da5c3c0d00025bd0c1
+```
+
+Note that in reality Ethereum has no notion of cancelling transactions so instead the transaction is replaced with a new transaction that does nothing.  To do this the gas price needs to be higher than that of the existing transaction; if not supplied explicitly it will default to just over 10% higher than the gas price of the transaction to be cancelled (the minimum it can be incremented for the cancellation to be accepted).  A specific gas price can be supplied with the `--gasprice` argument as normal.
+
+#### `info`
+
+`ethereal transaction info` provides information about an Ethereum transaction.  For example:
+
+```sh
+$ ethereal transaction info --transaction=0x581560df6b07612293996772a40966e8b85f70af2d53eee624513324fad8a99a
+Type:                   Mined transaction
+Result:                 Succeeded
+Block:                  7380609
+From:                   0x2B5634C42055806a59e9107ED44D43c426E58258
+To:                     0xf3db7560E820834658B590C96234c333Cd3D5E5e
+Gas used:               37081
+Gas price:              15.176 GWei
+Value:                  0
+Data:                   transfer(0x7755B69903BcbCc419260dBb65772412E0C4ad2b,3903811515500000000000)
+```
+
+With the `--verbose` flag this will provide more information about the transaction.  For example:
+
+```sh
+$ ethereal transaction info --transaction=0x581560df6b07612293996772a40966e8b85f70af2d53eee624513324fad8a99a --verbose
+Type:                   Mined transaction
+Result:                 Succeeded
+Block:                  7380609
+From:                   0x2B5634C42055806a59e9107ED44D43c426E58258
+To:                     0xf3db7560E820834658B590C96234c333Cd3D5E5e
+Nonce:                  1382943
+Gas limit:              76351
+Gas used:               37081
+Gas price:              15.176 GWei
+Value:                  0
+Data:                   transfer(0x7755B69903BcbCc419260dBb65772412E0C4ad2b,3903811515500000000000)
+Logs:
+        0:
+                From:   0xf3db7560E820834658B590C96234c333Cd3D5E5e
+                Event:  Transfer(0x2B5634C42055806a59e9107ED44D43c426E58258,0x7755B69903BcbCc419260dBb65772412E0C4ad2b,3903811515500000000000)
+```
+
+#### `send`
+
+`ethereal transaction send` sends a transaction.  For example:
+
+```sh
+$ ethereal transaction send --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf --to=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF  --amount="1 Ether" --data=0x010203
+```
+
+#### `up`
+
+`ethereal transaction up` increases the gas price of an existing pending transaction.  For example:
+
+```sh
+$ ethereal transaction up --transaction=0x581560df6b07612293996772a40966e8b85f70af2d53eee624513324fad8a99a
+```
+
+For this command to succeed the gas price needs to be higher than that of the existing transaction; if not supplied explicitly it will default to just over 10% higher than the gas price of the transaction to be cancelled (the minimum it can be incremented for the cancellation to be accepted).  A specific gas price can be supplied with the `--gasprice` argument as normal.
+
+#### `wait`
+
+`ethereal transaction waits` waits for a pending transaction to be mined.  For example:
+
+```sh
+$ ethereal transaction wait --transaction=0x581560df6b07612293996772a40966e8b85f70af2d53eee624513324fad8a99a
+```
+
+By default this waits forever; if a timeout is required it can be supplied with the `--limit` argument.
+
 ### `version`
 
 `ethereal version` provides the current version of Ethereal.  For example:
@@ -701,69 +778,6 @@ $ ethereal version
 2.0.889
 ```
 
-## Examples
-
-Note that for most of the examples below additional information can be obtained by adding the `--verbose` flag to the command line.
-
-### Increase the gas price for transaction
-You have submitted a transaction to the network but it's taking a long time to process because the gas price is too low.
-
-```
-ethereal transaction up --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --gasprice=20GWei
-```
-where `transaction` is the hash of the pending transactions, `gasprice` is the price you want to set for gas, and `passphrase` is the passphrase for the account that sent the transaction.
-
-### Cancel a transaction
-You have submitted a transaction to the network by mistake and want to cancel it.
-```
-ethereal transaction cancel --transaction=0x5219b09d629158c2759035c97b11b604f57d0c733515738aaae0d2dafb41ab98 --passphrase=secret
-```
-where `transaction` is the hash of the pending transactions and `passphrase` is the passphrase for the account that sent the transaction.
-
-### Sweep Ether
-You want to transfer all Ether in one account to another.
-```
-ethereal ether sweep --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret
-```
-where `from` is the address from which the Ether will be transferred, `to` is the address to which the Ether will be transferred, and `passphrase` is the passphrase for the `from` account.
-
-### Transfer a token
-You want to transfer an ERC-20 token to another account.
-```
-ethereal token transfer --token=omg --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=10.2 --passphrase=secret
-```
-where `token` is the token to transfer, `from` is the address from which the token will be transferred, `to` is the address to which the token will be transferred, `amount` is the amount of the token to transfer, `gasprice` is the price you want to set for gas, and `passphrase` is the passphrase for the `from` account.
-
-*Please note that before using a token name such as 'omg' you should confirm that the contract address matches the expected contract address by using `ethereal info --token=omg` or similar.*
-
-## Obtain information about a transaction
-
-```
-ethereal transaction info --transaction=0x5097a149236b675a5807ea78c657b64c71da48789476828fede68126769b24be
-```
-
-### Deploy a contract
-Ethereal can deploy a contract in various ways, but the easiest is to use `solc` to create a file containing both the ABI and bytecode, and use that.  For example:
-
-```
-solc --optimize --combined-json=abi,bin MyContract.sol >MyContract.json
-ethereal contract deploy --json=MyContract.json --from=0xdd8686E0Ea24bc74ea6a4688926b5397D167930E --passphrase=secret --constructor='constructor("hello")'
-```
-
-If the contract does not have a constructor the `--constructor` argument can be omitted.
-
-### Call a contract
-You want to obtain information directly from a contract using its ABI, for example call the `balanceOf()` call of an ERC-20 token.
-```
-ethereal contract call --abi='./erc20.abi' --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call='balanceOf(0x5FfC014343cd971B7eb70732021E26C35B744cc4)'
-```
-where `abi` is the path to the contract's ABI, `contract` is the address of the contract to call, and `call` is the ABI method to call.
-
-You can also use the JSON file as referenced in 'Deploy a contract' above, for example:
-
-```
-ethereal contract call --json=MyContract.json --from=0xdd8686E0Ea24bc74ea6a4688926b5397D167930E --call="getString()"
-```
 ## Maintainers
 
 Jim McDonald: [@mcdee](https://github.com/mcdee).

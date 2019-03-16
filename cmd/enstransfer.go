@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,6 +16,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -56,7 +57,7 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
 		cli.ErrCheck(err, quiet, "cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
-		outputIf(verbose, fmt.Sprintf("Current owner of %s is %s", ensDomain, owner.Hex()))
+		outputIf(verbose, fmt.Sprintf("Current owner of %s is %s", ensDomain, ens.Format(client, &owner)))
 
 		// Transfer the deed
 		newOwnerAddress, err := ens.Resolve(client, ensTransferNewOwnerStr)
@@ -69,15 +70,16 @@ In quiet mode this will return 0 if the transaction to transfer the name is sent
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		logTransaction(signedTx, log.Fields{
-			"group":    "ens",
-			"command":  "transfer",
-			"domain":   ensDomain,
-			"newowner": newOwnerAddress.Hex(),
+			"group":       "ens",
+			"command":     "transfer",
+			"ensdomain":   ensDomain,
+			"ensnewowner": newOwnerAddress.Hex(),
 		})
 
 		if !quiet {
-			fmt.Println(signedTx.Hash().Hex())
+			fmt.Printf("%s\n", signedTx.Hash().Hex())
 		}
+		os.Exit(0)
 	},
 }
 

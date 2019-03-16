@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -124,36 +124,22 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 
 		fromAddress, err := txFrom(tx)
 		if err == nil {
-			to, err := ens.ReverseResolve(client, &fromAddress)
-			if err == nil {
-				fmt.Printf("From:\t\t\t%v (%s)\n", to, fromAddress.Hex())
-			} else {
-				fmt.Printf("From:\t\t\t%v\n", fromAddress.Hex())
-			}
+			fmt.Printf("From:\t\t\t%v\n", ens.Format(client, &fromAddress))
 		}
 
 		// To
 		if tx.To() == nil {
 			if receipt != nil {
-				contractAddress := receipt.ContractAddress
-				to, err := ens.ReverseResolve(client, &contractAddress)
-				if err == nil {
-					fmt.Printf("Contract address:\t%v (%s)\n", to, contractAddress.Hex())
-				} else {
-					fmt.Printf("Contract address:\t%v\n", contractAddress.Hex())
-				}
+				fmt.Printf("Contract address:\t%v\n", ens.Format(client, &receipt.ContractAddress))
 			}
 		} else {
-			to, err := ens.ReverseResolve(client, tx.To())
-			if err == nil {
-				fmt.Printf("To:\t\t\t%v (%s)\n", to, tx.To().Hex())
-			} else {
-				fmt.Printf("To:\t\t\t%v\n", tx.To().Hex())
-			}
+			fmt.Printf("To:\t\t\t%v\n", ens.Format(client, tx.To()))
 		}
 
-		fmt.Printf("Nonce:\t\t\t%v\n", tx.Nonce())
-		fmt.Printf("Gas limit:\t\t%v\n", tx.Gas())
+		if verbose {
+			fmt.Printf("Nonce:\t\t\t%v\n", tx.Nonce())
+			fmt.Printf("Gas limit:\t\t%v\n", tx.Gas())
+		}
 		if receipt != nil {
 			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
 		}
@@ -161,16 +147,16 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
 
 		if tx.To() != nil && len(tx.Data()) > 0 {
-			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(tx.Data()))
+			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(client, tx.Data()))
 		}
 
 		if verbose && receipt != nil && len(receipt.Logs) > 0 {
 			fmt.Printf("Logs:\n")
 			for i, log := range receipt.Logs {
 				fmt.Printf("\t%d:\n", i)
-				fmt.Printf("\t\tFrom:\t%v\n", log.Address.Hex())
+				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(client, &log.Address))
 				// Try to obtain decoded log
-				decoded := txdata.EventToString(log)
+				decoded := txdata.EventToString(client, log)
 				if decoded != "" {
 					fmt.Printf("\t\tEvent:\t%s\n", decoded)
 				} else {

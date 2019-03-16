@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"os"
 
 	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
@@ -96,14 +97,12 @@ In quiet mode this will return 0 if the contract creation transaction is success
 				logTransaction(signedTx, log.Fields{
 					"group":   "contract",
 					"command": "deploy",
-					"data":    "0x" + hex.EncodeToString(contract.Binary),
-					"from":    fromAddress.Hex(),
-					"amount":  amount.String(),
 				})
 
 				if !quiet {
-					fmt.Println(signedTx.Hash().Hex())
+					fmt.Printf("%s\n", signedTx.Hash().Hex())
 				}
+				os.Exit(0)
 			}
 		}
 	},

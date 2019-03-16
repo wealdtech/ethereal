@@ -1,4 +1,4 @@
-// Copyright © 2017 Weald Technology Trading
+// Copyright © 2017-2019 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -53,7 +53,7 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 		defer cancel()
 		balance, err := client.BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", fromAddress.Hex()))
+		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", ens.Format(client, &fromAddress)))
 
 		// Obtain the amount of gas required to send the transaction, and calculate the amount to send
 		gas, err := estimateGas(fromAddress, &toAddress, balance, nil)
@@ -83,15 +83,12 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 			logTransaction(signedTx, log.Fields{
 				"group":   "ether",
 				"command": "sweep",
-				"from":    fromAddress.Hex(),
-				"to":      toAddress.Hex(),
-				"amount":  amount.String(),
 			})
 
-			if quiet {
-				os.Exit(0)
+			if !quiet {
+				fmt.Printf("%s\n", signedTx.Hash().Hex())
 			}
-			fmt.Println(signedTx.Hash().Hex())
+			os.Exit(0)
 		}
 	},
 }
