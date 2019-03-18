@@ -56,34 +56,51 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 		}
 		outputIf(debug, fmt.Sprintf("data is %x", bytes))
 
-		data, codec, err := multicodec.RemoveCodec(bytes)
-		cli.ErrCheck(err, quiet, "Invalid codec")
-		codecName, err := multicodec.Name(codec)
-		cli.ErrCheck(err, quiet, "Unknown codec")
-		id, offset := binary.Uvarint(data)
-		cli.Assert(id != 0, quiet, "Unknown CID")
-		data, subCodec, err := multicodec.RemoveCodec(data[offset:])
-		cli.ErrCheck(err, quiet, "Invalid codec")
-		_, err = multicodec.Name(subCodec)
-		cli.ErrCheck(err, quiet, "Unknown subcodec")
+		res, err := contenthashBytesToString(bytes)
+		cli.ErrCheck(err, quiet, "Invalid content hash data")
 
-		switch codecName {
-		case "ipfs-ns":
-			mHash := multihash.Multihash(data)
-			if !quiet {
-				fmt.Printf("/ipfs/%s\n", mHash.B58String())
-			}
-		case "swarm-ns":
-			hash, err := multihash.Decode(data)
-			cli.ErrCheck(err, quiet, "Failed to decode swarm multihash")
-			if !quiet {
-				fmt.Printf("/swarm/%x\n", hash.Digest)
-			}
-		default:
-			cli.Err(quiet, fmt.Sprintf("Unknown codec %s", codecName))
+		if !quiet {
+			fmt.Printf("%s\n", res)
 		}
 		os.Exit(0)
 	},
+}
+
+func contenthashBytesToString(bytes []byte) (string, error) {
+	data, codec, err := multicodec.RemoveCodec(bytes)
+	if err != nil {
+		return "", err
+	}
+	codecName, err := multicodec.Name(codec)
+	if err != nil {
+		return "", err
+	}
+	id, offset := binary.Uvarint(data)
+	if id == 0 {
+		return "", fmt.Errorf("unknown CID")
+	}
+	data, subCodec, err := multicodec.RemoveCodec(data[offset:])
+	if err != nil {
+		return "", err
+	}
+	_, err = multicodec.Name(subCodec)
+	if err != nil {
+		return "", err
+	}
+
+	switch codecName {
+	case "ipfs-ns":
+		mHash := multihash.Multihash(data)
+		return fmt.Sprintf("/ipfs/%s", mHash.B58String()), nil
+	case "swarm-ns":
+		hash, err := multihash.Decode(data)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("/swarm/%x", hash.Digest), nil
+	default:
+		return "", fmt.Errorf("unknown codec %s", codecName)
+	}
 }
 
 func init() {

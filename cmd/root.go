@@ -50,7 +50,6 @@ var client *ethclient.Client
 var chainID *big.Int
 var referrer common.Address
 
-// TODO make maps keyed on address?
 var nonce int64
 var wallet accounts.Wallet
 var account *accounts.Account
@@ -385,7 +384,7 @@ func createTransaction(fromAddress common.Address, toAddress *common.Address, am
 		}
 	}
 
-	// TODO Gas price now that we know the gas limit
+	// TODO Gas price now that we know the gas limit?
 
 	// Create the transaction
 	if toAddress == nil {

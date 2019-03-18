@@ -410,7 +410,6 @@ Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
 Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
 Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
-0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 does not resolve to a domain
 ```
 
 With the `--verbose` flag this will provide more information about the domain.  For example:
@@ -429,7 +428,6 @@ Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
 Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
 Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
-0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 does not resolve to a domain
 ```
 
 #### `name clear`
