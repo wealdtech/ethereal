@@ -15,17 +15,21 @@ package cmd
 
 import (
 	"bytes"
+	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 
-	ma "github.com/multiformats/go-multiaddr"
+	multihash "github.com/multiformats/go-multihash"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens"
+	multicodec "github.com/wealdtech/go-multicodec"
 )
 
-var ensContenthashSetMultiaddrStr string
+var ensContenthashSetHashStr string
 
 // ensContenthashSetCmd represents the ens content hash set command
 var ensContenthashSetCmd = &cobra.Command{
@@ -43,20 +47,63 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		registryContract, err := ens.RegistryContract(client)
-		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
+		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
 		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
-		cli.ErrCheck(err, quiet, "cannot obtain owner")
+		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
-		// Obtain the content hash
-		multiaddr, err := ma.NewMultiaddr(ensContenthashSetMultiaddrStr)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("invalid multiaddr %s", ensContenthashSetMultiaddrStr))
+		cli.Assert(ensContenthashSetHashStr != "", quiet, "--content is required")
+		// Break apart the content
+		hashBits := strings.Split(ensContenthashSetHashStr, "/")
+		cli.Assert(len(hashBits) == 3, quiet, "Invalid content string")
 
-		fmt.Printf("Multiaddr is %v\n", multiaddr)
-		fmt.Printf("Multiaddr bytes is %x\n", multiaddr.Bytes())
-		os.Exit(0)
+		data := make([]byte, 0)
+		switch hashBits[1] {
+		case "ipfs":
+			// Codec
+			ipfsNum, err := multicodec.ID("ipfs-ns")
+			cli.ErrCheck(err, quiet, "Failed to obtain IPFS codec value")
+			buf := make([]byte, binary.MaxVarintLen64)
+			size := binary.PutUvarint(buf, ipfsNum)
+			data = append(data, buf[0:size]...)
+			// CID
+			size = binary.PutUvarint(buf, 1)
+			data = append(data, buf[0:size]...)
+			// Subcodec
+			dagNum, err := multicodec.ID("dag-pb")
+			cli.ErrCheck(err, quiet, "Failed to obtain IPFS codec value")
+			size = binary.PutUvarint(buf, dagNum)
+			data = append(data, buf[0:size]...)
+			// Hash
+			hash, err := multihash.FromB58String(hashBits[2])
+			cli.ErrCheck(err, quiet, "Failed to obtain IPFS content hash")
+			data = append(data, []byte(hash)...)
+		case "swarm":
+			// Codec
+			ipfsNum, err := multicodec.ID("swarm-ns")
+			cli.ErrCheck(err, quiet, "Failed to obtain swarm codec value")
+			buf := make([]byte, binary.MaxVarintLen64)
+			size := binary.PutUvarint(buf, ipfsNum)
+			data = append(data, buf[0:size]...)
+			// CID
+			size = binary.PutUvarint(buf, 1)
+			data = append(data, buf[0:size]...)
+			// Subcodec
+			dagNum, err := multicodec.ID("dag-pb")
+			cli.ErrCheck(err, quiet, "Failed to obtain swarm codec value")
+			size = binary.PutUvarint(buf, dagNum)
+			data = append(data, buf[0:size]...)
+			// Hash
+			hashBit, err := hex.DecodeString(hashBits[2])
+			cli.ErrCheck(err, quiet, "Failed to decode swarm content hash")
+			hash, err := multihash.Encode(hashBit, multihash.KECCAK_256)
+			cli.ErrCheck(err, quiet, "Failed to obtain swarm content hash")
+			data = append(data, []byte(hash)...)
+		default:
+			cli.Err(quiet, fmt.Sprintf("Unknown codec %s", hashBits[1]))
+		}
 
 		// Obtain the resolver for this name
 		resolver, err := ens.ResolverContract(client, ensDomain)
@@ -65,14 +112,14 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 
-		signedTx, err := resolver.SetContenthash(opts, ens.NameHash(ensDomain), multiaddr.Bytes())
+		signedTx, err := resolver.SetContenthash(opts, ens.NameHash(ensDomain), data)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		logTransaction(signedTx, log.Fields{
-			"group":        "ens/contenthash",
-			"command":      "set",
-			"ensdomain":    ensDomain,
-			"ensmultiaddr": multiaddr.String(),
+			"group":       "ens/contenthash",
+			"command":     "set",
+			"ensdomain":   ensDomain,
+			"contenthash": ensContenthashSetHashStr,
 		})
 
 		if !quiet {
@@ -85,6 +132,6 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 func init() {
 	ensContenthashCmd.AddCommand(ensContenthashSetCmd)
 	ensContenthashFlags(ensContenthashSetCmd)
-	ensContenthashSetCmd.Flags().StringVar(&ensContenthashSetMultiaddrStr, "multiaddr", "", "The multiaddr to set")
+	ensContenthashSetCmd.Flags().StringVar(&ensContenthashSetHashStr, "hash", "", "The address to set e.g. /ipfs/QmdTEBPdNxJFFsH1wRE3YeWHREWDiSex8xhgTnqknyxWgu")
 	addTransactionFlags(ensContenthashSetCmd, "passphrase for the account that owns the domain")
 }

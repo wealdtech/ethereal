@@ -66,10 +66,10 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		cli.Assert(bytes.Compare(domainOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, &domainOwner)))
 
-		// Obtain resolver for the domain
+		// Obtain DNS resolver for the domain
 		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
-		resolverContract, err := ens.DNSResolverContractByAddress(client, resolverAddress)
+		resolver, err := ens.DNSResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
 
@@ -109,7 +109,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 
 		if dnsResource != "SOA" && !dnsSetNoSoa {
 			// Obtain the current SOA
-			curSoaData, err := resolverContract.DnsRecord(nil, domainHash, util.DNSWireFormatDomainHash(dnsDomain), dns.TypeSOA)
+			curSoaData, err := resolver.DnsRecord(nil, domainHash, util.DNSWireFormatDomainHash(dnsDomain), dns.TypeSOA)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
 			if len(curSoaData) > 0 {
 				// We have an SOA so increment the serial as per RFC 1912
@@ -131,7 +131,7 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 		// Build the transaction
 		opts, err := generateTxOpts(domainOwner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		signedTx, err = resolverContract.SetDNSRecords(opts, domainHash, data)
+		signedTx, err = resolver.SetDNSRecords(opts, domainHash, data)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 		if offline {
 			if !quiet {

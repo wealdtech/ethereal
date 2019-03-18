@@ -50,7 +50,7 @@ In quiet mode this will return 0 if the manager was obtained without error, othe
 		}
 
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, &manager))
+			fmt.Printf("%s\n", ens.Format(client, manager))
 		}
 		os.Exit(0)
 	},

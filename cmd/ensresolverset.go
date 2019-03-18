@@ -58,7 +58,7 @@ In quiet mode this will return 0 if the transaction to set the resolver is sent 
 			resolverAddress, err = ens.PublicResolver(client)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("No public resolver for network id %v", chainID))
 		} else {
-			resolverAddress, err := ens.Resolve(client, ensResolverSetResolverStr)
+			resolverAddress, err = ens.Resolve(client, ensResolverSetResolverStr)
 			cli.Assert(bytes.Compare(resolverAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Invalid resolver; if you are trying to clear an existing resolver use \"ens resolver clear\"")
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 		}

@@ -19,10 +19,9 @@ import (
 
 // ensContenthashCmd represents the ens contenthash command
 var ensContenthashCmd = &cobra.Command{
-	Use:     "contenthash",
-	Aliases: []string{"ma"},
-	Short:   "Manage ENS contenthash entries",
-	Long:    `Set and obtain Ethereum Name Service contenthash information`,
+	Use:   "contenthash",
+	Short: "Manage ENS contenthash entries",
+	Long:  `Set and obtain Ethereum Name Service contenthash information`,
 }
 
 func init() {

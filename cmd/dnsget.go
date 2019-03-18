@@ -65,10 +65,10 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		registryContract, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Obtain resolver for the domain
+		// Obtain DNS resolver for the domain
 		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
-		resolverContract, err := ens.DNSResolverContractByAddress(client, resolverAddress)
+		resolver, err := ens.DNSResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
 
@@ -78,7 +78,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		resourceNum, exists := stringToType[dnsResource]
 		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
 		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
-		data, err = resolverContract.DnsRecord(nil, domainHash, nameHash, resourceNum)
+		data, err = resolver.DnsRecord(nil, domainHash, nameHash, resourceNum)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 

@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
@@ -44,6 +45,7 @@ In quiet mode this will return 0 if the transaction to create the subdomain is s
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		cli.Assert(ensSubdomainCreateSubdomain != "", quiet, "--subdomain is required")
+		cli.Assert(!strings.Contains(ensSubdomainCreateSubdomain, "."), quiet, "subdomain should not contain the '.' character")
 
 		registryContract, err := ens.RegistryContract(client)
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
@@ -69,10 +71,11 @@ In quiet mode this will return 0 if the transaction to create the subdomain is s
 		signedTx, err := registryContract.SetSubnodeOwner(opts, ens.NameHash(ensDomain), ens.LabelHash(ensSubdomainCreateSubdomain), subdomainOwner)
 
 		logTransaction(signedTx, log.Fields{
-			"group":        "ens/subdomain",
-			"command":      "create",
-			"ensdomain":    ensDomain,
-			"enssubdomain": ensSubdomainCreateSubdomain,
+			"group":             "ens/subdomain",
+			"command":           "create",
+			"ensdomain":         ensDomain,
+			"enssubdomain":      ensSubdomainCreateSubdomain,
+			"enssubdomainowner": subdomainOwner.Hex(),
 		})
 
 		if !quiet {

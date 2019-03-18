@@ -20,6 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var transactionWaitLimit time.Duration
@@ -37,25 +38,14 @@ In quiet mode this will return 0 if the transaction is mined before the time lim
 		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 
-		start := time.Now()
-
-		first := true
-		for transactionWaitLimit == 0 || time.Since(start) < transactionWaitLimit {
-			if !first {
-				time.Sleep(5 * time.Second)
-			} else {
-				first = false
-			}
-			outputIf(verbose, "Checking")
-			ctx, cancel := localContext()
-			defer cancel()
-			_, pending, err := client.TransactionByHash(ctx, txHash)
-			if err == nil && !pending {
-				outputIf(!quiet, "Transaction mined")
-				os.Exit(0)
-			}
+		mined := util.WaitForTransaction(client, txHash, transactionWaitLimit)
+		if mined {
+			outputIf(!quiet, "Transaction mined")
+			os.Exit(0)
+		} else {
+			outputIf(!quiet, "Transaction not mined")
+			os.Exit(1)
 		}
-		cli.Err(quiet, "Transaction not mined")
 	},
 }
 

@@ -42,6 +42,7 @@ require (
 	github.com/miekg/dns v1.1.4
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/multiformats/go-multiaddr v0.0.2
+	github.com/multiformats/go-multihash v0.0.1
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/openzipkin/zipkin-go v0.1.5 // indirect
 	github.com/orinocopay/go-etherutils v0.0.0-20180828082332-139c2bcc1264
@@ -75,6 +76,7 @@ require (
 	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect
 	github.com/wealdtech/go-ens v0.0.0-20190307160056-43eefda25b12
 	github.com/wealdtech/go-erc1820 v0.0.0-20190307160016-7f6cc8324233
+	github.com/wealdtech/go-multicodec v1.0.0
 	go.opencensus.io v0.19.1 // indirect
 	go4.org v0.0.0-20190218023631-ce4c26f7be8e // indirect
 	golang.org/x/build v0.0.0-20190307215223-c78805dbabc8 // indirect

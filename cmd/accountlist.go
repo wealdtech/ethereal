@@ -41,7 +41,7 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 					foundAccounts = true
 					if !quiet {
 						if !verbose {
-							fmt.Printf(account.Address.Hex())
+							fmt.Println(account.Address.Hex())
 						} else {
 							fmt.Printf("Location:\t%s\n", account.URL)
 							fmt.Printf("Address:\t%s\n", account.Address.Hex())

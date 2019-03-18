@@ -63,7 +63,7 @@ In quiet mode this will return 0 if the clear transaction is successfully sent, 
 		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
 		resolverContract, err := ens.DNSResolverContractByAddress(client, resolverAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
-		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
+		outputIf(debug, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
 
 		// Build the transaction
 		opts, err := generateTxOpts(domainOwner)

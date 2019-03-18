@@ -44,22 +44,56 @@ Alternatively you can use a private key directly with the `--privatekey` option,
 
 Ethereal supports all main Ethereum networks  It auto-detects the network by querying the connected node for the network ID.  The connection should be geth-compatible, so either geth itself or parity with the `--geth` flag to enable geth compatibility mode.  The connection could be a local node or a network service such as Infura.
 
-TODO explain default connection and how to connect locally.
+Ethereal contains default connections via Infura to most major networks that can be defined by the `--network` argument.  Supported neworks are mainnet, ropsten, kovan, rinkeby and goerli.  Alternatively a connection to a custom node can be created using the `--connection` argument.  For example a local IPC node might use `--connection=/home/ethereum/.ethereum/geth.ipc` or `--connection=http://localhost:8545/`
 
 ### Configuration file
-TODO
+
+Ethereal supports a configuration file; by default in the user's home directory but changeable with the `--config` argument on the command line.  The configuration file provides values that override the defaults but themselves can be overridden with command-line arguments.
+
+The default file name is `.ethereal.json` or `.ethereal.yml` depending on the encoding used (JSON or YAML, respectively).  An example `.ethereal.json` file is shown below:
+
+```json
+{
+  "timeout": "20s",
+  "verbose": true,
+  "network": "ropsten",
+  "passphrase": "my secret passphrase"
+}
+```
 
 ### Quiet, Verbose and Debug
-TODO
 
-### Transaction
-TODO Options
-TODO CLI output
-TODO Logging
+If set, the `--quiet` argument will suppress all output.  Commands will output 0 on success and 1 on failure (regardless of if quiet is set or not).  The specific definition of success is specified in the help for each command.
+
+If set, the `--verbose` argument will output additional information related to the command.  Details of the additional information is command-specific and explained in the command help below.
+
+If set, the `--debug` argument will output additional information about the operation of Ethereal as it carries out its work.
+
+### Transactions
+
+Many Ethereal commands generate Ethereum transactions.  These commands have a number of settings
+
+The `--gasprice` argument sets the gas price for the transaction, for example `--gasprice="4.2 gwei"`.  If not supplied the gas price defaults to 4Gwei.
+
+The `--gaslimit` argument hardcodes the maximum gas for the transaction, for example `--gas=100000"`.  If not supplied the gas price will be automatically calculated.
+
+The `--nonce` argument hardcodes the nonce for the transaction, for example `--nonce=123"`.  If not supplied the nonce will be retrieved automatically from the blockchain.
+
+The `--passphrase` argument supplies the passphrase to unlock the submitting account, for example `--passphrase="my secret passphrase"`.
+
+The `--privatekey` argument supplies the private key to obtain and submitting account, for example `--privatekey=0x0000000000000000000000000000000000000000000000000000000000000001`.
+
+Note that information such as the passphrase and private key might be stored in your command line history.  If this is an issue the values can be provided in the Ethereal configuration file as described above.
+
+### Logging
+
+Any time Ethereal broadcasts a transaction it logs the details in a file.  By default the file is `ethereal.log` in the user's home directory, with each line being a JSON object with the relevant fields.  The log file location can be changed with the `--log` argument.
 
 ### ENS
 
 Ethereal fully supports ENS.  Wherever an address is seen in the examples below an ENS name can be used instead.
+
+Ethereal will always return addresses as ENS names if ENS reverse resolution is configured.
 
 ### `account` commands
 
@@ -336,15 +370,30 @@ $ ethereal ens address set --domain=mydomain.eth --address=0x7E5F4552091A69125d5
 
 #### `contenthash clear`
 
-`ethereal ens contenthash clear`
+`ethereal ens contenthash clear` clears the contenthash associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens contenthash clear --domain=mydomain.eth
+```
 
 #### `contenthash get`
 
-`ethereal ens contenthash get`
+`ethereal ens contenthash get` gets the contenthash associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens contenthash get --domain=mydomain.eth
+/swarm/d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162
+```
 
 #### `contenthash set`
 
-`ethereal ens contenthash set`
+`ethereal ens contenthash set` sets the contenthash associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens contenthash set --domain=mydomain.eth --hash=/swarm/d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162
+```
+
+Valid content hash codecs are "ipfs" and "swarm".
 
 #### `info`
 
@@ -517,8 +566,13 @@ $ ethereal ether transfer --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf --to
 `ethereal gas price` calaculates a gas price from historical information that should allow a transaction to be included within a certain number of blocks.  For example:
 
 ```sh
-TODO
+$ ethereal gas price
+5.229829545 GWei
 ```
+
+The value is the average of the values of the 9th decile of transactions in each block when each block's transactions are ordered by gas price.  If the absolute lowest value is required instead the `--lowest` argument can be used.  The number of blocks over which to take the average can be supplied with the `--blocks` argument.
+
+By default this command does not consider gas used when calculating the price.  Commonly the gas price for high gas transactions is higher due to them needing to be included in a block earlier to fit.  The `--gas` argument can supply an amount of gas, in which case the value returned will be the average of the gas price required to fit a transaction with the supplied gas in to the blocks.
 
 ### `network` commands
 

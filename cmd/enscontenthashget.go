@@ -14,14 +14,18 @@
 package cmd
 
 import (
+	"encoding/binary"
 	"fmt"
 	"os"
 
-	ma "github.com/multiformats/go-multiaddr"
+	multihash "github.com/multiformats/go-multihash"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens"
+	multicodec "github.com/wealdtech/go-multicodec"
 )
+
+var ensContenthashGetRaw bool
 
 // ensContenthashGetCmd represents the content hash get command
 var ensContenthashGetCmd = &cobra.Command{
@@ -36,31 +40,54 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		// Obtain the registry contract
-		registryContract, err := ens.RegistryContract(client)
-		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
-
 		// Obtain resolver for the domain
-		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", ensDomain))
-		resolverContract, err := ens.ResolverContractByAddress(client, resolverAddress)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", ensDomain))
-		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", resolverAddress.Hex()))
+		resolver, err := ens.ResolverContract(client, ensDomain)
+		cli.ErrCheck(err, quiet, "No resolver for that name")
 
-		bytes, err := resolverContract.Contenthash(nil, ens.NameHash(ensDomain))
+		bytes, err := resolver.Contenthash(nil, ens.NameHash(ensDomain))
 		cli.ErrCheck(err, quiet, "Failed to obtain content hash for that domain")
 		cli.Assert(len(bytes) > 0, quiet, "No content hash for that domain")
 
-		contentHash, err := ma.NewMultiaddrBytes(bytes)
-		cli.ErrCheck(err, quiet, "Invalid content hash for that domain")
-		if quiet {
+		if ensContenthashGetRaw {
+			if !quiet {
+				fmt.Printf("%x\n", bytes)
+			}
 			os.Exit(0)
 		}
-		fmt.Printf("%v\n", contentHash)
+		outputIf(debug, fmt.Sprintf("data is %x", bytes))
+
+		data, codec, err := multicodec.RemoveCodec(bytes)
+		cli.ErrCheck(err, quiet, "Invalid codec")
+		codecName, err := multicodec.Name(codec)
+		cli.ErrCheck(err, quiet, "Unknown codec")
+		id, offset := binary.Uvarint(data)
+		cli.Assert(id != 0, quiet, "Unknown CID")
+		data, subCodec, err := multicodec.RemoveCodec(data[offset:])
+		cli.ErrCheck(err, quiet, "Invalid codec")
+		_, err = multicodec.Name(subCodec)
+		cli.ErrCheck(err, quiet, "Unknown subcodec")
+
+		switch codecName {
+		case "ipfs-ns":
+			mHash := multihash.Multihash(data)
+			if !quiet {
+				fmt.Printf("/ipfs/%s\n", mHash.B58String())
+			}
+		case "swarm-ns":
+			hash, err := multihash.Decode(data)
+			cli.ErrCheck(err, quiet, "Failed to decode swarm multihash")
+			if !quiet {
+				fmt.Printf("/swarm/%x\n", hash.Digest)
+			}
+		default:
+			cli.Err(quiet, fmt.Sprintf("Unknown codec %s", codecName))
+		}
+		os.Exit(0)
 	},
 }
 
 func init() {
 	ensContenthashFlags(ensContenthashGetCmd)
+	ensContenthashGetCmd.Flags().BoolVar(&ensContenthashGetRaw, "raw", false, "output raw content hash bytes")
 	ensContenthashCmd.AddCommand(ensContenthashGetCmd)
 }
