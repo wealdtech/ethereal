@@ -50,7 +50,7 @@ In quiet mode this will return 0 if the signature provides a valid signer, other
 		address := crypto.PubkeyToAddress(*key)
 
 		if quiet {
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 
 		fmt.Printf("%s\n", ens.Format(client, &address))

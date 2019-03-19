@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"os"
 
+	"github.com/ethereum/go-ethereum/core/types"
 	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -50,7 +51,7 @@ Usually the easiest way to deploy a contract is to use the combined JSON output 
 
    ethereal contract deploy --json='./MyContract.json' --constructor='constructor(1,2,3') --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase=secret
 
-In quiet mode this will return 0 if the contract creation transaction is successfully sent, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(contractDeployFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, contractDeployFromAddress)
@@ -75,9 +76,10 @@ In quiet mode this will return 0 if the contract creation transaction is success
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid amount %s", contractDeployAmount))
 		}
 
+		var signedTx *types.Transaction
 		for i := 0; i < contractDeployRepeat; i++ {
 			// Create and sign the transaction
-			signedTx, err := createSignedTransaction(fromAddress, nil, amount, gasLimit, contract.Binary)
+			signedTx, err = createSignedTransaction(fromAddress, nil, amount, gasLimit, contract.Binary)
 			cli.ErrCheck(err, quiet, "Failed to create contract deployment transaction")
 			outputIf(verbose, fmt.Sprintf("Transaction data is %x", signedTx.Data()))
 			outputIf(verbose, fmt.Sprintf("Transaction data size is %d", len(signedTx.Data())))
@@ -88,23 +90,22 @@ In quiet mode this will return 0 if the contract creation transaction is success
 					signedTx.EncodeRLP(buf)
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
-			} else {
-				ctx, cancel := localContext()
-				defer cancel()
-				err = client.SendTransaction(ctx, signedTx)
-				cli.ErrCheck(err, quiet, "Failed to send contract deployment transaction")
-
-				logTransaction(signedTx, log.Fields{
-					"group":   "contract",
-					"command": "deploy",
-				})
-
-				if !quiet {
-					fmt.Printf("%s\n", signedTx.Hash().Hex())
-				}
-				os.Exit(0)
+				os.Exit(_exit_success)
 			}
+
+			ctx, cancel := localContext()
+			defer cancel()
+			err = client.SendTransaction(ctx, signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send contract deployment transaction")
+
+			logTransaction(signedTx, log.Fields{
+				"group":   "contract",
+				"command": "deploy",
+			})
 		}
+
+		// Wait for the last transaction if requested
+		handleSubmittedTransaction(signedTx, nil)
 	},
 }
 
@@ -115,6 +116,6 @@ func init() {
 	contractDeployCmd.Flags().StringVar(&contractDeployConstructor, "constructor", "", "Constructor invocation (if required)")
 	contractDeployCmd.Flags().StringVar(&contractDeployData, "data", "", "Contract data (as a hex string)")
 	contractDeployCmd.Flags().StringVar(&contractDeployFromAddress, "from", "", "Address from which to deploy the contract")
-	contractDeployCmd.Flags().IntVar(&contractDeployRepeat, "repeat", 1, "Number of time to repeat")
+	contractDeployCmd.Flags().IntVar(&contractDeployRepeat, "repeat", 1, "Number of times to repeat sending the transaction (incrementing the nonce each time)")
 	addTransactionFlags(contractDeployCmd, "Passphrase for the address from which to deploy the conract")
 }

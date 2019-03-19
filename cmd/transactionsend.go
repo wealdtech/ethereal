@@ -46,7 +46,7 @@ var transactionSendCmd = &cobra.Command{
 
     ethereal transaction send --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x2ab7150Bba7D5F181b3aF5623e52b15bB1054845	 --amount=1ether --passphrase=secret --data=0x12345
 
-In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if transactionSendRaw != "" {
 			// Send a raw transaction
@@ -72,7 +72,7 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 			if !quiet {
 				fmt.Println(signedTx.Hash().Hex())
 			}
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 
 		cli.Assert(transactionSendFromAddress != "", quiet, "--from is required")
@@ -115,9 +115,10 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 		data, err := hex.DecodeString(transactionSendData)
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
+		var signedTx *types.Transaction
 		for i := 0; i < transactionSendRepeat; i++ {
 			// Create and sign the transaction
-			signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, gasLimit, data)
+			signedTx, err = createSignedTransaction(fromAddress, toAddress, amount, gasLimit, data)
 			cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 			if offline {
@@ -126,24 +127,21 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 					signedTx.EncodeRLP(buf)
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
-				os.Exit(0)
+				os.Exit(_exit_success)
 			}
 
 			ctx, cancel := localContext()
 			defer cancel()
 			err = client.SendTransaction(ctx, signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-			logTransaction(signedTx, log.Fields{
+			handleSubmittedTransaction(signedTx, log.Fields{
 				"group":   "transaction",
 				"command": "send",
 			})
-
-			if !quiet {
-				fmt.Printf("%s\n", signedTx.Hash().Hex())
-			}
-			os.Exit(0)
 		}
+		// Wait for the last transaction if requested
+		handleSubmittedTransaction(signedTx, nil)
+
 	},
 }
 
@@ -154,6 +152,6 @@ func init() {
 	transactionSendCmd.Flags().StringVar(&transactionSendToAddress, "to", "", "Address to which to transfer Ether")
 	transactionSendCmd.Flags().StringVar(&transactionSendData, "data", "", "data to send with transaction (as a hex string)")
 	transactionSendCmd.Flags().StringVar(&transactionSendRaw, "raw", "", "raw transaction (as a hex string).  This overrides all other options")
-	transactionSendCmd.Flags().IntVar(&transactionSendRepeat, "repeat", 1, "Number of transactions to send with the same data")
+	transactionSendCmd.Flags().IntVar(&transactionSendRepeat, "repeat", 1, "Number of times to repeat sending the transaction (incrementing the nonce each time)")
 	addTransactionFlags(transactionSendCmd, "the address from which to transfer Ether")
 }

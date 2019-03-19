@@ -115,7 +115,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 		}
 
 		if quiet {
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 
 		gap := lastBlockTime.Sub(oldBlockTime) / time.Duration(new(big.Int).Sub(lastBlockNumber, oldBlockNumber).Int64())

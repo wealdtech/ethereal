@@ -14,9 +14,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -32,8 +29,7 @@ var registryImplementerClearCmd = &cobra.Command{
 
     ethereal registry implementer clear --interface=ERC777Token --address=0x1234...5678
 
-In quiet mode this will return 0 if  the transaction to clear the implementer is sent successfully, otherwise 1.`,
-
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(registryImplementerInterface != "", quiet, "--interface is required")
 
@@ -48,16 +44,11 @@ In quiet mode this will return 0 if  the transaction to clear the implementer is
 		signedTx, err := registry.SetInterfaceImplementer(opts, registryImplementerInterface, &address, &ens.UnknownAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		logTransaction(signedTx, log.Fields{
+		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":           "registry/implementer",
 			"command":         "clear",
 			"registryaddress": address.Hex(),
 		})
-
-		if !quiet {
-			fmt.Printf("%s\n", signedTx.Hash().Hex())
-		}
-		os.Exit(0)
 	},
 }
 

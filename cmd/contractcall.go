@@ -73,7 +73,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call %s", method.Name))
 		if len(method.Outputs) == 0 {
 			// No output
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return expected data", method.Name))
 

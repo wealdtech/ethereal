@@ -82,7 +82,7 @@ provided below:
 		cli.ErrCheck(err, quiet, "Failed to sign data")
 
 		if quiet {
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 
 		fmt.Printf("%x\n", signature)

@@ -42,7 +42,7 @@ In quiet mode this will return 0 if the address has a reverse resolution, otherw
 		name, err := ens.ReverseResolve(client, &address)
 		if err != nil {
 			if err.Error() == "No resolution" {
-				os.Exit(1)
+				os.Exit(_exit_failure)
 			} else {
 				cli.ErrCheck(err, quiet, "Failed to check reverse resolution")
 			}

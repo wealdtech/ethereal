@@ -42,7 +42,7 @@ In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 		if !quiet {
 			fmt.Printf("%s\n", ens.Format(client, &resolver))
 		}
-		os.Exit(0)
+		os.Exit(_exit_success)
 	},
 }
 

@@ -38,6 +38,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/util"
 )
 
 var cfgFile string
@@ -113,8 +114,9 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		cli.Err(false, "Cannot supply both quiet and debug flags")
 	}
 
-	// ...lots of commands have (e.g.) 'passphrase' as an option but we want to
-	// bind it to this particular command and this is the first chance we get
+	// ...lots of commands have transaction-related flags (e.g.) 'passphrase'
+	// as options but we want to bind them to this particular command and
+	// this is the first chance we get
 	if cmd.Flags().Lookup("passphrase") != nil {
 		viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
 	}
@@ -123,6 +125,12 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	}
 	if cmd.Flags().Lookup("nonce") != nil {
 		viper.BindPFlag("nonce", cmd.Flags().Lookup("nonce"))
+	}
+	if cmd.Flags().Lookup("wait") != nil {
+		viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+	}
+	if cmd.Flags().Lookup("limit") != nil {
+		viper.BindPFlag("limit", cmd.Flags().Lookup("limit"))
 	}
 	// Set up gas price if we have it
 	if cmd.Flags().Lookup("gasprice") != nil {
@@ -135,12 +143,12 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 				// Block-based gas price
 				outputIf(verbose, fmt.Sprintf("xx"))
 				// fmt.Printf("Gas price is %v\n", etherutils.WeiToString(gasPrice, true))
-				os.Exit(0)
+				os.Exit(_exit_success)
 			} else if strings.Contains(viper.GetString("gasprice"), "minute") {
 				// Time-based gas price
 				outputIf(verbose, fmt.Sprintf("yy"))
 				// fmt.Printf("Gas price is %v\n", etherutils.WeiToString(gasPrice, true))
-				os.Exit(0)
+				os.Exit(_exit_success)
 			} else {
 				gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
 				cli.ErrCheck(err, quiet, "Invalid gas price")
@@ -222,6 +230,27 @@ func setupLogging() {
 	log.SetFormatter(&log.JSONFormatter{})
 }
 
+// handleSubmittedTransaction handles logging and waiting for a submitted transaction to be mined.
+// It will not log the transaction if logFields is nil
+func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields) {
+	if logFields != nil {
+		logTransaction(tx, logFields)
+	}
+
+	if !viper.GetBool("wait") {
+		outputIf(!quiet, fmt.Sprintf("%s", tx.Hash().Hex()))
+		os.Exit(_exit_success)
+	}
+	mined := util.WaitForTransaction(client, tx.Hash(), viper.GetDuration("limit"))
+	if mined {
+		outputIf(!quiet, fmt.Sprintf("%s mined", tx.Hash().Hex()))
+		os.Exit(_exit_success)
+	} else {
+		outputIf(!quiet, fmt.Sprintf("%s submitted byt not mined", tx.Hash().Hex()))
+		os.Exit(_exit_not_mined)
+	}
+}
+
 // logTransaction logs a transaction
 func logTransaction(tx *types.Transaction, fields log.Fields) {
 	setupLogging()
@@ -250,7 +279,7 @@ func logTransaction(tx *types.Transaction, fields log.Fields) {
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(_exit_failure)
 	}
 }
 
@@ -290,7 +319,7 @@ func initConfig() {
 		home, err := homedir.Dir()
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			os.Exit(_exit_failure)
 		}
 
 		// Search config in home directory with name ".ethereal" (without extension).
@@ -315,6 +344,8 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
 	cmd.Flags().Int64("gaslimit", 0, "Gas limit for the transaction; 0 is auto-select")
 	cmd.Flags().Int64("nonce", -1, "Nonce for the transaction; -1 is auto-select")
+	cmd.Flags().Bool("wait", false, "wait for the transaction to be mined before returning")
+	cmd.Flags().Duration("limit", 0, "maximum time to wait for transaction to complete before failing (default forever)")
 }
 
 // Obtain the current nonce for the given address

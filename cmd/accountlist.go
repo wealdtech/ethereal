@@ -70,9 +70,9 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 
 		if quiet {
 			if foundAccounts {
-				os.Exit(0)
+				os.Exit(_exit_success)
 			} else {
-				os.Exit(1)
+				os.Exit(_exit_failure)
 			}
 		}
 	},

@@ -43,7 +43,7 @@ In quiet mode this will return 0 if the name has an owner, otherwise 1.`,
 		if !quiet {
 			fmt.Printf("%s\n", ens.Format(client, &owner))
 		}
-		os.Exit(0)
+		os.Exit(_exit_success)
 	},
 }
 

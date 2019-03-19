@@ -40,7 +40,7 @@ var tokenApproveCmd = &cobra.Command{
 
     ethereal token approve --token=omg --holder=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --spender=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=10 --passphrase=secret
 
-In quiet mode this will return 0 if the approval transaction is successfully sent, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
@@ -80,21 +80,17 @@ In quiet mode this will return 0 if the approval transaction is successfully sen
 				signedTx.EncodeRLP(buf)
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-		} else {
-			logTransaction(signedTx, log.Fields{
-				"group":        "token",
-				"command":      "approve",
-				"token":        tokenStr,
-				"tokenholder":  holderAddress.Hex(),
-				"tokenspender": spenderAddress.Hex(),
-				"tokenamount":  amount.String(),
-			})
-
-			if !quiet {
-				fmt.Printf("%s\n", signedTx.Hash().Hex())
-			}
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
+
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":        "token",
+			"command":      "approve",
+			"token":        tokenStr,
+			"tokenholder":  holderAddress.Hex(),
+			"tokenspender": spenderAddress.Hex(),
+			"tokenamount":  amount.String(),
+		})
 	},
 }
 

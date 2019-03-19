@@ -61,13 +61,15 @@ The default file name is `.ethereal.json` or `.ethereal.yml` depending on the en
 }
 ```
 
-### Quiet, Verbose and Debug
+### Output and exit status
 
-If set, the `--quiet` argument will suppress all output.  Commands will output 0 on success and 1 on failure (regardless of if quiet is set or not).  The specific definition of success is specified in the help for each command.
+If set, the `--quiet` argument will suppress all output.
 
 If set, the `--verbose` argument will output additional information related to the command.  Details of the additional information is command-specific and explained in the command help below.
 
 If set, the `--debug` argument will output additional information about the operation of Ethereal as it carries out its work.
+
+Commands will have an exit status of 0 on success and 1 on failure.  The specific definition of success is specified in the help for each command.  For commands that generate transactions and wait for them to be mined there is an additional exit status of 2 which means the transaction has been submitted but not mined within the requested time limit.
 
 ### Transactions
 
@@ -84,6 +86,8 @@ The `--passphrase` argument supplies the passphrase to unlock the submitting acc
 The `--privatekey` argument supplies the private key to obtain and submitting account, for example `--privatekey=0x0000000000000000000000000000000000000000000000000000000000000001`.
 
 Note that information such as the passphrase and private key might be stored in your command line history.  If this is an issue the values can be provided in the Ethereal configuration file as described above.
+
+By default Ethereal will return once the transaction has been submitted.  The `--wait` argument makes the command wait for the transaction to be mined as well.  If waiting should be limited this can be specified with the `--limit` argument, for example `--wait --limit=60s`.
 
 ### Logging
 
@@ -813,7 +817,7 @@ For this command to succeed the gas price needs to be higher than that of the ex
 
 #### `wait`
 
-`ethereal transaction waits` waits for a pending transaction to be mined.  For example:
+`ethereal transaction wait` waits for a pending transaction to be mined.  For example:
 
 ```sh
 $ ethereal transaction wait --transaction=0x581560df6b07612293996772a40966e8b85f70af2d53eee624513324fad8a99a

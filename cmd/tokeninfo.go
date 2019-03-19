@@ -38,7 +38,7 @@ In quiet mode this will return 0 if the token exists, otherwise 1.`,
 		cli.ErrCheck(err, quiet, "Failed to obtain token contract")
 
 		if quiet {
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 
 		name, err := token.Name(nil)

@@ -42,7 +42,7 @@ var dnsSetCmd = &cobra.Command{
 
     ethereal dns set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --value=193.62.81.1 --passphrase=secret
 
-In quiet mode this will return 0 if the set transaction is successfully sent, otherwise 1.`,
+In This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		if !strings.HasSuffix(dnsDomain, ".") {
@@ -139,22 +139,18 @@ In quiet mode this will return 0 if the set transaction is successfully sent, ot
 				signedTx.EncodeRLP(buf)
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-		} else {
-			logTransaction(signedTx, log.Fields{
-				"group":       "dns",
-				"command":     "set",
-				"dnsresource": dnsResource,
-				"dnsdomain":   dnsDomain,
-				"dnsname":     dnsName,
-				"dnsvalue":    dnsSetValue,
-				"dnsttl":      dnsSetTTL,
-			})
-
-			if !quiet {
-				fmt.Printf("%s\n", signedTx.Hash().Hex())
-			}
+			os.Exit(_exit_success)
 		}
-		os.Exit(0)
+
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":       "dns",
+			"command":     "set",
+			"dnsresource": dnsResource,
+			"dnsdomain":   dnsDomain,
+			"dnsname":     dnsName,
+			"dnsvalue":    dnsSetValue,
+			"dnsttl":      dnsSetTTL,
+		})
 	},
 }
 

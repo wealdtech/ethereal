@@ -42,9 +42,9 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 		}
 
 		if address == ens.UnknownAddress {
-			os.Exit(1)
+			os.Exit(_exit_failure)
 		}
-		os.Exit(0)
+		os.Exit(_exit_success)
 	},
 }
 

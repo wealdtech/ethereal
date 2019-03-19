@@ -68,7 +68,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 
 		if balance.Cmp(big.NewInt(0)) == 0 {
 			outputIf(!quiet, "0")
-			os.Exit(1)
+			os.Exit(_exit_failure)
 		} else {
 			if !quiet {
 				if etherBalanceWei {
@@ -77,7 +77,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 					fmt.Printf("%s\n", etherutils.WeiToString(balance, true))
 				}
 			}
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
 	},
 }

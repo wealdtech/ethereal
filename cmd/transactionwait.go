@@ -41,10 +41,10 @@ In quiet mode this will return 0 if the transaction is mined before the time lim
 		mined := util.WaitForTransaction(client, txHash, transactionWaitLimit)
 		if mined {
 			outputIf(!quiet, "Transaction mined")
-			os.Exit(0)
+			os.Exit(_exit_success)
 		} else {
 			outputIf(!quiet, "Transaction not mined")
-			os.Exit(1)
+			os.Exit(_exit_failure)
 		}
 	},
 }

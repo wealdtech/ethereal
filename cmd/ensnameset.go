@@ -14,9 +14,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -36,7 +33,7 @@ var ensNameSetCmd = &cobra.Command{
 
 The keystore for the address name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
-In quiet mode this will return 0 if the transaction to set the name is sent successfully, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
@@ -56,17 +53,12 @@ In quiet mode this will return 0 if the transaction to set the name is sent succ
 		signedTx, err := registrar.SetName(opts, ensNameSetDomain)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-		logTransaction(signedTx, log.Fields{
+		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":      "ens/name",
 			"command":    "set",
 			"ensdomain":  ensDomain,
 			"ensaddress": address.Hex(),
 		})
-
-		if !quiet {
-			fmt.Printf("%s\n", signedTx.Hash().Hex())
-		}
-		os.Exit(0)
 	},
 }
 

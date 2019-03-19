@@ -59,9 +59,9 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			if err == nil {
 				if quiet {
 					if state == "Owned" {
-						os.Exit(0)
+						os.Exit(_exit_success)
 					} else {
-						os.Exit(1)
+						os.Exit(_exit_failure)
 					}
 				} else {
 					switch state {

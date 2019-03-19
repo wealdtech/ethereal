@@ -18,7 +18,6 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"os"
 	"strings"
 
 	multihash "github.com/multiformats/go-multihash"
@@ -41,7 +40,7 @@ var ensContenthashSetCmd = &cobra.Command{
 
 The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
-In quiet mode this will return 0 if the transaction to set the content hash is sent successfully, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
@@ -115,17 +114,12 @@ In quiet mode this will return 0 if the transaction to set the content hash is s
 		signedTx, err := resolver.SetContenthash(opts, ens.NameHash(ensDomain), data)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
-		logTransaction(signedTx, log.Fields{
+		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":       "ens/contenthash",
 			"command":     "set",
 			"ensdomain":   ensDomain,
 			"contenthash": ensContenthashSetHashStr,
 		})
-
-		if !quiet {
-			fmt.Printf("%s\n", signedTx.Hash().Hex())
-		}
-		os.Exit(0)
 	},
 }
 

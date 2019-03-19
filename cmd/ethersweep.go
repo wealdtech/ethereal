@@ -38,7 +38,7 @@ var etherSweepCmd = &cobra.Command{
 
     etherereal ether sweep --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret
 
-In quiet mode this will return 0 if the sweep transaction is successfully sent, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(etherSweepFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, etherSweepFromAddress)
@@ -74,22 +74,18 @@ In quiet mode this will return 0 if the sweep transaction is successfully sent, 
 				signedTx.EncodeRLP(buf)
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-		} else {
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-			logTransaction(signedTx, log.Fields{
-				"group":   "ether",
-				"command": "sweep",
-			})
-
-			if !quiet {
-				fmt.Printf("%s\n", signedTx.Hash().Hex())
-			}
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
+
+		ctx, cancel = localContext()
+		defer cancel()
+		err = client.SendTransaction(ctx, signedTx)
+		cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":   "ether",
+			"command": "sweep",
+		})
 	},
 }
 

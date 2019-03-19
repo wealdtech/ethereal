@@ -16,7 +16,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -39,7 +38,7 @@ var ensSubdomainCreateCmd = &cobra.Command{
 
 The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
-In quiet mode this will return 0 if the transaction to create the subdomain is sent successfully, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
@@ -70,18 +69,13 @@ In quiet mode this will return 0 if the transaction to create the subdomain is s
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		signedTx, err := registryContract.SetSubnodeOwner(opts, ens.NameHash(ensDomain), ens.LabelHash(ensSubdomainCreateSubdomain), subdomainOwner)
 
-		logTransaction(signedTx, log.Fields{
+		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":             "ens/subdomain",
 			"command":           "create",
 			"ensdomain":         ensDomain,
 			"enssubdomain":      ensSubdomainCreateSubdomain,
 			"enssubdomainowner": subdomainOwner.Hex(),
 		})
-
-		if !quiet {
-			fmt.Printf("%s\n", signedTx.Hash().Hex())
-		}
-		os.Exit(0)
 	},
 }
 

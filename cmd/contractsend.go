@@ -43,7 +43,7 @@ var contractSendCmd = &cobra.Command{
 
    ethereal contract send --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --signature="transfer(address,uint256)" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="transfer(0x5FfC014343cd971B7eb70732021E26C35B744cc4, 10)" --passphrase=secret
 
-In quiet mode this will return 0 if the transaction is successfully sent, otherwise 1.`,
+This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Aliases: []string{"transaction", "transmit"},
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(contractSendFromAddress != "", quiet, "--from is required")
@@ -81,22 +81,18 @@ In quiet mode this will return 0 if the transaction is successfully sent, otherw
 				signedTx.EncodeRLP(buf)
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-		} else {
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send contract method transaction")
-
-			logTransaction(signedTx, log.Fields{
-				"group":   "contract",
-				"command": "send",
-			})
-
-			if !quiet {
-				fmt.Printf("%s\n", signedTx.Hash().Hex())
-			}
-			os.Exit(0)
+			os.Exit(_exit_success)
 		}
+
+		ctx, cancel := localContext()
+		defer cancel()
+		err = client.SendTransaction(ctx, signedTx)
+		cli.ErrCheck(err, quiet, "Failed to send contract method transaction")
+
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":   "contract",
+			"command": "send",
+		})
 	},
 }
 
