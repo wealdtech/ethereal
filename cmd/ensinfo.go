@@ -76,7 +76,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 					case "Owned":
 						domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
 						if domainOwnerName == "" {
-							fmt.Println("Domain owner is", domainOwnerAddress.Hex())
+							fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 						} else {
 							fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 						}
@@ -91,7 +91,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		} else {
 			domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
 			if domainOwnerName == "" {
-				fmt.Println("Domain owner is", domainOwnerAddress.Hex())
+				fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 			} else {
 				fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 			}
@@ -211,7 +211,7 @@ func genericInfo(name string) {
 	}
 	domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
 	if domainOwnerName == "" {
-		fmt.Printf("Domain owner is %s", domainOwnerAddress.Hex())
+		fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
 	} else {
 		fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 	}
