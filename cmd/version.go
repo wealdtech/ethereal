@@ -15,8 +15,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	dbg "runtime/debug"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // versionCmd represents the version command
@@ -28,6 +31,20 @@ var versionCmd = &cobra.Command{
     ethereal version.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("2.0.889")
+		if viper.GetBool("verbose") {
+			buildInfo, ok := dbg.ReadBuildInfo()
+			if ok {
+				fmt.Printf("Package: %s\n", buildInfo.Path)
+				fmt.Println("Dependencies:")
+				for _, dep := range buildInfo.Deps {
+					for dep.Replace != nil {
+						dep = dep.Replace
+					}
+					fmt.Printf("\t%v %v\n", dep.Path, dep.Version)
+				}
+			}
+		}
+		os.Exit(_exit_success)
 	},
 }
 
