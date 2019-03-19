@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"math/big"
 	"os"
 	"strconv"
 
@@ -58,7 +57,6 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		var decimals uint8
 		if offline {
-			cli.Assert(chainID.Cmp(big.NewInt(0)) != 0, quiet, "--chainid is required if offline")
 			cli.Assert(gasLimit != 0, quiet, "--gaslimit is required if offline")
 			cli.Assert(tokenTransferDecimals != "", quiet, "--decimals is required if offline")
 			tmpDecimals, err := strconv.Atoi(tokenTransferDecimals)

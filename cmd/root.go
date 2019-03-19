@@ -289,7 +289,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ethereal.yaml)")
 	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/ethereal.log).  Logs are written for every action that generates a transaction")
 	viper.BindPFlag("log", RootCmd.PersistentFlags().Lookup("log"))
-	RootCmd.PersistentFlags().Bool("quiet", false, "do not generate any output, but return a 0 exit code on success and 1 on failure.  The definitions of success and failure for a given command can be found in that command's help")
+	RootCmd.PersistentFlags().Bool("quiet", false, "do not generate any output")
 	viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet"))
 	RootCmd.PersistentFlags().Bool("verbose", false, "generate additional output where appropriate")
 	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
@@ -303,8 +303,6 @@ func init() {
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
 	viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline"))
-	RootCmd.PersistentFlags().Int64("chainid", 0, "the chain ID of the network (only required when offline)")
-	viper.BindPFlag("chainid", RootCmd.PersistentFlags().Lookup("chainid"))
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
 	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
 }
