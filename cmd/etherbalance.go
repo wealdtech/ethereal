@@ -63,21 +63,21 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		ctx, cancel := localContext()
 		defer cancel()
 		balance, err := client.BalanceAt(ctx, address, blockNumber)
-		cli.Assert(err == nil || !strings.HasPrefix(err.Error(), "missing trie node"), quiet, "Connection does not have information on that block, please change the connection parameter to point to a full node")
+		cli.Assert(err == nil || !strings.HasPrefix(err.Error(), "missing trie node"), quiet, "Connection does not have information on that block, please change the connection parameter to point to a full synced node")
 		cli.ErrCheck(err, quiet, "Failed to obtain balance")
 
-		if quiet {
-			if balance.Cmp(big.NewInt(0)) == 0 {
-				os.Exit(1)
-			} else {
-				os.Exit(0)
-			}
-		}
-
-		if etherBalanceWei {
-			fmt.Printf("%s\n", balance.String())
+		if balance.Cmp(big.NewInt(0)) == 0 {
+			outputIf(!quiet, "0")
+			os.Exit(1)
 		} else {
-			fmt.Printf("%s\n", etherutils.WeiToString(balance, true))
+			if !quiet {
+				if etherBalanceWei {
+					fmt.Printf("%s\n", balance.String())
+				} else {
+					fmt.Printf("%s\n", etherutils.WeiToString(balance, true))
+				}
+			}
+			os.Exit(0)
 		}
 	},
 }
