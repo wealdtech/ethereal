@@ -399,6 +399,31 @@ $ ethereal ens contenthash set --domain=mydomain.eth --hash=/swarm/d1de9994b4d03
 
 Valid content hash codecs are "ipfs" and "swarm".
 
+#### `domain clear`
+
+`ethereal ens domain clear` clears the ENS reverse resolution domain of an address.  For example:
+
+```sh
+$ ethereal ens domain clear --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+```
+
+#### `domain get`
+
+`ethereal ens domain get` gets the ENS reverse resolution domain of an address.  For example:
+
+```sh
+$ ethereal ens domain get --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+mydomain.eth
+```
+
+#### `domain set`
+
+`ethereal ens domain set` sets the ENS reverse resolution domain of an address.  For example:
+
+```sh
+$ ethereal ens domain set --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 --domain=mydomain.eth
+```
+
 #### `info`
 
 `ethereal ens info` obtains various information about a domain.  For example:
@@ -432,31 +457,6 @@ Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
 Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
 Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
-```
-
-#### `name clear`
-
-`ethereal ens name clear` clears the ENS reverse resolution name of an address.  For example:
-
-```sh
-$ ethereal ens name clear --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
-```
-
-#### `name get`
-
-`ethereal ens name get` gets the ENS reverse resolution name of an address.  For example:
-
-```sh
-$ ethereal ens name get --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
-mydomain.eth
-```
-
-#### `name set`
-
-`ethereal ens name set` sets the ENS reverse resolution name of an address.  For example:
-
-```sh
-$ ethereal ens name set --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 --name=mydomain.eth
 ```
 
 #### `owner get`

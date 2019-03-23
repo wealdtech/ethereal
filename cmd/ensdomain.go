@@ -17,17 +17,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensNameCmd represents the ens name command
-var ensNameCmd = &cobra.Command{
-	Use:   "name",
+// ensDomainCmd represents the ens domain command
+var ensDomainCmd = &cobra.Command{
+	Use:   "domain",
 	Short: "Manage ENS reverse resolution",
 	Long:  `Set and obtain Ethereum Name Service reverse resolution information`,
 }
 
 func init() {
-	ensCmd.AddCommand(ensNameCmd)
+	ensCmd.AddCommand(ensDomainCmd)
 }
 
-func ensNameFlags(cmd *cobra.Command) {
+func ensDomainFlags(cmd *cobra.Command) {
 	// Most commands require a --domain, this does not so do not include the ENS flags
 }

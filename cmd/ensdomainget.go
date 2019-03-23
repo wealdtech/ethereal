@@ -22,24 +22,24 @@ import (
 	ens "github.com/wealdtech/go-ens"
 )
 
-var ensNameGetAddress string
+var ensDomainGetAddress string
 
-// ensNameGetCmd represents the name get command
-var ensNameGetCmd = &cobra.Command{
+// ensDomainGetCmd represents the domain get command
+var ensDomainGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the ENS reverse resolution of an address",
 	Long: `Obtain the Ethereum Name Service (ENS) reverse resolution of an address.  For example:
 
-    ethereal ens name get --address=0x217d2707d6CDA43C4807F343a5f5d93a57d86321
+    ethereal ens domain get --address=0x217d2707d6CDA43C4807F343a5f5d93a57d86321
 
 In quiet mode this will return 0 if the address has a reverse resolution, otherwise 1.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(ensNameGetAddress != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, ensNameGetAddress)
+		cli.Assert(ensDomainGetAddress != "", quiet, "--address is required")
+		address, err := ens.Resolve(client, ensDomainGetAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address for lookup")
 
-		name, err := ens.ReverseResolve(client, &address)
+		domain, err := ens.ReverseResolve(client, &address)
 		if err != nil {
 			if err.Error() == "No resolution" {
 				os.Exit(_exit_failure)
@@ -47,12 +47,12 @@ In quiet mode this will return 0 if the address has a reverse resolution, otherw
 				cli.ErrCheck(err, quiet, "Failed to check reverse resolution")
 			}
 		}
-		fmt.Println(name)
+		fmt.Println(domain)
 	},
 }
 
 func init() {
-	ensNameCmd.AddCommand(ensNameGetCmd)
-	ensNameFlags(ensNameGetCmd)
-	ensNameGetCmd.Flags().StringVar(&ensNameGetAddress, "address", "", "Address for which to obtain reverse resolution")
+	ensDomainCmd.AddCommand(ensDomainGetCmd)
+	ensDomainFlags(ensDomainGetCmd)
+	ensDomainGetCmd.Flags().StringVar(&ensDomainGetAddress, "address", "", "Address for which to obtain reverse resolution")
 }
