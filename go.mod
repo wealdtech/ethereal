@@ -76,7 +76,7 @@ require (
 	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect
 	github.com/wealdtech/go-ens v0.0.0-20190307160056-43eefda25b12
 	github.com/wealdtech/go-erc1820 v0.0.0-20190307160016-7f6cc8324233
-	github.com/wealdtech/go-multicodec v1.0.0
+	github.com/wealdtech/go-multicodec v1.1.0
 	go.opencensus.io v0.19.1 // indirect
 	go4.org v0.0.0-20190218023631-ce4c26f7be8e // indirect
 	golang.org/x/build v0.0.0-20190307215223-c78805dbabc8 // indirect

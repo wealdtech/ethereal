@@ -28,7 +28,7 @@ import (
 	multicodec "github.com/wealdtech/go-multicodec"
 )
 
-var ensContenthashSetHashStr string
+var ensContenthashSetContentStr string
 
 // ensContenthashSetCmd represents the ens content hash set command
 var ensContenthashSetCmd = &cobra.Command{
@@ -36,7 +36,7 @@ var ensContenthashSetCmd = &cobra.Command{
 	Short: "Set the content hash of an ENS domain",
 	Long: `Set the content hash of a name registered with the Ethereum Name Service (ENS).  For example:
 
-    ethereal ens contenthash set --domain=enstest.eth --multiaddr=/ip4/1.2.3.4 --passphrase="my secret passphrase"
+    ethereal ens contenthash set --domain=enstest.eth --content=/swarm/d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162 --passphrase="my secret passphrase"
 
 The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
@@ -53,9 +53,9 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
-		cli.Assert(ensContenthashSetHashStr != "", quiet, "--content is required")
+		cli.Assert(ensContenthashSetContentStr != "", quiet, "--content is required")
 		// Break apart the content
-		hashBits := strings.Split(ensContenthashSetHashStr, "/")
+		hashBits := strings.Split(ensContenthashSetContentStr, "/")
 		cli.Assert(len(hashBits) == 3, quiet, "Invalid content string")
 
 		data := make([]byte, 0)
@@ -90,8 +90,8 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			size = binary.PutUvarint(buf, 1)
 			data = append(data, buf[0:size]...)
 			// Subcodec
-			dagNum, err := multicodec.ID("dag-pb")
-			cli.ErrCheck(err, quiet, "Failed to obtain swarm codec value")
+			dagNum, err := multicodec.ID("swarm-manifest")
+			cli.ErrCheck(err, quiet, "Failed to obtain swarm manifest codec value")
 			size = binary.PutUvarint(buf, dagNum)
 			data = append(data, buf[0:size]...)
 			// Hash
@@ -118,7 +118,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			"group":       "ens/contenthash",
 			"command":     "set",
 			"ensdomain":   ensDomain,
-			"contenthash": ensContenthashSetHashStr,
+			"contenthash": ensContenthashSetContentStr,
 		})
 	},
 }
@@ -126,6 +126,6 @@ This will return an exit status of 0 if the transaction is successfully submitte
 func init() {
 	ensContenthashCmd.AddCommand(ensContenthashSetCmd)
 	ensContenthashFlags(ensContenthashSetCmd)
-	ensContenthashSetCmd.Flags().StringVar(&ensContenthashSetHashStr, "hash", "", "The address to set e.g. /ipfs/QmdTEBPdNxJFFsH1wRE3YeWHREWDiSex8xhgTnqknyxWgu")
+	ensContenthashSetCmd.Flags().StringVar(&ensContenthashSetContentStr, "content", "", "The address to set e.g. /ipfs/QmdTEBPdNxJFFsH1wRE3YeWHREWDiSex8xhgTnqknyxWgu")
 	addTransactionFlags(ensContenthashSetCmd, "passphrase for the account that owns the domain")
 }

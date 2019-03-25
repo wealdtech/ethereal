@@ -237,6 +237,7 @@ func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields) {
 		logTransaction(tx, logFields)
 	}
 
+	fmt.Printf("%v\n", viper.GetBool("wait"))
 	if !viper.GetBool("wait") {
 		outputIf(!quiet, fmt.Sprintf("%s", tx.Hash().Hex()))
 		os.Exit(_exit_success)

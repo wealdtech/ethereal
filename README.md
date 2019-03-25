@@ -394,7 +394,7 @@ $ ethereal ens contenthash get --domain=mydomain.eth
 `ethereal ens contenthash set` sets the contenthash associated with an ENS domain.  For example:
 
 ```sh
-$ ethereal ens contenthash set --domain=mydomain.eth --hash=/swarm/d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162
+$ ethereal ens contenthash set --domain=mydomain.eth --content=/swarm/d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162
 ```
 
 Valid content hash codecs are "ipfs" and "swarm".
