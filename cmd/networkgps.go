@@ -29,7 +29,7 @@ var networkGPSBlocks int64
 var networkGPSCmd = &cobra.Command{
 	Use:   "gps",
 	Short: "Obtain gas-per-second",
-	Long: `Obtain information about the amount of used used by the network for a given number of blocks.  For example:
+	Long: `Obtain information about the amount of gas used by the network for a given number of blocks.  For example:
 
     ethereal network gps
 

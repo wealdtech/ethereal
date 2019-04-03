@@ -643,6 +643,26 @@ Block 7373050 processed 50 transactions in 5 seconds
 9.04
 ```
 
+#### `usage`
+
+`ethereal network usage` provides a % usage metric for the Ethereum network over a number of blocks in terms of `gas used/gas limit`.  For example:
+
+```sh
+$ ethereal network usage --blocks=20
+97.37%
+```
+With the `--verbose` flag this will provide more information about each block.  For example:
+
+```sh
+$ ethereal network usage --blocks=5 --verbose
+Block 7495042 used 70.37% of gas limit (5629676/8000000)
+Block 7495041 used 99.82% of gas limit (7985401/8000000)
+Block 7495040 used 99.81% of gas limit (7992790/8007811)
+Block 7495039 used 99.92% of gas limit (7993641/8000000)
+Block 7495038 used 99.76% of gas limit (7980625/8000029)
+93.94%
+```
+
 ### `registry` commands
 
 Ether commands focus on use of the [ERC-1820](https://eips.ethereum.org/EIPS/eip-1820) registry.
