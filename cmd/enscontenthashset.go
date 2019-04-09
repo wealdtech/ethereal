@@ -81,18 +81,18 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			data = append(data, []byte(hash)...)
 		case "swarm":
 			// Codec
-			ipfsNum, err := multicodec.ID("swarm-ns")
+			swarmNum, err := multicodec.ID("swarm-ns")
 			cli.ErrCheck(err, quiet, "Failed to obtain swarm codec value")
 			buf := make([]byte, binary.MaxVarintLen64)
-			size := binary.PutUvarint(buf, ipfsNum)
+			size := binary.PutUvarint(buf, swarmNum)
 			data = append(data, buf[0:size]...)
 			// CID
 			size = binary.PutUvarint(buf, 1)
 			data = append(data, buf[0:size]...)
 			// Subcodec
-			dagNum, err := multicodec.ID("swarm-manifest")
+			manifestNum, err := multicodec.ID("swarm-manifest")
 			cli.ErrCheck(err, quiet, "Failed to obtain swarm manifest codec value")
-			size = binary.PutUvarint(buf, dagNum)
+			size = binary.PutUvarint(buf, manifestNum)
 			data = append(data, buf[0:size]...)
 			// Hash
 			hashBit, err := hex.DecodeString(hashBits[2])
