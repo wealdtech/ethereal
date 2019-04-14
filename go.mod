@@ -71,7 +71,7 @@ require (
 	github.com/spf13/viper v1.3.1
 	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect
 	github.com/wealdtech/go-ens v1.0.0
-	github.com/wealdtech/go-erc1820 v1.1.0
+	github.com/wealdtech/go-erc1820 v1.2.0
 	github.com/wealdtech/go-multicodec v1.1.0
 	go.opencensus.io v0.19.1 // indirect
 	go4.org v0.0.0-20190218023631-ce4c26f7be8e // indirect
