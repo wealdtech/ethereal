@@ -681,7 +681,16 @@ $ ethereal registry implementer get --interface="ERC777Token" --address=0x2B5AD5
 `ethereal registry implementer set` sets the contract that implements a specified interface for a specified address.  For example:
 
 ```sh
-$ ethereal registry implementer set --interface="ERC777Token" --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF --implementer=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF
+$ ethereal registry implementer set --interface="ERC777TokensSender" --address=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF --implementer=0x3c24F71e826D3762f5145f6a27d41545A7dfc8cF
+```
+
+#### `implements`
+
+`ethereal registry implements` checks if a contract implements a specified interface.  For example:
+
+```sh
+$ ethereal registry implements --interface="ERC777TokensSender" --address=0x62284ed69b907af90ecba2feef0bf12a99563563
+Yes
 ```
 
 #### `manager get`

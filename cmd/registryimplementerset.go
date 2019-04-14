@@ -35,9 +35,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(registryImplementerInterface != "", quiet, "--interface is required")
 
+		cli.Assert(registryImplementerAddressStr != "", quiet, "--address is required")
 		address, err := ens.Resolve(client, registryImplementerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 
+		cli.Assert(registryImplementerSetImplementerStr != "", quiet, "--implementer is required")
 		implementer, err := ens.Resolve(client, registryImplementerSetImplementerStr)
 		if err != nil {
 			if err.Error() == "could not parse address" {
@@ -46,10 +48,21 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 		cli.ErrCheck(err, quiet, "failed to resolve implementer")
 
+		implementerContract, err := erc1820.NewImplementer(client, &implementer)
+		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 implementer contract")
+		implementsIface, err := implementerContract.ImplementsInterface(registryImplementerInterface, &address)
+		cli.Assert(implementsIface, quiet, "implementer does not implement that interface for that address")
+
 		registry, err := erc1820.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 registry")
 
-		opts, err := generateTxOpts(address)
+		managerAddr, err := registry.Manager(&address)
+		cli.ErrCheck(err, quiet, "failed to obtain manager")
+		if *managerAddr == ens.UnknownAddress {
+			managerAddr = &address
+		}
+
+		opts, err := generateTxOpts(*managerAddr)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		signedTx, err := registry.SetInterfaceImplementer(opts, registryImplementerInterface, &address, &implementer)
 		cli.ErrCheck(err, quiet, "failed to send transaction")

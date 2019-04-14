@@ -2,10 +2,6 @@ module github.com/wealdtech/ethereal
 
 go 1.12
 
-replace github.com/wealdtech/go-ens => ../go-ens
-
-replace github.com/wealdtech/go-erc1820 => ../go-erc1820
-
 require (
 	cloud.google.com/go v0.36.0 // indirect
 	dmitri.shuralyov.com/app/changes v0.0.0-20181114035150-5af16e21babb // indirect
@@ -74,8 +70,8 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect
-	github.com/wealdtech/go-ens v0.0.0-20190307160056-43eefda25b12
-	github.com/wealdtech/go-erc1820 v0.0.0-20190307160016-7f6cc8324233
+	github.com/wealdtech/go-ens v1.0.0
+	github.com/wealdtech/go-erc1820 v1.1.0
 	github.com/wealdtech/go-multicodec v1.1.0
 	go.opencensus.io v0.19.1 // indirect
 	go4.org v0.0.0-20190218023631-ce4c26f7be8e // indirect

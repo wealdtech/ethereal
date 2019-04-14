@@ -275,6 +275,12 @@ github.com/ugorji/go v1.1.2/go.mod h1:hnLbHMwcvSihnDhEfx2/BzKp2xb0Y+ErdfYcrs9tkJ
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43/go.mod h1:iT03XoTwV7xq/+UGwKO3UbC1nNNlopQiY61beSdrtOA=
 github.com/wealdtech/ethereal v0.0.0-20190301090357-1848397a0dd8/go.mod h1:jyMLkSFFJWcn9xuzLm1rgPlX6EGv4mtOz1wPc297EWo=
+github.com/wealdtech/go-ens v1.0.0 h1:jtGD9uqJZg3m57LG3hWO5rcw9QBR6ue2yNW5l+DvkZ4=
+github.com/wealdtech/go-ens v1.0.0/go.mod h1:QaS/D54pG0y0Dq7lMoJOa/hJ8WYFD+yeoPhJc5MgHz0=
+github.com/wealdtech/go-erc1820 v0.0.0-20190307160016-7f6cc8324233 h1:Z+8CE+DeP89K3lzlVIGACEqMjAGNWDXK07P+CaIzCH8=
+github.com/wealdtech/go-erc1820 v0.0.0-20190307160016-7f6cc8324233/go.mod h1:Zxd1WfKvu4IGuQZYM5bOZqfiXrxiyHZMch3Lav2fiJY=
+github.com/wealdtech/go-erc1820 v1.1.0 h1:CCuynHjU/Kbx0PT9uaQUW00RXf9DdSUGzhCmwnsf9vI=
+github.com/wealdtech/go-erc1820 v1.1.0/go.mod h1:TmfPcpMPRPueBg5o3ge2OonPu0jDL/91ryOaPto5o78=
 github.com/wealdtech/go-multicodec v1.0.0 h1:XYWrNwUzpWtkMHCgP+PZvTM2LE+v5ToarVfDVq+5eAI=
 github.com/wealdtech/go-multicodec v1.0.0/go.mod h1:aedGMaTeYkIqi/KCPre1ho5rTb3hGpu/snBOS3GQLw4=
 github.com/wealdtech/go-multicodec v1.1.0 h1:xRa2uX+BYHLHyh7dOT7AFhLgGrq/0oUEKDT/V+7/VDs=
