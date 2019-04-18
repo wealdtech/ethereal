@@ -15,7 +15,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	ens "github.com/wealdtech/go-ens"
 )
 
 var ensDomain string
@@ -25,18 +24,6 @@ var ensCmd = &cobra.Command{
 	Use:   "ens",
 	Short: "Manage ENS",
 	Long:  `Set and obtain Ethereum Name Service information held in Ethereum`,
-}
-
-// Ensure that a domain is in a suitable state
-func inState(domain string, state string) (inState bool) {
-	registrarContract, err := ens.AuctionRegistrarContract(client, domain)
-	if err == nil {
-		inState, err = ens.NameInState(registrarContract, client, domain, state)
-		if err != nil {
-			inState = false
-		}
-	}
-	return
 }
 
 func init() {

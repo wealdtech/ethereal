@@ -22,7 +22,6 @@ import (
 	"github.com/miekg/dns"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/util"
 	ens "github.com/wealdtech/go-ens"
 )
 
@@ -48,7 +47,6 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("DNS domain is %s", dnsDomain))
 		ensDomain := strings.TrimSuffix(dnsDomain, ".")
 		outputIf(verbose, fmt.Sprintf("ENS domain is %s", ensDomain))
-		domainHash := ens.NameHash(ensDomain)
 
 		dnsName = strings.ToLower(dnsName)
 		if dnsName == "" {
@@ -59,18 +57,10 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 			}
 		}
 		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
-		nameHash := util.DNSWireFormatDomainHash(dnsName)
-
-		// Obtain the registry contract
-		registryContract, err := ens.RegistryContract(client)
-		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Obtain DNS resolver for the domain
-		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
-		resolver, err := ens.DNSResolverContractByAddress(client, resolverAddress)
+		resolver, err := ens.NewDNSResolver(client, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
-		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
 
 		var data []byte
 		// Attempt to fetch record
@@ -78,7 +68,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		resourceNum, exists := stringToType[dnsResource]
 		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
 		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
-		data, err = resolver.DnsRecord(nil, domainHash, nameHash, resourceNum)
+		data, err = resolver.Record(dnsName, resourceNum)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 

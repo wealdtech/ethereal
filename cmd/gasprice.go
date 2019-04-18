@@ -64,7 +64,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 				block, err := client.BlockByNumber(ctx, blockNumber)
 				cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 				blockNumber = big.NewInt(0).Set(block.Number())
-				blockTime := time.Unix(block.Time().Int64(), 0)
+				blockTime := time.Unix(int64(block.Time()), 0)
 
 				if util.BlockHasMinerTransactions(block, chainID) {
 					outputIf(verbose, fmt.Sprintf("Block %v contains self-mined transactions; ignoring", blockNumber))

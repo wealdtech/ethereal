@@ -46,7 +46,7 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 							fmt.Printf("Location:\t%s\n", account.URL)
 							fmt.Printf("Address:\t%s\n", account.Address.Hex())
 							if !offline {
-								name, err := ens.ReverseResolve(client, &account.Address)
+								name, err := ens.ReverseResolve(client, account.Address)
 								if err == nil {
 									fmt.Printf("Name:\t\t%s\n", name)
 								}

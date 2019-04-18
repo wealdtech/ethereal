@@ -14,10 +14,12 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -44,28 +46,49 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(len(ensDomain) > 10, quiet, "Domain must be at least 7 characters long")
 		cli.Assert(len(strings.Split(ensDomain, ".")) == 2, quiet, "Name must not contain . (except for ending in .eth)")
 
-		// Ensure that the name is in a suitable state
-		registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(ensDomain))
-		cli.ErrCheck(err, quiet, "cannot obtain ENS registrar contract")
+		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 
-		// Obtain the registry contract
-		registryContract, err := ens.RegistryContract(client)
-		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
+		// Obtain the owner
+		domain, err := ens.DomainPart(ensDomain, 1)
+		// Work out if this is on the old or new registrar
+		location, err := registrar.RegisteredWith(ensDomain)
+		cli.ErrCheck(err, quiet, "Failed to obtain domain location")
+		var owner common.Address
+		var auctionRegistrar *ens.AuctionRegistrar
+		switch location {
+		case "none":
+			outputIf(!quiet, "Domain not registered")
+			os.Exit(_exit_failure)
+		case "temporary":
+			auctionRegistrar, err = registrar.PriorAuctionContract()
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))
+			owner, err = auctionRegistrar.Owner(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
+		case "permanent":
+			owner, err = registrar.Owner(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
+		default:
+			cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
+		}
+		cli.Assert(owner != ens.UnknownAddress, quiet, "Failed to obtain owner")
 
-		// Fetch the owner of the name
-		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
-		cli.ErrCheck(err, quiet, "cannot obtain owner")
-		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
-		outputIf(verbose, fmt.Sprintf("Current owner of %s is %s", ensDomain, ens.Format(client, &owner)))
+		outputIf(verbose, fmt.Sprintf("Current owner is %s", ens.Format(client, owner)))
 
-		// Transfer the deed
+		// Transfer the deed / domain
 		newOwnerAddress, err := ens.Resolve(client, ensTransferNewOwnerStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("unknown new owner %s", ensTransferNewOwnerStr))
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
-		domain, err := ens.DomainPart(ensDomain, 1)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("failed to parse domain %s", ensDomain))
-		signedTx, err := registrarContract.Transfer(opts, ens.LabelHash(domain), newOwnerAddress)
+
+		var signedTx *types.Transaction
+		switch location {
+		case "permanent":
+			signedTx, err = registrar.SetOwner(opts, domain, newOwnerAddress)
+		case "temporary":
+			cli.Err(quiet, "TODO")
+		}
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{

@@ -58,7 +58,7 @@ func GasPriceForBlocks(client *ethclient.Client, blocks int64, gasRequired uint6
 			return nil, err
 		}
 		blockNumber = big.NewInt(0).Set(block.Number())
-		blockTime := time.Unix(block.Time().Int64(), 0)
+		blockTime := time.Unix(int64(block.Time()), 0)
 
 		// We check the block to see if it contains transactions from the miner, and if so ignore it.  This is because self-mined
 		// transactions do not represent market value for gas price

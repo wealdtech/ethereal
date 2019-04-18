@@ -11,7 +11,7 @@ require (
 	github.com/coreos/etcd v3.3.12+incompatible // indirect
 	github.com/coreos/go-systemd v0.0.0-20190212144455-93d5ec2c7f76 // indirect
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
-	github.com/ethereum/go-ethereum v1.8.23
+	github.com/ethereum/go-ethereum v1.8.27
 	github.com/fjl/memsize v0.0.0-20180929194037-2a09253e352a // indirect
 	github.com/gliderlabs/ssh v0.1.3 // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
@@ -70,7 +70,7 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43 // indirect
-	github.com/wealdtech/go-ens v1.0.0
+	github.com/wealdtech/go-ens v0.0.0-20190418160144-14e916b3ab77
 	github.com/wealdtech/go-erc1820 v1.2.0
 	github.com/wealdtech/go-multicodec v1.1.0
 	go.opencensus.io v0.19.1 // indirect

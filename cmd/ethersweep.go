@@ -53,7 +53,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		defer cancel()
 		balance, err := client.BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", ens.Format(client, &fromAddress)))
+		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", ens.Format(client, fromAddress)))
 
 		// Obtain the amount of gas required to send the transaction, and calculate the amount to send
 		gas, err := estimateGas(fromAddress, &toAddress, balance, nil)

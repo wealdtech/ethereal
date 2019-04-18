@@ -49,7 +49,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 			block, err := client.BlockByNumber(ctx, lastBlockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 			lastBlockNumber = new(big.Int).Set(block.Number())
-			lastBlockTime = time.Unix(block.Time().Int64(), 0)
+			lastBlockTime = time.Unix(int64(block.Time()), 0)
 			outputIf(verbose, fmt.Sprintf("Block %v mined at %v", lastBlockNumber, lastBlockTime))
 		}
 
@@ -75,7 +75,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 				block, err := client.BlockByNumber(ctx, guessBlockNumber)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", guessBlockNumber))
 				huntBlockNumber = new(big.Int).Set(block.Number())
-				huntBlockTime = time.Unix(block.Time().Int64(), 0)
+				huntBlockTime = time.Unix(int64(block.Time()), 0)
 				checkedBlocks[huntBlockNumber.Uint64()] = true
 				// If this block is next to (or equal to) the previous block we're done
 				blockDiff := new(big.Int).Abs(new(big.Int).Sub(huntBlockNumber, oldBlockNumber))
@@ -109,7 +109,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 				defer cancel()
 				block, err := client.BlockByNumber(ctx, oldBlockNumber)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", oldBlockNumber))
-				oldBlockTime = time.Unix(block.Time().Int64(), 0)
+				oldBlockTime = time.Unix(int64(block.Time()), 0)
 				outputIf(verbose, fmt.Sprintf("Block %v mined at %v", oldBlockNumber, oldBlockTime))
 			}
 		}

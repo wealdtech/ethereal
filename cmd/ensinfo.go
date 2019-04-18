@@ -45,57 +45,89 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
 
 		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
-		registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(ensDomain))
-		cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
+		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 
+		outputIf(verbose, fmt.Sprintf("Domain level is %v", ens.DomainLevel(ensDomain)))
 		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
-		registry, err := ens.RegistryContract(client)
-		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
-		domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(ensDomain))
-		cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 
-		if ens.DomainLevel(ensDomain) == 1 {
-			state, err := ens.State(registrarContract, client, ensDomain)
-			if err == nil {
-				if quiet {
-					if state == "Owned" {
-						os.Exit(_exit_success)
-					} else {
-						os.Exit(_exit_failure)
-					}
-				} else {
-					switch state {
-					case "Available":
-						availableInfo(ensDomain)
-					case "Bidding":
-						biddingInfo(ensDomain)
-					case "Revealing":
-						revealingInfo(ensDomain)
-					case "Won":
-						wonInfo(ensDomain)
-					case "Owned":
-						domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
-						if domainOwnerName == "" {
-							fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
-						} else {
-							fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
-						}
-						ownedInfo(ensDomain)
-					default:
-						fmt.Println(state)
-					}
-				}
-			} else {
-				ownedInfo(ensDomain)
-			}
-		} else {
-			domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
+		registry, err := ens.NewRegistry(client)
+		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
+
+		// Work out if this is on the old or new registrar
+		location, err := registrar.RegisteredWith(ensDomain)
+		cli.ErrCheck(err, quiet, "Failed to obtain domain location")
+		switch location {
+		case "none":
+			outputIf(!quiet, "Domain not registered")
+			os.Exit(_exit_failure)
+		case "temporary":
+			outputIf(!quiet, "Domain registered with temporary registrar")
+		case "permanent":
+			outputIf(verbose, "Domain registered on permanent registrar")
+		default:
+			cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
+		}
+
+		domainOwnerAddress, err := registry.Owner(ensDomain)
+		cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
+		if domainOwnerAddress != ens.UnknownAddress {
+			domainOwnerName, _ := ens.ReverseResolve(client, domainOwnerAddress)
 			if domainOwnerName == "" {
-				fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
+				fmt.Printf("Owner is %s\n", domainOwnerAddress.Hex())
 			} else {
-				fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+				fmt.Printf("Owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+			}
+		}
+
+		if location == "permanent" {
+			domain, err := ens.DomainPart(ensDomain, 1)
+			registrant, err := registrar.Owner(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain registrant")
+			registrantName, _ := ens.ReverseResolve(client, registrant)
+			if registrantName == "" {
+				fmt.Printf("Registrant is %s\n", registrant.Hex())
+			} else {
+				fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
 			}
 			genericInfo(ensDomain)
+		}
+		if location == "temporary" {
+			auctionRegistrar, err := registrar.PriorAuctionContract()
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))
+			if ens.DomainLevel(ensDomain) == 1 {
+				state, err := auctionRegistrar.State(ensDomain)
+				cli.ErrCheck(err, quiet, "Failed to obtain domain state")
+
+				if err == nil {
+					if quiet {
+						if state == "Owned" {
+							os.Exit(_exit_success)
+						} else {
+							os.Exit(_exit_failure)
+						}
+					} else {
+						switch state {
+						case "Available":
+							availableInfo(ensDomain)
+						case "Bidding":
+							biddingInfo(auctionRegistrar, ensDomain)
+						case "Revealing":
+							revealingInfo(auctionRegistrar, ensDomain)
+						case "Won":
+							wonInfo(auctionRegistrar, ensDomain)
+						case "Owned":
+							ownedInfo(auctionRegistrar, ensDomain)
+						default:
+							fmt.Println(state)
+						}
+					}
+				} else {
+					ownedInfo(auctionRegistrar, ensDomain)
+				}
+			} else {
+				genericInfo(ensDomain)
+			}
 		}
 	},
 }
@@ -113,48 +145,45 @@ func availableInfo(name string) {
 	}
 }
 
-func biddingInfo(name string) {
-	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
-	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
-	_, _, registrationDate, _, _, err := ens.Entry(registrarContract, client, name)
-	cli.ErrCheck(err, quiet, "Cannot obtain auction status")
+func biddingInfo(registrar *ens.AuctionRegistrar, name string) {
+	entry, err := registrar.Entry(name)
+	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
+
 	twoDaysAgo := time.Duration(-48) * time.Hour
-	fmt.Println("Bidding until", registrationDate.Add(twoDaysAgo))
+	fmt.Println("Bidding until", entry.Registration.Add(twoDaysAgo))
 }
 
-func revealingInfo(name string) {
-	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
-	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
-	_, _, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
+func revealingInfo(registrar *ens.AuctionRegistrar, name string) {
+	entry, err := registrar.Entry(name)
 	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
-	fmt.Println("Revealing until", registrationDate)
+
+	fmt.Println("Revealing until", entry.Registration)
 	// If the value is 0 then it is is minvalue instead
-	if value.Cmp(zero) == 0 {
-		value, _ = etherutils.StringToWei("0.01 ether")
+	if entry.Value.Cmp(zero) == 0 {
+		entry.Value, _ = etherutils.StringToWei("0.01 ether")
 	}
-	fmt.Println("Locked value is", etherutils.WeiToString(value, true))
-	fmt.Println("Highest bid is", etherutils.WeiToString(highestBid, true))
+	fmt.Println("Locked value is", etherutils.WeiToString(entry.Value, true))
+	fmt.Println("Highest bid is", etherutils.WeiToString(entry.HighestBid, true))
 }
 
-func wonInfo(name string) {
-	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
-	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
-	_, deedAddress, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
+func wonInfo(registrar *ens.AuctionRegistrar, name string) {
+	entry, err := registrar.Entry(name)
 	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
-	fmt.Println("Won since", registrationDate)
-	if value.Cmp(zero) == 0 {
-		value, _ = etherutils.StringToWei("0.01 ether")
+
+	fmt.Println("Won since", entry.Registration)
+	if entry.Value.Cmp(zero) == 0 {
+		entry.Value, _ = etherutils.StringToWei("0.01 ether")
 	}
-	fmt.Println("Locked value is", etherutils.WeiToString(value, true))
-	fmt.Println("Highest bid was", etherutils.WeiToString(highestBid, true))
+	fmt.Println("Locked value is", etherutils.WeiToString(entry.Value, true))
+	fmt.Println("Highest bid was", etherutils.WeiToString(entry.HighestBid, true))
 
 	// Deed
-	deedContract, err := ens.DeedContract(client, &deedAddress)
+	deed, err := ens.NewDeedAt(client, entry.Deed)
 	cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
 	// Deed owner
-	deedOwner, err := ens.Owner(deedContract)
+	deedOwner, err := deed.Owner()
 	cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-	deedOwnerName, _ := ens.ReverseResolve(client, &deedOwner)
+	deedOwnerName, _ := ens.ReverseResolve(client, deedOwner)
 	if deedOwnerName == "" {
 		fmt.Println("Deed owner is", deedOwner.Hex())
 	} else {
@@ -162,32 +191,30 @@ func wonInfo(name string) {
 	}
 }
 
-func ownedInfo(name string) {
-	registrarContract, err := ens.AuctionRegistrarContract(client, ens.Tld(name))
-	cli.ErrCheck(err, quiet, "Failed to obtain ENS registrar contract")
-	_, deedAddress, registrationDate, value, highestBid, err := ens.Entry(registrarContract, client, name)
+func ownedInfo(registrar *ens.AuctionRegistrar, name string) {
+	entry, err := registrar.Entry(name)
 	if err == nil {
-		fmt.Println("Owned since", registrationDate)
-		fmt.Println("Locked value is", etherutils.WeiToString(value, true))
-		fmt.Println("Highest bid was", etherutils.WeiToString(highestBid, true))
+		fmt.Println("Owned since", entry.Registration)
+		fmt.Println("Locked value is", etherutils.WeiToString(entry.Value, true))
+		fmt.Println("Highest bid was", etherutils.WeiToString(entry.HighestBid, true))
 
 		// Deed
-		deedContract, err := ens.DeedContract(client, &deedAddress)
+		deed, err := ens.NewDeedAt(client, entry.Deed)
 		cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
 		// Deed owner
-		deedOwner, err := deedContract.Owner(nil)
+		deedOwner, err := deed.Owner()
 		cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-		deedOwnerName, _ := ens.ReverseResolve(client, &deedOwner)
+		deedOwnerName, _ := ens.ReverseResolve(client, deedOwner)
 		if deedOwnerName == "" {
 			fmt.Println("Deed owner is", deedOwner.Hex())
 		} else {
 			fmt.Printf("Deed owner is %s (%s)\n", deedOwnerName, deedOwner.Hex())
 		}
 
-		previousDeedOwner, err := deedContract.PreviousOwner(nil)
+		previousDeedOwner, err := deed.PreviousOwner()
 		cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
 		if bytes.Compare(previousDeedOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0 {
-			previousDeedOwnerName, _ := ens.ReverseResolve(client, &previousDeedOwner)
+			previousDeedOwnerName, _ := ens.ReverseResolve(client, previousDeedOwner)
 			if previousDeedOwnerName == "" {
 				fmt.Println("Previous deed owner is", previousDeedOwner.Hex())
 			} else {
@@ -201,28 +228,22 @@ func ownedInfo(name string) {
 
 func genericInfo(name string) {
 	// Domain owner
-	registry, err := ens.RegistryContract(client)
+	registry, err := ens.NewRegistry(client)
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
-	domainOwnerAddress, err := registry.Owner(nil, ens.NameHash(name))
+	domainOwnerAddress, err := registry.Owner(name)
 	cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 	if domainOwnerAddress == ens.UnknownAddress {
-		fmt.Println("Domain owner not set")
+		fmt.Println("Owner not set")
 		return
-	}
-	domainOwnerName, _ := ens.ReverseResolve(client, &domainOwnerAddress)
-	if domainOwnerName == "" {
-		fmt.Printf("Domain owner is %s\n", domainOwnerAddress.Hex())
-	} else {
-		fmt.Printf("Domain owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 	}
 
 	// Resolver
-	resolverAddress, err := ens.Resolver(registry, name)
+	resolverAddress, err := registry.ResolverAddress(name)
 	if err != nil {
 		fmt.Println("Resolver not configured")
 		return
 	}
-	resolverName, _ := ens.ReverseResolve(client, &resolverAddress)
+	resolverName, _ := ens.ReverseResolve(client, resolverAddress)
 	if resolverName == "" {
 		fmt.Printf("Resolver is %s\n", resolverAddress.Hex())
 	} else {
@@ -234,16 +255,16 @@ func genericInfo(name string) {
 	if err == nil && address != ens.UnknownAddress {
 		fmt.Printf("Domain resolves to %s\n", address.Hex())
 		// Reverse resolution
-		reverseDomain, err := ens.ReverseResolve(client, &address)
+		reverseDomain, err := ens.ReverseResolve(client, address)
 		if err == nil && reverseDomain != "" {
 			fmt.Printf("Address resolves to %s\n", reverseDomain)
 		}
 	}
 
 	// Content hash
-	resolverContract, err := ens.ResolverContractByAddress(client, resolverAddress)
+	resolver, err := ens.NewResolverAt(client, name, resolverAddress)
 	if err == nil {
-		bytes, err := resolverContract.Contenthash(nil, ens.NameHash(ensDomain))
+		bytes, err := resolver.Contenthash()
 		if err == nil && len(bytes) > 0 {
 			contentHash, err := contenthashBytesToString(bytes)
 			if err == nil {

@@ -40,11 +40,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registryContract, err := ens.RegistryContract(client)
+		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
-		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
+		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
@@ -54,12 +54,12 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 
 		// Obtain the resolver for this name
-		resolver, err := ens.ResolverContract(client, ensDomain)
+		resolver, err := ens.NewResolver(client, ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		signedTx, err := resolver.SetAddr(opts, ens.NameHash(ensDomain), address)
+		signedTx, err := resolver.SetAddress(opts, address)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{

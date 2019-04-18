@@ -49,7 +49,7 @@ In quiet mode this will return 0 if the token exists, otherwise 1.`,
 		if verbose {
 			address, err := tokenContractAddress(tokenStr)
 			if err == nil {
-				fmt.Printf("Address:\t%s\n", ens.Format(client, &address))
+				fmt.Printf("Address:\t%s\n", ens.Format(client, address))
 			}
 		}
 

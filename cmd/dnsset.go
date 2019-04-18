@@ -56,22 +56,19 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		outputIf(verbose, fmt.Sprintf("ENS domain hash is 0x%x", domainHash))
 
 		// Obtain the registry contract
-		registryContract, err := ens.RegistryContract(client)
+		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Obtain owner for the domain
-		domainOwner, err := registryContract.Owner(nil, domainHash)
+		domainOwner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(bytes.Compare(domainOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Owner is not set")
-		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, &domainOwner)))
+		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, domainOwner)))
 
 		// Obtain DNS resolver for the domain
-		resolverAddress, err := ens.Resolver(registryContract, ensDomain)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("No resolver registered for %s", dnsDomain))
-		resolver, err := ens.DNSResolverContractByAddress(client, resolverAddress)
+		resolver, err := ens.NewDNSResolver(client, ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
-		outputIf(verbose, fmt.Sprintf("Resolver contract is at %s", ens.Format(client, &resolverAddress)))
 
 		var signedTx *types.Transaction
 		data := make([]byte, 32768)
@@ -109,7 +106,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 
 		if dnsResource != "SOA" && !dnsSetNoSoa {
 			// Obtain the current SOA
-			curSoaData, err := resolver.DnsRecord(nil, domainHash, util.DNSWireFormatDomainHash(dnsDomain), dns.TypeSOA)
+			curSoaData, err := resolver.Record(dnsDomain, dns.TypeSOA)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
 			if len(curSoaData) > 0 {
 				// We have an SOA so increment the serial as per RFC 1912
@@ -131,7 +128,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		// Build the transaction
 		opts, err := generateTxOpts(domainOwner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		signedTx, err = resolver.SetDNSRecords(opts, domainHash, data)
+		signedTx, err = resolver.SetRecords(opts, data)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 		if offline {
 			if !quiet {

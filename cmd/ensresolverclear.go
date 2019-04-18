@@ -38,17 +38,17 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registryContract, err := ens.RegistryContract(client)
+		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
-		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
+		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
-		signedTx, err := registryContract.SetResolver(opts, ens.NameHash(ensDomain), ens.UnknownAddress)
+		signedTx, err := registry.SetResolver(opts, ensDomain, ens.UnknownAddress)
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{

@@ -46,7 +46,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 			block, err := client.BlockByNumber(ctx, blockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 			blockNumber = big.NewInt(0).Set(block.Number())
-			blockTime := time.Unix(block.Time().Int64(), 0)
+			blockTime := time.Unix(int64(block.Time()), 0)
 
 			if !quiet {
 				fmt.Printf("%v\t%9d/%9d\t", blockNumber, block.GasUsed(), block.GasLimit())
@@ -56,7 +56,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 					fmt.Printf("%v", gap)
 				}
 				coinbase := block.Coinbase()
-				fmt.Printf("\t%s\n", ens.Format(client, &coinbase))
+				fmt.Printf("\t%s\n", ens.Format(client, coinbase))
 				lastBlockTime = &blockTime
 			}
 			blockNumber = blockNumber.Sub(blockNumber, big.NewInt(1))

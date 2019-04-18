@@ -41,7 +41,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Failed to obtain address to clear domain")
 
 		// Obtain the reverse registrar
-		registrar, err := ens.ReverseRegistrarContract(client)
+		registrar, err := ens.NewReverseRegistrar(client)
 		cli.ErrCheck(err, quiet, "Failed to obtain reverse registrar")
 
 		opts, err := generateTxOpts(address)

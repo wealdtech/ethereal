@@ -142,7 +142,7 @@ func valueToString(client *ethclient.Client, argType abi.Type, index uint32, off
 		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.AddressTy:
 		address := common.BytesToAddress(data[offset+index*32+12 : offset+index*32+32])
-		return ens.Format(client, &address), nil
+		return ens.Format(client, address), nil
 	case abi.FixedBytesTy:
 		return fmt.Sprintf("0x%x", data[offset+index*32+32-uint32(argType.Size):offset+index*32+32]), nil
 	case abi.BytesTy:

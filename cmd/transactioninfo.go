@@ -124,16 +124,16 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 
 		fromAddress, err := txFrom(tx)
 		if err == nil {
-			fmt.Printf("From:\t\t\t%v\n", ens.Format(client, &fromAddress))
+			fmt.Printf("From:\t\t\t%v\n", ens.Format(client, fromAddress))
 		}
 
 		// To
 		if tx.To() == nil {
 			if receipt != nil {
-				fmt.Printf("Contract address:\t%v\n", ens.Format(client, &receipt.ContractAddress))
+				fmt.Printf("Contract address:\t%v\n", ens.Format(client, receipt.ContractAddress))
 			}
 		} else {
-			fmt.Printf("To:\t\t\t%v\n", ens.Format(client, tx.To()))
+			fmt.Printf("To:\t\t\t%v\n", ens.Format(client, *tx.To()))
 		}
 
 		if verbose {
@@ -154,7 +154,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			fmt.Printf("Logs:\n")
 			for i, log := range receipt.Logs {
 				fmt.Printf("\t%d:\n", i)
-				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(client, &log.Address))
+				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(client, log.Address))
 				// Try to obtain decoded log
 				decoded := txdata.EventToString(client, log)
 				if decoded != "" {

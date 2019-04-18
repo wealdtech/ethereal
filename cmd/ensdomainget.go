@@ -39,7 +39,7 @@ In quiet mode this will return 0 if the address has a reverse resolution, otherw
 		address, err := ens.Resolve(client, ensDomainGetAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address for lookup")
 
-		domain, err := ens.ReverseResolve(client, &address)
+		domain, err := ens.ReverseResolve(client, address)
 		if err != nil {
 			if err.Error() == "No resolution" {
 				os.Exit(_exit_failure)

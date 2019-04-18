@@ -35,13 +35,13 @@ In quiet mode this will return 0 if the name has an owner, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registryContract, err := ens.RegistryContract(client)
+		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "failed to obtain registry contract")
-		owner, err := registryContract.Owner(nil, ens.NameHash(ensDomain))
+		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "failed to obtain owner")
 
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, &owner))
+			fmt.Printf("%s\n", ens.Format(client, owner))
 		}
 		os.Exit(_exit_success)
 	},
