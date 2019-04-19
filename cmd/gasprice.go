@@ -20,10 +20,10 @@ import (
 	"sort"
 	"time"
 
-	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var gasPriceBlocks int64
@@ -89,7 +89,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 					if len(validTxs) > 0 {
 						if gasPriceLowest {
 							blockLowestGasPrice := validTxs[len(validTxs)-1].GasPrice()
-							outputIf(verbose, fmt.Sprintf("Lowest inclusion price for block %v (%s) is %s", blockNumber, blockTime.Format("06/01/02 15:04:05"), etherutils.WeiToString(blockLowestGasPrice, true)))
+							outputIf(verbose, fmt.Sprintf("Lowest inclusion price for block %v (%s) is %s", blockNumber, blockTime.Format("06/01/02 15:04:05"), string2eth.WeiToString(blockLowestGasPrice, true)))
 							if lowestGasPrice.Cmp(zero) == 0 || blockLowestGasPrice.Cmp(lowestGasPrice) < 0 {
 								lowestGasPrice = blockLowestGasPrice
 							}
@@ -104,7 +104,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 							totalGasPrice = totalGasPrice.Add(totalGasPrice, blockGasPrice)
 							totalTxs += blockTxs
 							blockGasPrice = blockGasPrice.Div(blockGasPrice, big.NewInt(blockTxs))
-							outputIf(verbose, fmt.Sprintf("Expected inclusion price for block %v (%s) over %d transactions is %s", blockNumber, blockTime.Format("06/01/02 15:04:05"), blockTxs, etherutils.WeiToString(blockGasPrice, true)))
+							outputIf(verbose, fmt.Sprintf("Expected inclusion price for block %v (%s) over %d transactions is %s", blockNumber, blockTime.Format("06/01/02 15:04:05"), blockTxs, string2eth.WeiToString(blockGasPrice, true)))
 						}
 					}
 				}
@@ -135,7 +135,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 		if gasPriceWei {
 			fmt.Printf("%s\n", finalGasPrice.String())
 		} else {
-			fmt.Printf("%s\n", etherutils.WeiToString(finalGasPrice, true))
+			fmt.Printf("%s\n", string2eth.WeiToString(finalGasPrice, true))
 		}
 	},
 }

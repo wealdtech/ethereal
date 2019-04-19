@@ -23,30 +23,30 @@ import (
 	ens "github.com/wealdtech/go-ens/v2"
 )
 
-var ensMigrateDomains string
+var ensReleaseDomains string
 
-// ensMigrateCmd represents the migrate command
-var ensMigrateCmd = &cobra.Command{
-	Use:   "migrate",
-	Short: "Migrate an ENS domain from the temporary to permanent registrar",
-	Long: `Migrate an Ethereum Name Service (ENS) domain to the permanent registrar.  For example:
+// ensReleaseCmd represents the release command
+var ensReleaseCmd = &cobra.Command{
+	Use:   "release",
+	Short: "Release an ENS domain from the temporary registrar",
+	Long: `Release an Ethereum Name Service (ENS) domain, returning the name to the available pool and refunding the deposit.  For example:
 
-    ethereal ens migrate --domain=enstest.eth --passphrase="my secret passphrase"
+    ethereal ens release --domain=enstest.eth --passphrase="my secret passphrase"
 
-Multiple domains can be migrated with a single command (note this still creates one transaction for each name).  For example:
+Multiple domains can be released with a single command (note this still creates one transaction for each name).  For example:
 
-    ethereal ens migrate --domains=mydomain1.eth&&mydomain2.eth --passphrase="my secret passphrase"
+    ethereal ens release --domains=mydomain1.eth&&mydomain2.eth --passphrase="my secret passphrase"
 
 The keystore for the domain(s) owner must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
-This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
+This will return an exit status of 0 if the transactions are successfully submitted (and mined if --wait is supplied), 1 if the transactions are not successfully submitted, and 2 if the transactions are successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
-		cli.Assert(ensDomain != "" || ensMigrateDomains != "", quiet, "--domain or --domains is required")
+		cli.Assert(ensDomain != "" || ensReleaseDomains != "", quiet, "--domain or --domains is required")
 
 		var domains []string
-		if ensMigrateDomains != "" {
-			domains = strings.Split(ensMigrateDomains, "&&")
+		if ensReleaseDomains != "" {
+			domains = strings.Split(ensReleaseDomains, "&&")
 		} else {
 			domains = make([]string, 1)
 			domains[0] = ensDomain
@@ -68,18 +68,19 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			case "temporary":
 				// Good
 			case "permanent":
-				cli.Err(quiet, fmt.Sprintf("Domain %s already migrated", domain))
+				cli.Err(quiet, fmt.Sprintf("Domain %s on permanent registrar", domain))
 			case "none":
 				cli.Err(quiet, fmt.Sprintf("Domain %s not registered", domain))
 			}
 
 			name, err := ens.DomainPart(domain, 1)
 
-			// Ensure the domain is in a suitable state to be migrated
-			entry, err := auctionRegistrar.Entry(name)
-			cli.ErrCheck(err, quiet, "Cannot obtain domain details")
-			cli.Assert(entry.State == "Won" || entry.State == "Owned", quiet, fmt.Sprintf("domain not in a suitable state to be transferred; please run \"ethereal ens info --domain=%s\" to obtain more information about the state of the domain", domain))
-
+			// Ensure the domain is in a suitable state to be released
+			// TODO
+			//			entry, err := auctionRegistrar.Entry(name)
+			//			cli.ErrCheck(err, quiet, "Cannot obtain domain details")
+			//			cli.Assert(entry.State == "Won" || entry.State == "Owned", quiet, fmt.Sprintf("domain not in a suitable state to be transferred; please run \"ethereal ens info --domain=%s\" to obtain more information about the state of the domain", domain))
+			//
 			owner, err := auctionRegistrar.Owner(name)
 			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 
@@ -87,13 +88,13 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 			opts, err := generateTxOpts(owner)
 			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-			signedTx, err := auctionRegistrar.Migrate(opts, name)
+			signedTx, err := auctionRegistrar.Release(opts, name)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 			nextNonce(owner)
 
 			handleSubmittedTransaction(signedTx, log.Fields{
 				"group":     "ens",
-				"command":   "migrate",
+				"command":   "release",
 				"ensdomain": domain,
 			}, false)
 		}
@@ -101,8 +102,8 @@ This will return an exit status of 0 if the transaction is successfully submitte
 }
 
 func init() {
-	ensCmd.AddCommand(ensMigrateCmd)
-	ensFlags(ensMigrateCmd)
-	ensMigrateCmd.Flags().StringVar(&ensMigrateDomains, "domains", "", "multiple ENS domains to migrate at the same time; separate with \"&&\" e.g. --domains=mydomain1.eth&&mydomain2.eth")
-	addTransactionFlags(ensMigrateCmd, "passphrase for the account that owns the domain")
+	ensCmd.AddCommand(ensReleaseCmd)
+	ensFlags(ensReleaseCmd)
+	ensReleaseCmd.Flags().StringVar(&ensReleaseDomains, "domains", "", "multiple ENS domains to migrate at the same time; separate with \"&&\" e.g. --domains=mydomain1.eth&&mydomain2.eth")
+	addTransactionFlags(ensReleaseCmd, "passphrase for the account that owns the domain")
 }

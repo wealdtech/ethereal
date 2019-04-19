@@ -21,11 +21,11 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
-	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 // transactionUpCmd represents the transaction up command
@@ -54,7 +54,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			gasPrice = minGasPrice
 		} else {
 			// Gas price supplied; ensure it is over 10% more than the current gas price
-			cli.Assert(gasPrice.Cmp(minGasPrice) > 0, quiet, fmt.Sprintf("Gas price must be at least %s", etherutils.WeiToString(minGasPrice, true)))
+			cli.Assert(gasPrice.Cmp(minGasPrice) > 0, quiet, fmt.Sprintf("Gas price must be at least %s", string2eth.WeiToString(minGasPrice, true)))
 		}
 
 		// Create and sign the transaction
@@ -82,7 +82,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			"group":       "transaction",
 			"command":     "up",
 			"oldgasprice": tx.GasPrice().String(),
-		})
+		}, true)
 	},
 }
 

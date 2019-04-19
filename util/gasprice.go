@@ -22,7 +22,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	etherutils "github.com/orinocopay/go-etherutils"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 // GasPriceForBlocks attempts to calculate a suitable gas price for a transaction given the gas used and the number of blocks
@@ -95,7 +95,7 @@ func GasPriceForBlocks(client *ethclient.Client, blocks int64, gasRequired uint6
 				gasRemaining -= tx.Gas()
 			}
 			if verbose {
-				fmt.Printf("Inclusion price for block %v (%s) is %s\n", blockNumber, blockTime.Format("06/01/02 15:04:05"), etherutils.WeiToString(blockGasPrice, true))
+				fmt.Printf("Inclusion price for block %v (%s) is %s\n", blockNumber, blockTime.Format("06/01/02 15:04:05"), string2eth.WeiToString(blockGasPrice, true))
 			}
 			if lowestGasPrice.Cmp(zero) == 0 || blockGasPrice.Cmp(lowestGasPrice) < 0 {
 				lowestGasPrice = blockGasPrice
@@ -105,7 +105,7 @@ func GasPriceForBlocks(client *ethclient.Client, blocks int64, gasRequired uint6
 	}
 
 	// Increase the gas price by 0.1Gwei to put it above the historic price
-	addition, err := etherutils.StringToWei("0.1 gwei")
+	addition, err := string2eth.StringToWei("0.1 gwei")
 	if err != nil {
 		return nil, err
 	}

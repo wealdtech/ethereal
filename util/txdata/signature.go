@@ -24,7 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 	"golang.org/x/crypto/sha3"
 )
 

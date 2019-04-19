@@ -23,7 +23,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 var ensTransferNewOwnerStr string
@@ -87,7 +87,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		case "permanent":
 			signedTx, err = registrar.SetOwner(opts, domain, newOwnerAddress)
 		case "temporary":
-			cli.Err(quiet, "TODO")
+			signedTx, err = auctionRegistrar.SetOwner(opts, domain, newOwnerAddress)
 		}
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
@@ -96,7 +96,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			"command":     "transfer",
 			"ensdomain":   ensDomain,
 			"ensnewowner": newOwnerAddress.Hex(),
-		})
+		}, true)
 	},
 }
 

@@ -21,7 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 var ensResolverSetResolverStr string
@@ -72,7 +72,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			"command":     "set",
 			"ensdomain":   ensDomain,
 			"ensresolver": resolverAddress.Hex(),
-		})
+		}, true)
 	},
 }
 

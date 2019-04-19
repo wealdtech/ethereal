@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 var tokenApproveAmount string
@@ -90,7 +90,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			"tokenholder":  holderAddress.Hex(),
 			"tokenspender": spenderAddress.Hex(),
 			"tokenamount":  amount.String(),
-		})
+		}, true)
 	},
 }
 

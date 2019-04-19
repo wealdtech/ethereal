@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 var accountNonceAddress string

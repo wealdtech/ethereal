@@ -27,11 +27,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 var dnsSetTTL time.Duration
-var dnsSetValue string
+var dnsSetRecord string
 var dnsSetNoSoa bool
 
 // dnsSetCmd represents the dns set command
@@ -89,11 +89,11 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
 		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
 
-		cli.Assert(dnsSetValue != "", quiet, "--value is required")
+		cli.Assert(dnsSetRecord != "", quiet, "--value is required")
 
 		// Create the data resource record(s)
 		offset := 0
-		values := strings.Split(dnsSetValue, "&&")
+		values := strings.Split(dnsSetRecord, "&&")
 		for _, value := range values {
 			source := fmt.Sprintf("%s %d %s %s", dnsName, int(dnsSetTTL.Seconds()), dnsResource, value)
 			outputIf(verbose, fmt.Sprintf("Adding record %s", source))
@@ -145,9 +145,9 @@ In This will return an exit status of 0 if the transaction is successfully submi
 			"dnsresource": dnsResource,
 			"dnsdomain":   dnsDomain,
 			"dnsname":     dnsName,
-			"dnsvalue":    dnsSetValue,
+			"dnsvalue":    dnsSetRecord,
 			"dnsttl":      dnsSetTTL,
-		})
+		}, true)
 	},
 }
 
@@ -155,7 +155,7 @@ func init() {
 	dnsCmd.AddCommand(dnsSetCmd)
 	dnsFlags(dnsSetCmd)
 	dnsSetCmd.Flags().DurationVar(&dnsSetTTL, "ttl", time.Duration(0), "The time-to-live for the record")
-	dnsSetCmd.Flags().StringVar(&dnsSetValue, "value", "", "The value for the resource (separate multiple items with &&)")
+	dnsSetCmd.Flags().StringVar(&dnsSetRecord, "record", "", "The record for the resource (separate multiple items with &&)")
 	dnsSetCmd.Flags().BoolVar(&dnsSetNoSoa, "nosoa", false, "Do not update the zone's SOA record")
 	addTransactionFlags(dnsSetCmd, "the owner of the domain")
 }

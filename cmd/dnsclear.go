@@ -23,7 +23,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 // dnsClearCmd represents the dns clear command
@@ -80,7 +80,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			"group":   "dns",
 			"command": "clear",
 			"domain":  dnsDomain,
-		})
+		}, true)
 	},
 }
 

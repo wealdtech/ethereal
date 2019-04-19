@@ -334,13 +334,13 @@ ethdns.xyz.     43200   IN      NS      ns2.ethdns.xyz.
 `ethereal dns set` sets a single resource record set for the (domain,name,resource record type) tuple.  For example:
 
 ```sh
-$ ethereal dns set --domain=ethdns.xyz --name=www --resource=CNAME --value="ethdns.xyz."
+$ ethereal dns set --domain=ethdns.xyz --name=www --resource=CNAME --record="ethdns.xyz."
 ```
 
 Resource record sets with multiple values can be supplied by separating them with "&&".  For example:
 
 ```sh
-$ ethereal dns set --domain=ethdns.xyz --resource=NS --value="ns1.ethdns.xyz&&ns2.ethdns.xyz"
+$ ethereal dns set --domain=ethdns.xyz --resource=NS --record="ns1.ethdns.xyz&&ns2.ethdns.xyz"
 ```
 
 ### `ens` commands
@@ -459,6 +459,14 @@ Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
 mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
 ```
 
+#### `migrate`
+
+`ethereal ens migrate` migrates a domain from the temporary registrar to the permanent registrar.  For example:
+
+```sh
+$ ethereal ens migrate --domain=mydomain.eth
+```
+
 #### `owner get`
 
 `ethereal ens owner get` gets the owner of the domain.  For example:
@@ -474,6 +482,45 @@ $ ethereal ens owner get --domain=mydomain.eth
 
 ```sh
 $ ethereal ens owner set --domain=mydomain.eth --owner=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
+
+#### `register`
+
+`ethereal ens register` registers a new ENS domain.  For example:
+
+```sh
+$ ethereal ens register --domain=mydomain.eth
+```
+
+Registration is a two-stage process.  The first stage sends a transaction committing to claim the domain, and the second stage sends a transaction revealing the commitment and obtaining the domain.  To avoid frontrunning there needs to be a delay between these two transactions of at least 10 minutes, and by default the command will send the first transaction, wait for the required time period, then send the second transaction.
+
+`--period` is the amount of time for which the registration will be rented; use `ethereal ens rent` to find out how much it will cost to rent the domain.
+
+#### `release`
+
+`ethereal ens release` releases a domain.  For example:
+
+```sh
+$ ethereal ens release --domain=mydomain.eth
+```
+
+#### `renew`
+
+`ethereal ens renew` renews an ENS domain .  For example:
+
+```sh
+$ ethereal ens renew --domain=mydomain.eth
+```
+
+`--period` is the amount of time for which the registration will be extended; use `ethereal ens rent` to find out how much it will cost to extend the domain.
+
+#### `rent`
+
+`ethereal ens rent` calculates the cost to rent a domain for a given duration.  For example:
+
+```sh
+$ ethereal ens rent --domain=mydomain.eth --duration=24h
+TODO
 ```
 
 #### `resolver clear`

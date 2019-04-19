@@ -20,12 +20,12 @@ import (
 	"math/big"
 	"os"
 
-	etherutils "github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util/funcparser"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var contractSendAmount string
@@ -67,7 +67,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		amount := big.NewInt(0)
 		if contractSendAmount != "" {
-			amount, err = etherutils.StringToWei(contractSendAmount)
+			amount, err = string2eth.StringToWei(contractSendAmount)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid amount %s", contractSendAmount))
 		}
 
@@ -92,7 +92,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":   "contract",
 			"command": "send",
-		})
+		}, false)
 	},
 }
 

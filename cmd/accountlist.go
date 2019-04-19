@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 // accountListCmd represents the account list command
@@ -54,7 +54,7 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 								defer cancel()
 								balance, err := client.BalanceAt(ctx, account.Address, nil)
 								if err == nil {
-									fmt.Printf("Balance:\t%s\n", etherutils.WeiToString(balance, true))
+									fmt.Printf("Balance:\t%s\n", string2eth.WeiToString(balance, true))
 								}
 								nonce, err := client.PendingNonceAt(ctx, account.Address)
 								if err == nil {

@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/funcparser/parser"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
 )
 
 type methodListener struct {

@@ -20,11 +20,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var etherTransferAmount string
@@ -52,7 +52,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Failed to obtain to address for transfer")
 
 		cli.Assert(etherTransferAmount != "", quiet, "--amount is required")
-		amount, err := etherutils.StringToWei(etherTransferAmount)
+		amount, err := string2eth.StringToWei(etherTransferAmount)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
 		// Obtain the balance of the address
@@ -60,7 +60,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		defer cancel()
 		balance, err := client.BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", etherutils.WeiToString(balance, true)))
+		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", string2eth.WeiToString(balance, true)))
 
 		// Turn the data string in to hex
 		etherTransferData = strings.TrimPrefix(etherTransferData, "0x")
@@ -92,7 +92,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":   "ether",
 			"command": "transfer",
-		})
+		}, true)
 	},
 }
 

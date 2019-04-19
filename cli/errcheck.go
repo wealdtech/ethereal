@@ -56,10 +56,37 @@ func Assert(condition bool, quiet bool, msg string) {
 	}
 }
 
-// Err prints an erro rand quits
+// Err prints an error and quits
 func Err(quiet bool, msg string) {
 	if !quiet {
 		fmt.Fprintf(os.Stderr, "%s\n", msg)
 	}
 	os.Exit(1)
+}
+
+// WarnCheck checks for an error and warns if it is present
+func WarnCheck(err error, quiet bool, msg string) {
+	if err != nil {
+		if !quiet {
+			if msg == "" {
+				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			} else {
+				fmt.Fprintf(os.Stderr, "%s: %s\n", msg, err.Error())
+			}
+		}
+	}
+}
+
+// Check checks a condition and warns if it is false
+func Check(condition bool, quiet bool, msg string) {
+	if !condition {
+		Warn(quiet, msg)
+	}
+}
+
+// Warn prints a warning
+func Warn(quiet bool, msg string) {
+	if !quiet {
+		fmt.Fprintf(os.Stderr, "%s\n", msg)
+	}
 }

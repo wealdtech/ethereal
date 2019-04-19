@@ -33,12 +33,12 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var cfgFile string
@@ -126,6 +126,9 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	if cmd.Flags().Lookup("nonce") != nil {
 		viper.BindPFlag("nonce", cmd.Flags().Lookup("nonce"))
 	}
+	if cmd.Flags().Lookup("value") != nil {
+		viper.BindPFlag("value", cmd.Flags().Lookup("value"))
+	}
 	if cmd.Flags().Lookup("wait") != nil {
 		viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
 	}
@@ -136,21 +139,21 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	if cmd.Flags().Lookup("gasprice") != nil {
 		viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
 		if viper.GetString("gasprice") == "" {
-			gasPrice, err = etherutils.StringToWei("4 GWei")
+			gasPrice, err = string2eth.StringToWei("4 GWei")
 			cli.ErrCheck(err, quiet, "Invalid gas price")
 		} else {
 			if strings.Contains(viper.GetString("gasprice"), "block") {
 				// Block-based gas price
 				outputIf(verbose, fmt.Sprintf("xx"))
-				// fmt.Printf("Gas price is %v\n", etherutils.WeiToString(gasPrice, true))
+				// fmt.Printf("Gas price is %v\n", string2eth.WeiToString(gasPrice, true))
 				os.Exit(_exit_success)
 			} else if strings.Contains(viper.GetString("gasprice"), "minute") {
 				// Time-based gas price
 				outputIf(verbose, fmt.Sprintf("yy"))
-				// fmt.Printf("Gas price is %v\n", etherutils.WeiToString(gasPrice, true))
+				// fmt.Printf("Gas price is %v\n", string2eth.WeiToString(gasPrice, true))
 				os.Exit(_exit_success)
 			} else {
-				gasPrice, err = etherutils.StringToWei(viper.GetString("gasprice"))
+				gasPrice, err = string2eth.StringToWei(viper.GetString("gasprice"))
 				cli.ErrCheck(err, quiet, "Invalid gas price")
 			}
 		}
@@ -231,24 +234,37 @@ func setupLogging() {
 }
 
 // handleSubmittedTransaction handles logging and waiting for a submitted transaction to be mined.
-// It will not log the transaction if logFields is nil
-func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields) {
+// It will not log the transaction if logFields is nil.
+// If exit is true this function will exit with a suitable status.
+// If exit is false this function will return false if asked to wait and the transaction is not
+// mined, otherwise true.
+func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields, exit bool) bool {
 	if logFields != nil {
 		logTransaction(tx, logFields)
 	}
 
 	if !viper.GetBool("wait") {
 		outputIf(!quiet, fmt.Sprintf("%s", tx.Hash().Hex()))
-		os.Exit(_exit_success)
+		if exit {
+			os.Exit(_exit_success)
+		} else {
+			return true
+		}
 	}
 	mined := util.WaitForTransaction(client, tx.Hash(), viper.GetDuration("limit"))
 	if mined {
 		outputIf(!quiet, fmt.Sprintf("%s mined", tx.Hash().Hex()))
-		os.Exit(_exit_success)
-	} else {
-		outputIf(!quiet, fmt.Sprintf("%s submitted byt not mined", tx.Hash().Hex()))
+		if exit {
+			os.Exit(_exit_success)
+		} else {
+			return true
+		}
+	}
+	outputIf(!quiet, fmt.Sprintf("%s submitted but not mined", tx.Hash().Hex()))
+	if exit {
 		os.Exit(_exit_not_mined)
 	}
+	return false
 }
 
 // logTransaction logs a transaction
@@ -340,6 +356,7 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("passphrase", "", fmt.Sprintf("passphrase for %s", explanation))
 	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
+	cmd.Flags().String("value", "", "Ether to send with the transaction")
 	cmd.Flags().Int64("gaslimit", 0, "Gas limit for the transaction; 0 is auto-select")
 	cmd.Flags().Int64("nonce", -1, "Nonce for the transaction; -1 is auto-select")
 	cmd.Flags().Bool("wait", false, "wait for the transaction to be mined before returning")
@@ -456,15 +473,21 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		if err != nil {
 			return
 		}
-		signer = etherutils.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase"))
+		signer = util.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase"))
 	} else if viper.GetString("privatekey") != "" {
 		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
 		cli.ErrCheck(err, quiet, "Invalid private key")
-		signer = etherutils.KeySigner(chainID, key)
+		signer = util.KeySigner(chainID, key)
 	}
 	if signer == nil {
 		err = fmt.Errorf("no signer; please supply either passphrase or private key")
 		return
+	}
+
+	var value *big.Int
+	if viper.GetString("value") != "" {
+		value, err = string2eth.StringToWei(viper.GetString("value"))
+		cli.ErrCheck(err, quiet, "Failed to understand value")
 	}
 
 	curNonce, err := currentNonce(sender)
@@ -477,6 +500,7 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		From:     sender,
 		Signer:   signer,
 		GasPrice: gasPrice,
+		Value:    value,
 		//DoNotSend: offline,
 		Nonce: big.NewInt(0).SetInt64(nonce),
 	}

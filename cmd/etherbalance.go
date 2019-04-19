@@ -20,10 +20,10 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var etherBalanceAddress string
@@ -74,7 +74,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 				if etherBalanceWei {
 					fmt.Printf("%s\n", balance.String())
 				} else {
-					fmt.Printf("%s\n", etherutils.WeiToString(balance, true))
+					fmt.Printf("%s\n", string2eth.WeiToString(balance, true))
 				}
 			}
 			os.Exit(_exit_success)

@@ -20,10 +20,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var zero = big.NewInt(0)
@@ -91,6 +91,9 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 				fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
 			}
 			genericInfo(ensDomain)
+			expiry, err := registrar.Expiry(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain expiry")
+			fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
 		}
 		if location == "temporary" {
 			auctionRegistrar, err := registrar.PriorAuctionContract()
@@ -160,10 +163,10 @@ func revealingInfo(registrar *ens.AuctionRegistrar, name string) {
 	fmt.Println("Revealing until", entry.Registration)
 	// If the value is 0 then it is is minvalue instead
 	if entry.Value.Cmp(zero) == 0 {
-		entry.Value, _ = etherutils.StringToWei("0.01 ether")
+		entry.Value, _ = string2eth.StringToWei("0.01 ether")
 	}
-	fmt.Println("Locked value is", etherutils.WeiToString(entry.Value, true))
-	fmt.Println("Highest bid is", etherutils.WeiToString(entry.HighestBid, true))
+	fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
+	fmt.Println("Highest bid is", string2eth.WeiToString(entry.HighestBid, true))
 }
 
 func wonInfo(registrar *ens.AuctionRegistrar, name string) {
@@ -172,10 +175,10 @@ func wonInfo(registrar *ens.AuctionRegistrar, name string) {
 
 	fmt.Println("Won since", entry.Registration)
 	if entry.Value.Cmp(zero) == 0 {
-		entry.Value, _ = etherutils.StringToWei("0.01 ether")
+		entry.Value, _ = string2eth.StringToWei("0.01 ether")
 	}
-	fmt.Println("Locked value is", etherutils.WeiToString(entry.Value, true))
-	fmt.Println("Highest bid was", etherutils.WeiToString(entry.HighestBid, true))
+	fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
+	fmt.Println("Highest bid was", string2eth.WeiToString(entry.HighestBid, true))
 
 	// Deed
 	deed, err := ens.NewDeedAt(client, entry.Deed)
@@ -195,8 +198,8 @@ func ownedInfo(registrar *ens.AuctionRegistrar, name string) {
 	entry, err := registrar.Entry(name)
 	if err == nil {
 		fmt.Println("Owned since", entry.Registration)
-		fmt.Println("Locked value is", etherutils.WeiToString(entry.Value, true))
-		fmt.Println("Highest bid was", etherutils.WeiToString(entry.HighestBid, true))
+		fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
+		fmt.Println("Highest bid was", string2eth.WeiToString(entry.HighestBid, true))
 
 		// Deed
 		deed, err := ens.NewDeedAt(client, entry.Deed)
@@ -239,7 +242,7 @@ func genericInfo(name string) {
 
 	// Resolver
 	resolverAddress, err := registry.ResolverAddress(name)
-	if err != nil {
+	if err != nil || resolverAddress == ens.UnknownAddress {
 		fmt.Println("Resolver not configured")
 		return
 	}

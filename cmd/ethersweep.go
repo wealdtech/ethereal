@@ -20,11 +20,11 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/orinocopay/go-etherutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var etherSweepFromAddress string
@@ -60,9 +60,9 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Failed to estimate gas required to sweep funds")
 		outputIf(verbose, fmt.Sprintf("Gas estimation is %v", gas))
 		gasCost := big.NewInt(0).Mul(big.NewInt(int64(gas)), gasPrice)
-		outputIf(verbose, fmt.Sprintf("Gas cost is %v", etherutils.WeiToString(gasCost, true)))
+		outputIf(verbose, fmt.Sprintf("Gas cost is %v", string2eth.WeiToString(gasCost, true)))
 		amount := balance.Sub(balance, gasCost)
-		outputIf(verbose, fmt.Sprintf("Sweeping %s", etherutils.WeiToString(amount, true)))
+		outputIf(verbose, fmt.Sprintf("Sweeping %s", string2eth.WeiToString(amount, true)))
 
 		// Create and sign the transaction
 		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, gasLimit, nil)
@@ -85,7 +85,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":   "ether",
 			"command": "sweep",
-		})
+		}, true)
 	},
 }
 

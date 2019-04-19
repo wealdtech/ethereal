@@ -23,11 +23,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	etherutils "github.com/orinocopay/go-etherutils"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util/txdata"
-	ens "github.com/wealdtech/go-ens"
+	ens "github.com/wealdtech/go-ens/v2"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var transactionInfoRaw bool
@@ -143,8 +143,8 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		if receipt != nil {
 			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
 		}
-		fmt.Printf("Gas price:\t\t%v\n", etherutils.WeiToString(tx.GasPrice(), true))
-		fmt.Printf("Value:\t\t\t%v\n", etherutils.WeiToString(tx.Value(), true))
+		fmt.Printf("Gas price:\t\t%v\n", string2eth.WeiToString(tx.GasPrice(), true))
+		fmt.Printf("Value:\t\t\t%v\n", string2eth.WeiToString(tx.Value(), true))
 
 		if tx.To() != nil && len(tx.Data()) > 0 {
 			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(client, tx.Data()))
