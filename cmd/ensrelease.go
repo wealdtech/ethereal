@@ -56,6 +56,9 @@ This will return an exit status of 0 if the transactions are successfully submit
 		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(domains[0]))
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS base registrar contract")
 		auctionRegistrar, err := registrar.PriorAuctionContract()
+		if err != nil && err.Error() == "no prior auction contract" {
+			auctionRegistrar, err = ens.NewAuctionRegistrar(client, ens.Tld(domains[0]))
+		}
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
 
 		for _, domain := range domains {

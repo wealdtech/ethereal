@@ -59,6 +59,10 @@ This will return an exit status of 0 if the transactions are successfully submit
 		cli.ErrCheck(err, quiet, "Failed to obtain new owner address")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Unknown owner")
 
+		cli.Assert(viper.GetString("value") != "", quiet, "--value is required")
+		value, err := string2eth.StringToWei(viper.GetString("value"))
+		cli.ErrCheck(err, quiet, "Could not understand value")
+
 		var domains []string
 		if ensRegisterDomains != "" {
 			domains = strings.Split(ensRegisterDomains, "&&")
@@ -76,8 +80,6 @@ This will return an exit status of 0 if the transactions are successfully submit
 		interval := time.Duration(tmp.Int64()+120) * time.Second
 		minDuration, err := controller.MinRegistrationDuration()
 		cli.ErrCheck(err, quiet, "Failed to obtain minimum registration duration")
-		value, err := string2eth.StringToWei(viper.GetString("value"))
-		cli.ErrCheck(err, quiet, "Could not understand value")
 
 		// Check loop
 		for _, domain := range domains {

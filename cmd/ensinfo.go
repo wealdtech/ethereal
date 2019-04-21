@@ -43,96 +43,89 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
 		ensDomain = ens.NormaliseDomain(ensDomain)
 
-		registry, err := ens.NewRegistry(client)
-		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
+		// Domain information
+		outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
+		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
+		outputIf(verbose, fmt.Sprintf("Domain level is %v", ens.DomainLevel(ensDomain)))
+		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
 
-		domainOwnerAddress, err := registry.Owner(ensDomain)
-		cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
-		if domainOwnerAddress != ens.UnknownAddress {
-			domainOwnerName, _ := ens.ReverseResolve(client, domainOwnerAddress)
-			if domainOwnerName == "" {
-				fmt.Printf("Owner is %s\n", domainOwnerAddress.Hex())
-			} else {
-				fmt.Printf("Owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
-			}
-		}
-
-		exists := genericInfo(ensDomain)
-		if !exists {
-			os.Exit(_exit_failure)
-		}
-		// Do not proceed unless we're a top-level .eth domain
-		if ens.DomainLevel(ensDomain) != 1 || ens.Tld(ensDomain) != "eth" {
-			os.Exit(_exit_success)
-		}
-
-		// Work out if this is on the old or new .eth registrar
-		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
-		location, err := registrar.RegisteredWith(ensDomain)
-		if err != nil && err.Error() == "no prior auction contract" {
-			// Means what we thought was our base registrar was really the auction registrar
-			location = "temporary"
-		} else {
-			cli.ErrCheck(err, quiet, "Failed to obtain domain location")
-		}
-		switch location {
-		case "none":
-			outputIf(!quiet, "Domain not registered")
-			os.Exit(_exit_failure)
-		case "temporary":
-			outputIf(!quiet, "Domain registered with temporary registrar")
-			auctionRegistrar, err := registrar.PriorAuctionContract()
+		if ens.DomainLevel(ensDomain) == 1 && ens.Tld(ensDomain) == "eth" {
+			// Work out if this is on the old or new .eth registrar and act accordingly
+			registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
+			location, err := registrar.RegisteredWith(ensDomain)
 			if err != nil && err.Error() == "no prior auction contract" {
-				auctionRegistrar, err = ens.NewAuctionRegistrar(client, ens.Tld(ensDomain))
+				// Means what we thought was our base registrar was really the auction registrar
+				location = "temporary"
+			} else {
+				cli.ErrCheck(err, quiet, "Failed to obtain domain location")
 			}
-			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))
-			state, err := auctionRegistrar.State(ensDomain)
-			cli.ErrCheck(err, quiet, "Failed to obtain domain state")
+			switch location {
+			case "none":
+				outputIf(!quiet, "Domain not registered")
+				os.Exit(_exit_failure)
+			case "temporary":
+				outputIf(!quiet, "Domain registered with temporary registrar")
+				auctionRegistrar, err := registrar.PriorAuctionContract()
+				if err != nil && err.Error() == "no prior auction contract" {
+					auctionRegistrar, err = ens.NewAuctionRegistrar(client, ens.Tld(ensDomain))
+				}
+				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))
+				state, err := auctionRegistrar.State(ensDomain)
+				cli.ErrCheck(err, quiet, "Failed to obtain domain state")
 
-			if err == nil {
-				if quiet {
-					if state == "Owned" {
-						os.Exit(_exit_success)
+				if err == nil {
+					if quiet {
+						if state == "Owned" {
+							os.Exit(_exit_success)
+						} else {
+							os.Exit(_exit_failure)
+						}
 					} else {
-						os.Exit(_exit_failure)
+						switch state {
+						case "Available":
+							availableInfo(ensDomain)
+						case "Bidding":
+							biddingInfo(auctionRegistrar, ensDomain)
+						case "Revealing":
+							revealingInfo(auctionRegistrar, ensDomain)
+						case "Won":
+							wonInfo(auctionRegistrar, ensDomain)
+						case "Owned":
+							ownedInfo(auctionRegistrar, ensDomain)
+						default:
+							fmt.Println(state)
+						}
 					}
 				} else {
-					switch state {
-					case "Available":
-						availableInfo(ensDomain)
-					case "Bidding":
-						biddingInfo(auctionRegistrar, ensDomain)
-					case "Revealing":
-						revealingInfo(auctionRegistrar, ensDomain)
-					case "Won":
-						wonInfo(auctionRegistrar, ensDomain)
-					case "Owned":
-						ownedInfo(auctionRegistrar, ensDomain)
-					default:
-						fmt.Println(state)
-					}
+					ownedInfo(auctionRegistrar, ensDomain)
 				}
-			} else {
-				ownedInfo(auctionRegistrar, ensDomain)
+			case "permanent":
+				outputIf(verbose, "Domain registered on permanent registrar")
+				domain, err := ens.DomainPart(ensDomain, 1)
+				registrant, err := registrar.Owner(domain)
+				cli.ErrCheck(err, quiet, "Failed to obtain registrant")
+				if registrant == ens.UnknownAddress {
+					fmt.Println("Name not recognised by registrar")
+					unregisteredResolverCheck(ensDomain)
+					os.Exit(_exit_failure)
+				} else {
+					registrantName, _ := ens.ReverseResolve(client, registrant)
+					if registrantName == "" {
+						fmt.Printf("Registrant is %s\n", registrant.Hex())
+					} else {
+						fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
+					}
+					expiry, err := registrar.Expiry(domain)
+					cli.ErrCheck(err, quiet, "Failed to obtain expiry")
+					fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
+				}
+			default:
+				cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
 			}
-		case "permanent":
-			outputIf(verbose, "Domain registered on permanent registrar")
-			domain, err := ens.DomainPart(ensDomain, 1)
-			registrant, err := registrar.Owner(domain)
-			cli.ErrCheck(err, quiet, "Failed to obtain registrant")
-			registrantName, _ := ens.ReverseResolve(client, registrant)
-			if registrantName == "" {
-				fmt.Printf("Registrant is %s\n", registrant.Hex())
-			} else {
-				fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
-			}
-			expiry, err := registrar.Expiry(domain)
-			cli.ErrCheck(err, quiet, "Failed to obtain expiry")
-			fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
-		default:
-			cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
 		}
+
+		genericInfo(ensDomain)
 	},
 }
 
@@ -228,23 +221,42 @@ func ownedInfo(registrar *ens.AuctionRegistrar, name string) {
 	}
 }
 
+// It is possible for an unregistered domain to have a resolver; report if this is the case
+func unregisteredResolverCheck(domain string) {
+	registry, err := ens.NewRegistry(client)
+	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
+	resolverAddress, err := registry.ResolverAddress(domain)
+	if err != nil {
+		return
+	}
+	if resolverAddress != ens.UnknownAddress {
+		fmt.Println(`                            *********************
+                            ***    WARNING    ***
+                            *********************
+This domain is not registered but has a configured resolver.  This can occur
+when a previously-configured domain expires or is released.  ENS will continue
+to resolve addresses for this domain but the results should not be trusted as
+a malicious part could register the domain and change the resolution.`)
+	}
+}
+
 // genericInfo prints generic info about any ENS domain.
 // It returns true if the domain exists, otherwise false
 func genericInfo(name string) bool {
-	// Debugish info
-	outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
-	outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
-	outputIf(verbose, fmt.Sprintf("Domain level is %v", ens.DomainLevel(ensDomain)))
-	outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
-
-	// Domain owner
+	// Owner (TODO change to administrator/operator/whatever)
 	registry, err := ens.NewRegistry(client)
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
-	domainOwnerAddress, err := registry.Owner(name)
+	domainOwnerAddress, err := registry.Owner(ensDomain)
 	cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 	if domainOwnerAddress == ens.UnknownAddress {
 		fmt.Println("Owner not set")
 		return false
+	}
+	domainOwnerName, _ := ens.ReverseResolve(client, domainOwnerAddress)
+	if domainOwnerName == "" {
+		fmt.Printf("Owner is %s\n", domainOwnerAddress.Hex())
+	} else {
+		fmt.Printf("Owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
 	}
 
 	// Resolver
