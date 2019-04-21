@@ -48,6 +48,9 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
 		outputIf(verbose, fmt.Sprintf("Domain level is %v", ens.DomainLevel(ensDomain)))
 		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
+		label, _ := ens.DomainPart(ensDomain, 1)
+		outputIf(verbose, fmt.Sprintf("Label is %s", label))
+		outputIf(verbose, fmt.Sprintf("Label hash is 0x%x", ens.LabelHash(label)))
 
 		if ens.DomainLevel(ensDomain) == 1 && ens.Tld(ensDomain) == "eth" {
 			// Work out if this is on the old or new .eth registrar and act accordingly
