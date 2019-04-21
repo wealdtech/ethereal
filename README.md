@@ -498,7 +498,7 @@ Registration is a two-stage process.  The first stage sends a transaction commit
 
 #### `release`
 
-`ethereal ens release` releases a domain.  For example:
+`ethereal ens release` releases a domain, returning the name to the available pool.  If the domain is registered with the temporary registrary then any funds locked in the registration deed will be returned.  For example:
 
 ```sh
 $ ethereal ens release --domain=mydomain.eth
