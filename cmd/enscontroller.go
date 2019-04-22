@@ -17,17 +17,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensOwnerCmd represents the ens owner command
-var ensOwnerCmd = &cobra.Command{
-	Use:   "owner",
-	Short: "Manage ENS owners",
-	Long:  `Set and obtain Ethereum Name Service owner information`,
+// ensControllerCmd represents the ens controller command
+var ensControllerCmd = &cobra.Command{
+	Use:   "controller",
+	Short: "Manage ENS controllers",
+	Long:  `Set and obtain Ethereum Name Service controller information`,
 }
 
 func init() {
-	ensCmd.AddCommand(ensOwnerCmd)
+	ensCmd.AddCommand(ensControllerCmd)
 }
 
-func ensOwnerFlags(cmd *cobra.Command) {
+func ensControllerFlags(cmd *cobra.Command) {
 	ensFlags(cmd)
 }

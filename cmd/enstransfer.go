@@ -26,15 +26,15 @@ import (
 	ens "github.com/wealdtech/go-ens/v2"
 )
 
-var ensTransferNewOwnerStr string
+var ensTransferNewRegistrantStr string
 
 // ensTransferCmd represents the transfer command
 var ensTransferCmd = &cobra.Command{
 	Use:   "transfer",
 	Short: "Transfer an ENS name",
-	Long: `Transfer an Ethereum Name Service (ENS) name's ownership to another address.  For example:
+	Long: `Transfer an Ethereum Name Service (ENS) name's registration to another address.  For example:
 
-    ethereal ens transfer --domain=enstest.eth --newowner=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase="my secret passphrase"
+    ethereal ens transfer --domain=enstest.eth --newregistrant=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --passphrase="my secret passphrase"
 
 The keystore for the address must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
@@ -42,19 +42,19 @@ This will return an exit status of 0 if the transaction is successfully submitte
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
-		cli.Assert(ensTransferNewOwnerStr != "", quiet, "--newowner is required")
+		cli.Assert(ensTransferNewRegistrantStr != "", quiet, "--newregistrant is required")
 		cli.Assert(len(ensDomain) > 10, quiet, "Domain must be at least 7 characters long")
 		cli.Assert(len(strings.Split(ensDomain, ".")) == 2, quiet, "Name must not contain . (except for ending in .eth)")
 
 		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 
-		// Obtain the owner
+		// Obtain the registrant
 		domain, err := ens.DomainPart(ensDomain, 1)
 		// Work out if this is on the old or new registrar
 		location, err := registrar.RegisteredWith(ensDomain)
 		cli.ErrCheck(err, quiet, "Failed to obtain domain location")
-		var owner common.Address
+		var registrant common.Address
 		var auctionRegistrar *ens.AuctionRegistrar
 		switch location {
 		case "none":
@@ -63,39 +63,39 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		case "temporary":
 			auctionRegistrar, err = registrar.PriorAuctionContract()
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))
-			owner, err = auctionRegistrar.Owner(domain)
-			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
+			registrant, err = auctionRegistrar.Owner(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain domain registrant")
 		case "permanent":
-			owner, err = registrar.Owner(domain)
-			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
+			registrant, err = registrar.Owner(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain domain registrant")
 		default:
 			cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
 		}
-		cli.Assert(owner != ens.UnknownAddress, quiet, "Failed to obtain owner")
+		cli.Assert(registrant != ens.UnknownAddress, quiet, "Failed to obtain registrant")
 
-		outputIf(verbose, fmt.Sprintf("Current owner is %s", ens.Format(client, owner)))
+		outputIf(verbose, fmt.Sprintf("Current registrant is %s", ens.Format(client, registrant)))
 
-		// Transfer the deed / domain
-		newOwnerAddress, err := ens.Resolve(client, ensTransferNewOwnerStr)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("unknown new owner %s", ensTransferNewOwnerStr))
-		opts, err := generateTxOpts(owner)
+		// Transfer the registration
+		newRegistrantAddress, err := ens.Resolve(client, ensTransferNewRegistrantStr)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("unknown new registrant %s", ensTransferNewRegistrantStr))
+		opts, err := generateTxOpts(registrant)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		cli.ErrCheck(err, quiet, fmt.Sprintf("failed to parse domain %s", ensDomain))
 
 		var signedTx *types.Transaction
 		switch location {
 		case "permanent":
-			signedTx, err = registrar.SetOwner(opts, domain, newOwnerAddress)
+			signedTx, err = registrar.SetOwner(opts, domain, newRegistrantAddress)
 		case "temporary":
-			signedTx, err = auctionRegistrar.SetOwner(opts, domain, newOwnerAddress)
+			signedTx, err = auctionRegistrar.SetOwner(opts, domain, newRegistrantAddress)
 		}
 		cli.ErrCheck(err, quiet, "failed to send transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{
-			"group":       "ens",
-			"command":     "transfer",
-			"ensdomain":   ensDomain,
-			"ensnewowner": newOwnerAddress.Hex(),
+			"group":            "ens",
+			"command":          "transfer",
+			"ensdomain":        ensDomain,
+			"ensnewregistrant": newRegistrantAddress.Hex(),
 		}, true)
 	},
 }
@@ -103,6 +103,6 @@ This will return an exit status of 0 if the transaction is successfully submitte
 func init() {
 	ensCmd.AddCommand(ensTransferCmd)
 	ensFlags(ensTransferCmd)
-	ensTransferCmd.Flags().StringVar(&ensTransferNewOwnerStr, "newowner", "", "The new owner of the domain")
+	ensTransferCmd.Flags().StringVar(&ensTransferNewRegistrantStr, "newregistrant", "", "The new registrant of the domain")
 	addTransactionFlags(ensTransferCmd, "passphrase for the account that owns the domain")
 }

@@ -399,6 +399,23 @@ $ ethereal ens contenthash set --domain=mydomain.eth --content=/swarm/d1de9994b4
 
 Valid content hash codecs are "ipfs" and "swarm".
 
+#### `controller get`
+
+`ethereal ens controller get` gets the controller of the domain.  For example:
+
+```sh
+$ ethereal ens controller get --domain=mydomain.eth
+0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
+
+#### `controller set`
+
+`ethereal ens controller set` sets the controller of the domain.  For example:
+
+```sh
+$ ethereal ens controller set --domain=mydomain.eth --owner=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+```
+
 #### `domain clear`
 
 `ethereal ens domain clear` clears the ENS reverse resolution domain of an address.  For example:
@@ -430,15 +447,12 @@ $ ethereal ens domain set --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 -
 
 ```sh
 $ ethereal ens info --domain=mydomain.eth
-Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-Owned since 2017-05-22 15:40:25 +0100 BST
-Locked value is 0.01 Ether
-Highest bid was 0.01 Ether
-Deed owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
-Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
-mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+Registrant is mydomain.eth (0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5)
+Registration expires at 2020-03-30 19:04:48 +0100 BST
+Controller is mydomain.eth (0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5)
+Resolver is 0x4C641FB9BAd9b60EF180c31F56051cE826d21A9A
+Domain resolves to 0xe8E98228Ca36591952Efdf6F645C5B229E6Cf688
+Address resolves to mydomain.eth
 ```
 
 With the `--verbose` flag this will provide more information about the domain.  For example:
@@ -447,16 +461,17 @@ With the `--verbose` flag this will provide more information about the domain.  
 $ ethereal ens info --domain=mydomain.eth --verbose
 Normalised domain is mydomain.eth
 Top-level domain is eth
-Name hash is 0x2ae48b85f1a7764f6b87d040180e633b395ca2471ceadf46a0cd8e6cb91d7ed7
-Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-Owned since 2017-05-22 15:40:25 +0100 BST
-Locked value is 0.01 Ether
-Highest bid was 0.01 Ether
-Deed owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-Domain owner is 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-Previous owner was 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
-Resolver is 0x5FfC014343cd971B7eb70732021E26C35B744cc4
-mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
+Domain level is 1
+Name hash is 0xf6180603ce45d5470887aff0a135e31c00b5676ac13e1095d394b378df2fe532
+Label is mydomain
+Label hash is 0x53759ad0a707437a18aaaf314dda5a4f9bbd6dabd605c777ebaf354ac934f3c3
+Domain registered on permanent registrar
+Registrant is mydomain.eth (0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5)
+Registration expires at 2020-03-30 19:04:48 +0100 BST
+Controller is mydomain.eth (0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5)
+Resolver is 0x4C641FB9BAd9b60EF180c31F56051cE826d21A9A
+Domain resolves to 0xe8E98228Ca36591952Efdf6F645C5B229E6Cf688
+Address resolves to mydomain.eth
 ```
 
 #### `migrate`
@@ -465,23 +480,6 @@ mydomain.eth resolves to 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
 
 ```sh
 $ ethereal ens migrate --domain=mydomain.eth
-```
-
-#### `owner get`
-
-`ethereal ens owner get` gets the owner of the domain.  For example:
-
-```sh
-$ ethereal ens owner get --domain=mydomain.eth
-0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-```
-
-#### `owner set`
-
-`ethereal ens owner set` sets the owner of the domain.  For example:
-
-```sh
-$ ethereal ens owner set --domain=mydomain.eth --owner=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
 ```
 
 #### `register`
@@ -566,10 +564,10 @@ The subdomain will be owned by the domain owner.
 
 #### `transfer`
 
-`ethereal ens transfer` transfers ownership of a name and its associated deed to another address.  For example:
+`ethereal ens transfer` transfers registration of a name to another address.  For example:
 
 ```sh
-$ ethereal ens transfer --domain=mydomain.eth --newowner=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
+$ ethereal ens transfer --domain=mydomain.eth --newregistrant=0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
 ```
 
 ### `ether` commands

@@ -180,45 +180,44 @@ func wonInfo(registrar *ens.AuctionRegistrar, name string) {
 	// Deed
 	deed, err := ens.NewDeedAt(client, entry.Deed)
 	cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
-	// Deed owner
-	deedOwner, err := deed.Owner()
-	cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-	deedOwnerName, _ := ens.ReverseResolve(client, deedOwner)
-	if deedOwnerName == "" {
-		fmt.Println("Deed owner is", deedOwner.Hex())
+	// Registrant
+	registrant, err := deed.Owner()
+	cli.ErrCheck(err, quiet, "Failed to obtain registrant")
+	registrantName, _ := ens.ReverseResolve(client, registrant)
+	if registrantName == "" {
+		fmt.Println("Registrant is", registrant.Hex())
 	} else {
-		fmt.Printf("Deed owner is %s (%s)\n", deedOwnerName, deedOwner.Hex())
+		fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
 	}
 }
 
 func ownedInfo(registrar *ens.AuctionRegistrar, name string) {
 	entry, err := registrar.Entry(name)
 	if err == nil {
-		fmt.Println("Owned since", entry.Registration)
+		fmt.Println("Registered since", entry.Registration)
 		fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
 		fmt.Println("Highest bid was", string2eth.WeiToString(entry.HighestBid, true))
 
 		// Deed
 		deed, err := ens.NewDeedAt(client, entry.Deed)
 		cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
-		// Deed owner
-		deedOwner, err := deed.Owner()
-		cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-		deedOwnerName, _ := ens.ReverseResolve(client, deedOwner)
-		if deedOwnerName == "" {
-			fmt.Println("Deed owner is", deedOwner.Hex())
+		// Registrant
+		registrant, err := deed.Owner()
+		cli.ErrCheck(err, quiet, "Failed to obtain registrant")
+		registrantName, _ := ens.ReverseResolve(client, registrant)
+		if registrantName == "" {
+			fmt.Println("Registrant is", registrant.Hex())
 		} else {
-			fmt.Printf("Deed owner is %s (%s)\n", deedOwnerName, deedOwner.Hex())
+			fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
 		}
-
-		previousDeedOwner, err := deed.PreviousOwner()
-		cli.ErrCheck(err, quiet, "Failed to obtain deed owner")
-		if bytes.Compare(previousDeedOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0 {
-			previousDeedOwnerName, _ := ens.ReverseResolve(client, previousDeedOwner)
-			if previousDeedOwnerName == "" {
-				fmt.Println("Previous deed owner is", previousDeedOwner.Hex())
+		previousRegistrant, err := deed.PreviousOwner()
+		cli.ErrCheck(err, quiet, "Failed to obtain previous registrant")
+		if bytes.Compare(previousRegistrant.Bytes(), ens.UnknownAddress.Bytes()) != 0 {
+			previousRegistrantName, _ := ens.ReverseResolve(client, previousRegistrant)
+			if previousRegistrantName == "" {
+				fmt.Println("Previous registrant is", previousRegistrant.Hex())
 			} else {
-				fmt.Printf("Previous deed owner is %s (%s)\n", previousDeedOwnerName, previousDeedOwner.Hex())
+				fmt.Printf("Previous registrant is %s (%s)\n", previousRegistrantName, previousRegistrant.Hex())
 			}
 		}
 	}
@@ -246,20 +245,19 @@ a malicious part could register the domain and change the resolution.`)
 // genericInfo prints generic info about any ENS domain.
 // It returns true if the domain exists, otherwise false
 func genericInfo(name string) bool {
-	// Owner (TODO change to administrator/operator/whatever)
 	registry, err := ens.NewRegistry(client)
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
-	domainOwnerAddress, err := registry.Owner(ensDomain)
-	cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
-	if domainOwnerAddress == ens.UnknownAddress {
+	controllerAddress, err := registry.Owner(ensDomain)
+	cli.ErrCheck(err, quiet, "Failed to obtain controller")
+	if controllerAddress == ens.UnknownAddress {
 		fmt.Println("Owner not set")
 		return false
 	}
-	domainOwnerName, _ := ens.ReverseResolve(client, domainOwnerAddress)
-	if domainOwnerName == "" {
-		fmt.Printf("Owner is %s\n", domainOwnerAddress.Hex())
+	controllerName, _ := ens.ReverseResolve(client, controllerAddress)
+	if controllerName == "" {
+		fmt.Printf("Controller is %s\n", controllerAddress.Hex())
 	} else {
-		fmt.Printf("Owner is %s (%s)\n", domainOwnerName, domainOwnerAddress.Hex())
+		fmt.Printf("Controller is %s (%s)\n", controllerName, controllerAddress.Hex())
 	}
 
 	// Resolver

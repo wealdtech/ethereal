@@ -23,15 +23,15 @@ import (
 	ens "github.com/wealdtech/go-ens/v2"
 )
 
-var ensOwnerSetOwnerStr string
+var ensControllerSetControllerStr string
 
-// ensOwnerSetCmd represents the ens owner set command
-var ensOwnerSetCmd = &cobra.Command{
+// ensControllerSetCmd represents the ens controller set command
+var ensControllerSetCmd = &cobra.Command{
 	Use:   "set",
-	Short: "Set the owner of an ENS domain",
-	Long: `Set the owner of a name registered with the Ethereum Name Service (ENS).  For example:
+	Short: "Set the controller of an ENS domain",
+	Long: `Set the controller of a name registered with the Ethereum Name Service (ENS).  For example:
 
-    ethereal ens owner set --domain=enstest.eth --owner=0x1234...5678 --passphrase="my secret passphrase"
+    ethereal ens controller set --domain=enstest.eth --controller=0x1234...5678 --passphrase="my secret passphrase"
 
 The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
@@ -43,33 +43,33 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Fetch the owner of the name
-		owner, err := registry.Owner(ensDomain)
-		cli.ErrCheck(err, quiet, "Cannot obtain owner")
-		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("Owner of %s is not set", ensDomain))
+		// Fetch the controller of the name
+		controller, err := registry.Owner(ensDomain)
+		cli.ErrCheck(err, quiet, "Cannot obtain current controller")
+		cli.Assert(bytes.Compare(controller.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("%s has no controller", ensDomain))
 
-		cli.Assert(ensOwnerSetOwnerStr != "", quiet, "--owner is required")
-		newOwnerAddress, err := ens.Resolve(client, ensOwnerSetOwnerStr)
-		cli.Assert(bytes.Compare(newOwnerAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Attempt to set owner to 0x00 disallowed")
-		cli.ErrCheck(err, quiet, "Failed to obtain new owner address")
+		cli.Assert(ensControllerSetControllerStr != "", quiet, "--controller is required")
+		newControllerAddress, err := ens.Resolve(client, ensControllerSetControllerStr)
+		cli.Assert(bytes.Compare(newControllerAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Attempt to set controller to 0x00 disallowed")
+		cli.ErrCheck(err, quiet, "Failed to obtain new controller address")
 
-		opts, err := generateTxOpts(owner)
+		opts, err := generateTxOpts(controller)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		signedTx, err := registry.SetOwner(opts, ensDomain, newOwnerAddress)
+		signedTx, err := registry.SetOwner(opts, ensDomain, newControllerAddress)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{
-			"group":     "ens/owner",
-			"command":   "set",
-			"ensdomain": ensDomain,
-			"ensowner":  newOwnerAddress.Hex(),
+			"group":         "ens/controller",
+			"command":       "set",
+			"ensdomain":     ensDomain,
+			"enscontroller": newControllerAddress.Hex(),
 		}, false)
 	},
 }
 
 func init() {
-	ensOwnerCmd.AddCommand(ensOwnerSetCmd)
-	ensOwnerFlags(ensOwnerSetCmd)
-	ensOwnerSetCmd.Flags().StringVar(&ensOwnerSetOwnerStr, "owner", "", "The new owner's name or address")
-	addTransactionFlags(ensOwnerSetCmd, "passphrase for the account that owns the domain")
+	ensControllerCmd.AddCommand(ensControllerSetCmd)
+	ensControllerFlags(ensControllerSetCmd)
+	ensControllerSetCmd.Flags().StringVar(&ensControllerSetControllerStr, "controller", "", "The new controller's name or address")
+	addTransactionFlags(ensControllerSetCmd, "passphrase for the account that owns the domain")
 }

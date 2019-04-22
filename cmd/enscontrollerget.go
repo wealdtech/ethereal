@@ -22,32 +22,32 @@ import (
 	ens "github.com/wealdtech/go-ens/v2"
 )
 
-// ensOwnerGetCmd represents the owner get command
-var ensOwnerGetCmd = &cobra.Command{
+// ensControllerGetCmd represents the controller get command
+var ensControllerGetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Obtain the owner of an ENS domain",
-	Long: `Obtain the owner of a domain registered with the Ethereum Name Service (ENS).  For example:
+	Short: "Obtain the controller of an ENS domain",
+	Long: `Obtain the controller of a domain registered with the Ethereum Name Service (ENS).  For example:
 
-    ethereal ens owner get --domain=enstest.eth
+    ethereal ens controller get --domain=enstest.eth
 
-In quiet mode this will return 0 if the name has an owner, otherwise 1.`,
+In quiet mode this will return 0 if the name has a controller, otherwise 1.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "failed to obtain registry contract")
-		owner, err := registry.Owner(ensDomain)
-		cli.ErrCheck(err, quiet, "failed to obtain owner")
+		controller, err := registry.Owner(ensDomain)
+		cli.ErrCheck(err, quiet, "failed to obtain controller")
 
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, owner))
+			fmt.Printf("%s\n", ens.Format(client, controller))
 		}
 		os.Exit(_exit_success)
 	},
 }
 
 func init() {
-	ensOwnerFlags(ensOwnerGetCmd)
-	ensOwnerCmd.AddCommand(ensOwnerGetCmd)
+	ensControllerFlags(ensControllerGetCmd)
+	ensControllerCmd.AddCommand(ensControllerGetCmd)
 }
