@@ -89,7 +89,8 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
-	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(big.NewInt(5)) == 0 {
+		//} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -109,7 +110,8 @@ func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
-	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+		//	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(big.NewInt(5)) == 0 {
 		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")

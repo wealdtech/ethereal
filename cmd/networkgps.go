@@ -47,7 +47,7 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 			block, err := client.BlockByNumber(ctx, blockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about block")
 
-			blockTime := time.Unix(int64(block.Time()), 0)
+			blockTime := time.Unix(block.Time().Int64(), 0)
 
 			if blockNumber != nil {
 				gas += lastBlockGas

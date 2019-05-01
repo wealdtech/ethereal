@@ -46,7 +46,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 			block, err := client.BlockByNumber(ctx, blockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 			blockNumber = big.NewInt(0).Set(block.Number())
-			blockTime := time.Unix(int64(block.Time()), 0)
+			blockTime := time.Unix(block.Time().Int64(), 0)
 
 			if !quiet {
 				fmt.Printf("%v\t%9d/%9d\t", blockNumber, block.GasUsed(), block.GasLimit())

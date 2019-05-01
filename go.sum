@@ -41,6 +41,8 @@ github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14y
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/edsrzf/mmap-go v1.0.0 h1:CEBF7HpRnUCSJgGUb5h1Gm7e3VkmVDrR8lvWVLtrOFw=
 github.com/edsrzf/mmap-go v1.0.0/go.mod h1:YO35OhQPt3KJa3ryjFM5Bs14WD66h8eGKpfaBNrHW5M=
+github.com/ethereum/go-ethereum v1.8.20 h1:Sr6DLbdc7Fl2IMDC0sjF2wO1jTO5nALFC1SoQnyAQEk=
+github.com/ethereum/go-ethereum v1.8.20/go.mod h1:PwpWDrCLZrV+tfrhqqF6kPknbISMHaJv9Ln3kPCZLwY=
 github.com/ethereum/go-ethereum v1.8.23/go.mod h1:PwpWDrCLZrV+tfrhqqF6kPknbISMHaJv9Ln3kPCZLwY=
 github.com/ethereum/go-ethereum v1.8.27 h1:d+gkiLaBDk5fn3Pe/xNVaMrB/ozI+AUB2IlVBp29IrY=
 github.com/ethereum/go-ethereum v1.8.27/go.mod h1:PwpWDrCLZrV+tfrhqqF6kPknbISMHaJv9Ln3kPCZLwY=
@@ -190,6 +192,8 @@ github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpP
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/wealdtech/go-ens/v2 v2.0.2 h1:pSLHvZDnLjEXZr57LejGu71nt9Pa4/+MifMTy1rFruo=
 github.com/wealdtech/go-ens/v2 v2.0.2/go.mod h1:LSffmi45+FullghFWsRHXbqwKSAq33vYjizvWxCBJsY=
+github.com/wealdtech/go-ens/v2 v2.0.6 h1:i0YUSRcGaT/kLT7PJ4A2wuMgyb5rPN20cQgVaI0lI5c=
+github.com/wealdtech/go-ens/v2 v2.0.6/go.mod h1:LSffmi45+FullghFWsRHXbqwKSAq33vYjizvWxCBJsY=
 github.com/wealdtech/go-erc1820 v1.2.0 h1:Qzo37q1zV3zICRMrv9CQAsapukqUJsSCngT2+rXzw+Y=
 github.com/wealdtech/go-erc1820 v1.2.0/go.mod h1:TmfPcpMPRPueBg5o3ge2OonPu0jDL/91ryOaPto5o78=
 github.com/wealdtech/go-multicodec v1.1.0 h1:xRa2uX+BYHLHyh7dOT7AFhLgGrq/0oUEKDT/V+7/VDs=

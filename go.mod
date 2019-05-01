@@ -2,6 +2,9 @@ module github.com/wealdtech/ethereal
 
 go 1.12
 
+// 1.8.21 broke return values from contract calling.  Can remove this when 1.9 is released
+replace github.com/ethereum/go-ethereum => github.com/ethereum/go-ethereum v1.8.20
+
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/antlr/antlr4 v0.0.0-20190223165740-dade65a895c2
@@ -30,7 +33,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
-	github.com/wealdtech/go-ens/v2 v2.0.2
+	github.com/wealdtech/go-ens/v2 v2.0.6
 	github.com/wealdtech/go-erc1820 v1.2.0
 	github.com/wealdtech/go-multicodec v1.1.0
 	github.com/wealdtech/go-string2eth v1.0.0
