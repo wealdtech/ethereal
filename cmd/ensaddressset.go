@@ -47,6 +47,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
+		outputIf(verbose, fmt.Sprintf("Domain is owned by %s", ens.Format(client, owner)))
 
 		// Obtain the address
 		address, err := ens.Resolve(client, ensAddressSetAddressStr)
@@ -56,6 +57,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		// Obtain the resolver for this name
 		resolver, err := ens.NewResolver(client, ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
+		outputIf(verbose, fmt.Sprintf("Resolver is %s", ens.Format(client, resolver.ContractAddr)))
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")

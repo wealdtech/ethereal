@@ -33,7 +33,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
-	github.com/wealdtech/go-ens/v2 v2.0.6
+	github.com/wealdtech/go-ens/v2 v2.0.10
 	github.com/wealdtech/go-erc1820 v1.2.0
 	github.com/wealdtech/go-multicodec v1.1.0
 	github.com/wealdtech/go-string2eth v1.0.0
