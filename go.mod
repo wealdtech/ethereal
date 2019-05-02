@@ -18,7 +18,6 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/miekg/dns v1.1.4
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/multiformats/go-multihash v0.0.1
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/pborman/uuid v1.2.0
 	github.com/pkg/errors v0.8.1 // indirect
@@ -33,13 +32,11 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
-	github.com/wealdtech/go-ens/v2 v2.0.10
+	github.com/wealdtech/go-ens/v2 v2.0.12
 	github.com/wealdtech/go-erc1820 v1.2.0
-	github.com/wealdtech/go-multicodec v1.1.0
 	github.com/wealdtech/go-string2eth v1.0.0
-	golang.org/x/crypto v0.0.0-20190228161510-8dd112bcdc25
+	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 // indirect
-	golang.org/x/sys v0.0.0-20190308023053-584f3b12f43e // indirect
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )

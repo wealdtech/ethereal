@@ -289,7 +289,7 @@ func genericInfo(name string) bool {
 	if err == nil {
 		bytes, err := resolver.Contenthash()
 		if err == nil && len(bytes) > 0 {
-			contentHash, err := contenthashBytesToString(bytes)
+			contentHash, err := ens.ContenthashToString(bytes)
 			if err == nil {
 				fmt.Printf("Content hash is %v\n", contentHash)
 			}

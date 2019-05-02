@@ -15,17 +15,12 @@ package cmd
 
 import (
 	"bytes"
-	"encoding/binary"
-	"encoding/hex"
 	"fmt"
-	"strings"
 
-	multihash "github.com/multiformats/go-multihash"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens/v2"
-	multicodec "github.com/wealdtech/go-multicodec"
 )
 
 var ensContenthashSetContentStr string
@@ -54,55 +49,8 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		cli.Assert(ensContenthashSetContentStr != "", quiet, "--content is required")
-		// Break apart the content
-		hashBits := strings.Split(ensContenthashSetContentStr, "/")
-		cli.Assert(len(hashBits) == 3, quiet, "Invalid content string")
-
-		data := make([]byte, 0)
-		switch hashBits[1] {
-		case "ipfs":
-			// Codec
-			ipfsNum, err := multicodec.ID("ipfs-ns")
-			cli.ErrCheck(err, quiet, "Failed to obtain IPFS codec value")
-			buf := make([]byte, binary.MaxVarintLen64)
-			size := binary.PutUvarint(buf, ipfsNum)
-			data = append(data, buf[0:size]...)
-			// CID
-			size = binary.PutUvarint(buf, 1)
-			data = append(data, buf[0:size]...)
-			// Subcodec
-			dagNum, err := multicodec.ID("dag-pb")
-			cli.ErrCheck(err, quiet, "Failed to obtain IPFS codec value")
-			size = binary.PutUvarint(buf, dagNum)
-			data = append(data, buf[0:size]...)
-			// Hash
-			hash, err := multihash.FromB58String(hashBits[2])
-			cli.ErrCheck(err, quiet, "Failed to obtain IPFS content hash")
-			data = append(data, []byte(hash)...)
-		case "swarm":
-			// Codec
-			swarmNum, err := multicodec.ID("swarm-ns")
-			cli.ErrCheck(err, quiet, "Failed to obtain swarm codec value")
-			buf := make([]byte, binary.MaxVarintLen64)
-			size := binary.PutUvarint(buf, swarmNum)
-			data = append(data, buf[0:size]...)
-			// CID
-			size = binary.PutUvarint(buf, 1)
-			data = append(data, buf[0:size]...)
-			// Subcodec
-			manifestNum, err := multicodec.ID("swarm-manifest")
-			cli.ErrCheck(err, quiet, "Failed to obtain swarm manifest codec value")
-			size = binary.PutUvarint(buf, manifestNum)
-			data = append(data, buf[0:size]...)
-			// Hash
-			hashBit, err := hex.DecodeString(hashBits[2])
-			cli.ErrCheck(err, quiet, "Failed to decode swarm content hash")
-			hash, err := multihash.Encode(hashBit, multihash.KECCAK_256)
-			cli.ErrCheck(err, quiet, "Failed to obtain swarm content hash")
-			data = append(data, []byte(hash)...)
-		default:
-			cli.Err(quiet, fmt.Sprintf("Unknown codec %s", hashBits[1]))
-		}
+		data, err := ens.StringToContenthash(ensContenthashSetContentStr)
+		cli.ErrCheck(err, quiet, "Unknown content")
 
 		// Obtain the resolver for this name
 		resolver, err := ens.NewResolver(client, ensDomain)
