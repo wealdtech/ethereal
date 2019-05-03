@@ -40,7 +40,7 @@ var dnsSetCmd = &cobra.Command{
 	Short: "Set a value for a DNS record",
 	Long: `Set a value for a DNS record.  For example to set the A record for www.wealdtech.eth to 193.62.81.1:
 
-    ethereal dns set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --value=193.62.81.1 --passphrase=secret
+    ethereal dns set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --record=193.62.81.1 --passphrase=secret
 
 In This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -89,7 +89,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
 		outputIf(verbose, fmt.Sprintf("Resource record is %s (%d)", dnsResource, resourceNum))
 
-		cli.Assert(dnsSetRecord != "", quiet, "--value is required")
+		cli.Assert(dnsSetRecord != "", quiet, "--record is required")
 
 		// Create the data resource record(s)
 		offset := 0

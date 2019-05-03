@@ -23,6 +23,7 @@ func initEventMap() {
 	AddEventSignature("AuthorizedOperator(address,address)")
 	AddEventSignature("Burn(address,uint256)")
 	AddEventSignature("Burned(address,address,uint256,bytes,bytes)")
+	AddEventSignature("Cleared(bytes32)")
 	AddEventSignature("ContentChanged(bytes32,bytes32)")
 	AddEventSignature("CounterSignatoryCleared(address)")
 	AddEventSignature("CounterSignatorySet(address,address)")
@@ -68,6 +69,7 @@ func initEventMap() {
 	AddEventSignature("Transfer(address,address,uint256)")
 	AddEventSignature("Transfer(bytes32,address")
 	AddEventSignature("Unpause()")
+	AddEventSignature("Updated(bytes32,bytes,uint16)")
 	AddEventSignature("Updated(bytes32,bytes,uint16,uint256)")
 	AddEventSignature("Vault(address,address,address)")
 }
