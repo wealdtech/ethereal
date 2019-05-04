@@ -122,6 +122,15 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 					expiry, err := registrar.Expiry(domain)
 					cli.ErrCheck(err, quiet, "Failed to obtain expiry")
 					fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
+
+					controller, err := ens.NewETHController(client, ens.Domain(ensDomain))
+					cli.ErrCheck(err, quiet, "Failed to obtain controller")
+					rentPerSec, err := controller.RentCost(ensDomain)
+					if err == nil {
+						// Select (approximate) cost per year
+						rentPerYear := new(big.Int).Mul(big.NewInt(31536000), rentPerSec)
+						fmt.Printf("Approximate rent per year is %s\n", string2eth.WeiToString(rentPerYear, true))
+					}
 				}
 			default:
 				cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
