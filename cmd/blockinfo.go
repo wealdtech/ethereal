@@ -63,7 +63,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 
 		fmt.Printf("Number:\t\t\t%v\n", block.Number())
 		fmt.Printf("Hash:\t\t\t%v\n", block.Hash().Hex())
-		fmt.Printf("Block time:\t\t%v (%v)\n", block.Time(), time.Unix(block.Time().Int64(), 0))
+		fmt.Printf("Block time:\t\t%v (%v)\n", block.Time(), time.Unix(int64(block.Time()), 0))
 		if verbose {
 			coinbase := block.Coinbase()
 			fmt.Printf("Mined by:\t\t%s\n", ens.Format(client, coinbase))

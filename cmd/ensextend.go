@@ -59,6 +59,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 			domains[0] = ensDomain
 		}
 
+		cli.Assert(viper.GetString("value") != "", quiet, "--value is required")
+
 		value, err := string2eth.StringToWei(viper.GetString("value"))
 		cli.ErrCheck(err, quiet, "Could not understand value")
 		// Extend loop

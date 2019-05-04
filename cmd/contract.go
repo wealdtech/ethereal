@@ -131,7 +131,7 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 			argName = argBits[len(argBits)-1]
 		}
 		argType = intFixRe.ReplaceAllString(argType, `${1}256${2}`)
-		t, err := abi.NewType(argType)
+		t, err := abi.NewType(argType, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -148,7 +148,7 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 		for i, outputType := range outputTypes {
 			outputType = strings.Split(outputType, " ")[0]
 			outputType = intFixRe.ReplaceAllString(outputType, `${1}256${2}`)
-			t, err := abi.NewType(outputType)
+			t, err := abi.NewType(outputType, nil)
 			if err != nil {
 				return nil, err
 			}

@@ -18,6 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"os"
+	"os/user"
 	"path/filepath"
 	"runtime"
 
@@ -25,7 +27,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/accounts/usbwallet"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/params"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -82,15 +83,14 @@ func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, er
 }
 
 func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
-	keydir := node.DefaultDataDir()
+	keydir := DefaultDataDir()
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		// Nothing to add for mainnet
 	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
-	} else if chainID.Cmp(big.NewInt(5)) == 0 {
-		//} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -103,15 +103,14 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 }
 
 func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
-	keydir := node.DefaultDataDir()
+	keydir := DefaultDataDir()
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		// Nothing to add for mainnet
 	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
-		//	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
-	} else if chainID.Cmp(big.NewInt(5)) == 0 {
+	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -218,4 +217,62 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphrase string) bool {
 	_, err := wallet.SignHashWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	return err == nil
+}
+
+// DefaultDataDir is the default data directory to use for the databases and other
+// persistence requirements.
+func DefaultDataDir() string {
+	// Try to place the data folder in the user's home dir
+	home := homeDir()
+	if home != "" {
+		switch runtime.GOOS {
+		case "darwin":
+			return filepath.Join(home, "Library", "Ethereum")
+		case "windows":
+			// We used to put everything in %HOME%\AppData\Roaming, but this caused
+			// problems with non-typical setups. If this fallback location exists and
+			// is non-empty, use it, otherwise DTRT and check %LOCALAPPDATA%.
+			fallback := filepath.Join(home, "AppData", "Roaming", "Ethereum")
+			appdata := windowsAppData()
+			if appdata == "" || isNonEmptyDir(fallback) {
+				return fallback
+			}
+			return filepath.Join(appdata, "Ethereum")
+		default:
+			return filepath.Join(home, ".ethereum")
+		}
+	}
+	// As we cannot guess a stable location, return empty and handle later
+	return ""
+}
+
+func windowsAppData() string {
+	v := os.Getenv("LOCALAPPDATA")
+	if v == "" {
+		// Windows XP and below don't have LocalAppData. Crash here because
+		// we don't support Windows XP and undefining the variable will cause
+		// other issues.
+		panic("environment variable LocalAppData is undefined")
+	}
+	return v
+}
+
+func isNonEmptyDir(dir string) bool {
+	f, err := os.Open(dir)
+	if err != nil {
+		return false
+	}
+	names, _ := f.Readdir(1)
+	f.Close()
+	return len(names) > 0
+}
+
+func homeDir() string {
+	if home := os.Getenv("HOME"); home != "" {
+		return home
+	}
+	if usr, err := user.Current(); err == nil {
+		return usr.HomeDir
+	}
+	return ""
 }
