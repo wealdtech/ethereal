@@ -8,7 +8,7 @@ replace github.com/ethereum/go-ethereum => github.com/ethereum/go-ethereum v1.8.
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/antlr/antlr4 v0.0.0-20190223165740-dade65a895c2
-	github.com/ethereum/go-ethereum v1.8.27
+	github.com/ethereum/go-ethereum v1.8.20
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/golang/protobuf v1.3.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
