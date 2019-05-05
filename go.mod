@@ -2,8 +2,6 @@ module github.com/wealdtech/ethereal
 
 go 1.12
 
-replace github.com/wealdtech/go-ens/v2 => ../go-ens
-
 require (
 	github.com/antlr/antlr4 v0.0.0-20190503160947-7c334b114c20
 	github.com/aristanetworks/goarista v0.0.0-20190429220743-799535f6f364 // indirect
@@ -27,7 +25,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
-	github.com/wealdtech/go-ens/v2 v2.0.12
+	github.com/wealdtech/go-ens/v2 v2.0.13
 	github.com/wealdtech/go-erc1820 v1.2.0
 	github.com/wealdtech/go-string2eth v1.0.1
 	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734

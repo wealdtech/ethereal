@@ -148,8 +148,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/syndtr/goleveldb v1.0.0 h1:fBdIW9lB4Iz0n9khmH8w27SJ3QEJ7+IgjPEwGSZiFdE=
 github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpPAyBWyWuQ=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
-github.com/wealdtech/go-ens/v2 v2.0.12 h1:YmrghMvFYySUi7VbcKIyJlype1QPwALZCfyPGmqYzoY=
-github.com/wealdtech/go-ens/v2 v2.0.12/go.mod h1:/0l7m3HGfD1VKYyhziOpB0TH9J3aPuXCVg7lLqhj3rA=
+github.com/wealdtech/go-ens/v2 v2.0.13 h1:a0fxcZvqU49c0BbZdWutK4U345SYCBuJrVHvmFBSTQw=
+github.com/wealdtech/go-ens/v2 v2.0.13/go.mod h1:/0l7m3HGfD1VKYyhziOpB0TH9J3aPuXCVg7lLqhj3rA=
 github.com/wealdtech/go-erc1820 v1.2.0 h1:Qzo37q1zV3zICRMrv9CQAsapukqUJsSCngT2+rXzw+Y=
 github.com/wealdtech/go-erc1820 v1.2.0/go.mod h1:TmfPcpMPRPueBg5o3ge2OonPu0jDL/91ryOaPto5o78=
 github.com/wealdtech/go-multicodec v1.1.0 h1:xRa2uX+BYHLHyh7dOT7AFhLgGrq/0oUEKDT/V+7/VDs=
