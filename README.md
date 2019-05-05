@@ -562,6 +562,31 @@ $ ethereal ens subdomain create --domain=mydomain.eth --subdomain=mysub
 
 The subdomain will be owned by the domain owner.
 
+#### `text clear`
+
+`ethereal ens text clear` clears the text for a given key for the domain.  For example:
+
+```sh
+$ ethereal ens text clear --domain=mydomain.eth --key="My info"
+```
+
+#### `text get`
+
+`ethereal ens text get` gets the text for a given key for the domain.  For example:
+
+```sh
+$ ethereal ens text get --domain=mydomain.eth --key="My info"
+Information goes here
+```
+
+#### `text set`
+
+`ethereal ens text set` sets the text for a given key for the domain.  For example:
+
+```sh
+$ ethereal ens text set --domain=mydomain.eth --key="My info" --text="Information goes here"
+```
+
 #### `transfer`
 
 `ethereal ens transfer` transfers registration of a name to another address.  For example:

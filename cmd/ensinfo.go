@@ -105,6 +105,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 				}
 			case "permanent":
 				outputIf(verbose, "Domain registered on permanent registrar")
+				outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(client, registrar.ContractAddr)))
 				domain, err := ens.DomainPart(ensDomain, 1)
 				registrant, err := registrar.Owner(domain)
 				cli.ErrCheck(err, quiet, "Failed to obtain registrant")
@@ -125,6 +126,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
 					controller, err := ens.NewETHController(client, ens.Domain(ensDomain))
 					cli.ErrCheck(err, quiet, "Failed to obtain controller")
+					outputIf(verbose, fmt.Sprintf("Controller is %s", ens.Format(client, controller.ContractAddr)))
 					rentPerSec, err := controller.RentCost(ensDomain)
 					if err == nil {
 						// Select (approximate) cost per year

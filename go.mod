@@ -2,6 +2,8 @@ module github.com/wealdtech/ethereal
 
 go 1.12
 
+replace github.com/wealdtech/go-ens/v2 => ../go-ens
+
 require (
 	github.com/antlr/antlr4 v0.0.0-20190503160947-7c334b114c20
 	github.com/aristanetworks/goarista v0.0.0-20190429220743-799535f6f364 // indirect
