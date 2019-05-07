@@ -304,7 +304,7 @@ $ ethereal contract storage --contract=0x3c24F71e826D3762f5145f6a27d41545A7dfc8c
 
 ### `dns` commands
 
-DNS commands focus on interacting with the [EthDNS](https://medium.com/@jgm.orinoco/ethdns-an-ethereum-backend-for-the-domain-name-system-d52dabd904b3) system to allow DNS records to be stored on Ethereum.
+DNS commands focus on interacting with the [EthDNS](https://www.wealdtech.com/articles/ethdns-an-ethereum-backend-for-the-domain-name-system/) system to allow DNS records to be stored on Ethereum.
 
 Getting and setting DNS records works on the basis of a DNS resource record set.  A resource record set is defined by the tuple (domain,name,resource record type) for example (ehdns.xyz,www.ethdns.xyz,A) would return all 'A' (address) records help for www.ethdns.xyz in the domain ethdns.xyz.
 
