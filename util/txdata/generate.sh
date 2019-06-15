@@ -34,8 +34,7 @@ do
                 echo "    AddFunctionSignature(${FUNC})" >>${OUTPUT}
         done
 done
-cat >>${OUTPUT} <<EOEND
-
+cat >>${OUTPUT} <<EOEND 
     // Also add events
     initEventMap()
 }
@@ -43,3 +42,6 @@ EOEND
 
 # Sort the functions in-place
 echo 'x' | ex -s -c '21,$-1!sort' ${OUTPUT}
+
+# Tidy
+gofmt -w ${OUTPUT}
