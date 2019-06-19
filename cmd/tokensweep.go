@@ -29,7 +29,6 @@ import (
 
 var tokenSweepFromAddress string
 var tokenSweepToAddress string
-var tokenSweepData string
 
 // tokenSweepCmd represents the token sweep command
 var tokenSweepCmd = &cobra.Command{

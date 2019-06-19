@@ -30,7 +30,6 @@ import (
 var tokenApproveAmount string
 var tokenApproveHolderAddress string
 var tokenApproveSpenderAddress string
-var tokenApproveData string
 
 // tokenApproveCmd represents the token approve command
 var tokenApproveCmd = &cobra.Command{

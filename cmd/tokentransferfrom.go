@@ -30,7 +30,6 @@ var tokenTransferFromAmount string
 var tokenTransferFromFromAddress string
 var tokenTransferFromToAddress string
 var tokenTransferFromByAddress string
-var tokenTransferFromData string
 
 // tokenTransferFromCmd represents the token transferfrom command
 var tokenTransferFromCmd = &cobra.Command{

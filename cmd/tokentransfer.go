@@ -30,7 +30,6 @@ import (
 var tokenTransferAmount string
 var tokenTransferFromAddress string
 var tokenTransferToAddress string
-var tokenTransferData string
 var tokenTransferDecimals string
 
 // tokenTransferCmd represents the token transfer command
