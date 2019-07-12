@@ -41,9 +41,6 @@ var contractCallCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the contract is successfully called, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		cli.Err(quiet, "This command is disabled due to a bug with go-ethereum")
-
 		cli.Assert(contractCallFromAddress != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, contractCallFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))

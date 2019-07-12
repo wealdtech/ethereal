@@ -15,6 +15,18 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 )
 
+// Reference imports to suppress errors if they are not otherwise used.
+var (
+	_ = big.NewInt
+	_ = strings.NewReader
+	_ = ethereum.NotFound
+	_ = abi.U256
+	_ = bind.Bind
+	_ = common.Big1
+	_ = types.BloomLookup
+	_ = event.NewSubscription
+)
+
 // ERC20ABI is the input ABI used to generate the binding from.
 const ERC20ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"totalSupply\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"balance\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"remaining\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"_owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"_spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"}]"
 
@@ -162,7 +174,7 @@ func (_ERC20 *ERC20TransactorRaw) Transact(opts *bind.TransactOpts, method strin
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(_owner address, _spender address) constant returns(remaining uint256)
+// Solidity: function allowance(address _owner, address _spender) constant returns(uint256 remaining)
 func (_ERC20 *ERC20Caller) Allowance(opts *bind.CallOpts, _owner common.Address, _spender common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -174,21 +186,21 @@ func (_ERC20 *ERC20Caller) Allowance(opts *bind.CallOpts, _owner common.Address,
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(_owner address, _spender address) constant returns(remaining uint256)
+// Solidity: function allowance(address _owner, address _spender) constant returns(uint256 remaining)
 func (_ERC20 *ERC20Session) Allowance(_owner common.Address, _spender common.Address) (*big.Int, error) {
 	return _ERC20.Contract.Allowance(&_ERC20.CallOpts, _owner, _spender)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(_owner address, _spender address) constant returns(remaining uint256)
+// Solidity: function allowance(address _owner, address _spender) constant returns(uint256 remaining)
 func (_ERC20 *ERC20CallerSession) Allowance(_owner common.Address, _spender common.Address) (*big.Int, error) {
 	return _ERC20.Contract.Allowance(&_ERC20.CallOpts, _owner, _spender)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(_owner address) constant returns(balance uint256)
+// Solidity: function balanceOf(address _owner) constant returns(uint256 balance)
 func (_ERC20 *ERC20Caller) BalanceOf(opts *bind.CallOpts, _owner common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -200,14 +212,14 @@ func (_ERC20 *ERC20Caller) BalanceOf(opts *bind.CallOpts, _owner common.Address)
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(_owner address) constant returns(balance uint256)
+// Solidity: function balanceOf(address _owner) constant returns(uint256 balance)
 func (_ERC20 *ERC20Session) BalanceOf(_owner common.Address) (*big.Int, error) {
 	return _ERC20.Contract.BalanceOf(&_ERC20.CallOpts, _owner)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(_owner address) constant returns(balance uint256)
+// Solidity: function balanceOf(address _owner) constant returns(uint256 balance)
 func (_ERC20 *ERC20CallerSession) BalanceOf(_owner common.Address) (*big.Int, error) {
 	return _ERC20.Contract.BalanceOf(&_ERC20.CallOpts, _owner)
 }
@@ -292,7 +304,7 @@ func (_ERC20 *ERC20CallerSession) Symbol() (string, error) {
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() constant returns(totalSupply uint256)
+// Solidity: function totalSupply() constant returns(uint256 totalSupply)
 func (_ERC20 *ERC20Caller) TotalSupply(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -304,77 +316,77 @@ func (_ERC20 *ERC20Caller) TotalSupply(opts *bind.CallOpts) (*big.Int, error) {
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() constant returns(totalSupply uint256)
+// Solidity: function totalSupply() constant returns(uint256 totalSupply)
 func (_ERC20 *ERC20Session) TotalSupply() (*big.Int, error) {
 	return _ERC20.Contract.TotalSupply(&_ERC20.CallOpts)
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
-// Solidity: function totalSupply() constant returns(totalSupply uint256)
+// Solidity: function totalSupply() constant returns(uint256 totalSupply)
 func (_ERC20 *ERC20CallerSession) TotalSupply() (*big.Int, error) {
 	return _ERC20.Contract.TotalSupply(&_ERC20.CallOpts)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(_spender address, _value uint256) returns(success bool)
+// Solidity: function approve(address _spender, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20Transactor) Approve(opts *bind.TransactOpts, _spender common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.contract.Transact(opts, "approve", _spender, _value)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(_spender address, _value uint256) returns(success bool)
+// Solidity: function approve(address _spender, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20Session) Approve(_spender common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.Contract.Approve(&_ERC20.TransactOpts, _spender, _value)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(_spender address, _value uint256) returns(success bool)
+// Solidity: function approve(address _spender, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20TransactorSession) Approve(_spender common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.Contract.Approve(&_ERC20.TransactOpts, _spender, _value)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(_owner address, _value uint256) returns(success bool)
+// Solidity: function transfer(address _owner, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20Transactor) Transfer(opts *bind.TransactOpts, _owner common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.contract.Transact(opts, "transfer", _owner, _value)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(_owner address, _value uint256) returns(success bool)
+// Solidity: function transfer(address _owner, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20Session) Transfer(_owner common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.Contract.Transfer(&_ERC20.TransactOpts, _owner, _value)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(_owner address, _value uint256) returns(success bool)
+// Solidity: function transfer(address _owner, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20TransactorSession) Transfer(_owner common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.Contract.Transfer(&_ERC20.TransactOpts, _owner, _value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(_owner address, _to address, _value uint256) returns(success bool)
+// Solidity: function transferFrom(address _owner, address _to, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20Transactor) TransferFrom(opts *bind.TransactOpts, _owner common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.contract.Transact(opts, "transferFrom", _owner, _to, _value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(_owner address, _to address, _value uint256) returns(success bool)
+// Solidity: function transferFrom(address _owner, address _to, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20Session) TransferFrom(_owner common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.Contract.TransferFrom(&_ERC20.TransactOpts, _owner, _to, _value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(_owner address, _to address, _value uint256) returns(success bool)
+// Solidity: function transferFrom(address _owner, address _to, uint256 _value) returns(bool success)
 func (_ERC20 *ERC20TransactorSession) TransferFrom(_owner common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _ERC20.Contract.TransferFrom(&_ERC20.TransactOpts, _owner, _to, _value)
 }
@@ -456,7 +468,7 @@ type ERC20Approval struct {
 
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: e Approval(_owner indexed address, _spender indexed address, _value uint256)
+// Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 func (_ERC20 *ERC20Filterer) FilterApproval(opts *bind.FilterOpts, _owner []common.Address, _spender []common.Address) (*ERC20ApprovalIterator, error) {
 
 	var _ownerRule []interface{}
@@ -477,7 +489,7 @@ func (_ERC20 *ERC20Filterer) FilterApproval(opts *bind.FilterOpts, _owner []comm
 
 // WatchApproval is a free log subscription operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
-// Solidity: e Approval(_owner indexed address, _spender indexed address, _value uint256)
+// Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 func (_ERC20 *ERC20Filterer) WatchApproval(opts *bind.WatchOpts, sink chan<- *ERC20Approval, _owner []common.Address, _spender []common.Address) (event.Subscription, error) {
 
 	var _ownerRule []interface{}
@@ -519,6 +531,17 @@ func (_ERC20 *ERC20Filterer) WatchApproval(opts *bind.WatchOpts, sink chan<- *ER
 			}
 		}
 	}), nil
+}
+
+// ParseApproval is a log parse operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
+//
+// Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
+func (_ERC20 *ERC20Filterer) ParseApproval(log types.Log) (*ERC20Approval, error) {
+	event := new(ERC20Approval)
+	if err := _ERC20.contract.UnpackLog(event, "Approval", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 // ERC20TransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the ERC20 contract.
@@ -598,7 +621,7 @@ type ERC20Transfer struct {
 
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: e Transfer(_from indexed address, _to indexed address, _value uint256)
+// Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
 func (_ERC20 *ERC20Filterer) FilterTransfer(opts *bind.FilterOpts, _from []common.Address, _to []common.Address) (*ERC20TransferIterator, error) {
 
 	var _fromRule []interface{}
@@ -619,7 +642,7 @@ func (_ERC20 *ERC20Filterer) FilterTransfer(opts *bind.FilterOpts, _from []commo
 
 // WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
-// Solidity: e Transfer(_from indexed address, _to indexed address, _value uint256)
+// Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
 func (_ERC20 *ERC20Filterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *ERC20Transfer, _from []common.Address, _to []common.Address) (event.Subscription, error) {
 
 	var _fromRule []interface{}
@@ -661,4 +684,15 @@ func (_ERC20 *ERC20Filterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *ER
 			}
 		}
 	}), nil
+}
+
+// ParseTransfer is a log parse operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
+func (_ERC20 *ERC20Filterer) ParseTransfer(log types.Log) (*ERC20Transfer, error) {
+	event := new(ERC20Transfer)
+	if err := _ERC20.contract.UnpackLog(event, "Transfer", log); err != nil {
+		return nil, err
+	}
+	return event, nil
 }

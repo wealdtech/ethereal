@@ -95,7 +95,7 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
-	accountManager := accounts.NewManager(backends...)
+	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 	account := accounts.Account{Address: address}
 	wallet, err := accountManager.Find(account)
@@ -115,7 +115,7 @@ func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
-	accountManager := accounts.NewManager(backends...)
+	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 	return accountManager.Wallets(), nil
 }
@@ -142,7 +142,7 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 	}
 
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
-	accountManager := accounts.NewManager(backends...)
+	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 	account := accounts.Account{Address: address}
 	wallet, err := accountManager.Find(account)
@@ -171,7 +171,7 @@ func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	}
 
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
-	accountManager := accounts.NewManager(backends...)
+	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 	return accountManager.Wallets(), nil
 }
@@ -183,13 +183,13 @@ func obtainLedgerWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	}
 
 	backends := []accounts.Backend{ledgerhub}
-	accountManager := accounts.NewManager(backends...)
+	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 
 	usbWallets := viper.GetInt("usbwallets")
 	for _, wallet := range accountManager.Wallets() {
 		wallet.Open("")
-		path := accounts.DefaultLedgerBaseDerivationPath
+		path := accounts.LegacyLedgerBaseDerivationPath
 		for i := 0; i < usbWallets; i++ {
 			path[3] = uint32(i)
 			wallet.Derive(path, true)
@@ -215,7 +215,7 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 
 // VerifyPassphrase confirms that a passphrase is correct for an account
 func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphrase string) bool {
-	_, err := wallet.SignHashWithPassphrase(account, passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	_, err := wallet.SignDataWithPassphrase(account, passphrase, "application/octet-stream", []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	return err == nil
 }
 
