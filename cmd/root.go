@@ -38,6 +38,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
+	ipfsprovider "github.com/wealdtech/go-ipfs-provider"
+	infura "github.com/wealdtech/go-ipfs-provider-infura"
+	pinata "github.com/wealdtech/go-ipfs-provider-pinata"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -50,6 +53,7 @@ var offline bool
 var client *ethclient.Client
 var chainID *big.Int
 var referrer common.Address
+var ipfsProvider ipfsprovider.Provider
 
 var nonce int64
 var wallet accounts.Wallet
@@ -321,6 +325,8 @@ func init() {
 	viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline"))
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
 	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
+	RootCmd.PersistentFlags().String("ipfsprovider", "infura", "IPFS gateway provider (infura/pinata)")
+	viper.BindPFlag("ipfsprovider", RootCmd.PersistentFlags().Lookup("ipfsprovider"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -341,6 +347,7 @@ func initConfig() {
 		viper.SetConfigName(".ethereal")
 	}
 
+	viper.SetEnvPrefix("ethereal")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
@@ -582,4 +589,17 @@ func deriveSigner(V *big.Int) types.Signer {
 		return types.NewEIP155Signer(deriveChainID(V))
 	}
 	return types.HomesteadSigner{}
+}
+
+func initIPFSProvider() error {
+	var err error
+	switch viper.GetString("ipfsprovider") {
+	case "infura":
+		ipfsProvider, err = infura.NewProvider()
+	case "pinata":
+		ipfsProvider, err = pinata.NewProvider(viper.GetString("pinataKey"), viper.GetString("pinataSecret"))
+	default:
+		err = errors.New("unknown IPFS provider")
+	}
+	return err
 }
