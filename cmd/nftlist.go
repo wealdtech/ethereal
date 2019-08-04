@@ -45,7 +45,10 @@ In quiet mode this will return 0 if the owner holds any tokens, otherwise 1.`,
 		owner, err := ens.Resolve(client, nftListOwner)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve owner address %s", nftListOwner))
 
-		for index := big.NewInt(0); ; index.Add(index, big.NewInt(1)) {
+		tokens, err := nft.contract.BalanceOf(nil, owner)
+		cli.ErrCheck(err, quiet, "Failed to obtain balance of owner")
+
+		for index := big.NewInt(0); index.Cmp(tokens) < 0; index.Add(index, big.NewInt(1)) {
 			id, err := nft.contract.TokenOfOwnerByIndex(nil, owner, index)
 			if err != nil {
 				if index.Cmp(big.NewInt(0)) == 0 {
