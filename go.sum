@@ -353,8 +353,12 @@ github.com/wealdtech/go-ipfs-pinner-pinata v0.0.0-20190730103713-9c742caab806 h1
 github.com/wealdtech/go-ipfs-pinner-pinata v0.0.0-20190730103713-9c742caab806/go.mod h1:JmFqLIWGlCL7wuw325IQDOa6JD2lk5kkqfWLjYXIxuw=
 github.com/wealdtech/go-ipfs-provider v1.0.0 h1:7KUhjFhZX9rIjG9bMFXIFNMu4TUgrIgXP+iajuAxkHs=
 github.com/wealdtech/go-ipfs-provider v1.0.0/go.mod h1:ABxMlvyuNm+3IxnoWCQponMfgGzoPsQXviCRT+17ZnE=
+github.com/wealdtech/go-ipfs-provider v1.1.0 h1:OOswUWz+0cWio1A4MEBFt95pu8QnpVvch1yOoHPC9AY=
+github.com/wealdtech/go-ipfs-provider v1.1.0/go.mod h1:ABxMlvyuNm+3IxnoWCQponMfgGzoPsQXviCRT+17ZnE=
 github.com/wealdtech/go-ipfs-provider-infura v1.0.0 h1:29jpxIRS6ycjsIKEuMVwdi/qDQE9JzG3S8FQk2a//pc=
 github.com/wealdtech/go-ipfs-provider-infura v1.0.0/go.mod h1:s2vxUPhOev+4kkvu/W3XZXFphfztbO4WnCKS1ilpr78=
+github.com/wealdtech/go-ipfs-provider-infura v1.1.0 h1:pVjBfNfRutS3erOLxRYCSAiFhEGiM6IR3OQz9ePmshg=
+github.com/wealdtech/go-ipfs-provider-infura v1.1.0/go.mod h1:WXZR5U9iKYOJhkBk9qASGPWKcLeS+eT++Lt2AmDOAIs=
 github.com/wealdtech/go-ipfs-provider-pinata v1.0.0 h1:DIV4nzxpLAc9pwv/m+7RQCN84xpp/gQ7QrLS0LyL3AE=
 github.com/wealdtech/go-ipfs-provider-pinata v1.0.0/go.mod h1:NdLegDhT4Ya/Zu+p2iDdIr8ECnlgCPeegDRGPjOzOM8=
 github.com/wealdtech/go-multicodec v1.2.0 h1:9AHSxcSE9F9r6ZvQLAO0EXCdM08QfYohaXmW3k6sSh4=
@@ -458,6 +462,8 @@ golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 h1:LepdCS8Gf/MVejFIt8lsiexZA
 golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e h1:D5TXcfTk7xF7hvieo4QErS3qqCB4teTffacDWr7CI+0=
 golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa h1:KIDDMLT1O0Nr7TSxp8xM5tJcdn8tgyAONntO829og1M=
+golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=

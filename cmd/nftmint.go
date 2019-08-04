@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -28,6 +29,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens/v2"
+	provider "github.com/wealdtech/go-ipfs-provider"
 )
 
 var nftMintName string
@@ -80,20 +82,31 @@ Note that this requires the token contract to have a method mint(address,string)
 
 		// Upload an image to IPFS if required
 		if nftMintImage != "" && !strings.HasPrefix(nftMintImage, "/ipfs/") {
+			opts := &provider.ContentOpts{}
+			if strings.HasSuffix(nftMintImage, ".svg") {
+				// SVG files as content hashes don't work as images browsers can't
+				// tell the difference between simple XML and an XML image) so put
+				// the file in a directory and it can be referenced as <hash>/file.svg
+				opts.StoreInDirectory = true
+			}
 			file, err := os.Open(nftMintImage)
 			cli.ErrCheck(err, quiet, "Failed to find file")
-			hash, err := ipfsProvider.PinContent(fmt.Sprintf("%s image", nftMintName), file)
+			hash, err := ipfsProvider.PinContent(filepath.Base(nftMintImage), file, opts)
 			cli.ErrCheck(err, quiet, "Failed to upload image")
 			imageURI := fmt.Sprintf("ipfs://%s", hash)
+			if opts.StoreInDirectory {
+				imageURI = fmt.Sprintf("%s/%s", imageURI, filepath.Base(nftMintImage))
+			}
 			metadata["image"] = imageURI
 		}
 
 		mdBytes, err := json.Marshal(metadata)
 		cli.ErrCheck(err, quiet, "Failed to create metadata")
+		outputIf(verbose, fmt.Sprintf("Metadata is %s", string(mdBytes)))
 
-		hash, err := ipfsProvider.PinContent("metadata", bytes.NewBuffer(mdBytes))
+		hash, err := ipfsProvider.PinContent("metadata.json", bytes.NewBuffer(mdBytes), nil)
 		cli.ErrCheck(err, quiet, "Failed to upload metadata")
-		outputIf(verbose, fmt.Sprintf("Token metadata IPFS hash is %v\n", hash))
+		outputIf(verbose, fmt.Sprintf("Token metadata IPFS hash is %v", hash))
 
 		opts, err := generateTxOpts(fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
@@ -130,7 +143,7 @@ Note that this requires the token contract to have a method mint(address,string)
 				// Check if this is a transfer event, if so the token ID is in the fourth topic
 				if bytes.Compare([]byte{0xdd, 0xf2, 0x52, 0xad, 0x1b, 0xe2, 0xc8, 0x9b, 0x69, 0xc2, 0xb0, 0x68, 0xfc, 0x37, 0x8d, 0xaa, 0x95, 0x2b, 0xa7, 0xf1, 0x63, 0xc4, 0xa1, 0x16, 0x28, 0xf5, 0x5a, 0x4d, 0xf5, 0x23, 0xb3, 0xef}, log.Topics[0].Bytes()) == 0 {
 					id := new(big.Int).SetBytes(log.Topics[3].Bytes())
-					outputIf(!quiet, fmt.Sprintf("%v\n", id))
+					outputIf(!quiet, fmt.Sprintf("%v", id))
 					os.Exit(_exit_success)
 				}
 			}

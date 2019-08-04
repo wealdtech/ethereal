@@ -73,11 +73,8 @@ require (
 	github.com/ugorji/go v1.1.7 // indirect
 	github.com/wealdtech/go-ens/v2 v2.0.16
 	github.com/wealdtech/go-erc1820 v1.2.1
-	github.com/wealdtech/go-ipfs-pinner v0.0.0-20190730113833-05ab5e64c04b
-	github.com/wealdtech/go-ipfs-pinner-infura v0.0.0-00010101000000-000000000000
-	github.com/wealdtech/go-ipfs-pinner-pinata v0.0.0-00010101000000-000000000000
-	github.com/wealdtech/go-ipfs-provider v1.0.0
-	github.com/wealdtech/go-ipfs-provider-infura v1.0.0
+	github.com/wealdtech/go-ipfs-provider v1.1.0
+	github.com/wealdtech/go-ipfs-provider-infura v1.1.0
 	github.com/wealdtech/go-ipfs-provider-pinata v1.0.0
 	github.com/wealdtech/go-string2eth v1.0.1
 	github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208 // indirect
@@ -87,15 +84,10 @@ require (
 	golang.org/x/image v0.0.0-20190729225735-1bd0cf576493 // indirect
 	golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
-	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
 	golang.org/x/tools v0.0.0-20190729092621-ff9f1409240a // indirect
 	google.golang.org/grpc v1.22.1 // indirect
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20190709231704-1e4459ed25ff // indirect
 	honnef.co/go/tools v0.0.1-2019.2.2 // indirect
 )
 
-replace github.com/wealdtech/go-ipfs-pinner => ../go-ipfs-pinner
-
-replace github.com/wealdtech/go-ipfs-pinner-pinata => ../go-ipfs-pinner-pinata
-
-replace github.com/wealdtech/go-ipfs-pinner-infura => ../go-ipfs-pinner-infura
+replace github.com/wealdtech/go-ipfs-provider-pinata => ../go-ipfs-provider-pinata
