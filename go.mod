@@ -75,7 +75,7 @@ require (
 	github.com/wealdtech/go-erc1820 v1.2.1
 	github.com/wealdtech/go-ipfs-provider v1.1.0
 	github.com/wealdtech/go-ipfs-provider-infura v1.1.0
-	github.com/wealdtech/go-ipfs-provider-pinata v1.0.0
+	github.com/wealdtech/go-ipfs-provider-pinata v1.1.0
 	github.com/wealdtech/go-string2eth v1.0.1
 	github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
