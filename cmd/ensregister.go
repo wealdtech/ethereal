@@ -113,6 +113,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 			secrets[domain] = secret
 
 			opts, err := generateTxOpts(owner)
+			cli.ErrCheck(err, quiet, "failed to generate transaction options")
+
 			// Commitments have no value
 			opts.Value = nil
 			cli.ErrCheck(err, quiet, "failed to generate commit transaction options")
