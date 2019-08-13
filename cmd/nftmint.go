@@ -33,6 +33,7 @@ import (
 )
 
 var nftMintName string
+var nftMintDescription string
 var nftMintImage string
 var nftMintMetadata string
 var nftMintFromAddress string
@@ -44,7 +45,7 @@ var nftMintCmd = &cobra.Command{
 	Short: "Mint a non-fungible token token to a given address",
 	Long: `Mint a non-fungible token, creating its metadata, and gifting it to its initial owner.  For example:
 
-	ethereal nft mint --token=0xc5cD09a414d6999A6Fe96c6b909900EB5227e019 --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --name="My collectible #12345" --image="tokenimage.svg" --metadata='{"value":10000}' --passphrase=secret
+	ethereal nft mint --token=0xc5cD09a414d6999A6Fe96c6b909900EB5227e019 --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --name="My token" --description="A token that is yours" --image="tokenimage.svg" --metadata='{"value":10000}' --passphrase=secret
 
 This will return an exit status of 0 if the mint transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.
 
@@ -76,28 +77,40 @@ Note that this requires the token contract to have a method mint(address,string)
 			cli.ErrCheck(err, quiet, "Metadata is not valid JSON")
 		}
 		metadata["name"] = nftMintName
+		if nftMintDescription != "" {
+			metadata["description"] = nftMintDescription
+		}
 
 		err = initIPFSProvider()
 		cli.ErrCheck(err, quiet, "Failed to access IPFS provider")
 
 		// Upload an image to IPFS if required
-		if nftMintImage != "" && !strings.HasPrefix(nftMintImage, "/ipfs/") {
-			opts := &provider.ContentOpts{}
-			if strings.HasSuffix(nftMintImage, ".svg") {
-				// SVG files as content hashes don't work as images browsers can't
-				// tell the difference between simple XML and an XML image) so put
-				// the file in a directory and it can be referenced as <hash>/file.svg
-				opts.StoreInDirectory = true
+		if nftMintImage != "" {
+			if strings.Contains(nftMintImage, "://") {
+				// Traditional URL
+				metadata["image"] = nftMintImage
+			} else if strings.HasPrefix(nftMintImage, "/ipfs/") {
+				// IPFS path
+				metadata["image"] = nftMintImage
+			} else {
+				// Path to local image
+				opts := &provider.ContentOpts{}
+				if strings.HasSuffix(nftMintImage, ".svg") {
+					// SVG files as content hashes don't work as images browsers can't
+					// tell the difference between simple XML and an XML image) so put
+					// the file in a directory and it can be referenced as <hash>/file.svg
+					opts.StoreInDirectory = true
+				}
+				file, err := os.Open(nftMintImage)
+				cli.ErrCheck(err, quiet, "Failed to find file")
+				hash, err := ipfsProvider.PinContent(filepath.Base(nftMintImage), file, opts)
+				cli.ErrCheck(err, quiet, "Failed to upload image")
+				imageURI := fmt.Sprintf("ipfs://%s", hash)
+				if opts.StoreInDirectory {
+					imageURI = fmt.Sprintf("%s/%s", imageURI, filepath.Base(nftMintImage))
+				}
+				metadata["image"] = imageURI
 			}
-			file, err := os.Open(nftMintImage)
-			cli.ErrCheck(err, quiet, "Failed to find file")
-			hash, err := ipfsProvider.PinContent(filepath.Base(nftMintImage), file, opts)
-			cli.ErrCheck(err, quiet, "Failed to upload image")
-			imageURI := fmt.Sprintf("ipfs://%s", hash)
-			if opts.StoreInDirectory {
-				imageURI = fmt.Sprintf("%s/%s", imageURI, filepath.Base(nftMintImage))
-			}
-			metadata["image"] = imageURI
 		}
 
 		mdBytes, err := json.Marshal(metadata)
@@ -156,6 +169,7 @@ func init() {
 	nftCmd.AddCommand(nftMintCmd)
 	nftFlags(nftMintCmd)
 	nftMintCmd.Flags().StringVar(&nftMintName, "name", "", "Name for the token")
+	nftMintCmd.Flags().StringVar(&nftMintDescription, "description", "", "Description for the token")
 	nftMintCmd.Flags().StringVar(&nftMintImage, "image", "", "Image for the token")
 	nftMintCmd.Flags().StringVar(&nftMintMetadata, "metadata", "", "JSON metadata for token")
 	nftMintCmd.Flags().StringVar(&nftMintFromAddress, "from", "", "Address from which to mint the token")

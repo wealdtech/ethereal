@@ -25,7 +25,6 @@ import (
 )
 
 var nftTransferTokenIDStr string
-var nftTransferAmount string
 var nftTransferToAddress string
 var nftTransferData string
 
@@ -35,7 +34,7 @@ var nftTransferCmd = &cobra.Command{
 	Short: "Transfer a non-fungible token to a given address",
 	Long: `Transfer a non-fungible token from one address to another.  For example:
 
-    ethereal nft transfer --token=omg --tokenid=TODO --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --amount=10 --passphrase=secret
+    ethereal nft transfer --token=omg --tokenid=12 --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -58,8 +57,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			// Doesn't like odd numbers
 			nftTransferData = "0" + nftTransferData
 		}
-		data, err := hex.DecodeString(nftTransferData)
-		cli.ErrCheck(err, quiet, "Failed to parse data")
+		var data []byte
+		if len(nftTransferData) > 0 {
+			data, err = hex.DecodeString(nftTransferData)
+			cli.ErrCheck(err, quiet, "Failed to parse data")
+		}
 
 		owner, err := nft.contract.OwnerOf(nil, tokenID)
 		cli.ErrCheck(err, quiet, "Failed to obtain current owner")
@@ -67,7 +69,8 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 
-		signedTx, err := nft.contract.SafeTransferFrom0(opts, owner, toAddress, tokenID, data)
+		//signedTx, err := nft.contract.SafeTransferFrom0(opts, owner, toAddress, tokenID, data)
+		signedTx, err := nft.contract.TransferFrom(opts, owner, toAddress, tokenID)
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{
