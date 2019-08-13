@@ -646,6 +646,19 @@ The value is the average of the values of the 9th decile of transactions in each
 
 By default this command does not consider gas used when calculating the price.  Commonly the gas price for high gas transactions is higher due to them needing to be included in a block earlier to fit.  The `--gas` argument can supply an amount of gas, in which case the value returned will be the average of the gas price required to fit a transaction with the supplied gas in to the blocks.
 
+### `hd` commands
+
+### `keys`
+
+`ethereal hd keys` shows the private key, public key and Ethereum address for a given hierarchical deterministic seed and path.  For example:
+
+```sh
+$ ethereal hd keys --seed="yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --path="m/44'/60'/0'/0/0"
+Private key:            0x1b48e04041e23c72cacdaa9b0775d31515fc74d6a6d3c8804172f7e7d1248529
+Public key:             0x04c4755e0a7a0f7082749bf46cdae4fcddb784e11428446a01478d656f588f94c17d02f3312b43364a0c480d628483c4fb4e3e9f687ac064717d90fdc42cfb6e0e
+Ethereum address:       0xA27DF20E6579aC472481F0Ea918165d24bFb713b
+```
+
 ### `network` commands
 
 #### `blocktime`

@@ -3,11 +3,17 @@ module github.com/wealdtech/ethereal
 go 1.12
 
 require (
+	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
+	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
+	github.com/FactomProject/go-bip32 v0.3.5
+	github.com/FactomProject/go-bip39 v0.3.5
+	github.com/FactomProject/go-bip44 v0.0.0-20190306062959-b541a96d8da9
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/antlr/antlr4 v0.0.0-20190623224521-a770ff26ccc4
 	github.com/apilayer/freegeoip v3.5.0+incompatible // indirect
 	github.com/aristanetworks/goarista v0.0.0-20190704150520-f44d68189fd7 // indirect
 	github.com/btcsuite/btcd v0.0.0-20190629003639-c26ffa870fd8 // indirect
+	github.com/cmars/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/docker/docker v1.13.1 // indirect
 	github.com/elastic/gosigar v0.10.4 // indirect
 	github.com/ethereum/go-ethereum v1.9.0

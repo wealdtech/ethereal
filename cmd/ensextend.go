@@ -85,7 +85,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 			expiryTS, err := registrar.Expiry(domain)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain expiry for %s", domain))
 			expiry := time.Unix(expiryTS.Int64(), 0)
-			outputIf(verbose, fmt.Sprintf("%s expires at %s", expiry.Format("2006-01-02 15:04")))
+			outputIf(verbose, fmt.Sprintf("%s expires at %s", domain, expiry.Format("2006-01-02 15:04")))
 
 			costPerSecond, err := controller.RentCost(domain)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain rental cost for %s", domain))
