@@ -746,6 +746,20 @@ Block 7495038 used 99.76% of gas limit (7980625/8000029)
 93.94%
 ```
 
+### `node` commands
+
+Node commands focus on the state of the Ethereum nodes as specified in the connection.
+
+#### `sync`
+
+`ethereal node sync` obtains the synchronisation state of the node as defined by the `connection` option.  For example:
+
+```sh
+$ ethereal node sync --connection=/home/ethereum/.ethereum/goerli/geth.ipc
+Node is at block 1157120, syncing to block 1165105
+```
+
+
 ### `registry` commands
 
 Ether commands focus on use of the [ERC-1820](https://eips.ethereum.org/EIPS/eip-1820) registry.
