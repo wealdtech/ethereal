@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -83,7 +83,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 
 		// Check loop
 		for _, domain := range domains {
-			domain = ens.NormaliseDomain(domain)
+			domain, err = ens.NormaliseDomain(domain)
+			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
 			valid, err := controller.IsValid(domain)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to find out if %s is valid", domain))
@@ -105,7 +106,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 		secrets := make(map[string][32]byte)
 		var lastTx *types.Transaction
 		for _, domain := range domains {
-			domain = ens.NormaliseDomain(domain)
+			domain, err = ens.NormaliseDomain(domain)
+			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
 			var secret [32]byte
 			_, err = rand.Read(secret[:])
@@ -141,7 +143,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 
 		// Reveal loop
 		for _, domain := range domains {
-			domain = ens.NormaliseDomain(domain)
+			domain, err = ens.NormaliseDomain(domain)
+			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
 			opts, err := generateTxOpts(owner)
 			cli.ErrCheck(err, quiet, "failed to generate reveal transaction options")

@@ -23,7 +23,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 )
 
 // dnsClearCmd represents the dns clear command
@@ -40,11 +40,13 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		if !strings.HasSuffix(dnsDomain, ".") {
 			dnsDomain = dnsDomain + "."
 		}
-		dnsDomain = ens.NormaliseDomain(dnsDomain)
+		dnsDomain, err := ens.NormaliseDomain(dnsDomain)
+		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 		outputIf(verbose, fmt.Sprintf("DNS domain is %s", dnsDomain))
 		ensDomain := strings.TrimSuffix(dnsDomain, ".")
 		outputIf(verbose, fmt.Sprintf("ENS domain is %s", ensDomain))
-		domainHash := ens.NameHash(ensDomain)
+		domainHash, err := ens.NameHash(ensDomain)
+		cli.ErrCheck(err, quiet, "Failed to obtain name hash of ENS domain")
 		outputIf(verbose, fmt.Sprintf("ENS domain hash is 0x%x", domainHash))
 
 		// Obtain the registry contract

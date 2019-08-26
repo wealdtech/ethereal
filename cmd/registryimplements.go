@@ -20,7 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 

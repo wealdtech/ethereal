@@ -17,7 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var ensDomainSetAddress string
@@ -49,7 +49,8 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		opts, err := generateTxOpts(address)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		ensDomainSetDomain = ens.Normalize(ensDomainSetDomain)
+		ensDomainSetDomain, err = ens.Normalize(ensDomainSetDomain)
+		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 		signedTx, err := registrar.SetName(opts, ensDomainSetDomain)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 

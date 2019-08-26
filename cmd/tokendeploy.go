@@ -25,7 +25,7 @@ import (
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/funcparser"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenDeployName string

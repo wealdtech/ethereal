@@ -22,7 +22,7 @@ import (
 	"github.com/miekg/dns"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var dnsGetWire bool
@@ -43,7 +43,8 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		if !strings.HasSuffix(dnsDomain, ".") {
 			dnsDomain = dnsDomain + "."
 		}
-		dnsDomain = ens.NormaliseDomain(dnsDomain)
+		dnsDomain, err := ens.NormaliseDomain(dnsDomain)
+		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 		outputIf(verbose, fmt.Sprintf("DNS domain is %s", dnsDomain))
 		ensDomain := strings.TrimSuffix(dnsDomain, ".")
 		outputIf(verbose, fmt.Sprintf("ENS domain is %s", ensDomain))

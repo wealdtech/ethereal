@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -66,7 +66,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 		// Extend loop
 		var lastTx *types.Transaction
 		for _, domain := range domains {
-			domain = ens.NormaliseDomain(domain)
+			domain, err = ens.NormaliseDomain(domain)
+			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
 			// Ensure the domain is owned
 			registry, err := ens.NewRegistry(client)

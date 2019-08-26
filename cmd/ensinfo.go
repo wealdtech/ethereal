@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
-	ens "github.com/wealdtech/go-ens/v2"
+	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -41,16 +41,21 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		ensDomain = ens.NormaliseDomain(ensDomain)
+		ensDomain, err := ens.NormaliseDomain(ensDomain)
+		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
 		// Domain information
 		outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
 		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
 		outputIf(verbose, fmt.Sprintf("Domain level is %v", ens.DomainLevel(ensDomain)))
-		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", ens.NameHash(ensDomain)))
+		nameHash, err := ens.NameHash(ensDomain)
+		cli.ErrCheck(err, quiet, "Failed to obtain name hash of ENS domain")
+		outputIf(verbose, fmt.Sprintf("Name hash is 0x%x", nameHash))
 		label, _ := ens.DomainPart(ensDomain, 1)
 		outputIf(verbose, fmt.Sprintf("Label is %s", label))
-		outputIf(verbose, fmt.Sprintf("Label hash is 0x%x", ens.LabelHash(label)))
+		labelHash, err := ens.LabelHash(label)
+		cli.ErrCheck(err, quiet, "Failed to obtain label hash of ENS domain")
+		outputIf(verbose, fmt.Sprintf("Label hash is 0x%x", labelHash))
 
 		if ens.DomainLevel(ensDomain) == 1 && ens.Tld(ensDomain) == "eth" {
 			// Work out if this is on the old or new .eth registrar and act accordingly
