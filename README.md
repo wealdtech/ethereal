@@ -706,6 +706,15 @@ Block 7370152 used 1113156 gas in 6 seconds
 1015579
 ```
 
+#### `id`
+
+`ethereal network id` provides the ID of the Ethereum network.  For example:
+
+```sh
+$ ethereal network id
+1
+```
+
 #### `tps`
 
 `ethereal network tps` provides a transactions-per-second metric for the Ethereum network over a number of blocks.  For example:

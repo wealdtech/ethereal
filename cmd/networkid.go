@@ -16,39 +16,33 @@ package cmd
 import (
 	"fmt"
 	"os"
-	dbg "runtime/debug"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/wealdtech/ethereal/cli"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Version of Ethereal",
-	Long: `Obtain the version of Ethereal.  For example:
+// networkIDCmd represents the network id command
+var networkIDCmd = &cobra.Command{
+	Use:   "id",
+	Short: "Obtain the ID of the network",
+	Long: `Obtain the ID of the network.  For example:
 
-    ethereal version.`,
+    ethereal network id
+
+In quiet mode this will return 0 if the network ID is obtained, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("2.0.9")
-		if viper.GetBool("verbose") {
-			buildInfo, ok := dbg.ReadBuildInfo()
-			if ok {
-				fmt.Printf("Package: %s\n", buildInfo.Path)
-				fmt.Println("Dependencies:")
-				for _, dep := range buildInfo.Deps {
-					for dep.Replace != nil {
-						dep = dep.Replace
-					}
-					fmt.Printf("\t%v %v\n", dep.Path, dep.Version)
-				}
-			}
+		ctx, cancel := localContext()
+		defer cancel()
+		id, err := client.NetworkID(ctx)
+		cli.ErrCheck(err, quiet, "Failed to obtain network ID")
+		if !quiet {
+			fmt.Printf("%v\n", id)
 		}
 		os.Exit(_exit_success)
 	},
 }
 
 func init() {
-	offlineCmds["version"] = true
-	RootCmd.AddCommand(versionCmd)
+	networkCmd.AddCommand(networkIDCmd)
+	networkFlags(networkIDCmd)
 }
