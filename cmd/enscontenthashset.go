@@ -51,6 +51,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(ensContenthashSetContentStr != "", quiet, "--content is required")
 		data, err := ens.StringToContenthash(ensContenthashSetContentStr)
 		cli.ErrCheck(err, quiet, "Unknown content")
+		outputIf(verbose, fmt.Sprintf("Content hash is 0x%x", data))
 
 		// Obtain the resolver for this name
 		resolver, err := ens.NewResolver(client, ensDomain)
