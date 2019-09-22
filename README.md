@@ -441,6 +441,14 @@ mydomain.eth
 $ ethereal ens domain set --address=0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69 --domain=mydomain.eth
 ```
 
+#### `expiry`
+
+`etheral ens expiry` obtains the date at which a domain expires.  For example:
+
+```sh
+$ ethereal ens expire --domain=mydomain.eth
+```
+
 #### `info`
 
 `ethereal ens info` obtains various information about a domain.  For example:
