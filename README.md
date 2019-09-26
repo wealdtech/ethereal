@@ -490,6 +490,24 @@ Address resolves to mydomain.eth
 $ ethereal ens migrate --domain=mydomain.eth
 ```
 
+#### `pubkey get`
+
+`ethereal ens pubkey get` gets the public key associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens pubkey get --domain=mydomain.eth
+(0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f,0x1f1e1d1c1b1a191817161514131211100f0e0d0b0c0a09080706050403020100)
+```
+
+#### `pubkey set`
+
+`ethereal ens pubkey set` sets the public key associated with an ENS domain.  For example:
+
+```sh
+$ ethereal ens pubkey set --domain=mydomain.eth --key='(0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f,0x1f1e1d1c1b1a191817161514131211100f0e0d0b0c0a09080706050403020100)'
+```
+
+
 #### `register`
 
 `ethereal ens register` registers a new ENS domain.  For example:
