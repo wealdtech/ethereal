@@ -169,7 +169,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 func init() {
 	ensCmd.AddCommand(ensRegisterCmd)
 	ensFlags(ensRegisterCmd)
-	ensRegisterCmd.Flags().StringVar(&ensRegisterDomains, "domains", "", "multiple ENS domains to migrate at the same time; separate with \"&&\" e.g. --domains='mydomain1.eth&&mydomain2.eth'")
+	ensRegisterCmd.Flags().StringVar(&ensRegisterDomains, "domains", "", "multiple ENS domains to register at the same time; separate with \"&&\" e.g. --domains='mydomain1.eth&&mydomain2.eth'")
 	ensRegisterCmd.Flags().StringVar(&ensRegisterOwnerStr, "owner", "", "The owner's name or address")
 	addTransactionFlags(ensRegisterCmd, "passphrase for the account that owns the domain")
 }
