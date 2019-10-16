@@ -17,6 +17,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var ensAddressCoinType uint64
+
 // ensAddressCmd represents the ens address command
 var ensAddressCmd = &cobra.Command{
 	Use:     "address",
@@ -30,5 +32,6 @@ func init() {
 }
 
 func ensAddressFlags(cmd *cobra.Command) {
+	cmd.Flags().Uint64Var(&ensAddressCoinType, "cointype", 60, "The coin type of the address (default 60 for Ethereum)")
 	ensFlags(cmd)
 }

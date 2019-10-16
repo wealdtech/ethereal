@@ -15,7 +15,9 @@ package cmd
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -49,10 +51,19 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 		outputIf(verbose, fmt.Sprintf("Domain is owned by %s", ens.Format(client, owner)))
 
-		// Obtain the address
-		address, err := ens.Resolve(client, ensAddressSetAddressStr)
-		cli.Assert(bytes.Compare(address.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Invalid address; if you are trying to clear an existing address use \"ens address clear\"")
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
+		// Obtain the address: could be an ENS name or a number
+		var data []byte
+		if strings.Contains(ensAddressSetAddressStr, ".") {
+			// Assume ENS address
+			address, err := ens.Resolve(client, ensAddressSetAddressStr)
+			cli.Assert(bytes.Compare(address.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Invalid address; if you are trying to clear an existing address use \"ens address clear\"")
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
+			data = address.Bytes()
+		} else {
+			// Assume hex string
+			data, err = hex.DecodeString(strings.TrimPrefix(ensAddressSetAddressStr, "0x"))
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Unrecognised name/address %s", ensAddressSetAddressStr))
+		}
 
 		// Obtain the resolver for this name
 		resolver, err := ens.NewResolver(client, ensDomain)
@@ -61,14 +72,15 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-		signedTx, err := resolver.SetAddress(opts, address)
+		signedTx, err := resolver.SetMultiAddress(opts, ensAddressCoinType, data)
 		cli.ErrCheck(err, quiet, "Failed to send transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":     "ens/address",
 			"command":   "set",
 			"ensdomain": ensDomain,
-			"address":   address.Hex(),
+			"cointype":  ensAddressCoinType,
+			"address":   fmt.Sprintf("%#x", data),
 		}, true)
 	},
 }

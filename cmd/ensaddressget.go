@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens/v3"
@@ -35,14 +36,25 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		address, err := ens.Resolve(client, ensDomain)
-		cli.ErrCheck(err, quiet, "failure")
-		if !quiet {
-			fmt.Println(address.Hex())
+		resolver, err := ens.NewResolver(client, ensDomain)
+		cli.ErrCheck(err, quiet, "failed to obtain resolver")
+
+		bytes, err := resolver.MultiAddress(ensAddressCoinType)
+		cli.ErrCheck(err, quiet, "failed to obtain address")
+		if len(bytes) == 0 {
+			outputIf(verbose, "no address")
+			os.Exit(_exit_failure)
+		}
+		if quiet {
+			os.Exit(_exit_success)
 		}
 
-		if address == ens.UnknownAddress {
-			os.Exit(_exit_failure)
+		switch ensAddressCoinType {
+		case 60:
+			address := common.BytesToAddress(bytes)
+			fmt.Printf("%s\n", address.Hex())
+		default:
+			fmt.Printf("%#x\n", bytes)
 		}
 		os.Exit(_exit_success)
 	},
