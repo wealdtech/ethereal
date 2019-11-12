@@ -38,6 +38,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
+	ipfsprovider "github.com/wealdtech/go-ipfs-provider"
+	infura "github.com/wealdtech/go-ipfs-provider-infura"
+	pinata "github.com/wealdtech/go-ipfs-provider-pinata"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -50,6 +53,7 @@ var offline bool
 var client *ethclient.Client
 var chainID *big.Int
 var referrer common.Address
+var ipfsProvider ipfsprovider.Provider
 
 var nonce int64
 var wallet accounts.Wallet
@@ -315,6 +319,8 @@ func init() {
 	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
 	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/rinkeby/goerli) (overridden by connection option)")
 	viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network"))
+	RootCmd.PersistentFlags().String("ipfsprovider", "infura", "IPFS provider to access (infura/pinata)")
+	viper.BindPFlag("ipfsprovider", RootCmd.PersistentFlags().Lookup("ipfsprovider"))
 	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "the time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
 	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
@@ -582,4 +588,17 @@ func deriveSigner(V *big.Int) types.Signer {
 		return types.NewEIP155Signer(deriveChainID(V))
 	}
 	return types.HomesteadSigner{}
+}
+
+func initIPFSProvider() error {
+	var err error
+	switch viper.GetString("ipfsprovider") {
+	case "infura":
+		ipfsProvider, err = infura.NewProvider()
+	case "pinata":
+		ipfsProvider, err = pinata.NewProvider(viper.GetString("pinataKey"), viper.GetString("pinataSecret"))
+	default:
+		err = errors.New("unknown IPFS provider")
+	}
+	return err
 }
