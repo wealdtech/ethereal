@@ -31,6 +31,8 @@ require (
 	github.com/mr-tron/base58 v1.1.3 // indirect
 	github.com/multiformats/go-multihash v0.0.10 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
+	github.com/onsi/ginkgo v1.8.0 // indirect
+	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pborman/uuid v1.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/rs/cors v1.7.0 // indirect
@@ -45,10 +47,15 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/wealdtech/go-ens/v3 v3.1.0
 	github.com/wealdtech/go-erc1820 v1.2.1
+	github.com/wealdtech/go-ipfs-provider v1.1.0
+	github.com/wealdtech/go-ipfs-provider-infura v1.1.0
+	github.com/wealdtech/go-ipfs-provider-pinata v1.1.0
+	github.com/wealdtech/go-string2eth v1.0.1
 	github.com/wealdtech/go-string2eth v1.1.0
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/sys v0.0.0-20191218084908-4a24b4065292 // indirect
+	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )
