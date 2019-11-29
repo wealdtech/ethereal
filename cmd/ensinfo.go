@@ -55,7 +55,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Label is %s", label))
 		labelHash, err := ens.LabelHash(label)
 		cli.ErrCheck(err, quiet, "Failed to obtain label hash of ENS domain")
-		outputIf(verbose, fmt.Sprintf("Label hash is 0x%x", labelHash))
+		outputIf(verbose, fmt.Sprintf("Label hash of %s is 0x%x", label, labelHash))
 
 		if ens.DomainLevel(ensDomain) == 1 && ens.Tld(ensDomain) == "eth" {
 			// Work out if this is on the old or new .eth registrar and act accordingly
