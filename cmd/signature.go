@@ -117,7 +117,7 @@ func argumentsAndValues(items string, types string) (abi.Arguments, []interface{
 	vals := make([]interface{}, 0)
 	arguments := abi.Arguments{}
 	for i := range dataTypes {
-		dataType, err := abi.NewType(dataTypes[i], nil)
+		dataType, err := abi.NewType(dataTypes[i], "", nil)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Unknown data type %s", dataTypes[i]))
 		argument := abi.Argument{
 			Type: dataType,
