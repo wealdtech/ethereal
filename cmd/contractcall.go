@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"strings"
@@ -27,7 +28,7 @@ import (
 
 var contractCallFromAddress string
 var contractCallCall string
-var contractCallReturns string
+var contractCallData string
 
 // contractCallCmd represents the contract call command
 var contractCallCmd = &cobra.Command{
@@ -45,20 +46,38 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		fromAddress, err := ens.Resolve(client, contractCallFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))
 
+		cli.Assert(contractStr != "", quiet, "--contract is required")
+		contractAddress, err := ens.Resolve(client, contractStr)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
+
+		if contractCallData != "" {
+			// Raw data in and out
+			data, err := hex.DecodeString(strings.TrimPrefix(contractCallData, "0x"))
+			cli.ErrCheck(err, quiet, "Failed to decode data")
+			// Make the call
+			msg := ethereum.CallMsg{
+				From: fromAddress,
+				To:   &contractAddress,
+				Data: data,
+			}
+			ctx, cancel := localContext()
+			defer cancel()
+			result, err := client.CallContract(ctx, msg, nil)
+			cli.ErrCheck(err, quiet, "Call failed")
+			outputIf(!quiet, fmt.Sprintf("%x", []byte(result)))
+			os.Exit(_exit_success)
+		}
+
 		// We need to have 'call'
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
 		method, methodArgs, err := funcparser.ParseCall(client, contract, contractCallCall)
 		cli.ErrCheck(err, quiet, "Failed to parse call")
-
 		data, err := contract.Abi.Pack(method.Name, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
-		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
-		cli.Assert(contractStr != "", quiet, "--contract is required")
-		contractAddress, err := ens.Resolve(client, contractStr)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
+		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
 		// Make the call
 		msg := ethereum.CallMsg{
@@ -111,6 +130,6 @@ func init() {
 	contractCmd.AddCommand(contractCallCmd)
 	contractFlags(contractCallCmd)
 	contractCallCmd.Flags().StringVar(&contractCallFromAddress, "from", "", "Address from which to call the contract method")
+	contractCallCmd.Flags().StringVar(&contractCallData, "data", "", "Raw hex data to use in the call")
 	contractCallCmd.Flags().StringVar(&contractCallCall, "call", "", "Contract method to call")
-	contractCallCmd.Flags().StringVar(&contractCallReturns, "returns", "", "Comma-separated return types")
 }

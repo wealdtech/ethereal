@@ -31,7 +31,6 @@ import (
 var contractSendAmount string
 var contractSendFromAddress string
 var contractSendCall string
-var contractSendReturns string
 
 // contractSendCmd represents the contract call command
 var contractSendCmd = &cobra.Command{
@@ -102,6 +101,5 @@ func init() {
 	contractSendCmd.Flags().StringVar(&contractSendAmount, "amount", "", "Amount of Ether to send with the contract method")
 	contractSendCmd.Flags().StringVar(&contractSendFromAddress, "from", "", "Address from which to call the contract function")
 	contractSendCmd.Flags().StringVar(&contractSendCall, "call", "", "Contract function to call")
-	contractSendCmd.Flags().StringVar(&contractSendReturns, "returns", "", "Comma-separated return types")
 	addTransactionFlags(contractSendCmd, "Passphrase for the address from which to send the contract transaction")
 }

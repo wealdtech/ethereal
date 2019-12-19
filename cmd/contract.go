@@ -122,10 +122,13 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 	methodName := bits[0]
 	// Method arguments are comma-separated values before first ")"
 	argsBits := strings.Split(strings.Split(bits[1], ")")[0], ",")
-	methodArgs := make([]abi.Argument, len(argsBits))
-	for i, argsBit := range argsBits {
+	methodArgs := make([]abi.Argument, 0)
+	for _, argsBit := range argsBits {
 		argBits := strings.Split(argsBit, " ")
 		argType := argBits[0]
+		if argType == "" {
+			continue
+		}
 		var argName string
 		if len(argBits) > 1 {
 			argName = argBits[len(argBits)-1]
@@ -135,10 +138,10 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 		if err != nil {
 			return nil, err
 		}
-		methodArgs[i] = abi.Argument{
+		methodArgs = append(methodArgs, abi.Argument{
 			Name: argName,
 			Type: t,
-		}
+		})
 	}
 	var methodOutputs []abi.Argument
 	if len(bits) > 2 {
@@ -160,6 +163,7 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 
 	method := abi.Method{
 		Name:    methodName,
+		RawName: methodName,
 		Inputs:  methodArgs,
 		Outputs: methodOutputs,
 	}
