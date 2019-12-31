@@ -8,7 +8,7 @@ require (
 	github.com/FactomProject/go-bip32 v0.3.5
 	github.com/FactomProject/go-bip39 v0.3.5
 	github.com/FactomProject/go-bip44 v0.0.0-20190306062959-b541a96d8da9
-	github.com/VictoriaMetrics/fastcache v1.5.4 // indirect
+	github.com/VictoriaMetrics/fastcache v1.5.5 // indirect
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/antlr/antlr4 v0.0.0-20191217191749-ff67971f8580
 	github.com/aristanetworks/goarista v0.0.0-20191206003309-5d8d36c240c9 // indirect
@@ -25,14 +25,14 @@ require (
 	github.com/karalabe/usb v0.0.0-20191104083709-911d15fe12a9 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect
-	github.com/miekg/dns v1.1.25
+	github.com/miekg/dns v1.1.26
 	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mr-tron/base58 v1.1.3 // indirect
+	github.com/multiformats/go-multiaddr v0.2.0 // indirect
 	github.com/multiformats/go-multihash v0.0.10 // indirect
+	github.com/multiformats/go-varint v0.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
-	github.com/onsi/ginkgo v1.8.0 // indirect
-	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pborman/uuid v1.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/rs/cors v1.7.0 // indirect
@@ -50,12 +50,11 @@ require (
 	github.com/wealdtech/go-ipfs-provider v1.1.0
 	github.com/wealdtech/go-ipfs-provider-infura v1.1.0
 	github.com/wealdtech/go-ipfs-provider-pinata v1.1.0
-	github.com/wealdtech/go-string2eth v1.0.1
 	github.com/wealdtech/go-string2eth v1.1.0
-	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
+	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
-	golang.org/x/sys v0.0.0-20191218084908-4a24b4065292 // indirect
-	golang.org/x/text v0.3.2 // indirect
+	golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8 // indirect
+	gopkg.in/ini.v1 v1.51.1 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )
