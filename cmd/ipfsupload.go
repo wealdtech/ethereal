@@ -14,8 +14,8 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -41,10 +41,10 @@ This will return an exit status of 0 if the file is successfully stored on the g
 		file, err := os.Open(ipfsUploadFilename)
 		cli.ErrCheck(err, quiet, "Failed to access file")
 
-		hash, err := ipfsProvider.PinContent(ipfsUploadFilename, file, nil)
+		hash, err := ipfsProvider.PinContent(filepath.Base(ipfsUploadFilename), file, nil)
 		cli.ErrCheck(err, quiet, "Failed to upload file")
 
-		outputIf(!quiet, fmt.Sprintf("0x%x\n", hash))
+		outputIf(!quiet, hash)
 		os.Exit(_exit_success)
 	},
 }
