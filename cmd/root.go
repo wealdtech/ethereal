@@ -475,7 +475,7 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		}
 		signer = util.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase"))
 	} else if viper.GetString("privatekey") != "" {
-		key, err := crypto.HexToECDSA(viper.GetString("privatekey"))
+		key, err := crypto.HexToECDSA(strings.TrimPrefix(viper.GetString("privatekey"), "0x"))
 		cli.ErrCheck(err, quiet, "Invalid private key")
 		signer = util.KeySigner(chainID, key)
 	}
