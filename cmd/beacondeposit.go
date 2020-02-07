@@ -16,6 +16,7 @@ package cmd
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 	"strings"
@@ -25,12 +26,14 @@ import (
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util/contracts"
 	ens "github.com/wealdtech/go-ens/v3"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var beaconDepositData string
 var beaconDepositFrom string
 
 type ethdoDepositData struct {
+	Account               string `json:"account"`
 	PublicKey             string `json:"pubkey"`
 	WithdrawalCredentials string `json:"withdrawal_credentials"`
 	Signature             string `json:"signature"`
@@ -65,6 +68,9 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		if strings.HasPrefix(beaconDepositData, "{") {
 			// Looks like JSON
 			data = []byte("[" + beaconDepositData + "]")
+		} else if strings.HasPrefix(beaconDepositData, "[") {
+			// Looks like JSON array
+			data = []byte(beaconDepositData)
 		} else {
 			// Assume it's a path to JSON
 			data, err = ioutil.ReadFile(beaconDepositData)
@@ -94,6 +100,9 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			// Need to override the value with the info from the JSON
 			opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
 
+			// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
+			opts.GasLimit = 400000
+
 			pubKey, err := hex.DecodeString(deposit.PublicKey)
 			cli.ErrCheck(err, quiet, "Failed to parse deposit public key")
 			withdrawalCredentials, err := hex.DecodeString(deposit.WithdrawalCredentials)
@@ -104,6 +113,15 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			cli.ErrCheck(err, quiet, "Failed to parse deposit data root")
 			var dataRoot [32]byte
 			copy(dataRoot[:], dataRootTmp)
+
+			// TODO recalculate signature to ensure correcteness.
+
+			// TODO check Ethereum 2 node to see if there is already a deposit for this validator public key
+
+			// TODO what other checks can we carry out here?
+
+			outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Value)), true), deposit.Account))
+
 			nextNonce(fromAddress)
 			signedTx, err := contract.Deposit(opts, pubKey, withdrawalCredentials, signature, dataRoot)
 			cli.ErrCheck(err, quiet, "Failed to send deposit")

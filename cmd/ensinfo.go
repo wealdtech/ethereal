@@ -34,7 +34,7 @@ var ensInfoCmd = &cobra.Command{
 	Short: "Obtain information about an ENS domain",
 	Long: `Obtain information about a domain registered with the Ethereum Name Service (ENS).  For example:
 
-    ens info enstest.eth
+    ens info --domain=enstest.eth
 
 In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
@@ -61,6 +61,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			// Work out if this is on the old or new .eth registrar and act accordingly
 			registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
+			outputIf(debug, fmt.Sprintf("Registrar address is %#x", registrar.ContractAddr))
 			location, err := registrar.RegisteredWith(ensDomain)
 			if err != nil && err.Error() == "no prior auction contract" {
 				// Means what we thought was our base registrar was really the auction registrar
