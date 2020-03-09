@@ -45,7 +45,7 @@ require (
 	github.com/spf13/viper v1.6.2
 	github.com/status-im/keycard-go v0.0.0-20200107115650-f38e9a19958e // indirect
 	github.com/stretchr/testify v1.4.0
-	github.com/wealdtech/go-ens/v3 v3.3.0
+	github.com/wealdtech/go-ens/v3 v3.4.0
 	github.com/wealdtech/go-erc1820 v1.2.1
 	github.com/wealdtech/go-string2eth v1.1.0
 	golang.org/x/crypto v0.0.0-20200206161412-a0c6ece9d31a

@@ -439,6 +439,8 @@ github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljT
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/wealdtech/go-ens/v3 v3.3.0 h1:xJJlFLEbdnzU7dLFwyg5fXlZVprwoLPlAPVZdpYCCrY=
 github.com/wealdtech/go-ens/v3 v3.3.0/go.mod h1:P2OEBvgkhXLrPzPN+eR5z2/wFIGwHyijTDvpuC1xLlo=
+github.com/wealdtech/go-ens/v3 v3.4.0 h1:+0Qu/JT9TTuKOPrhmjgrbIwbFFalFfmUbdLKsjXLHe0=
+github.com/wealdtech/go-ens/v3 v3.4.0/go.mod h1:P2OEBvgkhXLrPzPN+eR5z2/wFIGwHyijTDvpuC1xLlo=
 github.com/wealdtech/go-erc1820 v1.2.1 h1:3ObLAvI7iIRNb3kfjzodBHSWEE5MBL8hsMUi5LnQPx8=
 github.com/wealdtech/go-erc1820 v1.2.1/go.mod h1:TmfPcpMPRPueBg5o3ge2OonPu0jDL/91ryOaPto5o78=
 github.com/wealdtech/go-multicodec v1.2.0 h1:9AHSxcSE9F9r6ZvQLAO0EXCdM08QfYohaXmW3k6sSh4=
