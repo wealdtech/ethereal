@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2020 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -49,25 +49,28 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(client)
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
 
-		// Fetch the owner of the name
-		owner, err := registry.Owner(ensDomain)
+		// Fetch the controller of the name.
+		controller, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "cannot obtain owner")
-		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
+		cli.Assert(bytes.Compare(controller.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("controller of %s is not set", ensDomain))
+		outputIf(debug, fmt.Sprintf("Controller is %s", controller.Hex()))
 
-		// Work out the owner of the subdomain
+		// Work out the owner of the subdomain.
 		var subdomainOwner common.Address
 		if ensSubdomainCreateOwnerStr == "" {
-			// Subdomain owner == domain owner
-			subdomainOwner = owner
+			// Subdomain owner == controller.
+			subdomainOwner = controller
 		} else {
 			subdomainOwner, err = ens.Resolve(client, ensSubdomainCreateOwnerStr)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("invalid subdomain name/address %s", ensSubdomainCreateOwnerStr))
 		}
+		outputIf(debug, fmt.Sprintf("Controller of subdomain will be %s", subdomainOwner.Hex()))
 
 		// Create the subdomain
-		opts, err := generateTxOpts(owner)
+		opts, err := generateTxOpts(controller)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		signedTx, err := registry.SetSubdomainOwner(opts, ensDomain, ensSubdomainCreateSubdomain, subdomainOwner)
+		cli.ErrCheck(err, quiet, "failed to broadcast transaction")
 
 		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":             "ens/subdomain",
