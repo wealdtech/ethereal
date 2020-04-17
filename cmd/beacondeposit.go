@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -24,6 +25,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/contracts"
 	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
@@ -31,6 +33,8 @@ import (
 
 var beaconDepositData string
 var beaconDepositFrom string
+var beaconDepositForce bool
+var beaconDepositContractAddress string
 
 type ethdoDepositData struct {
 	Account               string `json:"account"`
@@ -39,6 +43,20 @@ type ethdoDepositData struct {
 	Signature             string `json:"signature"`
 	DepositDataRoot       string `json:"deposit_data_root"`
 	Value                 uint64 `json:"value"`
+}
+
+type beaconDepositContract struct {
+	name    string
+	chainID *big.Int
+	address []byte
+}
+
+var beaconDepositContractWhitelists = []*beaconDepositContract{
+	{
+		name:    "Prysm topaz",
+		chainID: big.NewInt(5),
+		address: util.MustDecodeHexString("0x5ca1e00004366ac85f492887aaab12d0e6418876"),
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command
@@ -82,14 +100,36 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		var depositData []ethdoDepositData
 		err = json.Unmarshal(data, &depositData)
 		cli.ErrCheck(err, quiet, "Data is not valid JSON")
+		cli.Assert(len(depositData) > 0, quiet, "No deposit data supplied")
+		for i := range depositData {
+			cli.Assert(depositData[i].PublicKey != "", quiet, fmt.Sprintf("No public key for deposit %d", i))
+			cli.Assert(depositData[i].DepositDataRoot != "", quiet, fmt.Sprintf("No data root for deposit %d", i))
+			cli.Assert(depositData[i].Signature != "", quiet, fmt.Sprintf("No signature for deposit %d", i))
+			cli.Assert(depositData[i].WithdrawalCredentials != "", quiet, fmt.Sprintf("No withdrawal credentials for deposit %d", i))
+			cli.Assert(depositData[i].Value > 1000000000, quiet, fmt.Sprintf("Value too small for deposit %d", i))
+		}
 
 		cli.Assert(beaconDepositFrom != "", quiet, "--from is required")
 		fromAddress, err := ens.Resolve(client, beaconDepositFrom)
 		cli.ErrCheck(err, quiet, "Failed to obtain address for --from")
 
-		// Fetch the address of the contract
-		depositContractAddress, err := ens.Resolve(client, "eth2depositcontract.eth")
+		// Fetch the address of the contract.
+		cli.Assert(beaconDepositContractAddress != "", quiet, "--address is required")
+		depositContractAddress, err := ens.Resolve(client, beaconDepositContractAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address of deposit contract")
+		// Ensure this contract is whitelisted.
+		contractName := ""
+		for _, whitelistEntry := range beaconDepositContractWhitelists {
+			if chainID.Cmp(whitelistEntry.chainID) == 0 &&
+				bytes.Equal(depositContractAddress.Bytes(), whitelistEntry.address) {
+				contractName = whitelistEntry.name
+				break
+			}
+		}
+		cli.Assert(contractName != "" || beaconDepositForce, quiet, `Deposit contract address is unknown.  This means you are either running an old version of ethereal, or are attempting to send to the wrong network or a custom contract.  You should confirm that you are on the latest version of Ethereal by comparing the output of running "ethereal version" with the release information at https://github.com/wealdtech/ethereal/releases and upgrading where appropriate.
+
+If you are *completely sure* you know what you are doing, you can use the --force option to carry out this transaction.  Otherwise, please seek support to ensure you do not lose your Ether.`)
+		outputIf(verbose, fmt.Sprintf("Deposit contract is %s", contractName))
 
 		contract, err := contracts.NewEth2Deposit(depositContractAddress, client)
 		cli.ErrCheck(err, quiet, "Failed to obtain deposit contract")
@@ -114,11 +154,9 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			var dataRoot [32]byte
 			copy(dataRoot[:], dataRootTmp)
 
-			// TODO recalculate signature to ensure correcteness.
+			// TODO recalculate signature to ensure correcteness (needs a pure Go BLS implementation).
 
-			// TODO check Ethereum 2 node to see if there is already a deposit for this validator public key
-
-			// TODO what other checks can we carry out here?
+			// TODO check Ethereum 2 node to see if there is already a deposit for this validator public key (needs an Ethereum 2 node).
 
 			outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Value)), true), deposit.Account))
 
@@ -143,5 +181,7 @@ func init() {
 	beaconFlags(beaconDepositCmd)
 	beaconDepositCmd.Flags().StringVar(&beaconDepositData, "data", "", "The data for the deposit, provided by ethdo or a similar command")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositFrom, "from", "", "The account from which to send the deposit")
+	beaconDepositCmd.Flags().BoolVar(&beaconDepositForce, "force", false, "Force send data to non-whitelisted contracts (not recommended)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "eth2bridge.eth", "The address to which to send the deposit")
 	addTransactionFlags(beaconDepositCmd, "passphrase for the account that owns the account")
 }

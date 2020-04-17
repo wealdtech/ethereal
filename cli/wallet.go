@@ -204,7 +204,6 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 	for _, account := range (*wallet).Accounts() {
 		if *address == account.Address {
 			if passphrase != "" && !VerifyPassphrase(*wallet, account, passphrase) {
-				fmt.Println("Verifying passphrase")
 				return nil, errors.New("invalid passphrase")
 			}
 			return &account, nil
