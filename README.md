@@ -21,7 +21,7 @@ A command-line tool for managing common tasks in Ethereum.
 `ethereal` is a standard Go program which can be installed with:
 
 ```sh
-go get github.com/wealdtech/ethereal
+GO111MODULE=on go get github.com/wealdtech/ethereal@latest
 ```
 
 ## Usage
