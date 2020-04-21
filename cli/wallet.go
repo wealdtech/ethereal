@@ -86,7 +86,7 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 	keydir := DefaultDataDir()
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		// Nothing to add for mainnet
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
@@ -106,7 +106,7 @@ func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	keydir := DefaultDataDir()
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		// Nothing to add for mainnet
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "testnet")
 	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "rinkeby")
@@ -137,7 +137,7 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "ethereum")
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "test")
 	}
 
@@ -166,7 +166,7 @@ func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "ethereum")
-	} else if chainID.Cmp(params.TestnetChainConfig.ChainID) == 0 {
+	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
 		keydir = filepath.Join(keydir, "test")
 	}
 
