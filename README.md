@@ -24,6 +24,8 @@ A command-line tool for managing common tasks in Ethereum.
 GO111MODULE=on go get github.com/wealdtech/ethereal@latest
 ```
 
+Note that `ethereal` requires at least version 1.13 of go to operate.  The version of go can be found with `go version`.
+
 ## Usage
 
 Ethereal contains a large number of features that are useful for day-to-day interactions with the Ethereum blockchain.
