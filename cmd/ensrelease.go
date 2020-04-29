@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2020 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -28,8 +29,8 @@ var ensReleaseDomains string
 // ensReleaseCmd represents the release command
 var ensReleaseCmd = &cobra.Command{
 	Use:   "release",
-	Short: "Release an ENS domain from the temporary registrar",
-	Long: `Release an Ethereum Name Service (ENS) domain, returning the name to the available pool and refunding the deposit.  For example:
+	Short: "Release funds from an auction registrar deed",
+	Long: `Release an Ethereum Name Service (ENS) auction registrar deed, returning the funds locked for that auction.  For example:
 
     ethereal ens release --domain=enstest.eth --passphrase="my secret passphrase"
 
@@ -52,46 +53,29 @@ This will return an exit status of 0 if the transactions are successfully submit
 			domains[0] = ensDomain
 		}
 
-		// Obtain the required registrars
-		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(domains[0]))
-		cli.ErrCheck(err, quiet, "Cannot obtain ENS base registrar contract")
-		auctionRegistrar, err := registrar.PriorAuctionContract()
-		if err != nil && err.Error() == "no prior auction contract" {
-			auctionRegistrar, err = ens.NewAuctionRegistrar(client, ens.Tld(domains[0]))
-		}
+		auctionRegistrarAddress := common.HexToAddress("0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef")
+		auctionRegistrar, err := ens.NewAuctionRegistrarAt(client, ens.Tld(domains[0]), auctionRegistrarAddress)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
 
 		for _, domain := range domains {
 			cli.Assert(len(domain) > 10, quiet, fmt.Sprintf("Domain %s must be at least 7 characters long", domain))
 			cli.Assert(len(strings.Split(domain, ".")) == 2, quiet, fmt.Sprintf("Domain %s must not contain . (except for ending in .eth)", domain))
 
-			location, err := registrar.RegisteredWith(domain)
-			cli.ErrCheck(err, quiet, "Cannot obtain ENS registration information")
-			switch location {
-			case "temporary":
-				// Good
-			case "permanent":
-				cli.Err(quiet, fmt.Sprintf("Domain %s on permanent registrar", domain))
-			case "none":
-				cli.Err(quiet, fmt.Sprintf("Domain %s not registered", domain))
-			}
+			entry, err := auctionRegistrar.Entry(domain)
+			cli.ErrCheck(err, quiet, "Cannot obtain domain details")
+			cli.Assert(entry.Deed != ens.UnknownAddress, quiet, fmt.Sprintf("Domain %q has no deed; unknown or already released", domain))
 
-			name, err := ens.DomainPart(domain, 1)
+			registry, err := ens.NewRegistry(client)
+			cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-			// Ensure the domain is in a suitable state to be released
-			// TODO
-			//			entry, err := auctionRegistrar.Entry(name)
-			//			cli.ErrCheck(err, quiet, "Cannot obtain domain details")
-			//			cli.Assert(entry.State == "Won" || entry.State == "Owned", quiet, fmt.Sprintf("domain not in a suitable state to be transferred; please run \"ethereal ens info --domain=%s\" to obtain more information about the state of the domain", domain))
-			//
-			owner, err := auctionRegistrar.Owner(name)
+			owner, err := registry.Owner(domain)
 			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 
 			outputIf(verbose, fmt.Sprintf("Domain %s owner is %s", domain, ens.Format(client, owner)))
 
 			opts, err := generateTxOpts(owner)
 			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
-			signedTx, err := auctionRegistrar.Release(opts, name)
+			signedTx, err := auctionRegistrar.Release(opts, domain)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 			nextNonce(owner)
 

@@ -20,6 +20,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens/v3"
@@ -73,42 +74,6 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			case "none":
 				outputIf(!quiet, "Domain not registered")
 				os.Exit(_exit_failure)
-			case "temporary":
-				outputIf(!quiet, "Domain registered with temporary registrar")
-				auctionRegistrar, err := registrar.PriorAuctionContract()
-				if err != nil && err.Error() == "no prior auction contract" {
-					auctionRegistrar, err = ens.NewAuctionRegistrar(client, ens.Tld(ensDomain))
-				}
-				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))
-				state, err := auctionRegistrar.State(ensDomain)
-				cli.ErrCheck(err, quiet, "Failed to obtain domain state")
-
-				if err == nil {
-					if quiet {
-						if state == "Owned" {
-							os.Exit(_exit_success)
-						} else {
-							os.Exit(_exit_failure)
-						}
-					} else {
-						switch state {
-						case "Available":
-							availableInfo(ensDomain)
-						case "Bidding":
-							biddingInfo(auctionRegistrar, ensDomain)
-						case "Revealing":
-							revealingInfo(auctionRegistrar, ensDomain)
-						case "Won":
-							wonInfo(auctionRegistrar, ensDomain)
-						case "Owned":
-							ownedInfo(auctionRegistrar, ensDomain)
-						default:
-							fmt.Println(state)
-						}
-					}
-				} else {
-					ownedInfo(auctionRegistrar, ensDomain)
-				}
 			case "permanent":
 				outputIf(verbose, "Domain registered on permanent registrar")
 				outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(client, registrar.ContractAddr)))
@@ -137,6 +102,18 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 						// Select (approximate) cost per year
 						rentPerYear := new(big.Int).Mul(big.NewInt(31536000), rentPerSec)
 						fmt.Printf("Approximate rent per year is %s\n", string2eth.WeiToString(rentPerYear, true))
+					}
+
+					// See if there is an outstanding deed.
+					auctionRegistrarAddress := common.HexToAddress("0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef")
+					auctionRegistrar, err := ens.NewAuctionRegistrarAt(client, ens.Tld(ensDomain), auctionRegistrarAddress)
+					cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
+					entry, err := auctionRegistrar.Entry(ensDomain)
+					if err == nil && entry != nil && entry.Deed != ens.UnknownAddress {
+						if entry.Value.Cmp(zero) == 0 {
+							entry.Value, _ = string2eth.StringToWei("0.01 ether")
+						}
+						fmt.Printf("Deed value is %s; release with 'ethereal ens release'\n", string2eth.WeiToString(entry.Value, true))
 					}
 				}
 			default:
