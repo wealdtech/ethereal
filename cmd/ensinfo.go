@@ -63,65 +63,56 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 			outputIf(debug, fmt.Sprintf("Registrar address is %#x", registrar.ContractAddr))
-			location, err := registrar.RegisteredWith(ensDomain)
-			if err != nil && err.Error() == "no prior auction contract" {
-				// Means what we thought was our base registrar was really the auction registrar
-				location = "temporary"
-			} else {
-				cli.ErrCheck(err, quiet, "Failed to obtain domain location")
-			}
-			switch location {
-			case "none":
-				outputIf(!quiet, "Domain not registered")
-				os.Exit(_exit_failure)
-			case "permanent":
-				outputIf(verbose, "Domain registered on permanent registrar")
-				outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(client, registrar.ContractAddr)))
-				domain, err := ens.DomainPart(ensDomain, 1)
-				registrant, err := registrar.Owner(domain)
-				cli.ErrCheck(err, quiet, "Failed to obtain registrant")
-				if registrant == ens.UnknownAddress {
+
+			domain, err := ens.DomainPart(ensDomain, 1)
+			registrant, err := registrar.Owner(domain)
+			if err != nil {
+				if err.Error() == "abi: attempting to unmarshall an empty string while arguments are expected" {
 					fmt.Println("Name not recognised by registrar")
-					unregisteredResolverCheck(ensDomain)
 					os.Exit(_exit_failure)
 				} else {
-					registrantName, _ := ens.ReverseResolve(client, registrant)
-					if registrantName == "" {
-						fmt.Printf("Registrant is %s\n", registrant.Hex())
-					} else {
-						fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
-					}
-					expiry, err := registrar.Expiry(domain)
-					cli.ErrCheck(err, quiet, "Failed to obtain expiry")
-					fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
-
-					controller, err := ens.NewETHController(client, ens.Domain(ensDomain))
-					cli.ErrCheck(err, quiet, "Failed to obtain controller")
-					rentPerSec, err := controller.RentCost(ensDomain)
-					if err == nil {
-						// Select (approximate) cost per year
-						rentPerYear := new(big.Int).Mul(big.NewInt(31536000), rentPerSec)
-						fmt.Printf("Approximate rent per year is %s\n", string2eth.WeiToString(rentPerYear, true))
-					}
-
-					// See if there is an outstanding deed.
-					auctionRegistrarAddress := common.HexToAddress("0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef")
-					auctionRegistrar, err := ens.NewAuctionRegistrarAt(client, ens.Tld(ensDomain), auctionRegistrarAddress)
-					cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
-					entry, err := auctionRegistrar.Entry(ensDomain)
-					if err == nil && entry != nil && entry.Deed != ens.UnknownAddress {
-						if entry.Value.Cmp(zero) == 0 {
-							entry.Value, _ = string2eth.StringToWei("0.01 ether")
-						}
-						fmt.Printf("Deed value is %s; release with 'ethereal ens release'\n", string2eth.WeiToString(entry.Value, true))
-					}
+					cli.ErrCheck(err, quiet, "Failed to obtain registrant")
 				}
-			default:
-				cli.Err(quiet, fmt.Sprintf("Unexpected domain location %s", location))
 			}
-		}
+			if registrant == ens.UnknownAddress {
+				fmt.Println("Name not recognised by registrar")
+				unregisteredResolverCheck(ensDomain)
+				os.Exit(_exit_failure)
+			}
 
-		genericInfo(ensDomain)
+			outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(client, registrar.ContractAddr)))
+			registrantName, _ := ens.ReverseResolve(client, registrant)
+			if registrantName == "" {
+				fmt.Printf("Registrant is %s\n", registrant.Hex())
+			} else {
+				fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
+			}
+			expiry, err := registrar.Expiry(domain)
+			cli.ErrCheck(err, quiet, "Failed to obtain expiry")
+			fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
+
+			controller, err := ens.NewETHController(client, ens.Domain(ensDomain))
+			cli.ErrCheck(err, quiet, "Failed to obtain controller")
+			rentPerSec, err := controller.RentCost(ensDomain)
+			if err == nil {
+				// Select (approximate) cost per year
+				rentPerYear := new(big.Int).Mul(big.NewInt(31536000), rentPerSec)
+				fmt.Printf("Approximate rent per year is %s\n", string2eth.WeiToString(rentPerYear, true))
+			}
+
+			// See if there is an outstanding deed.
+			auctionRegistrarAddress := common.HexToAddress("0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef")
+			auctionRegistrar, err := ens.NewAuctionRegistrarAt(client, ens.Tld(ensDomain), auctionRegistrarAddress)
+			cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
+			entry, err := auctionRegistrar.Entry(ensDomain)
+			if err == nil && entry != nil && entry.Deed != ens.UnknownAddress {
+				if entry.Value.Cmp(zero) == 0 {
+					entry.Value, _ = string2eth.StringToWei("0.01 ether")
+				}
+				fmt.Printf("Deed value is %s; release with 'ethereal ens release'\n", string2eth.WeiToString(entry.Value, true))
+			}
+			genericInfo(ensDomain)
+		}
 	},
 }
 
