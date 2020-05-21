@@ -156,7 +156,7 @@ If you are *completely sure* you know what you are doing, you can use the --forc
 			opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
 
 			// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
-			opts.GasLimit = 400000
+			opts.GasLimit = 600000
 
 			pubKey, err := hex.DecodeString(deposit.PublicKey)
 			cli.ErrCheck(err, quiet, "Failed to parse deposit public key")
