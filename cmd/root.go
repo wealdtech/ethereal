@@ -345,20 +345,17 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	err = viper.ReadInConfig()
-	confVerbose := viper.GetBool("debug") || viper.GetBool("verbose")
 	switch err.(type) {
 	case nil:
-		outputIf(confVerbose, fmt.Sprintf("Loaded config from %s", viper.ConfigFileUsed()))
+		outputIf(viper.GetBool("debug"), fmt.Sprintf("Loaded configuration file %s", viper.ConfigFileUsed()))
 	case viper.ConfigFileNotFoundError:
 		if cfgFile != "" {
-			fmt.Println(err)
-			os.Exit(_exit_failure)
+			cli.Err(viper.GetBool("quiet"), fmt.Sprintf("Failed to access configuration file %s", viper.ConfigFileUsed()))
 		} else {
-			outputIf(confVerbose, "Using default config")
+			outputIf(viper.GetBool("debug"), "Using default configuration")
 		}
 	default:
-		fmt.Printf("Load config %s fail: %s\n", viper.ConfigFileUsed(), err)
-		os.Exit(_exit_failure)
+		cli.Err(viper.GetBool("quiet"), fmt.Sprintf("Failed to load configuration file %s: %s", viper.ConfigFileUsed(), err))
 	}
 }
 
