@@ -344,7 +344,19 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	viper.ReadInConfig()
+	err = viper.ReadInConfig()
+	switch err.(type) {
+	case nil:
+		outputIf(viper.GetBool("debug"), fmt.Sprintf("Loaded configuration file %s", viper.ConfigFileUsed()))
+	case viper.ConfigFileNotFoundError:
+		if cfgFile != "" {
+			cli.Err(viper.GetBool("quiet"), fmt.Sprintf("Failed to access configuration file %s", viper.ConfigFileUsed()))
+		} else {
+			outputIf(viper.GetBool("debug"), "Using default configuration")
+		}
+	default:
+		cli.Err(viper.GetBool("quiet"), fmt.Sprintf("Failed to load configuration file %s: %s", viper.ConfigFileUsed(), err))
+	}
 }
 
 //
