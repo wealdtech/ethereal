@@ -36,6 +36,54 @@ type function struct {
 	params []string
 }
 
+var blacklist = map[string]bool{
+	"AcoraidaMonicaWantsToKeepALogOfTheWinner(address)":        true,
+	"available_assert_time(uint16,uint64)":                     true,
+	"clash550254402()":                                         true,
+	"collate_propagate_storage(bytes16)":                       true,
+	"coral_cable_news(uint256)":                                true,
+	"gasprice_bit_ether(int128)":                               true,
+	"getACLRole5999294130779334338()":                          true,
+	"ideal_warn_timed(uint256,uint128)":                        true,
+	"link_classic_internal(uint64,uint64)":                     true,
+	"many_msg_babbage(bytes1)":                                 true,
+	"message_hour(uint256,int8,uint16,bytes32)":                true,
+	"passphrase_calculate_transfer(uint64,address)":            true,
+	"pizza_mandate_apology(uint256)":                           true,
+	"remove_good(uint256[],bytes8,bool)":                       true,
+	"setTarget(address)":                                       true,
+	"sign_szabo_bytecode(bytes16,uint128)":                     true,
+	"transfer(bytes4[9],bytes5[6],int48[11])":                  true,
+	"voting_var(address,uint256,int128,int128)":                true,
+	"hello(int16[15],bytes22[5],int176[8])":                    true,
+	"adminResetRank()":                                         true,
+	"blockHashAmphithyronVersify(uint256)":                     true,
+	"blockHashAmarilloNonspontaneously(uint256)":               true,
+	"blockHashAddendsInexpansible(uint256)":                    true,
+	"left_branch_block(uint32)":                                true,
+	"overdiffusingness(bytes,uint256,uint256,uint256,uint256)": true,
+	"get_block_hash_257335279069929(uint256)":                  true,
+	"withdrawByAdmin_Unau(uint256[])":                          true,
+	"bright_peace(bytes32,bytes)":                              true,
+	"initialFundsReleaseNumerator()":                           true,
+	"link_classic_internal(uint64,int64)":                      true,
+	"branch_passphrase_public(uint256,bytes8)":                 true,
+}
+
+// String implements the stringer interface.
+func (f *function) String() string {
+	var buffer bytes.Buffer
+	buffer.WriteString(fmt.Sprintf("%s(", f.name))
+	for i, param := range f.params {
+		buffer.WriteString(param)
+		if i < len(f.params)-1 {
+			buffer.WriteString(fmt.Sprintf(","))
+		}
+	}
+	buffer.WriteString(")")
+	return buffer.String()
+}
+
 // DataToString takes a transaction's data bytes and converts it in to a useful representation if one exists
 func DataToString(client *ethclient.Client, input []byte) string {
 	if len(input) == 0 {
@@ -174,6 +222,11 @@ func AddFunctionSignature(signature string) {
 		params[i] = strings.Split(params[i], " ")[0]
 	}
 	signature = fmt.Sprintf("%s(%s)", name, strings.Join(params, ","))
+
+	// Do not add if on the blacklist
+	if _, exists := blacklist[signature]; exists {
+		return
+	}
 
 	var hash [32]byte
 	sha := sha3.NewLegacyKeccak256()
