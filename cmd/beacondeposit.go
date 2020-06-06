@@ -113,7 +113,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			cli.Assert(depositData[i].DepositDataRoot != "", quiet, fmt.Sprintf("No data root for deposit %d", i))
 			cli.Assert(depositData[i].Signature != "", quiet, fmt.Sprintf("No signature for deposit %d", i))
 			cli.Assert(depositData[i].WithdrawalCredentials != "", quiet, fmt.Sprintf("No withdrawal credentials for deposit %d", i))
-			cli.Assert(depositData[i].Value > 1000000000, quiet, fmt.Sprintf("Value too small for deposit %d", i))
+			cli.Assert(depositData[i].Value >= 1000000000, quiet, fmt.Sprintf("Value too small for deposit %d", i))
 			if depositData[i].Version > maxVersion {
 				maxVersion = depositData[i].Version
 			}
