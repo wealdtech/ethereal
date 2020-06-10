@@ -29,6 +29,7 @@ func initEventMap() {
 	AddEventSignature("CounterSignatorySet(address,address)")
 	AddEventSignature("DeedClosed()")
 	AddEventSignature("Deleted(bytes32,bytes,uint16)")
+	AddEventSignature("DepositEvent(bytes,bytes,bytes,bytes,bytes)")
 	AddEventSignature("ForwardingAddressCleared(address)")
 	AddEventSignature("ForwardingAddressSet(address,address)")
 	AddEventSignature("InterfaceImplementerSet(address,bytes32,address)")
