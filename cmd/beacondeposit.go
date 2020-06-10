@@ -62,6 +62,13 @@ var beaconDepositContractWhitelists = []*beaconDepositContract{
 		minVersion: 1,
 		maxVersion: 1,
 	},
+	{
+		name:       "Prysm onyx",
+		chainID:    big.NewInt(5),
+		address:    util.MustDecodeHexString("0x0f0f0fc0530007361933eab5db97d09acdd6c1c8"),
+		minVersion: 1,
+		maxVersion: 1,
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command
