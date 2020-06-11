@@ -57,6 +57,7 @@ var account *accounts.Account
 
 // Common variables
 var gasPrice *big.Int
+var MAX_SANE_GAS_PRICE = big.NewInt(1000000000000)
 var gasLimit uint64
 
 var err error
@@ -138,6 +139,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	// Set up gas price if we have it
 	if cmd.Flags().Lookup("gasprice") != nil {
 		viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
+		viper.BindPFlag("allowhighgasprice", cmd.Flags().Lookup("allowhighgasprice"))
 		if viper.GetString("gasprice") == "" {
 			gasPrice, err = string2eth.StringToWei("4 GWei")
 			cli.ErrCheck(err, quiet, "Invalid gas price")
@@ -157,6 +159,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 				cli.ErrCheck(err, quiet, "Invalid gas price")
 			}
 		}
+		cli.Assert(gasPrice.Cmp(MAX_SANE_GAS_PRICE) <= 0 || viper.GetBool("allowhighgasprice"), quiet, "Gas price set very high.  If you are sure this is what you want you may add the --allowhighgasprice flag to continue.")
 	}
 
 	// Set up nonce if we have it
@@ -368,6 +371,7 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("passphrase", "", fmt.Sprintf("passphrase for %s", explanation))
 	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
 	cmd.Flags().String("gasprice", "", "Gas price for the transaction")
+	cmd.Flags().Bool("allowhighgasprice", false, "Allow gas prices higher than 1000GWei")
 	cmd.Flags().String("value", "", "Ether to send with the transaction")
 	cmd.Flags().Int64("gaslimit", 0, "Gas limit for the transaction; 0 is auto-select")
 	cmd.Flags().Int64("nonce", -1, "Nonce for the transaction; -1 is auto-select")
