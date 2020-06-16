@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -174,7 +173,7 @@ func (_Eth2Deposit *Eth2DepositTransactorRaw) Transact(opts *bind.TransactOpts, 
 
 // DrainAddress is a free data retrieval call binding the contract method 0x8ba35cdf.
 //
-// Solidity: function drain_address() constant returns(address out)
+// Solidity: function drain_address() returns(address out)
 func (_Eth2Deposit *Eth2DepositCaller) DrainAddress(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -186,21 +185,21 @@ func (_Eth2Deposit *Eth2DepositCaller) DrainAddress(opts *bind.CallOpts) (common
 
 // DrainAddress is a free data retrieval call binding the contract method 0x8ba35cdf.
 //
-// Solidity: function drain_address() constant returns(address out)
+// Solidity: function drain_address() returns(address out)
 func (_Eth2Deposit *Eth2DepositSession) DrainAddress() (common.Address, error) {
 	return _Eth2Deposit.Contract.DrainAddress(&_Eth2Deposit.CallOpts)
 }
 
 // DrainAddress is a free data retrieval call binding the contract method 0x8ba35cdf.
 //
-// Solidity: function drain_address() constant returns(address out)
+// Solidity: function drain_address() returns(address out)
 func (_Eth2Deposit *Eth2DepositCallerSession) DrainAddress() (common.Address, error) {
 	return _Eth2Deposit.Contract.DrainAddress(&_Eth2Deposit.CallOpts)
 }
 
 // GetDepositCount is a free data retrieval call binding the contract method 0x621fd130.
 //
-// Solidity: function get_deposit_count() constant returns(bytes out)
+// Solidity: function get_deposit_count() returns(bytes out)
 func (_Eth2Deposit *Eth2DepositCaller) GetDepositCount(opts *bind.CallOpts) ([]byte, error) {
 	var (
 		ret0 = new([]byte)
@@ -212,21 +211,21 @@ func (_Eth2Deposit *Eth2DepositCaller) GetDepositCount(opts *bind.CallOpts) ([]b
 
 // GetDepositCount is a free data retrieval call binding the contract method 0x621fd130.
 //
-// Solidity: function get_deposit_count() constant returns(bytes out)
+// Solidity: function get_deposit_count() returns(bytes out)
 func (_Eth2Deposit *Eth2DepositSession) GetDepositCount() ([]byte, error) {
 	return _Eth2Deposit.Contract.GetDepositCount(&_Eth2Deposit.CallOpts)
 }
 
 // GetDepositCount is a free data retrieval call binding the contract method 0x621fd130.
 //
-// Solidity: function get_deposit_count() constant returns(bytes out)
+// Solidity: function get_deposit_count() returns(bytes out)
 func (_Eth2Deposit *Eth2DepositCallerSession) GetDepositCount() ([]byte, error) {
 	return _Eth2Deposit.Contract.GetDepositCount(&_Eth2Deposit.CallOpts)
 }
 
 // GetDepositRoot is a free data retrieval call binding the contract method 0xc5f2892f.
 //
-// Solidity: function get_deposit_root() constant returns(bytes32 out)
+// Solidity: function get_deposit_root() returns(bytes32 out)
 func (_Eth2Deposit *Eth2DepositCaller) GetDepositRoot(opts *bind.CallOpts) ([32]byte, error) {
 	var (
 		ret0 = new([32]byte)
@@ -238,14 +237,14 @@ func (_Eth2Deposit *Eth2DepositCaller) GetDepositRoot(opts *bind.CallOpts) ([32]
 
 // GetDepositRoot is a free data retrieval call binding the contract method 0xc5f2892f.
 //
-// Solidity: function get_deposit_root() constant returns(bytes32 out)
+// Solidity: function get_deposit_root() returns(bytes32 out)
 func (_Eth2Deposit *Eth2DepositSession) GetDepositRoot() ([32]byte, error) {
 	return _Eth2Deposit.Contract.GetDepositRoot(&_Eth2Deposit.CallOpts)
 }
 
 // GetDepositRoot is a free data retrieval call binding the contract method 0xc5f2892f.
 //
-// Solidity: function get_deposit_root() constant returns(bytes32 out)
+// Solidity: function get_deposit_root() returns(bytes32 out)
 func (_Eth2Deposit *Eth2DepositCallerSession) GetDepositRoot() ([32]byte, error) {
 	return _Eth2Deposit.Contract.GetDepositRoot(&_Eth2Deposit.CallOpts)
 }
