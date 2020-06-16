@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"math/big"
 	"os"
 	"strings"
@@ -51,9 +52,15 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		if transactionSendRaw != "" {
 			// Send a raw transaction
 
-			// Decode the raw transaction
+			if !strings.HasPrefix(transactionSendRaw, "0x") {
+				// Data is a file.
+				fileBytes, err := ioutil.ReadFile(transactionSendRaw)
+				cli.ErrCheck(err, quiet, "Failed to read raw transaction from filesystem")
+				transactionSendRaw = strings.TrimSpace(string(fileBytes))
+			}
 			data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
 			cli.ErrCheck(err, quiet, "Failed to decode data")
+			// Decode the raw transaction
 			signedTx := &types.Transaction{}
 			stream := rlp.NewStream(bytes.NewReader(data), 0)
 			err = signedTx.DecodeRLP(stream)
