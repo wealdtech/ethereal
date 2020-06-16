@@ -398,6 +398,7 @@ func currentNonce(address common.Address) (uint64, error) {
 			return 0, fmt.Errorf("failed to obtain nonce for %s: %v", address.Hex(), err)
 		}
 		currentNonce = uint64(tmpNonce)
+		nonce = int64(tmpNonce)
 	} else {
 		currentNonce = uint64(nonce)
 	}
@@ -539,7 +540,7 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 		signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
 	} else if viper.GetString("privatekey") != "" {
 		var key *ecdsa.PrivateKey
-		key, err = crypto.HexToECDSA(viper.GetString("privatekey"))
+		key, err = crypto.HexToECDSA(strings.TrimPrefix(viper.GetString("privatekey"), "0x"))
 		cli.ErrCheck(err, quiet, "Invalid private key")
 		keyAddr := crypto.PubkeyToAddress(key.PublicKey)
 		if signer != keyAddr {

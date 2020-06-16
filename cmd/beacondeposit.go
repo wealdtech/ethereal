@@ -20,8 +20,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/big"
+	"os"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
@@ -30,6 +33,9 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
+
+// depositABI contains the ABI for the deposit contract.
+var depositABI = `[{"name":"deposit","outputs":[],"inputs":[{"type":"bytes","name":"pubkey"},{"type":"bytes","name":"withdrawal_credentials"},{"type":"bytes","name":"signature"},{"type":"bytes32","name":"deposit_data_root"}],"constant":false,"payable":true,"type":"function"}]`
 
 var beaconDepositData string
 var beaconDepositFrom string
@@ -87,8 +93,6 @@ The keystore for the account that owns the name must be local (i.e. listed with 
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
-
 		cli.Assert(chainID.Cmp(big.NewInt(5)) == 0, quiet, "This command is only supported on the Goerli network")
 
 		cli.Assert(beaconDepositData != "", quiet, "--data is required")
@@ -109,7 +113,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				data = []byte("[" + string(data) + "]")
 			}
 		}
-		var depositData []ethdoDepositData
+		var depositData []*ethdoDepositData
 		err = json.Unmarshal(data, &depositData)
 		cli.ErrCheck(err, quiet, "Data is not valid JSON")
 		cli.Assert(len(depositData) > 0, quiet, "No deposit data supplied")
@@ -135,8 +139,12 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		// Fetch the address of the contract.
 		cli.Assert(beaconDepositContractAddress != "", quiet, "--address is required")
+		if strings.Contains(beaconDepositContractAddress, ".") && offline {
+			cli.Err(quiet, "--address must be supplied when offline")
+		}
 		depositContractAddress, err := ens.Resolve(client, beaconDepositContractAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address of deposit contract")
+
 		// Ensure this contract is whitelisted.
 		contractName := ""
 		for _, whitelistEntry := range beaconDepositContractWhitelists {
@@ -153,49 +161,84 @@ This will return an exit status of 0 if the transaction is successfully submitte
 If you are *completely sure* you know what you are doing, you can use the --force option to carry out this transaction.  Otherwise, please seek support to ensure you do not lose your Ether.`)
 		outputIf(verbose, fmt.Sprintf("Deposit contract is %s", contractName))
 
-		contract, err := contracts.NewEth2Deposit(depositContractAddress, client)
-		cli.ErrCheck(err, quiet, "Failed to obtain deposit contract")
-
-		for _, deposit := range depositData {
-			opts, err := generateTxOpts(fromAddress)
-			cli.ErrCheck(err, quiet, "Failed to generate deposit options")
-			// Need to override the value with the info from the JSON
-			opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
-
-			// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
-			opts.GasLimit = 600000
-
-			pubKey, err := hex.DecodeString(deposit.PublicKey)
-			cli.ErrCheck(err, quiet, "Failed to parse deposit public key")
-			withdrawalCredentials, err := hex.DecodeString(deposit.WithdrawalCredentials)
-			cli.ErrCheck(err, quiet, "Failed to parse deposit withdrawal credentials")
-			signature, err := hex.DecodeString(deposit.Signature)
-			cli.ErrCheck(err, quiet, "Failed to parse deposit signature")
-			dataRootTmp, err := hex.DecodeString(deposit.DepositDataRoot)
-			cli.ErrCheck(err, quiet, "Failed to parse deposit data root")
-			var dataRoot [32]byte
-			copy(dataRoot[:], dataRootTmp)
-
-			// TODO recalculate signature to ensure correcteness (needs a pure Go BLS implementation).
-
-			// TODO check Ethereum 2 node to see if there is already a deposit for this validator public key (needs an Ethereum 2 node).
-
-			outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Value)), true), deposit.Account))
-
-			nextNonce(fromAddress)
-			signedTx, err := contract.Deposit(opts, pubKey, withdrawalCredentials, signature, dataRoot)
-			cli.ErrCheck(err, quiet, "Failed to send deposit")
-
-			handleSubmittedTransaction(signedTx, log.Fields{
-				"group":                        "beacon",
-				"command":                      "deposit",
-				"depositPublicKey":             pubKey,
-				"depositWithdrawalCredentials": withdrawalCredentials,
-				"depositSignature":             signature,
-				"depositDataRoot":              dataRoot,
-			}, false)
+		if offline {
+			sendOffline(depositData, fromAddress, depositContractAddress)
+		} else {
+			sendOnline(depositData, fromAddress, depositContractAddress)
 		}
+		os.Exit(_exit_success)
 	},
+}
+
+func sendOffline(depositData []*ethdoDepositData, fromAddress common.Address, depositContractAddress common.Address) {
+	abi, err := abi.JSON(strings.NewReader(depositABI))
+	cli.ErrCheck(err, quiet, "Failed to generate deposit contract ABI")
+
+	for _, deposit := range depositData {
+		pubKey, err := hex.DecodeString(deposit.PublicKey)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit public key")
+		withdrawalCredentials, err := hex.DecodeString(deposit.WithdrawalCredentials)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit withdrawal credentials")
+		signature, err := hex.DecodeString(deposit.Signature)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit signature")
+		dataRootTmp, err := hex.DecodeString(deposit.DepositDataRoot)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit data root")
+		var dataRoot [32]byte
+		copy(dataRoot[:], dataRootTmp)
+
+		dataBytes, err := abi.Pack("deposit", pubKey, withdrawalCredentials, signature, dataRoot)
+		cli.ErrCheck(err, quiet, "Failed to create deposit transaction")
+		value := new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
+		signedTx, err := createSignedTransaction(fromAddress, &depositContractAddress, value, 500000, dataBytes)
+		buf := new(bytes.Buffer)
+		signedTx.EncodeRLP(buf)
+		fmt.Printf("%#x\n", buf.Bytes())
+	}
+}
+
+func sendOnline(depositData []*ethdoDepositData, fromAddress common.Address, depositContractAddress common.Address) {
+	contract, err := contracts.NewEth2Deposit(depositContractAddress, client)
+	cli.ErrCheck(err, quiet, "Failed to obtain deposit contract")
+
+	for _, deposit := range depositData {
+		opts, err := generateTxOpts(fromAddress)
+		cli.ErrCheck(err, quiet, "Failed to generate deposit options")
+		// Need to override the value with the info from the JSON
+		opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
+
+		// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
+		opts.GasLimit = 500000
+
+		pubKey, err := hex.DecodeString(deposit.PublicKey)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit public key")
+		withdrawalCredentials, err := hex.DecodeString(deposit.WithdrawalCredentials)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit withdrawal credentials")
+		signature, err := hex.DecodeString(deposit.Signature)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit signature")
+		dataRootTmp, err := hex.DecodeString(deposit.DepositDataRoot)
+		cli.ErrCheck(err, quiet, "Failed to parse deposit data root")
+		var dataRoot [32]byte
+		copy(dataRoot[:], dataRootTmp)
+
+		// TODO recalculate signature to ensure correcteness (needs a pure Go BLS implementation).
+
+		// TODO check Ethereum 2 node to see if there is already a deposit for this validator public key (needs an Ethereum 2 node).
+
+		outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Value)), true), deposit.Account))
+
+		nextNonce(fromAddress)
+		signedTx, err := contract.Deposit(opts, pubKey, withdrawalCredentials, signature, dataRoot)
+		cli.ErrCheck(err, quiet, "Failed to send deposit")
+
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":                        "beacon",
+			"command":                      "deposit",
+			"depositPublicKey":             pubKey,
+			"depositWithdrawalCredentials": withdrawalCredentials,
+			"depositSignature":             signature,
+			"depositDataRoot":              dataRoot,
+		}, false)
+	}
 }
 
 func init() {
