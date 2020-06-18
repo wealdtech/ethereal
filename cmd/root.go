@@ -95,7 +95,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		offline = true
 	}
 
-	switch viper.GetString("network") {
+	switch strings.ToLower(viper.GetString("network")) {
 	case "mainnet":
 		chainID = big.NewInt(1)
 	case "ropsten":
@@ -106,6 +106,8 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		chainID = big.NewInt(5)
 	case "kovan":
 		chainID = big.NewInt(42)
+	default:
+		cli.Err(quiet, fmt.Sprintf("Unknown network name %q", viper.GetString("network")))
 	}
 
 	if quiet && verbose {
@@ -186,7 +188,7 @@ func connect() error {
 		outputIf(debug, fmt.Sprintf("Connecting to %s", viper.GetString("connection")))
 		client, err = ethclient.Dial(viper.GetString("connection"))
 	} else {
-		switch viper.GetString("network") {
+		switch strings.ToLower(viper.GetString("network")) {
 		case "mainnet":
 			outputIf(debug, "Connecting to mainnet")
 			client, err = ethclient.Dial("https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
