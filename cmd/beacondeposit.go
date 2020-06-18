@@ -93,7 +93,9 @@ The keystore for the account that owns the name must be local (i.e. listed with 
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert(chainID.Cmp(big.NewInt(5)) == 0, quiet, "This command is only supported on the Goerli network")
+		if !offline {
+			cli.Assert(chainID.Cmp(big.NewInt(5)) == 0, quiet, "This command is only supported on the Goerli network")
+		}
 
 		cli.Assert(beaconDepositData != "", quiet, "--data is required")
 		var err error
