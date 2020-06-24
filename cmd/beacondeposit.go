@@ -190,8 +190,10 @@ func sendOffline(depositData []*ethdoDepositData, fromAddress common.Address, de
 		cli.ErrCheck(err, quiet, "Failed to create deposit transaction")
 		value := new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
 		signedTx, err := createSignedTransaction(fromAddress, &depositContractAddress, value, 500000, dataBytes)
+		cli.ErrCheck(err, quiet, "Failed to create signed transaction")
 		buf := new(bytes.Buffer)
-		signedTx.EncodeRLP(buf)
+		err = signedTx.EncodeRLP(buf)
+		cli.ErrCheck(err, quiet, "Failed to encode signed transaction")
 		fmt.Printf("%#x\n", buf.Bytes())
 	}
 }
@@ -226,7 +228,8 @@ func sendOnline(depositData []*ethdoDepositData, fromAddress common.Address, dep
 
 		outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Value)), true), deposit.Account))
 
-		nextNonce(fromAddress)
+		_, err = nextNonce(fromAddress)
+		cli.ErrCheck(err, quiet, "Failed to obtain next nonce")
 		signedTx, err := contract.Deposit(opts, pubKey, withdrawalCredentials, signature, dataRoot)
 		cli.ErrCheck(err, quiet, "Failed to send deposit")
 
