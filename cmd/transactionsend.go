@@ -50,34 +50,51 @@ var transactionSendCmd = &cobra.Command{
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if transactionSendRaw != "" {
-			// Send a raw transaction
+			// Send raw transactions.
+			signedTxs := make([]*types.Transaction, 0)
 
 			if !strings.HasPrefix(transactionSendRaw, "0x") {
 				// Data is a file.
-				fileBytes, err := ioutil.ReadFile(transactionSendRaw)
+				data, err := ioutil.ReadFile(transactionSendRaw)
 				cli.ErrCheck(err, quiet, "Failed to read raw transaction from filesystem")
-				transactionSendRaw = strings.TrimSpace(string(fileBytes))
+				lines := bytes.Split(bytes.Replace(data, []byte("\r\n"), []byte("\n"), -1), []byte("\n"))
+				for i := range lines {
+					if len(lines[i]) > 2 {
+						data, err := hex.DecodeString(strings.TrimPrefix(string(lines[i]), "0x"))
+						cli.ErrCheck(err, quiet, "Failed to decode transaction")
+						signedTx := &types.Transaction{}
+						stream := rlp.NewStream(bytes.NewReader(data), 0)
+						err = signedTx.DecodeRLP(stream)
+						cli.ErrCheck(err, quiet, "Failed to decode transaction")
+						signedTxs = append(signedTxs, signedTx)
+					}
+				}
+			} else {
+				// Data is a direct transaction.
+				data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
+				cli.ErrCheck(err, quiet, "Failed to decode data")
+				// Decode the raw transaction
+				signedTx := &types.Transaction{}
+				stream := rlp.NewStream(bytes.NewReader(data), 0)
+				err = signedTx.DecodeRLP(stream)
+				cli.ErrCheck(err, quiet, "Failed to decode transaction")
+				signedTxs = append(signedTxs, signedTx)
 			}
-			data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
-			cli.ErrCheck(err, quiet, "Failed to decode data")
-			// Decode the raw transaction
-			signedTx := &types.Transaction{}
-			stream := rlp.NewStream(bytes.NewReader(data), 0)
-			err = signedTx.DecodeRLP(stream)
-			cli.ErrCheck(err, quiet, "Failed to decode transaction")
 
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
+			for i := range signedTxs {
+				ctx, cancel := localContext()
+				defer cancel()
+				err = client.SendTransaction(ctx, signedTxs[i])
+				cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-			logTransaction(signedTx, log.Fields{
-				"group":   "transaction",
-				"command": "send",
-			})
+				logTransaction(signedTxs[i], log.Fields{
+					"group":   "transaction",
+					"command": "send",
+				})
 
-			if !quiet {
-				fmt.Println(signedTx.Hash().Hex())
+				if !quiet {
+					fmt.Println(signedTxs[i].Hash().Hex())
+				}
 			}
 			os.Exit(_exit_success)
 		}

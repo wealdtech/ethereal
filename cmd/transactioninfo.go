@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -48,6 +49,12 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		var txHash common.Hash
 		var pending bool
 		var tx *types.Transaction
+		if !strings.HasPrefix(transactionStr, "0x") {
+			// Read from file.
+			fileBytes, err := ioutil.ReadFile(transactionStr)
+			cli.ErrCheck(err, quiet, "Failed to read transaction from filesystem")
+			transactionStr = strings.TrimSpace(string(fileBytes))
+		}
 		if len(transactionStr) > 66 {
 			// Assume input is a raw transaction
 			data, err := hex.DecodeString(strings.TrimPrefix(transactionStr, "0x"))
@@ -57,6 +64,8 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			err = tx.DecodeRLP(stream)
 			cli.ErrCheck(err, quiet, "Failed to decode raw transaction")
 			txHash = tx.Hash()
+			// Assume pending.
+			pending = true
 		} else {
 			// Assume input is a transaction ID
 			txHash = common.HexToHash(transactionStr)
