@@ -132,7 +132,7 @@ If you are *completely sure* you know what you are doing, you can use the --allo
 			cli.Assert(depositData[i].Signature != "", quiet, fmt.Sprintf("No signature for deposit %d", i))
 			cli.Assert(depositData[i].WithdrawalCredentials != "", quiet, fmt.Sprintf("No withdrawal credentials for deposit %d", i))
 			cli.Assert(depositData[i].Value >= 1000000000, quiet, fmt.Sprintf("Deposit too small for deposit %d", i))
-			cli.Assert(depositData[i].Value < 32000000000 || beaconDepositAllowExcessiveDeposit, quiet, fmt.Sprintf(`Deposit more than 32 Ether for deposit %d.  Any amount above 32 Ether that is deposited will not count towards the validator's effective balance, and is effectively wasted.
+			cli.Assert(depositData[i].Value <= 32000000000 || beaconDepositAllowExcessiveDeposit, quiet, fmt.Sprintf(`Deposit more than 32 Ether for deposit %d.  Any amount above 32 Ether that is deposited will not count towards the validator's effective balance, and is effectively wasted.
 
 If you really want to do this use the --allow-excessive-deposit option.`, i))
 
