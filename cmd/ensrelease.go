@@ -65,10 +65,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 			cli.ErrCheck(err, quiet, "Cannot obtain domain details")
 			cli.Assert(entry.Deed != ens.UnknownAddress, quiet, fmt.Sprintf("Domain %q has no deed; unknown or already released", domain))
 
-			registry, err := ens.NewRegistry(client)
-			cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
-
-			owner, err := registry.Owner(domain)
+			owner, err := auctionRegistrar.Owner(domain)
 			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 
 			outputIf(verbose, fmt.Sprintf("Domain %s owner is %s", domain, ens.Format(client, owner)))
