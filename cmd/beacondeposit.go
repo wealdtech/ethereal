@@ -326,7 +326,7 @@ func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdraw
 func fetchBeaconDepositContract(contractAddress string, network string) (*beaconDepositContract, error) {
 	var address []byte
 	var err error
-	if contractAddress == "" {
+	if contractAddress != "" {
 		address, err = hex.DecodeString(strings.TrimPrefix(contractAddress, "0x"))
 		if err != nil {
 			return nil, errors.Wrap(err, "invalid contract address")
