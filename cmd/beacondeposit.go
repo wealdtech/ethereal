@@ -94,6 +94,14 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		maxVersion: 2,
 		subgraph:   "attestantio/eth2deposits-altona",
 	},
+	{
+		network:    "Medalla",
+		chainID:    big.NewInt(5),
+		address:    util.MustDecodeHexString("0x07b39F4fDE4A38bACe212b546dAc87C58DfE3fDC"),
+		minVersion: 2,
+		maxVersion: 2,
+		subgraph:   "attestantio/eth2deposits-medalla",
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command
