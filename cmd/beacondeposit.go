@@ -231,6 +231,8 @@ func sendOnline(depositData []*ethdoDepositData, contractDetails *beaconDepositC
 	contract, err := contracts.NewEth2Deposit(address, client)
 	cli.ErrCheck(err, quiet, "Failed to obtain deposit contract")
 
+	cli.Assert(len(depositData) > 0, quiet, "No deposit data supplied")
+
 	for _, deposit := range depositData {
 		opts, err := generateTxOpts(fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate deposit options")
@@ -238,7 +240,7 @@ func sendOnline(depositData []*ethdoDepositData, contractDetails *beaconDepositC
 		opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Value), big.NewInt(1000000000))
 
 		// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
-		opts.GasLimit = 500000
+		opts.GasLimit = 70000
 
 		pubKey, err := hex.DecodeString(strings.TrimPrefix(deposit.PublicKey, "0x"))
 		cli.ErrCheck(err, quiet, "Failed to parse deposit public key")
