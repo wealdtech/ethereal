@@ -102,6 +102,14 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		maxVersion: 3,
 		subgraph:   "attestantio/eth2deposits-medalla",
 	},
+	{
+		network:    "Spadina",
+		chainID:    big.NewInt(5),
+		address:    util.MustDecodeHexString("0x48B597F4b53C21B48AD95c7256B49D1779Bd5890"),
+		minVersion: 2,
+		maxVersion: 3,
+		subgraph:   "attestantio/eth2deposits-spadina",
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command
@@ -229,7 +237,9 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 		opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
 
 		// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
-		opts.GasLimit = 80000
+		// This is just above the maximum gas possible used by the contract, as calculated in
+		// https://raw.githubusercontent.com/runtimeverification/deposit-contract-verification/master/deposit-contract-verification.pdf
+		opts.GasLimit = 160000
 
 		// TODO recalculate signature to ensure correcteness (needs a pure Go BLS implementation).
 
