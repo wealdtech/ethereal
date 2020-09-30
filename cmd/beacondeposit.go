@@ -110,6 +110,14 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		maxVersion: 3,
 		subgraph:   "attestantio/eth2deposits-spadina",
 	},
+	{
+		network:    "Zinken",
+		chainID:    big.NewInt(5),
+		address:    util.MustDecodeHexString("0x99F0Ec06548b086E46Cb0019C78D0b9b9F36cD53"),
+		minVersion: 2,
+		maxVersion: 3,
+		subgraph:   "attestantio/eth2deposits-zinken",
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command
@@ -379,6 +387,6 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowExcessiveDeposit, "allow-excessive-deposit", false, "Allow sending more than 32 Ether in a single deposit (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The address to which to send the deposit (overrides network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "medalla", "The name of the network to send the deposit to (topaz/onyx/altona/medalla/spadina)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "medalla", "The name of the network to send the deposit to (topaz/onyx/altona/medalla/spadina/zinken)")
 	addTransactionFlags(beaconDepositCmd, "passphrase for the account that owns the account")
 }
