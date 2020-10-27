@@ -115,14 +115,13 @@ var intFixRe = regexp.MustCompile(`^([u]?int)($|[^0-9])`)
 // contractParseFunction turns a function definition in to an ABI
 // function definition is  a string of form "methodName(argtype [argname],...) returns (outputtype [outputname],...)"
 func contractParseFunction(input string) (*abi.ABI, error) {
-
 	input = strings.TrimSpace(input)
 	bits := strings.Split(input, "(")
 	// Method name is part before first "("
 	methodName := bits[0]
 	// Method arguments are comma-separated values before first ")"
 	argsBits := strings.Split(strings.Split(bits[1], ")")[0], ",")
-	methodArgs := make([]abi.Argument, 0)
+	methodInputs := make([]abi.Argument, 0)
 	for _, argsBit := range argsBits {
 		argBits := strings.Split(argsBit, " ")
 		argType := argBits[0]
@@ -138,7 +137,7 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 		if err != nil {
 			return nil, err
 		}
-		methodArgs = append(methodArgs, abi.Argument{
+		methodInputs = append(methodInputs, abi.Argument{
 			Name: argName,
 			Type: t,
 		})
@@ -161,12 +160,7 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 		}
 	}
 
-	method := abi.Method{
-		Name:    methodName,
-		RawName: methodName,
-		Inputs:  methodArgs,
-		Outputs: methodOutputs,
-	}
+	method := abi.NewMethod(methodName, methodName, abi.Function, "payable", false, true, methodInputs, methodOutputs)
 
 	res := &abi.ABI{
 		Methods: make(map[string]abi.Method),

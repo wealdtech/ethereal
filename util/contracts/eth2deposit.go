@@ -137,7 +137,7 @@ func bindEth2Deposit(address common.Address, caller bind.ContractCaller, transac
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Eth2Deposit *Eth2DepositRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_Eth2Deposit *Eth2DepositRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _Eth2Deposit.Contract.Eth2DepositCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -156,7 +156,7 @@ func (_Eth2Deposit *Eth2DepositRaw) Transact(opts *bind.TransactOpts, method str
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Eth2Deposit *Eth2DepositCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (_Eth2Deposit *Eth2DepositCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _Eth2Deposit.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -175,12 +175,17 @@ func (_Eth2Deposit *Eth2DepositTransactorRaw) Transact(opts *bind.TransactOpts, 
 //
 // Solidity: function drain_address() returns(address out)
 func (_Eth2Deposit *Eth2DepositCaller) DrainAddress(opts *bind.CallOpts) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := _Eth2Deposit.contract.Call(opts, out, "drain_address")
-	return *ret0, err
+	var out []interface{}
+	err := _Eth2Deposit.contract.Call(opts, &out, "drain_address")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // DrainAddress is a free data retrieval call binding the contract method 0x8ba35cdf.
@@ -201,12 +206,17 @@ func (_Eth2Deposit *Eth2DepositCallerSession) DrainAddress() (common.Address, er
 //
 // Solidity: function get_deposit_count() returns(bytes out)
 func (_Eth2Deposit *Eth2DepositCaller) GetDepositCount(opts *bind.CallOpts) ([]byte, error) {
-	var (
-		ret0 = new([]byte)
-	)
-	out := ret0
-	err := _Eth2Deposit.contract.Call(opts, out, "get_deposit_count")
-	return *ret0, err
+	var out []interface{}
+	err := _Eth2Deposit.contract.Call(opts, &out, "get_deposit_count")
+
+	if err != nil {
+		return *new([]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]byte)).(*[]byte)
+
+	return out0, err
+
 }
 
 // GetDepositCount is a free data retrieval call binding the contract method 0x621fd130.
@@ -227,12 +237,17 @@ func (_Eth2Deposit *Eth2DepositCallerSession) GetDepositCount() ([]byte, error) 
 //
 // Solidity: function get_deposit_root() returns(bytes32 out)
 func (_Eth2Deposit *Eth2DepositCaller) GetDepositRoot(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := _Eth2Deposit.contract.Call(opts, out, "get_deposit_root")
-	return *ret0, err
+	var out []interface{}
+	err := _Eth2Deposit.contract.Call(opts, &out, "get_deposit_root")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // GetDepositRoot is a free data retrieval call binding the contract method 0xc5f2892f.
