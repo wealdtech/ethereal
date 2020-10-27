@@ -74,6 +74,7 @@ type depositInfoCLI struct {
 	Amount                uint64 `json:"amount"`
 }
 
+// DepositInfoFromJSON obtains deposit info from any supported JSON format.
 func DepositInfoFromJSON(input []byte) ([]*DepositInfo, error) {
 	// Work out the type of data that we're dealing with, and decode it appropriately.
 	depositInfo, err := tryRawTxData(input)

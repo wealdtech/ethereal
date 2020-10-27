@@ -47,7 +47,7 @@ In quiet mode this will return 0 if the key has text, otherwise 1.`,
 		if !quiet {
 			fmt.Printf("%s\n", value)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

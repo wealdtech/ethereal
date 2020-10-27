@@ -46,12 +46,12 @@ In quiet mode this will return 0 if the implementer has an address, otherwise 1.
 		cli.ErrCheck(err, quiet, "failed to obtain implementer")
 
 		if *implementer == ens.UnknownAddress {
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 		if !quiet {
 			fmt.Printf("%s\n", ens.Format(client, *implementer))
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

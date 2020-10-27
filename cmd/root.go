@@ -57,7 +57,7 @@ var account *accounts.Account
 
 // Common variables
 var gasPrice *big.Int
-var MAX_SANE_GAS_PRICE = big.NewInt(1000000000000)
+var maxSaneGasPrice = big.NewInt(1000000000000)
 var gasLimit uint64
 
 var err error
@@ -150,18 +150,18 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 				// Block-based gas price
 				outputIf(verbose, fmt.Sprintf("xx"))
 				// fmt.Printf("Gas price is %v\n", string2eth.WeiToString(gasPrice, true))
-				os.Exit(_exit_success)
+				os.Exit(exitSuccess)
 			} else if strings.Contains(viper.GetString("gasprice"), "minute") {
 				// Time-based gas price
 				outputIf(verbose, fmt.Sprintf("yy"))
 				// fmt.Printf("Gas price is %v\n", string2eth.WeiToString(gasPrice, true))
-				os.Exit(_exit_success)
+				os.Exit(exitSuccess)
 			} else {
 				gasPrice, err = string2eth.StringToWei(viper.GetString("gasprice"))
 				cli.ErrCheck(err, quiet, "Invalid gas price")
 			}
 		}
-		cli.Assert(gasPrice.Cmp(MAX_SANE_GAS_PRICE) <= 0 || viper.GetBool("allowhighgasprice"), quiet, "Gas price set very high.  If you are sure this is what you want you may add the --allowhighgasprice flag to continue.")
+		cli.Assert(gasPrice.Cmp(maxSaneGasPrice) <= 0 || viper.GetBool("allowhighgasprice"), quiet, "Gas price set very high.  If you are sure this is what you want you may add the --allowhighgasprice flag to continue.")
 	}
 
 	// Set up nonce if we have it
@@ -251,7 +251,7 @@ func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields, exi
 	if !viper.GetBool("wait") {
 		outputIf(!quiet, fmt.Sprintf("%s", tx.Hash().Hex()))
 		if exit {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		} else {
 			return true
 		}
@@ -260,14 +260,14 @@ func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields, exi
 	if mined {
 		outputIf(!quiet, fmt.Sprintf("%s mined", tx.Hash().Hex()))
 		if exit {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		} else {
 			return true
 		}
 	}
 	outputIf(!quiet, fmt.Sprintf("%s submitted but not mined", tx.Hash().Hex()))
 	if exit {
-		os.Exit(_exit_not_mined)
+		os.Exit(exitNotMined)
 	}
 	return false
 }
@@ -300,7 +300,7 @@ func logTransaction(tx *types.Transaction, fields log.Fields) {
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(_exit_failure)
+		os.Exit(exitFailure)
 	}
 }
 
@@ -338,7 +338,7 @@ func initConfig() {
 		home, err := homedir.Dir()
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 
 		// Search config in home directory with name ".ethereal" (without extension).

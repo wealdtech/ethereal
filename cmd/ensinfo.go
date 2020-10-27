@@ -69,7 +69,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			if err != nil {
 				if err.Error() == "abi: attempting to unmarshall an empty string while arguments are expected" {
 					fmt.Println("Name not recognised by registrar")
-					os.Exit(_exit_failure)
+					os.Exit(exitFailure)
 				} else {
 					cli.ErrCheck(err, quiet, "Failed to obtain registrant")
 				}
@@ -77,7 +77,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			if registrant == ens.UnknownAddress {
 				fmt.Println("Name not recognised by registrar")
 				unregisteredResolverCheck(ensDomain)
-				os.Exit(_exit_failure)
+				os.Exit(exitFailure)
 			}
 
 			outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(client, registrar.ContractAddr)))

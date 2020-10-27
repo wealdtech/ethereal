@@ -40,7 +40,7 @@ In quiet mode this will return 0 if the network ID is obtained, otherwise 1.`,
 		if !quiet {
 			fmt.Printf("%v\n", id)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

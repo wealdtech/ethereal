@@ -56,10 +56,10 @@ In quiet mode this will return 0 if the provided address is correctly checksumme
 				cli.Err(quiet, "checksum is incorrect")
 			}
 			outputIf(!quiet, "Checksum is correct")
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 		fmt.Printf("%s\n", checksummedAddress)
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

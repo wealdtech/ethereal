@@ -53,9 +53,9 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 
 		if quiet {
 			if balance.Cmp(big.NewInt(0)) == 0 {
-				os.Exit(_exit_failure)
+				os.Exit(exitFailure)
 			} else {
-				os.Exit(_exit_success)
+				os.Exit(exitSuccess)
 			}
 		}
 

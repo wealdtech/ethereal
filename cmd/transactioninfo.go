@@ -77,21 +77,21 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		}
 
 		if quiet {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		if transactionInfoRaw {
 			buf := new(bytes.Buffer)
 			tx.EncodeRLP(buf)
 			fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		if transactionInfoJSON {
 			json, err := tx.MarshalJSON()
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain JSON for transaction %s", txHash.Hex()))
 			fmt.Printf("%s\n", string(json))
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		txdata.InitFunctionMap()

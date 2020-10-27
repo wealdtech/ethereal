@@ -50,7 +50,7 @@ In quiet mode this will return 0 if the domain has an expiry date in the future,
 		if expiryTS.Uint64() == uint64(0) {
 			// No expiry
 			outputIf(!quiet, "Domain is not registered")
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 
 		expiry := time.Unix(int64(expiryTS.Uint64()), 0)
@@ -64,9 +64,9 @@ In quiet mode this will return 0 if the domain has an expiry date in the future,
 		}
 
 		if time.Until(expiry) < 0 {
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 
 	},
 }

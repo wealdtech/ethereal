@@ -40,9 +40,9 @@ In quiet mode this will return 0 if the node is synchronised, otherwise 1.`,
 
 		if quiet {
 			if syncProgress == nil {
-				os.Exit(_exit_success)
+				os.Exit(exitSuccess)
 			}
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 
 		if syncProgress == nil {
@@ -51,7 +51,7 @@ In quiet mode this will return 0 if the node is synchronised, otherwise 1.`,
 			fmt.Printf("Node is at block %v, syncing to block %v\n", syncProgress.CurrentBlock, syncProgress.HighestBlock)
 			outputIf(verbose, fmt.Sprintf("Pulled states is %v, known states is %v", syncProgress.PulledStates, syncProgress.KnownStates))
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

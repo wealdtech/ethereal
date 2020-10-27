@@ -56,10 +56,10 @@ In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 		verified := bytes.Compare(signer.Bytes(), verifySigner.Bytes()) == 0
 		if verified {
 			outputIf(!quiet, "Verified")
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		} else {
 			outputIf(!quiet, "Not verified")
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 	},
 }

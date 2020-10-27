@@ -65,7 +65,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			result, err := client.CallContract(ctx, msg, nil)
 			cli.ErrCheck(err, quiet, "Call failed")
 			outputIf(!quiet, fmt.Sprintf("%x", []byte(result)))
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		// We need to have 'call'
@@ -91,7 +91,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call %s", method.Name))
 		if len(method.Outputs) == 0 {
 			// No output
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return expected data", method.Name))
 

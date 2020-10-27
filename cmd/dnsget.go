@@ -74,7 +74,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		cli.Assert(len(data) > 0, quiet, fmt.Sprintf("No value of %s resource %s for %s", dnsResource, dnsName, dnsDomain))
 
 		if quiet {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		if dnsGetWire {

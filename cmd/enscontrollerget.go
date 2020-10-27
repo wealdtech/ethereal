@@ -43,7 +43,7 @@ In quiet mode this will return 0 if the name has a controller, otherwise 1.`,
 		if !quiet {
 			fmt.Printf("%s\n", ens.Format(client, controller))
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

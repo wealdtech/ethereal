@@ -90,7 +90,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 					signedTx.EncodeRLP(buf)
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
-				os.Exit(_exit_success)
+				os.Exit(exitSuccess)
 			}
 
 			ctx, cancel := localContext()

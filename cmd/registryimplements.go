@@ -60,9 +60,9 @@ In quiet mode this will return 0 if the address implements the interface, otherw
 		}
 
 		if implementsInterface {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		} else {
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 	},
 }

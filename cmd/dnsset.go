@@ -138,7 +138,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 				signedTx.EncodeRLP(buf)
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		handleSubmittedTransaction(signedTx, log.Fields{

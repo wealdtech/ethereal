@@ -59,7 +59,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		switch location {
 		case "none":
 			outputIf(!quiet, "Domain not registered")
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		case "temporary":
 			auctionRegistrar, err = registrar.PriorAuctionContract()
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain auction registrar contract for %s", ens.Tld(ensDomain)))

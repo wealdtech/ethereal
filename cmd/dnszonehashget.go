@@ -71,7 +71,7 @@ In quiet mode this will return 0 if the name has a valid zone hash, otherwise 1.
 		if !quiet {
 			fmt.Printf("%s\n", res)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

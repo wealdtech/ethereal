@@ -58,7 +58,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain block %s", blockStr))
 
 		if quiet {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		fmt.Printf("Number:\t\t\t%v\n", block.Number())

@@ -43,10 +43,10 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 		cli.ErrCheck(err, quiet, "failed to obtain address")
 		if len(bytes) == 0 {
 			outputIf(verbose, "no address")
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 		if quiet {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		switch ensAddressCoinType {
@@ -56,7 +56,7 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 		default:
 			fmt.Printf("%#x\n", bytes)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

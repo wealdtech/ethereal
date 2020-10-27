@@ -49,7 +49,7 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 			if !quiet {
 				fmt.Printf("%x\n", bytes)
 			}
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 		outputIf(debug, fmt.Sprintf("data is %x", bytes))
 
@@ -59,7 +59,7 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 		if !quiet {
 			fmt.Printf("%s\n", res)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

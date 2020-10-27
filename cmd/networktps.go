@@ -69,9 +69,9 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 
 		if quiet {
 			if transactions == 0 {
-				os.Exit(_exit_failure)
+				os.Exit(exitFailure)
 			} else {
-				os.Exit(_exit_success)
+				os.Exit(exitSuccess)
 			}
 		}
 

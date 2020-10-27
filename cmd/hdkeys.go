@@ -75,7 +75,7 @@ In quiet mode this will return 0 if the keys were successfully obtained, otherwi
 		outputIf(!quiet, fmt.Sprintf("Public key:\t\t0x%s", hex.EncodeToString(crypto.FromECDSAPub(&key.PublicKey))))
 		outputIf(!quiet, fmt.Sprintf("Ethereum address:\t%s", crypto.PubkeyToAddress(key.PublicKey).Hex()))
 
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 
 		//		cli.Assert((hdKeysAddress != "" && hdKeysPassphrase != "") || hdKeysPrivateKey != "", quiet, "--privatekey or both of --address and --passphrase are required")
 		//

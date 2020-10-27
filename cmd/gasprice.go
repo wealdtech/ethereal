@@ -129,7 +129,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 		}
 
 		if quiet {
-			os.Exit(_exit_success)
+			os.Exit(exitSuccess)
 		}
 
 		if gasPriceWei {

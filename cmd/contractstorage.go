@@ -54,10 +54,10 @@ In quiet mode this will return 0 if the storage contains a non-zero value, other
 		if quiet {
 			for _, b := range value {
 				if b != 0 {
-					os.Exit(_exit_success)
+					os.Exit(exitSuccess)
 				}
 			}
-			os.Exit(_exit_failure)
+			os.Exit(exitFailure)
 		}
 
 		// Output the result

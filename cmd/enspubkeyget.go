@@ -46,7 +46,7 @@ In quiet mode this will return 0 if the name has a public key, otherwise 1.`,
 		if !quiet {
 			fmt.Printf("(0x%032x,0x%032x)\n", x, y)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 

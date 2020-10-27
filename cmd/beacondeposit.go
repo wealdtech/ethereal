@@ -61,62 +61,69 @@ type ethdoDepositData struct {
 }
 
 type beaconDepositContract struct {
-	network    string
-	chainID    *big.Int
-	address    []byte
-	minVersion uint64
-	maxVersion uint64
-	subgraph   string
+	network     string
+	chainID     *big.Int
+	address     []byte
+	forkVersion []byte
+	minVersion  uint64
+	maxVersion  uint64
+	subgraph    string
 }
 
 var beaconDepositKnownContracts = []*beaconDepositContract{
 	{
-		network:    "Topaz",
-		chainID:    big.NewInt(5),
-		address:    util.MustDecodeHexString("0x5ca1e00004366ac85f492887aaab12d0e6418876"),
-		minVersion: 1,
-		maxVersion: 1,
-		subgraph:   "attestantio/eth2deposits-topaz",
+		network:     "Topaz",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0x5ca1e00004366ac85f492887aaab12d0e6418876"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x00},
+		minVersion:  1,
+		maxVersion:  1,
+		subgraph:    "attestantio/eth2deposits-topaz",
 	},
 	{
-		network:    "Onyx",
-		chainID:    big.NewInt(5),
-		address:    util.MustDecodeHexString("0x0f0f0fc0530007361933eab5db97d09acdd6c1c8"),
-		minVersion: 2,
-		maxVersion: 2,
-		subgraph:   "attestantio/eth2deposits-onyx",
+		network:     "Onyx",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0x0f0f0fc0530007361933eab5db97d09acdd6c1c8"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x00},
+		minVersion:  2,
+		maxVersion:  2,
+		subgraph:    "attestantio/eth2deposits-onyx",
 	},
 	{
-		network:    "Altona",
-		chainID:    big.NewInt(5),
-		address:    util.MustDecodeHexString("0x16e82D77882A663454Ef92806b7DeCa1D394810f"),
-		minVersion: 2,
-		maxVersion: 2,
-		subgraph:   "attestantio/eth2deposits-altona",
+		network:     "Altona",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0x16e82D77882A663454Ef92806b7DeCa1D394810f"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x00},
+		minVersion:  2,
+		maxVersion:  2,
+		subgraph:    "attestantio/eth2deposits-altona",
 	},
 	{
-		network:    "Medalla",
-		chainID:    big.NewInt(5),
-		address:    util.MustDecodeHexString("0x07b39F4fDE4A38bACe212b546dAc87C58DfE3fDC"),
-		minVersion: 2,
-		maxVersion: 3,
-		subgraph:   "attestantio/eth2deposits-medalla",
+		network:     "Medalla",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0x07b39F4fDE4A38bACe212b546dAc87C58DfE3fDC"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x01},
+		minVersion:  2,
+		maxVersion:  3,
+		subgraph:    "attestantio/eth2deposits-medalla",
 	},
 	{
-		network:    "Spadina",
-		chainID:    big.NewInt(5),
-		address:    util.MustDecodeHexString("0x48B597F4b53C21B48AD95c7256B49D1779Bd5890"),
-		minVersion: 2,
-		maxVersion: 3,
-		subgraph:   "attestantio/eth2deposits-spadina",
+		network:     "Spadina",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0x48B597F4b53C21B48AD95c7256B49D1779Bd5890"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x02},
+		minVersion:  2,
+		maxVersion:  3,
+		subgraph:    "attestantio/eth2deposits-spadina",
 	},
 	{
-		network:    "Zinken",
-		chainID:    big.NewInt(5),
-		address:    util.MustDecodeHexString("0x99F0Ec06548b086E46Cb0019C78D0b9b9F36cD53"),
-		minVersion: 2,
-		maxVersion: 3,
-		subgraph:   "attestantio/eth2deposits-zinken",
+		network:     "Zinken",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0x99F0Ec06548b086E46Cb0019C78D0b9b9F36cD53"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x03},
+		minVersion:  2,
+		maxVersion:  3,
+		subgraph:    "attestantio/eth2deposits-zinken",
 	},
 }
 
@@ -155,6 +162,9 @@ If you are *completely sure* you know what you are doing, you can use the --allo
 			cli.Assert(len(depositInfo[i].DepositDataRoot) > 0, quiet, fmt.Sprintf("No data root for deposit %d", i))
 			cli.Assert(len(depositInfo[i].Signature) > 0, quiet, fmt.Sprintf("No signature for deposit %d", i))
 			cli.Assert(len(depositInfo[i].WithdrawalCredentials) > 0, quiet, fmt.Sprintf("No withdrawal credentials for deposit %d", i))
+			if len(depositInfo[i].ForkVersion) != 0 {
+				cli.Assert(bytes.Equal(depositInfo[i].ForkVersion, contract.forkVersion), quiet, fmt.Sprintf("Incorrect fork version for deposit %d", i))
+			}
 			cli.Assert(depositInfo[i].Amount >= 1000000000, quiet, fmt.Sprintf("Deposit too small for deposit %d", i))
 			cli.Assert(depositInfo[i].Amount <= 32000000000 || beaconDepositAllowExcessiveDeposit, quiet, fmt.Sprintf(`Deposit more than 32 Ether for deposit %d.  Any amount above 32 Ether that is deposited will not count towards the validator's effective balance, and is effectively wasted.
 
@@ -177,7 +187,7 @@ If you are *completely sure* you know what you are doing, you can use the --allo
 		} else {
 			sendOnline(depositInfo, contract, fromAddress)
 		}
-		os.Exit(_exit_success)
+		os.Exit(exitSuccess)
 	},
 }
 
@@ -361,7 +371,7 @@ func fetchBeaconDepositContract(contractAddress string, network string) (*beacon
 		}
 		return nil, errors.New(`address does not match a known contract.
 
-If you are sure you want to send to this address you can add --allow-unknown-contract to force this.  You will also need to supply a value for --network to ensure the deposit is sent on your desired network.`)
+If you are sure you want to send to this address you can add --allow-unknown-contract to force this.  You will also need to supply a value for --network to ensure the deposit is sent on your desired network`)
 	}
 
 	if network != "" {
