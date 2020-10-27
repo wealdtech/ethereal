@@ -17,8 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//var ensDomain string
-
 // hdCmd represents the hd command
 var hdCmd = &cobra.Command{
 	Use:   "hd",
@@ -28,8 +26,4 @@ var hdCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(hdCmd)
-}
-
-func hdFlags(cmd *cobra.Command) {
-	//cmd.Flags().StringVar(&ensDomain, "domain", "", "Domain against which to operate (e.g. wealdtech.eth)")
 }

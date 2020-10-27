@@ -22,9 +22,6 @@ import (
 
 // Used in TokenValueToString
 var zero = big.NewInt(0)
-var ten = big.NewInt(10)
-var thousand = big.NewInt(1000)
-var million = big.NewInt(1000000)
 
 // TokenValueToString converts a token value to a suitable string representation
 func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output string) {
@@ -37,13 +34,14 @@ func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output 
 	}
 
 	nonDecimalLength := len(value) - int(decimals)
-	if nonDecimalLength <= 0 {
+	switch {
+	case nonDecimalLength <= 0:
 		// We need to add leading decimal 0s
 		output = "0." + strings.Repeat("0", int(decimals)-len(value)) + value
 		output = strings.TrimRight(output, "0")
-	} else if nonDecimalLength == len(value) {
+	case nonDecimalLength == len(value):
 		output = value
-	} else {
+	default:
 		// We might need to add decimal point
 		postDecimalsAllZero, _ := regexp.MatchString("^0+$", value[nonDecimalLength:])
 		if postDecimalsAllZero {
@@ -76,9 +74,9 @@ func StringToTokenValue(input string, decimals uint8) (output *big.Int, err erro
 		additionalZeros = int(decimals)
 	}
 	// Remove the decimal point
-	tmp := strings.Replace(input, ".", "", -1)
+	tmp := strings.ReplaceAll(input, ".", "")
 	// Add zeros to ensure that there are an appropriate number of decimals
-	tmp = tmp + strings.Repeat("0", additionalZeros)
+	tmp += strings.Repeat("0", additionalZeros)
 
 	// Set the output
 	output.SetString(tmp, 10)

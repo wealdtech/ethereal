@@ -49,7 +49,6 @@ var offline bool
 
 var client *ethclient.Client
 var chainID *big.Int
-var referrer common.Address
 
 var nonce int64
 var wallet accounts.Wallet
@@ -121,42 +120,43 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	// as options but we want to bind them to this particular command and
 	// this is the first chance we get
 	if cmd.Flags().Lookup("passphrase") != nil {
-		viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase"))
+		cli.ErrCheck(viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase")), quiet, "failed to bind flag")
 	}
 	if cmd.Flags().Lookup("privatekey") != nil {
-		viper.BindPFlag("privatekey", cmd.Flags().Lookup("privatekey"))
+		cli.ErrCheck(viper.BindPFlag("privatekey", cmd.Flags().Lookup("privatekey")), quiet, "failed to bind flag")
 	}
 	if cmd.Flags().Lookup("nonce") != nil {
-		viper.BindPFlag("nonce", cmd.Flags().Lookup("nonce"))
+		cli.ErrCheck(viper.BindPFlag("nonce", cmd.Flags().Lookup("nonce")), quiet, "failed to bind flag")
 	}
 	if cmd.Flags().Lookup("value") != nil {
-		viper.BindPFlag("value", cmd.Flags().Lookup("value"))
+		cli.ErrCheck(viper.BindPFlag("value", cmd.Flags().Lookup("value")), quiet, "failed to bind flag")
 	}
 	if cmd.Flags().Lookup("wait") != nil {
-		viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+		cli.ErrCheck(viper.BindPFlag("wait", cmd.Flags().Lookup("wait")), quiet, "failed to bind flag")
 	}
 	if cmd.Flags().Lookup("limit") != nil {
-		viper.BindPFlag("limit", cmd.Flags().Lookup("limit"))
+		cli.ErrCheck(viper.BindPFlag("limit", cmd.Flags().Lookup("limit")), quiet, "failed to bind flag")
 	}
 	// Set up gas price if we have it
 	if cmd.Flags().Lookup("gasprice") != nil {
-		viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice"))
-		viper.BindPFlag("allowhighgasprice", cmd.Flags().Lookup("allowhighgasprice"))
+		cli.ErrCheck(viper.BindPFlag("gasprice", cmd.Flags().Lookup("gasprice")), quiet, "failed to bind flag")
+		cli.ErrCheck(viper.BindPFlag("allowhighgasprice", cmd.Flags().Lookup("allowhighgasprice")), quiet, "failed to bind flag")
 		if viper.GetString("gasprice") == "" {
 			gasPrice, err = string2eth.StringToWei("4 GWei")
 			cli.ErrCheck(err, quiet, "Invalid gas price")
 		} else {
-			if strings.Contains(viper.GetString("gasprice"), "block") {
+			switch {
+			case strings.Contains(viper.GetString("gasprice"), "block"):
 				// Block-based gas price
-				outputIf(verbose, fmt.Sprintf("xx"))
+				outputIf(verbose, "xx")
 				// fmt.Printf("Gas price is %v\n", string2eth.WeiToString(gasPrice, true))
 				os.Exit(exitSuccess)
-			} else if strings.Contains(viper.GetString("gasprice"), "minute") {
+			case strings.Contains(viper.GetString("gasprice"), "minute"):
 				// Time-based gas price
-				outputIf(verbose, fmt.Sprintf("yy"))
+				outputIf(verbose, "yy")
 				// fmt.Printf("Gas price is %v\n", string2eth.WeiToString(gasPrice, true))
 				os.Exit(exitSuccess)
-			} else {
+			default:
 				gasPrice, err = string2eth.StringToWei(viper.GetString("gasprice"))
 				cli.ErrCheck(err, quiet, "Invalid gas price")
 			}
@@ -168,7 +168,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	nonce = viper.GetInt64("nonce")
 
 	if cmd.Flags().Lookup("gaslimit") != nil {
-		viper.BindPFlag("gaslimit", cmd.Flags().Lookup("gaslimit"))
+		cli.ErrCheck(viper.BindPFlag("gaslimit", cmd.Flags().Lookup("gaslimit")), quiet, "failed to bind flag")
 		if viper.GetInt("gaslimit") > 0 {
 			gasLimit = uint64(viper.GetInt("gaslimit"))
 		}
@@ -249,7 +249,7 @@ func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields, exi
 	}
 
 	if !viper.GetBool("wait") {
-		outputIf(!quiet, fmt.Sprintf("%s", tx.Hash().Hex()))
+		outputIf(!quiet, tx.Hash().Hex())
 		if exit {
 			os.Exit(exitSuccess)
 		} else {
@@ -309,23 +309,41 @@ func init() {
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ethereal.yaml)")
 	RootCmd.PersistentFlags().String("log", "", "log activity to the named file (default $HOME/ethereal.log).  Logs are written for every action that generates a transaction")
-	viper.BindPFlag("log", RootCmd.PersistentFlags().Lookup("log"))
+	if err := viper.BindPFlag("log", RootCmd.PersistentFlags().Lookup("log")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().Bool("quiet", false, "do not generate any output")
-	viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet"))
+	if err := viper.BindPFlag("quiet", RootCmd.PersistentFlags().Lookup("quiet")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().Bool("verbose", false, "generate additional output where appropriate")
-	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
+	if err := viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().Bool("debug", false, "generate debug output")
-	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
+	if err := viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().String("connection", "", "the custom IPC or RPC path to an Ethereum node (overrides network option).  If you are running your own local instance of Ethereum this might be /home/user/.ethereum/geth.ipc (IPC) or http://localhost:8545/ (RPC)")
-	viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection"))
+	if err := viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/rinkeby/goerli) (overridden by connection option)")
-	viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network"))
+	if err := viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().Duration("timeout", 30*time.Second, "the time after which a network request will be deemed to have failed.  Increase this if you are running on a error-prone, high-latency or low-bandwidth connection")
-	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
+	if err := viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().Bool("offline", false, "print the transaction a hex string and do not send it")
-	viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline"))
+	if err := viper.BindPFlag("offline", RootCmd.PersistentFlags().Lookup("offline")); err != nil {
+		panic(err)
+	}
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
-	viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets"))
+	if err := viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets")); err != nil {
+		panic(err)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -399,7 +417,7 @@ func currentNonce(address common.Address) (uint64, error) {
 		if err != nil {
 			return 0, fmt.Errorf("failed to obtain nonce for %s: %v", address.Hex(), err)
 		}
-		currentNonce = uint64(tmpNonce)
+		currentNonce = tmpNonce
 		nonce = int64(tmpNonce)
 	} else {
 		currentNonce = uint64(nonce)
@@ -449,7 +467,7 @@ func createTransaction(fromAddress common.Address, toAddress *common.Address, am
 		}
 	}
 
-	// TODO Gas price now that we know the gas limit?
+	// Could fetch gas price now that we know the gas limit?
 
 	// Create the transaction
 	if toAddress == nil {
@@ -472,25 +490,26 @@ func createSignedTransaction(fromAddress common.Address, toAddress *common.Addre
 	// Sign the transaction
 	signedTx, err = signTransaction(fromAddress, tx)
 	if err != nil {
-		err = fmt.Errorf("Failed to sign transaction: %v", err)
+		err = fmt.Errorf("failed to sign transaction: %v", err)
 		return
 	}
 
 	// Increment the nonce for the next transaction
-	nextNonce(fromAddress)
+	_, err = nextNonce(fromAddress)
+	if err != nil {
+		return
+	}
 
 	return
 }
 
-func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) {
+func generateTxOpts(sender common.Address) (*bind.TransactOpts, error) {
 	// Signer depends on what information is available to us
 	var signer bind.SignerFn
 	if viper.GetString("passphrase") != "" {
-		var wallet accounts.Wallet
-		var account *accounts.Account
-		wallet, account, err = cli.ObtainWalletAndAccount(chainID, sender)
+		wallet, account, err := cli.ObtainWalletAndAccount(chainID, sender)
 		if err != nil {
-			return
+			return nil, err
 		}
 		signer = util.AccountSigner(chainID, &wallet, account, viper.GetString("passphrase"))
 	} else if viper.GetString("privatekey") != "" {
@@ -499,8 +518,7 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		signer = util.KeySigner(chainID, key)
 	}
 	if signer == nil {
-		err = fmt.Errorf("no signer; please supply either passphrase or private key")
-		return
+		return nil, fmt.Errorf("no signer; please supply either passphrase or private key")
 	}
 
 	var value *big.Int
@@ -511,11 +529,11 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 
 	curNonce, err := currentNonce(sender)
 	if err != nil {
-		return
+		return nil, err
 	}
 	nonce = int64(curNonce)
 
-	opts = &bind.TransactOpts{
+	opts := &bind.TransactOpts{
 		From:     sender,
 		Signer:   signer,
 		GasPrice: gasPrice,
@@ -523,15 +541,16 @@ func generateTxOpts(sender common.Address) (opts *bind.TransactOpts, err error) 
 		//DoNotSend: offline,
 		Nonce: big.NewInt(0).SetInt64(nonce),
 	}
-
 	if gasLimit != 0 {
 		opts.GasLimit = gasLimit
 	}
-	return
+
+	return opts, nil
 }
 
 func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *types.Transaction, err error) {
-	if viper.GetString("passphrase") != "" {
+	switch {
+	case viper.GetString("passphrase") != "":
 		if wallet == nil {
 			// Fetch the wallet and account for the sender
 			wallet, account, err = cli.ObtainWalletAndAccount(chainID, signer)
@@ -540,7 +559,7 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 			}
 		}
 		signedTx, err = wallet.SignTxWithPassphrase(*account, viper.GetString("passphrase"), tx, chainID)
-	} else if viper.GetString("privatekey") != "" {
+	case viper.GetString("privatekey") != "":
 		var key *ecdsa.PrivateKey
 		key, err = crypto.HexToECDSA(strings.TrimPrefix(viper.GetString("privatekey"), "0x"))
 		cli.ErrCheck(err, quiet, "Invalid private key")
@@ -549,7 +568,7 @@ func signTransaction(signer common.Address, tx *types.Transaction) (signedTx *ty
 			return nil, errors.New("not authorized to sign this account")
 		}
 		signedTx, err = types.SignTx(tx, types.NewEIP155Signer(chainID), key)
-	} else {
+	default:
 		err = errors.New("no passphrase or private key; cannot sign")
 	}
 	return
@@ -566,8 +585,8 @@ func localContext() (context.Context, context.CancelFunc) {
 }
 
 func txFrom(tx *types.Transaction) (address common.Address, err error) {
-	V, _, _ := tx.RawSignatureValues()
-	signer := deriveSigner(V)
+	v, _, _ := tx.RawSignatureValues()
+	signer := deriveSigner(v)
 	address, err = types.Sender(signer, tx)
 	return
 }
@@ -586,19 +605,19 @@ func deriveChainID(v *big.Int) *big.Int {
 }
 
 // Stolen from geth code as this is not exposed
-func isProtectedV(V *big.Int) bool {
-	if V.BitLen() <= 8 {
-		v := V.Uint64()
-		return v != 27 && v != 28
+func isProtectedV(v *big.Int) bool {
+	if v.BitLen() <= 8 {
+		v2 := v.Uint64()
+		return v2 != 27 && v2 != 28
 	}
 	// anything not 27 or 28 are considered unprotected
 	return true
 }
 
 // Stolen from geth code as this is not exposed
-func deriveSigner(V *big.Int) types.Signer {
-	if V.Sign() != 0 && isProtectedV(V) {
-		return types.NewEIP155Signer(deriveChainID(V))
+func deriveSigner(v *big.Int) types.Signer {
+	if v.Sign() != 0 && isProtectedV(v) {
+		return types.NewEIP155Signer(deriveChainID(v))
 	}
 	return types.HomesteadSigner{}
 }

@@ -76,7 +76,7 @@ provided below:
 			key, err = crypto.HexToECDSA(strings.TrimPrefix(signatureSignPrivateKey, "0x"))
 			cli.ErrCheck(err, quiet, "Invalid private key")
 		} else {
-			cli.Err(quiet, fmt.Sprintf("no passphrase or private key; cannot sign"))
+			cli.Err(quiet, "no passphrase or private key; cannot sign")
 		}
 		signature, err = crypto.Sign(dataHash, key)
 		cli.ErrCheck(err, quiet, "Failed to sign data")

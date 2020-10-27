@@ -52,7 +52,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		// Fetch the controller of the name.
 		controller, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "cannot obtain owner")
-		cli.Assert(bytes.Compare(controller.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("controller of %s is not set", ensDomain))
+		cli.Assert(!bytes.Equal(controller.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("controller of %s is not set", ensDomain))
 		outputIf(debug, fmt.Sprintf("Controller is %s", controller.Hex()))
 
 		// Work out the owner of the subdomain.

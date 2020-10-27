@@ -64,7 +64,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			defer cancel()
 			result, err := client.CallContract(ctx, msg, nil)
 			cli.ErrCheck(err, quiet, "Call failed")
-			outputIf(!quiet, fmt.Sprintf("%x", []byte(result)))
+			outputIf(!quiet, fmt.Sprintf("%x", result))
 			os.Exit(exitSuccess)
 		}
 
@@ -99,7 +99,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			os.Exit(0)
 		}
 
-		outputIf(verbose, fmt.Sprintf("Result is %x", []byte(result)))
+		outputIf(verbose, fmt.Sprintf("Result is %x", result))
 
 		tmp, err := contract.Abi.Unpack(method.Name, result)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse output of %s: %v", method.Name, err))
@@ -108,9 +108,10 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		if len(method.Outputs) == 1 {
 			outputs[0] = tmp
 		} else {
-			for i, x := range tmp {
-				outputs[i] = x
-			}
+			copy(outputs, tmp)
+			//			for i, x := range tmp {
+			//				outputs[i] = x
+			//			}
 		}
 
 		results := []string{}

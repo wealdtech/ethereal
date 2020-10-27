@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"math/big"
 	"os"
@@ -65,6 +64,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			outputIf(debug, fmt.Sprintf("Registrar address is %#x", registrar.ContractAddr))
 
 			domain, err := ens.DomainPart(ensDomain, 1)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain domain part for %s", ensDomain))
 			registrant, err := registrar.Owner(domain)
 			if err != nil {
 				if err.Error() == "abi: attempting to unmarshall an empty string while arguments are expected" {
@@ -119,92 +119,6 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 func init() {
 	ensCmd.AddCommand(ensInfoCmd)
 	ensFlags(ensInfoCmd)
-}
-
-func availableInfo(name string) {
-	if len(name) < 11 { // 7 + 4 for '.eth'
-		fmt.Println("Unavailable due to name length restrictions")
-	} else {
-		fmt.Println("Available")
-	}
-}
-
-func biddingInfo(registrar *ens.AuctionRegistrar, name string) {
-	entry, err := registrar.Entry(name)
-	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
-
-	twoDaysAgo := time.Duration(-48) * time.Hour
-	fmt.Println("Bidding until", entry.Registration.Add(twoDaysAgo))
-}
-
-func revealingInfo(registrar *ens.AuctionRegistrar, name string) {
-	entry, err := registrar.Entry(name)
-	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
-
-	fmt.Println("Revealing until", entry.Registration)
-	// If the value is 0 then it is is minvalue instead
-	if entry.Value.Cmp(zero) == 0 {
-		entry.Value, _ = string2eth.StringToWei("0.01 ether")
-	}
-	fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
-	fmt.Println("Highest bid is", string2eth.WeiToString(entry.HighestBid, true))
-}
-
-func wonInfo(registrar *ens.AuctionRegistrar, name string) {
-	entry, err := registrar.Entry(name)
-	cli.ErrCheck(err, quiet, "Cannot obtain information for that name")
-
-	fmt.Println("Won since", entry.Registration)
-	if entry.Value.Cmp(zero) == 0 {
-		entry.Value, _ = string2eth.StringToWei("0.01 ether")
-	}
-	fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
-	fmt.Println("Highest bid was", string2eth.WeiToString(entry.HighestBid, true))
-
-	// Deed
-	deed, err := ens.NewDeedAt(client, entry.Deed)
-	cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
-	// Registrant
-	registrant, err := deed.Owner()
-	cli.ErrCheck(err, quiet, "Failed to obtain registrant")
-	registrantName, _ := ens.ReverseResolve(client, registrant)
-	if registrantName == "" {
-		fmt.Println("Registrant is", registrant.Hex())
-	} else {
-		fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
-	}
-}
-
-func ownedInfo(registrar *ens.AuctionRegistrar, name string) {
-	entry, err := registrar.Entry(name)
-	if err == nil {
-		fmt.Println("Registered since", entry.Registration)
-		fmt.Println("Locked value is", string2eth.WeiToString(entry.Value, true))
-		fmt.Println("Highest bid was", string2eth.WeiToString(entry.HighestBid, true))
-
-		// Deed
-		deed, err := ens.NewDeedAt(client, entry.Deed)
-		cli.ErrCheck(err, quiet, "Failed to obtain deed contract")
-		// Registrant
-		registrant, err := deed.Owner()
-		cli.ErrCheck(err, quiet, "Failed to obtain registrant")
-		registrantName, _ := ens.ReverseResolve(client, registrant)
-		if registrantName == "" {
-			fmt.Println("Registrant is", registrant.Hex())
-		} else {
-			fmt.Printf("Registrant is %s (%s)\n", registrantName, registrant.Hex())
-		}
-		previousRegistrant, err := deed.PreviousOwner()
-		cli.ErrCheck(err, quiet, "Failed to obtain previous registrant")
-		if bytes.Compare(previousRegistrant.Bytes(), ens.UnknownAddress.Bytes()) != 0 {
-			previousRegistrantName, _ := ens.ReverseResolve(client, previousRegistrant)
-			if previousRegistrantName == "" {
-				fmt.Println("Previous registrant is", previousRegistrant.Hex())
-			} else {
-				fmt.Printf("Previous registrant is %s (%s)\n", previousRegistrantName, previousRegistrant.Hex())
-			}
-		}
-	}
 }
 
 // It is possible for an unregistered domain to have a resolver; report if this is the case

@@ -141,6 +141,7 @@ func (l *methodListener) EnterArrayArg(c *parser.ArrayArgContext) {
 	}
 }
 
+// nolint:gocyclo
 func (l *methodListener) ExitArrayArg(c *parser.ArrayArgContext) {
 	if l.err == nil {
 		level := len(l.curArray)
@@ -373,89 +374,100 @@ func (l *methodListener) pushArg(arg interface{}) {
 	}
 }
 
+// nolint:gocyclo
 func makeArray(baseType *abi.Type, level int) (interface{}, error) {
-	if level == 2 {
-		switch baseType.T {
-		case abi.IntTy:
-			switch baseType.Size {
-			case 8:
-				return make([][]int8, 0), nil
-			case 16:
-				return make([][]int16, 0), nil
-			case 32:
-				return make([][]int32, 0), nil
-			case 64:
-				return make([][]int64, 0), nil
-			default:
-				return make([][]*big.Int, 0), nil
-			}
-		case abi.UintTy:
-			switch baseType.Size {
-			case 8:
-				return make([][]uint8, 0), nil
-			case 16:
-				return make([][]uint16, 0), nil
-			case 32:
-				return make([][]uint32, 0), nil
-			case 64:
-				return make([][]uint64, 0), nil
-			default:
-				return make([][]*big.Int, 0), nil
-			}
-		case abi.BoolTy:
-			return make([][]bool, 0), nil
-		case abi.StringTy:
-			return make([][]string, 0), nil
-		case abi.AddressTy:
-			return make([][]common.Address, 0), nil
-		case abi.HashTy:
-			return make([][]common.Hash, 0), nil
-		case abi.BytesTy, abi.FixedBytesTy:
-			return make([][][]byte, 0), nil
-		default:
-			return nil, fmt.Errorf("unhandled array type %v", baseType.T)
-		}
-	} else if level == 1 {
-		switch baseType.T {
-		case abi.IntTy:
-			switch baseType.Size {
-			case 8:
-				return make([]int8, 0), nil
-			case 16:
-				return make([]int16, 0), nil
-			case 32:
-				return make([]int32, 0), nil
-			case 64:
-				return make([]int64, 0), nil
-			default:
-				return make([]*big.Int, 0), nil
-			}
-		case abi.UintTy:
-			switch baseType.Size {
-			case 8:
-				return make([]uint8, 0), nil
-			case 16:
-				return make([]uint16, 0), nil
-			case 32:
-				return make([]uint32, 0), nil
-			case 64:
-				return make([]uint64, 0), nil
-			default:
-				return make([]*big.Int, 0), nil
-			}
-		case abi.BoolTy:
-			return make([]bool, 0), nil
-		case abi.StringTy:
-			return make([]string, 0), nil
-		case abi.AddressTy:
-			return make([]common.Address, 0), nil
-		case abi.HashTy:
-			return make([]common.Hash, 0), nil
-		case abi.BytesTy, abi.FixedBytesTy:
-			return make([][]byte, 0), nil
-		default:
-			return nil, fmt.Errorf("unhandled array type %v", baseType.T)
-		}
+	switch level {
+	case 1:
+		return makeArray1(baseType)
+	case 2:
+		return makeArray2(baseType)
+	default:
+		return nil, fmt.Errorf("unhandled nesting level %d", level)
 	}
-	return nil, fmt.Errorf("unhandled nesting level %d", level)
+}
+
+func makeArray2(baseType *abi.Type) (interface{}, error) {
+	switch baseType.T {
+	case abi.IntTy:
+		switch baseType.Size {
+		case 8:
+			return make([][]int8, 0), nil
+		case 16:
+			return make([][]int16, 0), nil
+		case 32:
+			return make([][]int32, 0), nil
+		case 64:
+			return make([][]int64, 0), nil
+		default:
+			return make([][]*big.Int, 0), nil
+		}
+	case abi.UintTy:
+		switch baseType.Size {
+		case 8:
+			return make([][]uint8, 0), nil
+		case 16:
+			return make([][]uint16, 0), nil
+		case 32:
+			return make([][]uint32, 0), nil
+		case 64:
+			return make([][]uint64, 0), nil
+		default:
+			return make([][]*big.Int, 0), nil
+		}
+	case abi.BoolTy:
+		return make([][]bool, 0), nil
+	case abi.StringTy:
+		return make([][]string, 0), nil
+	case abi.AddressTy:
+		return make([][]common.Address, 0), nil
+	case abi.HashTy:
+		return make([][]common.Hash, 0), nil
+	case abi.BytesTy, abi.FixedBytesTy:
+		return make([][][]byte, 0), nil
+	default:
+		return nil, fmt.Errorf("unhandled array type %v", baseType.T)
+	}
+}
+
+func makeArray1(baseType *abi.Type) (interface{}, error) {
+	switch baseType.T {
+	case abi.IntTy:
+		switch baseType.Size {
+		case 8:
+			return make([]int8, 0), nil
+		case 16:
+			return make([]int16, 0), nil
+		case 32:
+			return make([]int32, 0), nil
+		case 64:
+			return make([]int64, 0), nil
+		default:
+			return make([]*big.Int, 0), nil
+		}
+	case abi.UintTy:
+		switch baseType.Size {
+		case 8:
+			return make([]uint8, 0), nil
+		case 16:
+			return make([]uint16, 0), nil
+		case 32:
+			return make([]uint32, 0), nil
+		case 64:
+			return make([]uint64, 0), nil
+		default:
+			return make([]*big.Int, 0), nil
+		}
+	case abi.BoolTy:
+		return make([]bool, 0), nil
+	case abi.StringTy:
+		return make([]string, 0), nil
+	case abi.AddressTy:
+		return make([]common.Address, 0), nil
+	case abi.HashTy:
+		return make([]common.Hash, 0), nil
+	case abi.BytesTy, abi.FixedBytesTy:
+		return make([][]byte, 0), nil
+	default:
+		return nil, fmt.Errorf("unhandled array type %v", baseType.T)
+	}
 }

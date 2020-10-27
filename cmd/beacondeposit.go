@@ -50,16 +50,6 @@ var beaconDepositAllowDuplicateDeposit bool
 var beaconDepositContractAddress string
 var beaconDepositEth2Network string
 
-type ethdoDepositData struct {
-	Account               string `json:"account"`
-	PublicKey             string `json:"pubkey"`
-	WithdrawalCredentials string `json:"withdrawal_credentials"`
-	Signature             string `json:"signature"`
-	DepositDataRoot       string `json:"deposit_data_root"`
-	Value                 uint64 `json:"value"`
-	Version               uint64 `json:"version"`
-}
-
 type beaconDepositContract struct {
 	network     string
 	chainID     *big.Int
@@ -147,6 +137,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		cli.Assert(beaconDepositData != "", quiet, "--data is required")
 		depositInfo, err := loadDepositInfo(beaconDepositData)
+		cli.ErrCheck(err, quiet, "failed to load deposit info")
 
 		// Fetch the contract details.
 		cli.Assert(beaconDepositContractAddress != "" || beaconDepositEth2Network != "", quiet, "one of --address or --eth2network is required")
@@ -195,13 +186,14 @@ func loadDepositInfo(input string) ([]*util.DepositInfo, error) {
 	var err error
 	var data []byte
 	// Input could be JSON or a path to JSON
-	if strings.HasPrefix(input, "{") {
+	switch {
+	case strings.HasPrefix(input, "{"):
 		// Looks like JSON
 		data = []byte("[" + input + "]")
-	} else if strings.HasPrefix(input, "[") {
+	case strings.HasPrefix(input, "["):
 		// Looks like JSON array
 		data = []byte(input)
-	} else {
+	default:
 		// Assume it's a path to JSON
 		data, err = ioutil.ReadFile(input)
 		if err != nil {
@@ -259,7 +251,7 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 		// https://raw.githubusercontent.com/runtimeverification/deposit-contract-verification/master/deposit-contract-verification.pdf
 		opts.GasLimit = 160000
 
-		// TODO recalculate signature to ensure correcteness (needs a pure Go BLS implementation).
+		// Would be good to recalculate signature to ensure correcteness, but need a pure Go BLS implementation.
 
 		// Check thegraph to see if there is already a deposit for this validator public key.
 		if contractDetails.subgraph != "" {
@@ -290,6 +282,7 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdrawalCredentials []byte) error {
 	query := fmt.Sprintf(`{"query": "{deposits(where: {validatorPubKey:\"%#x\"}) { id amount withdrawalCredentials }}"}`, validatorPubKey)
 	url := fmt.Sprintf("https://api.thegraph.com/subgraphs/name/%s", subgraph)
+	// #nosec G107
 	graphResp, err := http.Post(url, "application/json", bytes.NewBufferString(query))
 	if err != nil {
 		return errors.Wrap(err, "failed to check if there is already a deposit for this validator")

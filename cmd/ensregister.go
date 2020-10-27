@@ -57,7 +57,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 		cli.Assert(ensRegisterOwnerStr != "", quiet, "--owner is required")
 		owner, err := ens.Resolve(client, ensRegisterOwnerStr)
 		cli.ErrCheck(err, quiet, "Failed to obtain new owner address")
-		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Unknown owner")
+		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Unknown owner")
 
 		cli.Assert(viper.GetString("value") != "", quiet, "--value is required")
 		value, err := string2eth.StringToWei(viper.GetString("value"))
@@ -131,7 +131,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 				"secret":    hex.EncodeToString(secret[:]),
 			})
 			outputIf(verbose, fmt.Sprintf("Commit transaction %x submitted for %s", lastTx.Hash(), domain))
-			nextNonce(owner)
+			_, err = nextNonce(owner)
+			cli.ErrCheck(err, quiet, "failed to increment nonce")
 		}
 
 		// Wait
@@ -160,7 +161,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 				"secret":    hex.EncodeToString(secret[:]),
 			})
 			outputIf(verbose, fmt.Sprintf("Reveal transaction %x submitted for %s", lastTx.Hash(), domain))
-			nextNonce(owner)
+			_, err = nextNonce(owner)
+			cli.ErrCheck(err, quiet, "failed to increment nonce")
 		}
 		handleSubmittedTransaction(lastTx, nil, true)
 	},

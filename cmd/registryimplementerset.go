@@ -51,6 +51,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		implementerContract, err := erc1820.NewImplementer(client, &implementer)
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 implementer contract")
 		implementsIface, err := implementerContract.ImplementsInterface(registryImplementerInterface, &address)
+		cli.ErrCheck(err, quiet, "failed to check if contract implements ERC-1820")
 		cli.Assert(implementsIface, quiet, "implementer does not implement that interface for that address")
 
 		registry, err := erc1820.NewRegistry(client)

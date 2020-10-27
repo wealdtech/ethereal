@@ -65,7 +65,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		domainOwner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
-		cli.Assert(bytes.Compare(domainOwner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Owner is not set")
+		cli.Assert(!bytes.Equal(domainOwner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, domainOwner)))
 
 		// Obtain DNS resolver for the domain
@@ -135,7 +135,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		if offline {
 			if !quiet {
 				buf := new(bytes.Buffer)
-				signedTx.EncodeRLP(buf)
+				cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 			os.Exit(exitSuccess)

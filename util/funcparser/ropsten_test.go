@@ -165,7 +165,6 @@ func TestRopsten(t *testing.T) {
 		ctx := context.Background()
 		result, err := conn.CallContract(ctx, msg, nil)
 		assert.Nil(t, err, fmt.Sprintf("failed to call contract at test %d", i))
-		// TODO confirm the output
-		fmt.Sprintf("%v", result)
+		assert.NotNil(t, result)
 	}
 }

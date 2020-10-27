@@ -71,7 +71,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		if offline {
 			if !quiet {
 				buf := new(bytes.Buffer)
-				signedTx.EncodeRLP(buf)
+				cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 			os.Exit(exitSuccess)

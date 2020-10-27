@@ -49,7 +49,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		// Fetch the owner of the name
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
-		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
+		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		// Set the resolver from either command-line or default
 		var resolverAddress common.Address
@@ -58,7 +58,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			cli.ErrCheck(err, quiet, fmt.Sprintf("No public resolver for network id %v", chainID))
 		} else {
 			resolverAddress, err = ens.Resolve(client, ensResolverSetResolverStr)
-			cli.Assert(bytes.Compare(resolverAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Invalid resolver; if you are trying to clear an existing resolver use \"ens resolver clear\"")
+			cli.Assert(!bytes.Equal(resolverAddress.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Invalid resolver; if you are trying to clear an existing resolver use \"ens resolver clear\"")
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 		}
 

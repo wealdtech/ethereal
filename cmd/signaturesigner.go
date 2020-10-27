@@ -44,9 +44,10 @@ In quiet mode this will return 0 if the signature provides a valid signer, other
 		signature, err := hex.DecodeString(strings.TrimPrefix(signatureSignerSignature, "0x"))
 		cli.ErrCheck(err, quiet, "Invalid signature")
 
-		key, err := crypto.SigToPub(dataHash, []byte(signature))
+		key, err := crypto.SigToPub(dataHash, signature)
 		cli.ErrCheck(err, quiet, "Failed to signer signature")
 		cli.Assert(key != nil, quiet, "Invalid signature")
+		// nolint:staticcheck
 		address := crypto.PubkeyToAddress(*key)
 
 		if quiet {

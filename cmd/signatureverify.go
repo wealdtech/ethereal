@@ -46,15 +46,15 @@ In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 		signature, err := hex.DecodeString(strings.TrimPrefix(signatureVerifySignature, "0x"))
 		cli.ErrCheck(err, quiet, "Invalid signature")
 
-		key, err := crypto.SigToPub(dataHash, []byte(signature))
+		key, err := crypto.SigToPub(dataHash, signature)
 		cli.ErrCheck(err, quiet, "Failed to signer signature")
 		cli.Assert(key != nil, quiet, "Invalid signature")
+		// nolint:staticcheck
 		signer := crypto.PubkeyToAddress(*key)
 
 		verifySigner := common.HexToAddress(signatureVerifySigner)
 
-		verified := bytes.Compare(signer.Bytes(), verifySigner.Bytes()) == 0
-		if verified {
+		if bytes.Equal(signer.Bytes(), verifySigner.Bytes()) {
 			outputIf(!quiet, "Verified")
 			os.Exit(exitSuccess)
 		} else {

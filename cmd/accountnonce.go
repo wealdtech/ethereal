@@ -29,7 +29,7 @@ var accountNonceAddress string
 var accountNonceCmd = &cobra.Command{
 	Use:   "nonce",
 	Short: "Obtain the current nonce for an account",
-	Long: `Obtain the current nonce for an account, taking in to account pending transctions.  For example:
+	Long: `Obtain the current nonce for an account, taking in to account pending transactions.  For example:
 
     ethereal account nonce --address=0x5FfC014343cd971B7eb70732021E26C35B744cc4
 

@@ -13,7 +13,10 @@ import (
 func DNSDomainHash(domain string) (hash [32]byte) {
 	lower := strings.ToLower(domain)
 	sha := sha3.NewLegacyKeccak256()
-	sha.Write([]byte(lower))
+	_, err := sha.Write([]byte(lower))
+	if err != nil {
+		panic(err)
+	}
 	sha.Sum(hash[:0])
 	return
 }
@@ -21,7 +24,10 @@ func DNSDomainHash(domain string) (hash [32]byte) {
 // DNSWireFormatDomainHash hashes a domain name in wire format
 func DNSWireFormatDomainHash(domain string) (hash [32]byte) {
 	sha := sha3.NewLegacyKeccak256()
-	sha.Write(DNSWireFormat(domain))
+	_, err := sha.Write(DNSWireFormat(domain))
+	if err != nil {
+		panic(err)
+	}
 	sha.Sum(hash[:0])
 	return
 }
@@ -43,7 +49,7 @@ func DNSWireFormat(domain string) []byte {
 	for _, piece := range pieces {
 		bytes[offset] = byte(len(piece))
 		offset++
-		copy(bytes[offset:offset+len(piece)], []byte(piece))
+		copy(bytes[offset:offset+len(piece)], piece)
 		offset += len(piece)
 	}
 	return bytes

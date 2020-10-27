@@ -74,7 +74,8 @@ This will return an exit status of 0 if the transactions are successfully submit
 			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 			signedTx, err := auctionRegistrar.Release(opts, domain)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
-			nextNonce(owner)
+			_, err = nextNonce(owner)
+			cli.ErrCheck(err, quiet, "failed to increment nonce")
 
 			handleSubmittedTransaction(signedTx, log.Fields{
 				"group":     "ens",

@@ -22,8 +22,6 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var ensTextGetRaw bool
-
 // ensTextGetCmd represents the text get command
 var ensTextGetCmd = &cobra.Command{
 	Use:   "get",

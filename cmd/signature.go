@@ -63,9 +63,9 @@ func generateDataHash() []byte {
 					hexStr += fmt.Sprintf(fmt.Sprintf("%%0%dx", args[i].Type.Size/4), vals[i])
 				case abi.BoolTy:
 					if vals[i].(bool) {
-						hexStr += fmt.Sprintf("01")
+						hexStr += "01"
 					} else {
-						hexStr += fmt.Sprintf("00")
+						hexStr += "00"
 					}
 				case abi.StringTy:
 					hexStr += fmt.Sprintf("%x", vals[i].(string))

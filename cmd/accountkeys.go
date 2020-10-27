@@ -16,12 +16,10 @@ package cmd
 import (
 	"crypto/ecdsa"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
@@ -32,37 +30,6 @@ import (
 var accountKeysAddress string
 var accountKeysPassphrase string
 var accountKeysPrivateKey string
-
-const (
-	keyHeaderKDF = "scrypt"
-
-	// StandardScryptN is the N parameter of Scrypt encryption algorithm, using 256MB
-	// memory and taking approximately 1s CPU time on a modern processor.
-	StandardScryptN = 1 << 18
-
-	// StandardScryptP is the P parameter of Scrypt encryption algorithm, using 256MB
-	// memory and taking approximately 1s CPU time on a modern processor.
-	StandardScryptP = 1
-
-	// LightScryptN is the N parameter of Scrypt encryption algorithm, using 4MB
-	// memory and taking approximately 100ms CPU time on a modern processor.
-	LightScryptN = 1 << 12
-
-	// LightScryptP is the P parameter of Scrypt encryption algorithm, using 4MB
-	// memory and taking approximately 100ms CPU time on a modern processor.
-	LightScryptP = 6
-
-	scryptR     = 8
-	scryptDKLen = 32
-
-	version = 3
-)
-
-var (
-	errLocked  = accounts.NewAuthNeededError("password or unlock")
-	errNoMatch = errors.New("no key for given address or file")
-	errDecrypt = errors.New("could not decrypt key with given passphrase")
-)
 
 // accountKeysCmd represents the account keys command
 var accountKeysCmd = &cobra.Command{

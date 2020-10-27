@@ -24,9 +24,6 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var contractStorageFromAddress string
-var contractStorageCall string
-var contractStorageReturns string
 var contractStorageKey string
 
 // contractStorageCmd represents the contract storage command
@@ -44,8 +41,7 @@ In quiet mode this will return 0 if the storage contains a non-zero value, other
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
 
 		cli.Assert(contractStorageKey != "", quiet, "--key is required")
-		var hash common.Hash
-		hash = common.HexToHash(strings.TrimPrefix(contractStorageKey, "0x"))
+		hash := common.HexToHash(strings.TrimPrefix(contractStorageKey, "0x"))
 		ctx, cancel := localContext()
 		defer cancel()
 		value, err := client.StorageAt(ctx, contractAddress, hash, nil)

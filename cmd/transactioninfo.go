@@ -82,7 +82,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 
 		if transactionInfoRaw {
 			buf := new(bytes.Buffer)
-			tx.EncodeRLP(buf)
+			cli.ErrCheck(tx.EncodeRLP(buf), quiet, "failed to encode transaction")
 			fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			os.Exit(exitSuccess)
 		}

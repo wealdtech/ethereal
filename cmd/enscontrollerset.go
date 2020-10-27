@@ -46,11 +46,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		// Fetch the controller of the name
 		controller, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain current controller")
-		cli.Assert(bytes.Compare(controller.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("%s has no controller", ensDomain))
+		cli.Assert(!bytes.Equal(controller.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("%s has no controller", ensDomain))
 
 		cli.Assert(ensControllerSetControllerStr != "", quiet, "--controller is required")
 		newControllerAddress, err := ens.Resolve(client, ensControllerSetControllerStr)
-		cli.Assert(bytes.Compare(newControllerAddress.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, "Attempt to set controller to 0x00 disallowed")
+		cli.Assert(!bytes.Equal(newControllerAddress.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Attempt to set controller to 0x00 disallowed")
 		cli.ErrCheck(err, quiet, "Failed to obtain new controller address")
 
 		opts, err := generateTxOpts(controller)

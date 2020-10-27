@@ -51,6 +51,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		// Obtain the registrant
 		domain, err := ens.DomainPart(ensDomain, 1)
+		cli.ErrCheck(err, quiet, fmt.Sprintf("failed to obtain domain for %s", ensDomain))
 		// Work out if this is on the old or new registrar
 		location, err := registrar.RegisteredWith(ensDomain)
 		cli.ErrCheck(err, quiet, "Failed to obtain domain location")

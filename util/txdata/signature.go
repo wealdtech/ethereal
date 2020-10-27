@@ -77,7 +77,7 @@ func (f *function) String() string {
 	for i, param := range f.params {
 		buffer.WriteString(param)
 		if i < len(f.params)-1 {
-			buffer.WriteString(fmt.Sprintf(","))
+			buffer.WriteString(",")
 		}
 	}
 	buffer.WriteString(")")
@@ -107,9 +107,9 @@ func DataToString(client *ethclient.Client, input []byte) string {
 			if err != nil {
 				res = err.Error()
 			}
-			buffer.WriteString(fmt.Sprintf("%s", res))
+			buffer.WriteString(res)
 			if i < len(function.params)-1 {
-				buffer.WriteString(fmt.Sprintf(","))
+				buffer.WriteString(",")
 			}
 		}
 	}
@@ -147,9 +147,9 @@ func EventToString(client *ethclient.Client, input *types.Log) string {
 			if err != nil {
 				res = err.Error()
 			}
-			buffer.WriteString(fmt.Sprintf("%s", res))
+			buffer.WriteString(res)
 			if i < len(function.params)-1 {
-				buffer.WriteString(fmt.Sprintf(","))
+				buffer.WriteString(",")
 			}
 		}
 	}
@@ -230,7 +230,10 @@ func AddFunctionSignature(signature string) {
 
 	var hash [32]byte
 	sha := sha3.NewLegacyKeccak256()
-	sha.Write([]byte(signature))
+	_, err := sha.Write([]byte(signature))
+	if err != nil {
+		return
+	}
 	sha.Sum(hash[:0])
 	var sig [4]byte
 	copy(sig[:], hash[:4])
@@ -257,7 +260,10 @@ func AddEventSignature(signature string) {
 
 	var hash [32]byte
 	sha := sha3.NewLegacyKeccak256()
-	sha.Write([]byte(signature))
+	_, err := sha.Write([]byte(signature))
+	if err != nil {
+		return
+	}
 	sha.Sum(hash[:0])
 	var sig [4]byte
 	copy(sig[:], hash[:4])

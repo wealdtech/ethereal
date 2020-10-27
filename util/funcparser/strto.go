@@ -78,7 +78,7 @@ func StrToInt(inputType *abi.Type, input string) (interface{}, error) {
 	case 32:
 		return int32(val.Int64()), nil
 	case 64:
-		return int64(val.Int64()), nil
+		return val.Int64(), nil
 	case 256:
 		return val, nil
 	default:
@@ -140,6 +140,7 @@ func StrToHash(inputType *abi.Type, input string) (common.Hash, error) {
 
 // StrToBytes turns a string in to a bytes type as given by the ABI information.
 // It can return various types so return interface{}
+// nolint:gocyclo
 func StrToBytes(inputType *abi.Type, input string) (interface{}, error) {
 	decoded, err := hex.DecodeString(strings.TrimPrefix(input, "0x"))
 	if err != nil {

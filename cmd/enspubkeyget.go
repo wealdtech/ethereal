@@ -41,8 +41,6 @@ In quiet mode this will return 0 if the name has a public key, otherwise 1.`,
 
 		x, y, err := resolver.PubKey()
 		cli.ErrCheck(err, quiet, "Failed to obtain public key for that domain")
-		// TODO
-		//		cli.Assert(len(value) > 0, quiet, "No public key for that domain")
 		if !quiet {
 			fmt.Printf("(0x%032x,0x%032x)\n", x, y)
 		}

@@ -30,9 +30,5 @@ func TestParseCombinedJSON(t *testing.T) {
 		if err != tt.inputErr {
 			t.Errorf("Failure: parsing resulted in %v (expected %v)", err, tt.inputErr)
 		}
-		//fmt.Printf("Result is %v\n", result)
-		//		if tt.output != result {
-		//			t.Errorf("Failure: (%v, %v, %v) => %v (expected %v)\n", tt.input, tt.decimals, tt.usePrefix, result, tt.output)
-		//		}
 	}
 }

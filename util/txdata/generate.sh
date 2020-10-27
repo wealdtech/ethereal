@@ -22,6 +22,7 @@ cat >${OUTPUT} <<EOSTART
 package txdata
 
 // InitFunctionMap initialises the function (and event) map with known signatures
+// nolint:misspell
 func InitFunctionMap() {
     functions = make(map[[4]byte]function)
     events = make(map[[32]byte]function)

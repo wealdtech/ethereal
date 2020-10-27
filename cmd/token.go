@@ -42,7 +42,7 @@ func tokenContractAddress(input string) (address common.Address, err error) {
 		address, err = ens.Resolve(client, input+".thetoken.eth")
 		if err != nil {
 			// Give up
-			err = fmt.Errorf("Unknown token %s", input)
+			err = fmt.Errorf("unknown token %s", input)
 		}
 	}
 	return

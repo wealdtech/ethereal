@@ -84,13 +84,14 @@ func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, er
 
 func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
 	keydir := DefaultDataDir()
-	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
+	switch {
+	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
 		// Nothing to add for mainnet
-	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
+	case chainID.Cmp(params.RopstenChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "testnet")
-	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
+	case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "rinkeby")
-	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -104,13 +105,14 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 
 func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	keydir := DefaultDataDir()
-	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
+	switch {
+	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
 		// Nothing to add for mainnet
-	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
+	case chainID.Cmp(params.RopstenChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "testnet")
-	} else if chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0 {
+	case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "rinkeby")
-	} else if chainID.Cmp(params.GoerliChainConfig.ChainID) == 0 {
+	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "goerli")
 	}
 	keydir = filepath.Join(keydir, "keystore")
@@ -123,16 +125,17 @@ func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
 	keydir, err := homedir.Dir()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to find home directory")
+		return nil, fmt.Errorf("failed to find home directory")
 	}
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		keydir = filepath.Join(keydir, "AppData\\Roaming\\Parity\\Ethereum\\keys")
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		keydir = filepath.Join(keydir, "Library/Application Support/io.parity.ethereum/keys")
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys")
-	} else {
-		return nil, fmt.Errorf("Unsupported operating system")
+	default:
+		return nil, fmt.Errorf("unsupported operating system")
 	}
 
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
@@ -152,16 +155,17 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 	keydir, err := homedir.Dir()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to find home directory")
+		return nil, fmt.Errorf("failed to find home directory")
 	}
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		keydir = filepath.Join(keydir, "AppData\\Roaming\\Parity\\Ethereum\\keys")
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		keydir = filepath.Join(keydir, "Library/Application Support/io.parity.ethereum/keys")
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys")
-	} else {
-		return nil, fmt.Errorf("Unsupported operating system")
+	default:
+		return nil, fmt.Errorf("unsupported operating system")
 	}
 
 	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
@@ -188,10 +192,14 @@ func obtainLedgerWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 
 	usbWallets := viper.GetInt("usbwallets")
 	for _, wallet := range accountManager.Wallets() {
-		wallet.Open("")
+		err = wallet.Open("")
+		if err != nil {
+			continue
+		}
 		path := accounts.LegacyLedgerBaseDerivationPath
 		for i := 0; i < usbWallets; i++ {
 			path[3] = uint32(i)
+			// nolint:errcheck
 			wallet.Derive(path, true)
 		}
 	}

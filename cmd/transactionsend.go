@@ -57,7 +57,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				// Data is a file.
 				data, err := ioutil.ReadFile(transactionSendRaw)
 				cli.ErrCheck(err, quiet, "Failed to read raw transaction from filesystem")
-				lines := bytes.Split(bytes.Replace(data, []byte("\r\n"), []byte("\n"), -1), []byte("\n"))
+				lines := bytes.Split(bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")), []byte("\n"))
 				for i := range lines {
 					if len(lines[i]) > 2 {
 						data, err := hex.DecodeString(strings.TrimPrefix(string(lines[i]), "0x"))
@@ -147,7 +147,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			if offline {
 				if !quiet {
 					buf := new(bytes.Buffer)
-					signedTx.EncodeRLP(buf)
+					cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
 				os.Exit(exitSuccess)

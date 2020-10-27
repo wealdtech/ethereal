@@ -177,7 +177,7 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.UintTy:
 		return fmt.Sprintf("%v", val), nil
 	case abi.BoolTy:
-		if val.(bool) == true {
+		if val.(bool) {
 			return "true", nil
 		}
 		return "false", nil

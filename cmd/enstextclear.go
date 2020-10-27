@@ -46,7 +46,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		// Fetch the owner of the name
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
-		cli.Assert(bytes.Compare(owner.Bytes(), ens.UnknownAddress.Bytes()) != 0, quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
+		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		// Obtain the resolver for this name
 		resolver, err := ens.NewResolver(client, ensDomain)
