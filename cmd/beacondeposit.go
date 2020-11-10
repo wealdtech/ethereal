@@ -115,6 +115,15 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		maxVersion:  3,
 		subgraph:    "attestantio/eth2deposits-zinken",
 	},
+	{
+		network:     "Mainnet",
+		chainID:     big.NewInt(1),
+		address:     util.MustDecodeHexString("0x00000000219ab540356cBB839Cbe05303d7705Fa"),
+		forkVersion: []byte{0x00, 0x00, 0x00, 0x00},
+		minVersion:  2,
+		maxVersion:  3,
+		subgraph:    "attestantio/eth2deposits",
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command
@@ -247,7 +256,7 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 		opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
 
 		// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
-		// This is just above the maximum gas possible used by the contract, as calculated in
+		// This is just above the maximum gas possible used by the contract, as calculated in section 4.2 of
 		// https://raw.githubusercontent.com/runtimeverification/deposit-contract-verification/master/deposit-contract-verification.pdf
 		opts.GasLimit = 160000
 
@@ -390,6 +399,6 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowExcessiveDeposit, "allow-excessive-deposit", false, "Allow sending more than 32 Ether in a single deposit (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The address to which to send the deposit (overrides network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "medalla", "The name of the network to send the deposit to (topaz/onyx/altona/medalla/spadina/zinken)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the network to send the deposit to (mainnet/topaz/onyx/altona/medalla/spadina/zinken)")
 	addTransactionFlags(beaconDepositCmd, "passphrase for the account that owns the account")
 }
