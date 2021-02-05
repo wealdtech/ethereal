@@ -10,6 +10,9 @@ A command-line tool for managing common tasks in Ethereum.
 ## Table of Contents
 
 - [Install](#install)
+  - [Binaries](#binaries)
+  - [Docker](#docker)
+  - [Source](#source)
 - [Usage](#usage)
 - [Maintainers](#maintainers)
 - [Contribute](#contribute)
@@ -17,14 +20,46 @@ A command-line tool for managing common tasks in Ethereum.
 
 ## Install
 
+### Binaries
 
+Binaries for the latest version of `ethereal` can be obtained from [the releases page](https://github.com/wealdtech/ethereal/releases).
+
+### Docker
+
+You can obtain the latest version of `ethereal` using docker with:
+
+```
+docker pull wealdtech/ethereal
+```
+
+### Source
 `ethereal` is a standard Go program which can be installed with:
 
 ```sh
-GO111MODULE=on go get github.com/wealdtech/ethereal@latest
+GO111MODULE=on go get github.com/wealdtech/ethereal
 ```
 
 Note that `ethereal` requires at least version 1.13 of go to operate.  The version of go can be found with `go version`.
+
+The docker image can be built locally with:
+
+```sh
+docker build -t ethereal .
+```
+
+You can run `ethereal` using docker after that. Example:
+
+```sh
+docker run -it ethereal --help
+```
+
+Note that that many `ethereal` commands connect to an Ethereum node to obtain information or send transactions.  If the Ethereum 1 node is running directly on the server this requires the `--network=host` command, for example:
+
+```sh
+docker run --network=host etheral chain status
+```
+
+Alternatively, if the Ethereum node is running in a separate docker container a shared network can be created with `docker network create eth2` and accessed by adding `--network=eth` added to both the beacon node and `ethereal` containers.
 
 ## Usage
 
