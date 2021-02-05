@@ -1,0 +1,156 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+       go get -v -t -d ./...
+       if [ -f Gopkg.toml ]; then
+         curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+         dep ensure
+       fi
+
+    - name: Set env
+      run: |
+       echo "GO111MODULE=on" >> $GITHUB_ENV
+       # Release tag comes from the github reference.
+       RELEASE_TAG=$(echo ${GITHUB_REF} | sed -e 's!.*/!!')
+       echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
+       echo "::set-output name=RELEASE_TAG::${RELEASE_TAG}"
+       # Ensure the release tag has expected format.
+       echo ${RELEASE_TAG} | grep -q '^v' || exit 1
+       # Release version is same as release tag without leading 'v'.
+       RELEASE_VERSION=$(echo ${GITHUB_REF} | sed -e 's!.*/v!!')
+       echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_ENV
+       echo "::set-output name=RELEASE_VERSION::${RELEASE_VERSION}"
+
+    - name: Build
+      run: go build -v -ldflags="-X github.com/wealdtech/ethereal/cmd.ReleaseVersion=${RELEASE_VERSION}" .
+
+    - name: Test
+      run: go test -v .
+
+    - name: Fetch xgo
+      run: |
+       go get github.com/suburbandad/xgo
+
+    - name: Cross-compile linux
+      run: |
+        xgo -v -x -ldflags="-X github.com/wealdtech/ethereal/cmd.ReleaseVersion=${RELEASE_VERSION}" --targets="linux/amd64,linux/arm64" github.com/wealdtech/ethereal
+
+    - name: Cross-compile windows
+      run: |
+        xgo -v -x -ldflags="-X github.com/wealdtech/ethereal/cmd.ReleaseVersion=${RELEASE_VERSION} -s -w -extldflags -static" --targets="windows/amd64" github.com/wealdtech/ethereal
+
+    - name: Create windows release files
+      run: |
+       mv ethereal-windows-4.0-amd64.exe ethereal.exe
+       sha256sum ethereal.exe >ethereal-${RELEASE_VERSION}-windows.sha256
+       zip --junk-paths ethereal-${RELEASE_VERSION}-windows-exe.zip ethereal.exe
+
+    - name: Create linux AMD64 tgz file
+      run: |
+       mv ethereal-linux-amd64 ethereal
+       sha256sum ethereal >ethereal-${RELEASE_VERSION}-linux-amd64.sha256
+       tar zcf ethereal-${RELEASE_VERSION}-linux-amd64.tar.gz ethereal
+
+    - name: Create linux ARM64 tgz file
+      run: |
+       mv ethereal-linux-arm64 ethereal
+       sha256sum ethereal >ethereal-${RELEASE_VERSION}-linux-arm64.sha256
+       tar zcf ethereal-${RELEASE_VERSION}-linux-arm64.tar.gz ethereal
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ env.RELEASE_VERSION }}
+        draft: true
+        prerelease: false
+
+    - name: Upload windows checksum file
+      id: upload-release-asset-windows-checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ethereal-${{ env.RELEASE_VERSION }}-windows.sha256
+        asset_name: ethereal-${{ env.RELEASE_VERSION }}-windows.sha256
+        asset_content_type: text/plain
+
+    - name: Upload windows zip file
+      id: upload-release-asset-windows
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ethereal-${{ env.RELEASE_VERSION }}-windows-exe.zip
+        asset_name: ethereal-${{ env.RELEASE_VERSION }}-windows-exe.zip
+        asset_content_type: application/zip
+
+    - name: Upload linux AMD64 checksum file
+      id: upload-release-asset-linux-amd64-checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ethereal-${{ env.RELEASE_VERSION }}-linux-amd64.sha256
+        asset_name: ethereal-${{ env.RELEASE_VERSION }}-linux-amd64.sha256
+        asset_content_type: text/plain
+
+    - name: Upload linux AMD64 tgz file
+      id: upload-release-asset-linux-amd64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ethereal-${{ env.RELEASE_VERSION }}-linux-amd64.tar.gz
+        asset_name: ethereal-${{ env.RELEASE_VERSION }}-linux-amd64.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload linux ARM64 checksum file
+      id: upload-release-asset-linux-arm64-checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ethereal-${{ env.RELEASE_VERSION }}-linux-arm64.sha256
+        asset_name: ethereal-${{ env.RELEASE_VERSION }}-linux-arm64.sha256
+        asset_content_type: text/plain
+
+    - name: Upload linux ARM64 tgz file
+      id: upload-release-asset-linux-arm64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./ethereal-${{ env.RELEASE_VERSION }}-linux-arm64.tar.gz
+        asset_name: ethereal-${{ env.RELEASE_VERSION }}-linux-arm64.tar.gz
+        asset_content_type: application/gzip
