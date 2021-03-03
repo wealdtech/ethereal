@@ -83,6 +83,8 @@ Ethereal supports all main Ethereum networks  It auto-detects the network by que
 
 Ethereal contains default connections via Infura to most major networks that can be defined by the `--network` argument.  Supported neworks are mainnet, ropsten, kovan, rinkeby and goerli.  Alternatively a connection to a custom node can be created using the `--connection` argument.  For example a local IPC node might use `--connection=/home/ethereum/.ethereum/geth.ipc` or `--connection=http://localhost:8545/`
 
+The Infura key for Ethereal is shared among all users.  If you are going to carry out a lot of queries of chain data please either use a local node or your own Infura account.
+
 ### Configuration file
 
 Ethereal supports a configuration file; by default in the user's home directory but changeable with the `--config` argument on the command line.  The configuration file provides values that override the defaults but themselves can be overridden with command-line arguments.
