@@ -31,6 +31,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/cli"
 	"github.com/wealdtech/ethereal/util"
 	"github.com/wealdtech/ethereal/util/contracts"
@@ -79,6 +80,15 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		minVersion:  3,
 		maxVersion:  3,
 		subgraph:    "attestantio/eth2deposits-pyrmont",
+	},
+	{
+		network:     "Pater",
+		chainID:     big.NewInt(5),
+		address:     util.MustDecodeHexString("0xff50ed3d0ec03aC01D4C79aAd74928BFF48a7b2b"),
+		forkVersion: []byte{0x00, 0x00, 0x10, 0x20},
+		minVersion:  3,
+		maxVersion:  3,
+		subgraph:    "attestantio/eth2deposits-pater",
 	},
 }
 
@@ -205,7 +215,14 @@ func sendOffline(deposits []*util.DepositInfo, contractDetails *beaconDepositCon
 		copy(depositDataRoot[:], deposit.DepositDataRoot)
 		dataBytes, err := abi.Pack("deposit", deposit.PublicKey, deposit.WithdrawalCredentials, deposit.Signature, depositDataRoot)
 		cli.ErrCheck(err, quiet, "Failed to create deposit transaction")
-		value := new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+		var value *big.Int
+		if deposit.Amount == 0 {
+			cli.Assert(viper.GetString("value") != "", quiet, "No value from either deposit data or command line; cannot create transaction")
+			value, err = string2eth.StringToWei(viper.GetString("value"))
+			cli.ErrCheck(err, quiet, "Failed to understand value")
+		} else {
+			value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+		}
 		signedTx, err := createSignedTransaction(fromAddress, &address, value, 500000, dataBytes)
 		cli.ErrCheck(err, quiet, "Failed to create signed transaction")
 		buf := new(bytes.Buffer)
@@ -226,8 +243,14 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 	for _, deposit := range deposits {
 		opts, err := generateTxOpts(fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate deposit options")
-		// Need to override the value with the info from the JSON
-		opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+		// Need to override the value with the info from the JSON (if present).
+		if deposit.Amount == 0 {
+			cli.Assert(opts.Value.Cmp(big.NewInt(0)) != 0, quiet, "No value from either deposit data or command line; cannot create transaction")
+			opts.Value, err = string2eth.StringToWei(viper.GetString("value"))
+			cli.ErrCheck(err, quiet, "Failed to understand value")
+		} else {
+			opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+		}
 
 		// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
 		// This is just above the maximum gas possible used by the contract, as calculated in section 4.2 of
@@ -372,7 +395,7 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowNewData, "allow-new-data", false, "Allow sending from a newer version of deposit data than supported (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowExcessiveDeposit, "allow-excessive-deposit", false, "Allow sending more than 32 Ether in a single deposit (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The address to which to send the deposit (overrides network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the network to which to send the deposit (mainnet/pyrmont)")
-	addTransactionFlags(beaconDepositCmd, "passphrase for the account that owns the account")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/pyrmont/pater)")
+	addTransactionFlags(beaconDepositCmd, "the account from which to send the deposit")
 }

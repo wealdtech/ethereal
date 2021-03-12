@@ -199,6 +199,21 @@ $ ethereal account nonce --address=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
 243
 ```
 
+### `beacon` commands
+
+Beacon commands focus on interactions with the Ethereum 2 beacon deposit contract.
+
+### `deposit`
+
+`ethereal beacon deposit` creates and sends an Ethereum 2 beacon deposit contract transaction.  For example:
+
+```sh
+TODO
+$ ethereal beacon deposit
+```
+
+Note that `ethereal` obtains the information about the amount of Ether to send with deposits from the supplied deposit data.
+
 ### `block` commands
 
 Block commands focus on information about specific blocks.
