@@ -82,13 +82,13 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		subgraph:    "attestantio/eth2deposits-pyrmont",
 	},
 	{
-		network:     "Pater",
+		network:     "Prater",
 		chainID:     big.NewInt(5),
 		address:     util.MustDecodeHexString("0xff50ed3d0ec03aC01D4C79aAd74928BFF48a7b2b"),
 		forkVersion: []byte{0x00, 0x00, 0x10, 0x20},
 		minVersion:  3,
 		maxVersion:  3,
-		subgraph:    "attestantio/eth2deposits-pater",
+		subgraph:    "attestantio/eth2deposits-prater",
 	},
 }
 
@@ -197,7 +197,7 @@ func loadDepositInfo(input string) ([]*util.DepositInfo, error) {
 
 	depositInfo, err := util.DepositInfoFromJSON(data)
 	if err != nil {
-		return nil, errors.New("failed to obtain deposit information")
+		return nil, errors.Wrap(err, "failed to obtain deposit information")
 	}
 	if len(depositInfo) == 0 {
 		return nil, errors.New("no deposit information supplied")

@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -63,6 +64,20 @@ type depositInfoV3 struct {
 	Version               uint64 `json:"version"`
 }
 
+// depositInfoV3b is an alternative V3 deposit structure.
+type depositInfoV3b struct {
+	Name                  string `json:"name,omitempty"`
+	Account               string `json:"account,omitempty"`
+	PublicKey             string `json:"validator_pubkey"`
+	WithdrawalCredentials string `json:"withdrawal_credentials"`
+	Signature             string `json:"validator_signature"`
+	DepositDataRoot       string `json:"deposit_data_root"`
+	DepositMessageRoot    string `json:"deposit_message_root"`
+	ForkVersion           string `json:"fork_version"`
+	Amount                string `json:"amount"`
+	Version               string `json:"data_version"`
+}
+
 // depositInfoCLI is a deposit structure from the eth2 deposit CLI.
 type depositInfoCLI struct {
 	PublicKey             string `json:"pubkey"`
@@ -81,12 +96,15 @@ func DepositInfoFromJSON(input []byte) ([]*DepositInfo, error) {
 	if err != nil {
 		depositInfo, err = tryV3DepositInfoFromJSON(input)
 		if err != nil {
-			depositInfo, err = tryV1DepositInfoFromJSON(input)
+			depositInfo, err = tryV3bDepositInfoFromJSON(input)
 			if err != nil {
-				depositInfo, err = tryCLIDepositInfoFromJSON(input)
+				depositInfo, err = tryV1DepositInfoFromJSON(input)
 				if err != nil {
-					// Give up
-					return nil, errors.New("unknown deposit data format")
+					depositInfo, err = tryCLIDepositInfoFromJSON(input)
+					if err != nil {
+						// Give up
+						return nil, errors.New("unknown deposit data format")
+					}
 				}
 			}
 		}
@@ -159,6 +177,67 @@ func tryV3DepositInfoFromJSON(data []byte) ([]*DepositInfo, error) {
 			DepositMessageRoot:    depositMessageRoot,
 			ForkVersion:           forkVersion,
 			Amount:                deposit.Amount,
+			Version:               3,
+		}
+	}
+
+	return depositInfos, nil
+}
+
+func tryV3bDepositInfoFromJSON(data []byte) ([]*DepositInfo, error) {
+	var depositData []*depositInfoV3b
+	err := json.Unmarshal(data, &depositData)
+	if err != nil {
+		return nil, err
+	}
+
+	depositInfos := make([]*DepositInfo, len(depositData))
+	for i, deposit := range depositData {
+		version, err := strconv.ParseUint(deposit.Version, 10, 64)
+		if err != nil {
+			return nil, errors.New("invalid V3 deposit version")
+		}
+		if version != 3 {
+			return nil, errors.New("incorrect V3 deposit version")
+		}
+		publicKey, err := hex.DecodeString(strings.TrimPrefix(deposit.PublicKey, "0x"))
+		if err != nil {
+			return nil, errors.New("public key invalid")
+		}
+		withdrawalCredentials, err := hex.DecodeString(strings.TrimPrefix(deposit.WithdrawalCredentials, "0x"))
+		if err != nil {
+			return nil, errors.New("withdrawal credentials invalid")
+		}
+		signature, err := hex.DecodeString(strings.TrimPrefix(deposit.Signature, "0x"))
+		if err != nil {
+			return nil, errors.New("signature invalid")
+		}
+		depositDataRoot, err := hex.DecodeString(strings.TrimPrefix(deposit.DepositDataRoot, "0x"))
+		if err != nil {
+			return nil, errors.New("deposit data root invalid")
+		}
+		depositMessageRoot, err := hex.DecodeString(strings.TrimPrefix(deposit.DepositMessageRoot, "0x"))
+		if err != nil {
+			return nil, errors.New("deposit message root invalid")
+		}
+		forkVersion, err := hex.DecodeString(strings.TrimPrefix(deposit.ForkVersion, "0x"))
+		if err != nil {
+			return nil, errors.New("fork version invalid")
+		}
+		amount, err := strconv.ParseUint(deposit.Amount, 10, 64)
+		if err != nil {
+			return nil, errors.New("invalid V3 deposit amount")
+		}
+		depositInfos[i] = &DepositInfo{
+			Name:                  deposit.Name,
+			Account:               deposit.Account,
+			PublicKey:             publicKey,
+			WithdrawalCredentials: withdrawalCredentials,
+			Signature:             signature,
+			DepositDataRoot:       depositDataRoot,
+			DepositMessageRoot:    depositMessageRoot,
+			ForkVersion:           forkVersion,
+			Amount:                amount,
 			Version:               3,
 		}
 	}
