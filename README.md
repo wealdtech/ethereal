@@ -208,11 +208,12 @@ Beacon commands focus on interactions with the Ethereum 2 beacon deposit contrac
 `ethereal beacon deposit` creates and sends an Ethereum 2 beacon deposit contract transaction.  For example:
 
 ```sh
-TODO
-$ ethereal beacon deposit
+$ ethereal beacon deposit --data=deposit.json --eth2network=mainnet --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
 ```
 
 Note that `ethereal` obtains the information about the amount of Ether to send with deposits from the supplied deposit data.
+
+`ethereal beacon deposit` has a number of options to control deposits.  It carries out as many checks as possible given the information to ensure the deposit is valid, correct and unique, and as such in non-standard deposit situations these options may be required to ensure the deposit is processed.
 
 ### `block` commands
 
@@ -580,25 +581,6 @@ Registration is a two-stage process.  The first stage sends a transaction commit
 
 ```sh
 $ ethereal ens release --domain=mydomain.eth
-```
-
-#### `renew`
-
-`ethereal ens renew` renews an ENS domain .  For example:
-
-```sh
-$ ethereal ens renew --domain=mydomain.eth
-```
-
-`--period` is the amount of time for which the registration will be extended; use `ethereal ens rent` to find out how much it will cost to extend the domain.
-
-#### `rent`
-
-`ethereal ens rent` calculates the cost to rent a domain for a given duration.  For example:
-
-```sh
-$ ethereal ens rent --domain=mydomain.eth --duration=24h
-TODO
 ```
 
 #### `resolver clear`
