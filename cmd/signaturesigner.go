@@ -46,7 +46,6 @@ In quiet mode this will return 0 if the signature provides a valid signer, other
 
 		key, err := crypto.SigToPub(dataHash, signature)
 		cli.ErrCheck(err, quiet, "Failed to signer signature")
-		cli.Assert(key != nil, quiet, "Invalid signature")
 		// nolint:staticcheck
 		address := crypto.PubkeyToAddress(*key)
 
