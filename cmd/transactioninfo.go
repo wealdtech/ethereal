@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2021 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,9 +15,11 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"math/big"
 	"os"
 	"strings"
 
@@ -146,13 +148,63 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		}
 
 		if verbose {
+			switch tx.Type() {
+			case types.LegacyTxType:
+				fmt.Println("Transaction type:\tLegacy")
+			case types.DynamicFeeTxType:
+				fmt.Println("Transaction type:\tDynamic")
+			case types.AccessListTxType:
+				fmt.Println("Transaction type:\tAccess list")
+			default:
+				fmt.Println("Transaction type:\tUnknown")
+			}
 			fmt.Printf("Nonce:\t\t\t%v\n", tx.Nonce())
 			fmt.Printf("Gas limit:\t\t%v\n", tx.Gas())
 		}
 		if receipt != nil {
 			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
 		}
-		fmt.Printf("Gas price:\t\t%v\n", string2eth.WeiToString(tx.GasPrice(), true))
+		switch tx.Type() {
+		case types.LegacyTxType, types.AccessListTxType:
+			fmt.Printf("Gas price:\t\t%v\n", string2eth.WeiToString(tx.GasPrice(), true))
+		case types.DynamicFeeTxType:
+			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+		}
+
+		block, err := client.BlockByHash(context.Background(), receipt.BlockHash)
+		if err != nil {
+			// We can carry on without it.
+			block = nil
+		}
+
+		if tx.Type() == types.DynamicFeeTxType {
+			if receipt != nil && block != nil {
+				fmt.Printf("Actual fee per gas:\t%v\n", string2eth.WeiToString(block.BaseFee(), true))
+			}
+			fmt.Printf("Tip per gas:\t\t%v\n", string2eth.WeiToString(tx.GasTipCap(), true))
+		}
+
+		if receipt != nil {
+			gasUsed := big.NewInt(int64(receipt.GasUsed))
+			switch tx.Type() {
+			case types.LegacyTxType, types.AccessListTxType:
+				fmt.Printf("Total fee:\t\t%v", string2eth.WeiToString(new(big.Int).Mul(tx.GasPrice(), gasUsed), true))
+				if verbose {
+					fmt.Printf(" (%v * %v)\n", string2eth.WeiToString(tx.GasPrice(), true), gasUsed)
+				} else {
+					fmt.Println()
+				}
+			case types.DynamicFeeTxType:
+				if block != nil {
+					fmt.Printf("Total fee:\t\t%v", string2eth.WeiToString(new(big.Int).Mul(new(big.Int).Add(block.BaseFee(), tx.GasTipCap()), gasUsed), true))
+					if verbose {
+						fmt.Printf(" ((%v + %v) * %v)\n", string2eth.WeiToString(block.BaseFee(), true), string2eth.WeiToString(tx.GasTipCap(), true), gasUsed)
+					} else {
+						fmt.Println()
+					}
+				}
+			}
+		}
 		fmt.Printf("Value:\t\t\t%v\n", string2eth.WeiToString(tx.Value(), true))
 
 		if tx.To() != nil && len(tx.Data()) > 0 {
