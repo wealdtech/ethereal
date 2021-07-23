@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2021 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/cli"
 	ens "github.com/wealdtech/go-ens/v3"
+	string2eth "github.com/wealdtech/go-string2eth"
 )
 
 var blockInfoTransactions bool
@@ -70,6 +71,9 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		}
 		outputIf(verbose, fmt.Sprintf("Extra:\t\t\t%s", block.Extra()))
 		outputIf(verbose, fmt.Sprintf("Difficulty:\t\t%v", block.Difficulty()))
+		if block.BaseFee() != nil {
+			fmt.Printf("Base fee:\t\t%v\n", string2eth.WeiToString(block.BaseFee(), true))
+		}
 		fmt.Printf("Gas limit:\t\t%v\n", block.GasLimit())
 		gasPct := big.NewFloat(0).Quo(big.NewFloat(0).Mul(big.NewFloat(100), big.NewFloat(0).SetInt(big.NewInt(int64(block.GasUsed())))), big.NewFloat(0).SetInt(big.NewInt(int64(block.GasLimit()))))
 		fmt.Printf("Gas used:\t\t%v (%s%%)\n", block.GasUsed(), gasPct.Text('f', 2))
