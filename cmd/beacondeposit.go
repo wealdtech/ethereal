@@ -298,6 +298,7 @@ func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdraw
 	if err != nil {
 		return errors.Wrap(err, "bad information returned from existing deposit check")
 	}
+	outputIf(debug, fmt.Sprintf("Received response from subgraph: %s", string(body)))
 
 	type graphDeposit struct {
 		Index                 string `json:"index"`
@@ -307,13 +308,21 @@ func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdraw
 	type graphData struct {
 		Deposits []*graphDeposit `json:"deposits,omitempty"`
 	}
+	type graphError struct {
+		Message string `json:"message,omitempty"`
+	}
 	type graphResponse struct {
-		Data *graphData `json:"data,omitempty"`
+		Data   *graphData    `json:"data,omitempty"`
+		Errors []*graphError `json:"errors,omitempty"`
 	}
 
 	var response graphResponse
 	if err := json.Unmarshal(body, &response); err != nil {
 		return errors.Wrap(err, "invalid data returned from existing deposit check")
+	}
+
+	if response.Errors != nil {
+		return errors.Wrap(err, fmt.Sprintf("error from graph server: %s", response.Errors[0].Message))
 	}
 	if response.Data != nil && len(response.Data.Deposits) > 0 {
 		totalDeposited := int64(0)
