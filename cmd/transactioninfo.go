@@ -171,10 +171,13 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
 		}
 
-		block, err := client.BlockByHash(context.Background(), receipt.BlockHash)
-		if err != nil {
-			// We can carry on without it.
-			block = nil
+		var block *types.Block
+		if receipt != nil {
+			block, err = client.BlockByHash(context.Background(), receipt.BlockHash)
+			if err != nil {
+				// We can carry on without it.
+				block = nil
+			}
 		}
 
 		if tx.Type() == types.DynamicFeeTxType {
