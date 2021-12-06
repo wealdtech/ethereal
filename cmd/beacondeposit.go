@@ -126,8 +126,8 @@ If you are *completely sure* you know what you are doing, you can use the --allo
 			cli.Assert(len(depositInfo[i].DepositDataRoot) > 0, quiet, fmt.Sprintf("No data root for deposit %d", i))
 			cli.Assert(len(depositInfo[i].Signature) > 0, quiet, fmt.Sprintf("No signature for deposit %d", i))
 			cli.Assert(len(depositInfo[i].WithdrawalCredentials) > 0, quiet, fmt.Sprintf("No withdrawal credentials for deposit %d", i))
-			if len(depositInfo[i].ForkVersion) != 0 {
-				cli.Assert(bytes.Equal(depositInfo[i].ForkVersion, contract.forkVersion), quiet, fmt.Sprintf("Incorrect fork version for deposit %d", i))
+			if len(contract.forkVersion) != 0 && len(depositInfo[i].ForkVersion) != 0 {
+				cli.Assert(bytes.Equal(depositInfo[i].ForkVersion, contract.forkVersion), quiet, fmt.Sprintf("Incorrect fork version for deposit %d (expected %#x, found %#x)", i, contract.forkVersion, depositInfo[i].ForkVersion))
 			}
 			cli.Assert(depositInfo[i].Amount >= 1000000000, quiet, fmt.Sprintf("Deposit too small for deposit %d", i))
 			cli.Assert(depositInfo[i].Amount <= 32000000000 || beaconDepositAllowExcessiveDeposit, quiet, fmt.Sprintf(`Deposit more than 32 Ether for deposit %d.  Any amount above 32 Ether that is deposited will not count towards the validator's effective balance, and is effectively wasted.
