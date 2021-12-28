@@ -43,7 +43,7 @@ jobs:
        echo "::set-output name=RELEASE_VERSION::${RELEASE_VERSION}"
 
     - name: Build
-      run: go build -v -ldflags="-X github.com/wealdtech/ethereal/cmd.ReleaseVersion=${RELEASE_VERSION}" .
+      run: go build -v -ldflags="-X github.com/wealdtech/ethereal/v2/cmd.ReleaseVersion=${RELEASE_VERSION}" .
 
     - name: Test
       run: go test -v .
@@ -54,11 +54,11 @@ jobs:
 
     - name: Cross-compile linux
       run: |
-        xgo -v -x -ldflags="-X github.com/wealdtech/ethereal/cmd.ReleaseVersion=${RELEASE_VERSION}" --targets="linux/amd64,linux/arm64" github.com/wealdtech/ethereal
+        xgo -v -x -ldflags="-X github.com/wealdtech/ethereal/v2/cmd.ReleaseVersion=${RELEASE_VERSION}" --targets="linux/amd64,linux/arm64" github.com/wealdtech/ethereal/v2
 
     - name: Cross-compile windows
       run: |
-        xgo -v -x -ldflags="-X github.com/wealdtech/ethereal/cmd.ReleaseVersion=${RELEASE_VERSION} -s -w -extldflags -static" --targets="windows/amd64" github.com/wealdtech/ethereal
+        xgo -v -x -ldflags="-X github.com/wealdtech/ethereal/v2/cmd.ReleaseVersion=${RELEASE_VERSION} -s -w -extldflags -static" --targets="windows/amd64" github.com/wealdtech/ethereal/v2
 
     - name: Create windows release files
       run: |

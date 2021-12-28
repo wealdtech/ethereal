@@ -13,7 +13,7 @@
 
 package main
 
-import "github.com/wealdtech/ethereal/cmd"
+import "github.com/wealdtech/ethereal/v2/cmd"
 
 func main() {
 	cmd.Execute()

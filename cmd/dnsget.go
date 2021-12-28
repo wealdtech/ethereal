@@ -21,7 +21,7 @@ import (
 
 	"github.com/miekg/dns"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
@@ -41,7 +41,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		if !strings.HasSuffix(dnsDomain, ".") {
-			dnsDomain = dnsDomain + "."
+			dnsDomain += "."
 		}
 		dnsDomain, err := ens.NormaliseDomain(dnsDomain)
 		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")

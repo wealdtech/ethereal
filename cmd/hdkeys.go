@@ -25,7 +25,7 @@ import (
 	bip44 "github.com/FactomProject/go-bip44"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 )
 
 var hdKeysPath string

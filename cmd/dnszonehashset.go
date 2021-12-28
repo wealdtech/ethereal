@@ -20,7 +20,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
@@ -43,7 +43,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		if !strings.HasSuffix(dnsDomain, ".") {
-			dnsDomain = dnsDomain + "."
+			dnsDomain += "."
 		}
 		dnsDomain, err := ens.NormaliseDomain(dnsDomain)
 		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")

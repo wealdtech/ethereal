@@ -18,7 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pborman/uuid"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/crypto/scrypt"
 )

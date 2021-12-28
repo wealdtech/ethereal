@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 )
 
 var signatureVerifySignature string

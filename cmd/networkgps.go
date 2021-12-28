@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 )
 
 var networkGPSBlocks int64

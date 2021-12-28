@@ -23,8 +23,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/util/funcparser"
+	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/util/funcparser"
 	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )

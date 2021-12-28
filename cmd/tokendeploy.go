@@ -22,9 +22,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
-	"github.com/wealdtech/ethereal/util"
-	"github.com/wealdtech/ethereal/util/funcparser"
+	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/util"
+	"github.com/wealdtech/ethereal/v2/util/funcparser"
 	ens "github.com/wealdtech/go-ens/v3"
 )
 

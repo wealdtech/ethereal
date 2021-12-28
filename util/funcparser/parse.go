@@ -20,8 +20,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/wealdtech/ethereal/util"
-	"github.com/wealdtech/ethereal/util/funcparser/parser"
+	"github.com/wealdtech/ethereal/v2/util"
+	"github.com/wealdtech/ethereal/v2/util/funcparser/parser"
 	ens "github.com/wealdtech/go-ens/v3"
 )
 

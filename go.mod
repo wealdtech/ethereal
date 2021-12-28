@@ -1,4 +1,4 @@
-module github.com/wealdtech/ethereal
+module github.com/wealdtech/ethereal/v2
 
 go 1.12
 

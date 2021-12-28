@@ -16,7 +16,7 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/wealdtech/ethereal/cli"
+	"github.com/wealdtech/ethereal/v2/cli"
 	ens "github.com/wealdtech/go-ens/v3"
 	erc1820 "github.com/wealdtech/go-erc1820"
 )

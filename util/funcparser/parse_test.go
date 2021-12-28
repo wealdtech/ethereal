@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/wealdtech/ethereal/util"
+	"github.com/wealdtech/ethereal/v2/util"
 )
 
 func TestParse(t *testing.T) {

@@ -25,7 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/wealdtech/ethereal/util"
+	"github.com/wealdtech/ethereal/v2/util"
 )
 
 func TestRopsten(t *testing.T) {
@@ -140,7 +140,7 @@ func TestRopsten(t *testing.T) {
 	}
 
 	// Connect to ropsten
-	conn, err := ethclient.Dial("https://ropsten.infura.io/v3/c02fff6b5daa434d8422b8ece54c7286")
+	conn, err := ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
 	require.Nil(t, err, "failed to connect to ropsten")
 
 	json, err := ioutil.ReadFile("Tester.json")
