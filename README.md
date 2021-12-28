@@ -36,7 +36,7 @@ docker pull wealdtech/ethereal
 `ethereal` is a standard Go program which can be installed with:
 
 ```sh
-GO111MODULE=on go get github.com/wealdtech/ethereal
+go install github.com/wealdtech/ethereal/v2@latest
 ```
 
 Note that `ethereal` requires at least version 1.13 of go to operate.  The version of go can be found with `go version`.
@@ -83,7 +83,7 @@ Ethereal supports all main Ethereum networks  It auto-detects the network by que
 
 Ethereal contains default connections via Infura to most major networks that can be defined by the `--network` argument.  Supported neworks are mainnet, ropsten, kovan, rinkeby and goerli.  Alternatively a connection to a custom node can be created using the `--connection` argument.  For example a local IPC node might use `--connection=/home/ethereum/.ethereum/geth.ipc` or `--connection=http://localhost:8545/`
 
-The Infura key for Ethereal is shared among all users.  If you are going to carry out a lot of queries of chain data please either use a local node or your own Infura account.
+**The Infura key for Ethereal is shared among all users.  If you are going to carry out a lot of queries of chain data please either use a local node or your own Infura account.**
 
 ### Configuration file
 

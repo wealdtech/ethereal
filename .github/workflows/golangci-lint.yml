@@ -4,7 +4,7 @@ jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
       - name: golangci-lint
@@ -17,7 +17,7 @@ jobs:
           # working-directory: somedir
 
           # Optional: golangci-lint command line arguments.
-          args: --timeout=10m
+          args: --timeout=30m
 
           # Optional: show only new issues if it's a pull request. The default value is `false`.
           # only-new-issues: true
