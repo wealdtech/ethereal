@@ -103,6 +103,8 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		chainID = big.NewInt(4)
 	case "goerli", "gorli", "görli":
 		chainID = big.NewInt(5)
+	case "sepolia":
+		chainID = big.NewInt(11155111)
 	case "kovan":
 		chainID = big.NewInt(42)
 	default:
@@ -201,6 +203,9 @@ func connect() error {
 		case "goerli", "gorli", "görli":
 			outputIf(debug, "Connecting to goerli")
 			client, err = ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+		case "sepolia":
+			outputIf(debug, "Connecting to sepolia")
+			client, err = ethclient.Dial("https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
 		case "kovan":
 			outputIf(debug, "Connecting to kovan")
 			client, err = ethclient.Dial("https://kovan.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
@@ -328,7 +333,7 @@ func init() {
 	if err := viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection")); err != nil {
 		panic(err)
 	}
-	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/rinkeby/goerli) (overridden by connection option)")
+	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/rinkeby/goerli/sepolia) (overridden by connection option)")
 	if err := viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network")); err != nil {
 		panic(err)
 	}
