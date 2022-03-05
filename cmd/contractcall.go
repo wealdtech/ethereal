@@ -101,18 +101,8 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 
 		outputIf(verbose, fmt.Sprintf("Result is %x", result))
 
-		tmp, err := contract.Abi.Unpack(method.Name, result)
+		outputs, err := contract.Abi.Unpack(method.Name, result)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse output of %s: %v", method.Name, err))
-
-		outputs := make([]interface{}, len(method.Outputs))
-		if len(method.Outputs) == 1 {
-			outputs[0] = tmp
-		} else {
-			copy(outputs, tmp)
-			//			for i, x := range tmp {
-			//				outputs[i] = x
-			//			}
-		}
 
 		results := []string{}
 		for i := range outputs {
