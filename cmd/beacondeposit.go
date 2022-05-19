@@ -1,4 +1,4 @@
-// Copyright © 2017-2020 Weald Technology Trading
+// Copyright © 2017-2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -73,13 +73,12 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		subgraph:    "attestantio/eth2deposits",
 	},
 	{
-		network:     "Pyrmont",
-		chainID:     big.NewInt(5),
-		address:     util.MustDecodeHexString("0x8c5fecdC472E27Bc447696F431E425D02dd46a8c"),
-		forkVersion: []byte{0x00, 0x00, 0x20, 0x09},
+		network:     "Ropsten",
+		chainID:     big.NewInt(3),
+		address:     util.MustDecodeHexString("0x6f22fFbC56eFF051aECF839396DD1eD9aD6BBA9D"),
+		forkVersion: []byte{0x80, 0x00, 0x00, 0x69},
 		minVersion:  3,
 		maxVersion:  3,
-		subgraph:    "attestantio/eth2deposits-pyrmont",
 	},
 	{
 		network:     "Prater",
@@ -405,6 +404,6 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowExcessiveDeposit, "allow-excessive-deposit", false, "Allow sending more than 32 Ether in a single deposit (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/pyrmont/pater)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/ropsten/prater)")
 	addTransactionFlags(beaconDepositCmd, "the account from which to send the deposit")
 }
