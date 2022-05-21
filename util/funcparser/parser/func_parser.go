@@ -1,84 +1,104 @@
-// Code generated from Func.g4 by ANTLR 4.7.2. DO NOT EDIT.
+// Code generated from Func.g4 by ANTLR 4.10.1. DO NOT EDIT.
 
 package parser // Func
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
+	"sync"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
 // Suppress unused import errors
 var _ = fmt.Printf
-var _ = reflect.Copy
 var _ = strconv.Itoa
-
-var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 17, 66, 4,
-	2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7, 4,
-	8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 4, 11, 9, 11, 3, 2, 3, 2, 3, 2, 3, 2,
-	3, 2, 3, 2, 3, 3, 3, 3, 3, 4, 3, 4, 3, 4, 7, 4, 34, 10, 4, 12, 4, 14, 4,
-	37, 11, 4, 5, 4, 39, 10, 4, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 3, 5, 5, 5, 47,
-	10, 5, 3, 6, 5, 6, 50, 10, 6, 3, 6, 3, 6, 3, 7, 3, 7, 3, 8, 3, 8, 3, 9,
-	3, 9, 3, 10, 3, 10, 3, 11, 3, 11, 3, 11, 3, 11, 3, 11, 2, 2, 12, 2, 4,
-	6, 8, 10, 12, 14, 16, 18, 20, 2, 3, 3, 2, 7, 8, 2, 63, 2, 22, 3, 2, 2,
-	2, 4, 28, 3, 2, 2, 2, 6, 38, 3, 2, 2, 2, 8, 46, 3, 2, 2, 2, 10, 49, 3,
-	2, 2, 2, 12, 53, 3, 2, 2, 2, 14, 55, 3, 2, 2, 2, 16, 57, 3, 2, 2, 2, 18,
-	59, 3, 2, 2, 2, 20, 61, 3, 2, 2, 2, 22, 23, 5, 4, 3, 2, 23, 24, 7, 3, 2,
-	2, 24, 25, 5, 6, 4, 2, 25, 26, 7, 4, 2, 2, 26, 27, 7, 2, 2, 3, 27, 3, 3,
-	2, 2, 2, 28, 29, 7, 11, 2, 2, 29, 5, 3, 2, 2, 2, 30, 35, 5, 8, 5, 2, 31,
-	32, 7, 5, 2, 2, 32, 34, 5, 8, 5, 2, 33, 31, 3, 2, 2, 2, 34, 37, 3, 2, 2,
-	2, 35, 33, 3, 2, 2, 2, 35, 36, 3, 2, 2, 2, 36, 39, 3, 2, 2, 2, 37, 35,
-	3, 2, 2, 2, 38, 30, 3, 2, 2, 2, 38, 39, 3, 2, 2, 2, 39, 7, 3, 2, 2, 2,
-	40, 47, 5, 10, 6, 2, 41, 47, 5, 12, 7, 2, 42, 47, 5, 14, 8, 2, 43, 47,
-	5, 16, 9, 2, 44, 47, 5, 18, 10, 2, 45, 47, 5, 20, 11, 2, 46, 40, 3, 2,
-	2, 2, 46, 41, 3, 2, 2, 2, 46, 42, 3, 2, 2, 2, 46, 43, 3, 2, 2, 2, 46, 44,
-	3, 2, 2, 2, 46, 45, 3, 2, 2, 2, 47, 9, 3, 2, 2, 2, 48, 50, 7, 6, 2, 2,
-	49, 48, 3, 2, 2, 2, 49, 50, 3, 2, 2, 2, 50, 51, 3, 2, 2, 2, 51, 52, 7,
-	12, 2, 2, 52, 11, 3, 2, 2, 2, 53, 54, 7, 13, 2, 2, 54, 13, 3, 2, 2, 2,
-	55, 56, 7, 14, 2, 2, 56, 15, 3, 2, 2, 2, 57, 58, 9, 2, 2, 2, 58, 17, 3,
-	2, 2, 2, 59, 60, 7, 16, 2, 2, 60, 19, 3, 2, 2, 2, 61, 62, 7, 9, 2, 2, 62,
-	63, 5, 6, 4, 2, 63, 64, 7, 10, 2, 2, 64, 21, 3, 2, 2, 2, 6, 35, 38, 46,
-	49,
-}
-var deserializer = antlr.NewATNDeserializer(nil)
-var deserializedATN = deserializer.DeserializeFromUInt16(parserATN)
-
-var literalNames = []string{
-	"", "'('", "')'", "','", "'-'", "'true'", "'false'", "'['", "']'",
-}
-var symbolicNames = []string{
-	"", "", "", "", "", "", "", "", "", "NAME", "INT", "HEX", "STRING", "BOOL",
-	"DOMAIN", "WS",
-}
-
-var ruleNames = []string{
-	"start", "funcName", "funcArgs", "arg", "intArg", "hexArg", "stringArg",
-	"boolArg", "domainArg", "arrayArg",
-}
-var decisionToDFA = make([]*antlr.DFA, len(deserializedATN.DecisionToState))
-
-func init() {
-	for index, ds := range deserializedATN.DecisionToState {
-		decisionToDFA[index] = antlr.NewDFA(ds, index)
-	}
-}
+var _ = sync.Once{}
 
 type FuncParser struct {
 	*antlr.BaseParser
 }
 
+var funcParserStaticData struct {
+	once                   sync.Once
+	serializedATN          []int32
+	literalNames           []string
+	symbolicNames          []string
+	ruleNames              []string
+	predictionContextCache *antlr.PredictionContextCache
+	atn                    *antlr.ATN
+	decisionToDFA          []*antlr.DFA
+}
+
+func funcParserInit() {
+	staticData := &funcParserStaticData
+	staticData.literalNames = []string{
+		"", "'('", "')'", "','", "'-'", "'true'", "'false'", "'['", "']'",
+	}
+	staticData.symbolicNames = []string{
+		"", "", "", "", "", "", "", "", "", "NAME", "INT", "HEX", "STRING",
+		"BOOL", "DOMAIN", "WS",
+	}
+	staticData.ruleNames = []string{
+		"start", "funcName", "funcArgs", "arg", "intArg", "hexArg", "stringArg",
+		"boolArg", "domainArg", "arrayArg",
+	}
+	staticData.predictionContextCache = antlr.NewPredictionContextCache()
+	staticData.serializedATN = []int32{
+		4, 1, 15, 64, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 1, 0, 1,
+		0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 5, 2, 32, 8, 2,
+		10, 2, 12, 2, 35, 9, 2, 3, 2, 37, 8, 2, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1,
+		3, 3, 3, 45, 8, 3, 1, 4, 3, 4, 48, 8, 4, 1, 4, 1, 4, 1, 5, 1, 5, 1, 6,
+		1, 6, 1, 7, 1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 0, 0, 10, 0,
+		2, 4, 6, 8, 10, 12, 14, 16, 18, 0, 1, 1, 0, 5, 6, 61, 0, 20, 1, 0, 0, 0,
+		2, 26, 1, 0, 0, 0, 4, 36, 1, 0, 0, 0, 6, 44, 1, 0, 0, 0, 8, 47, 1, 0, 0,
+		0, 10, 51, 1, 0, 0, 0, 12, 53, 1, 0, 0, 0, 14, 55, 1, 0, 0, 0, 16, 57,
+		1, 0, 0, 0, 18, 59, 1, 0, 0, 0, 20, 21, 3, 2, 1, 0, 21, 22, 5, 1, 0, 0,
+		22, 23, 3, 4, 2, 0, 23, 24, 5, 2, 0, 0, 24, 25, 5, 0, 0, 1, 25, 1, 1, 0,
+		0, 0, 26, 27, 5, 9, 0, 0, 27, 3, 1, 0, 0, 0, 28, 33, 3, 6, 3, 0, 29, 30,
+		5, 3, 0, 0, 30, 32, 3, 6, 3, 0, 31, 29, 1, 0, 0, 0, 32, 35, 1, 0, 0, 0,
+		33, 31, 1, 0, 0, 0, 33, 34, 1, 0, 0, 0, 34, 37, 1, 0, 0, 0, 35, 33, 1,
+		0, 0, 0, 36, 28, 1, 0, 0, 0, 36, 37, 1, 0, 0, 0, 37, 5, 1, 0, 0, 0, 38,
+		45, 3, 8, 4, 0, 39, 45, 3, 10, 5, 0, 40, 45, 3, 12, 6, 0, 41, 45, 3, 14,
+		7, 0, 42, 45, 3, 16, 8, 0, 43, 45, 3, 18, 9, 0, 44, 38, 1, 0, 0, 0, 44,
+		39, 1, 0, 0, 0, 44, 40, 1, 0, 0, 0, 44, 41, 1, 0, 0, 0, 44, 42, 1, 0, 0,
+		0, 44, 43, 1, 0, 0, 0, 45, 7, 1, 0, 0, 0, 46, 48, 5, 4, 0, 0, 47, 46, 1,
+		0, 0, 0, 47, 48, 1, 0, 0, 0, 48, 49, 1, 0, 0, 0, 49, 50, 5, 10, 0, 0, 50,
+		9, 1, 0, 0, 0, 51, 52, 5, 11, 0, 0, 52, 11, 1, 0, 0, 0, 53, 54, 5, 12,
+		0, 0, 54, 13, 1, 0, 0, 0, 55, 56, 7, 0, 0, 0, 56, 15, 1, 0, 0, 0, 57, 58,
+		5, 14, 0, 0, 58, 17, 1, 0, 0, 0, 59, 60, 5, 7, 0, 0, 60, 61, 3, 4, 2, 0,
+		61, 62, 5, 8, 0, 0, 62, 19, 1, 0, 0, 0, 4, 33, 36, 44, 47,
+	}
+	deserializer := antlr.NewATNDeserializer(nil)
+	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
+	atn := staticData.atn
+	staticData.decisionToDFA = make([]*antlr.DFA, len(atn.DecisionToState))
+	decisionToDFA := staticData.decisionToDFA
+	for index, state := range atn.DecisionToState {
+		decisionToDFA[index] = antlr.NewDFA(state, index)
+	}
+}
+
+// FuncParserInit initializes any static state used to implement FuncParser. By default the
+// static state used to implement the parser is lazily initialized during the first call to
+// NewFuncParser(). You can call this function if you wish to initialize the static state ahead
+// of time.
+func FuncParserInit() {
+	staticData := &funcParserStaticData
+	staticData.once.Do(funcParserInit)
+}
+
+// NewFuncParser produces a new parser instance for the optional input antlr.TokenStream.
 func NewFuncParser(input antlr.TokenStream) *FuncParser {
+	FuncParserInit()
 	this := new(FuncParser)
-
 	this.BaseParser = antlr.NewBaseParser(input)
-
-	this.Interpreter = antlr.NewParserATNSimulator(this, deserializedATN, decisionToDFA, antlr.NewPredictionContextCache())
-	this.RuleNames = ruleNames
-	this.LiteralNames = literalNames
-	this.SymbolicNames = symbolicNames
+	staticData := &funcParserStaticData
+	this.Interpreter = antlr.NewParserATNSimulator(this, staticData.atn, staticData.decisionToDFA, staticData.predictionContextCache)
+	this.RuleNames = staticData.ruleNames
+	this.LiteralNames = staticData.literalNames
+	this.SymbolicNames = staticData.symbolicNames
 	this.GrammarFileName = "Func.g4"
 
 	return this
@@ -157,7 +177,13 @@ func NewStartContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoki
 func (s *StartContext) GetParser() antlr.Parser { return s.parser }
 
 func (s *StartContext) FuncName() IFuncNameContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IFuncNameContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncNameContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -167,7 +193,13 @@ func (s *StartContext) FuncName() IFuncNameContext {
 }
 
 func (s *StartContext) FuncArgs() IFuncArgsContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IFuncArgsContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncArgsContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -201,6 +233,9 @@ func (s *StartContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) Start() (localctx IStartContext) {
+	this := p
+	_ = this
+
 	localctx = NewStartContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 0, FuncParserRULE_start)
 
@@ -308,6 +343,9 @@ func (s *FuncNameContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) FuncName() (localctx IFuncNameContext) {
+	this := p
+	_ = this
+
 	localctx = NewFuncNameContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 2, FuncParserRULE_funcName)
 
@@ -375,12 +413,20 @@ func NewFuncArgsContext(parser antlr.Parser, parent antlr.ParserRuleContext, inv
 func (s *FuncArgsContext) GetParser() antlr.Parser { return s.parser }
 
 func (s *FuncArgsContext) AllArg() []IArgContext {
-	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IArgContext)(nil)).Elem())
-	var tst = make([]IArgContext, len(ts))
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IArgContext); ok {
+			len++
+		}
+	}
 
-	for i, t := range ts {
-		if t != nil {
+	tst := make([]IArgContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IArgContext); ok {
 			tst[i] = t.(IArgContext)
+			i++
 		}
 	}
 
@@ -388,7 +434,17 @@ func (s *FuncArgsContext) AllArg() []IArgContext {
 }
 
 func (s *FuncArgsContext) Arg(i int) IArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IArgContext)(nil)).Elem(), i)
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IArgContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -418,6 +474,9 @@ func (s *FuncArgsContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) FuncArgs() (localctx IFuncArgsContext) {
+	this := p
+	_ = this
+
 	localctx = NewFuncArgsContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 4, FuncParserRULE_funcArgs)
 	var _la int
@@ -511,7 +570,13 @@ func NewArgContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoking
 func (s *ArgContext) GetParser() antlr.Parser { return s.parser }
 
 func (s *ArgContext) IntArg() IIntArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IIntArgContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IIntArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -521,7 +586,13 @@ func (s *ArgContext) IntArg() IIntArgContext {
 }
 
 func (s *ArgContext) HexArg() IHexArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IHexArgContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IHexArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -531,7 +602,13 @@ func (s *ArgContext) HexArg() IHexArgContext {
 }
 
 func (s *ArgContext) StringArg() IStringArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IStringArgContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IStringArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -541,7 +618,13 @@ func (s *ArgContext) StringArg() IStringArgContext {
 }
 
 func (s *ArgContext) BoolArg() IBoolArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IBoolArgContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IBoolArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -551,7 +634,13 @@ func (s *ArgContext) BoolArg() IBoolArgContext {
 }
 
 func (s *ArgContext) DomainArg() IDomainArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IDomainArgContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDomainArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -561,7 +650,13 @@ func (s *ArgContext) DomainArg() IDomainArgContext {
 }
 
 func (s *ArgContext) ArrayArg() IArrayArgContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IArrayArgContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IArrayArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -591,6 +686,9 @@ func (s *ArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) Arg() (localctx IArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 6, FuncParserRULE_arg)
 
@@ -726,6 +824,9 @@ func (s *IntArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) IntArg() (localctx IIntArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewIntArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 8, FuncParserRULE_intArg)
 	var _la int
@@ -829,6 +930,9 @@ func (s *HexArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) HexArg() (localctx IHexArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewHexArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 10, FuncParserRULE_hexArg)
 
@@ -920,6 +1024,9 @@ func (s *StringArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) StringArg() (localctx IStringArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewStringArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 12, FuncParserRULE_stringArg)
 
@@ -1006,6 +1113,9 @@ func (s *BoolArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) BoolArg() (localctx IBoolArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewBoolArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 14, FuncParserRULE_boolArg)
 	var _la int
@@ -1105,6 +1215,9 @@ func (s *DomainArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) DomainArg() (localctx IDomainArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewDomainArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 16, FuncParserRULE_domainArg)
 
@@ -1172,7 +1285,13 @@ func NewArrayArgContext(parser antlr.Parser, parent antlr.ParserRuleContext, inv
 func (s *ArrayArgContext) GetParser() antlr.Parser { return s.parser }
 
 func (s *ArrayArgContext) FuncArgs() IFuncArgsContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IFuncArgsContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncArgsContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -1202,6 +1321,9 @@ func (s *ArrayArgContext) ExitRule(listener antlr.ParseTreeListener) {
 }
 
 func (p *FuncParser) ArrayArg() (localctx IArrayArgContext) {
+	this := p
+	_ = this
+
 	localctx = NewArrayArgContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 18, FuncParserRULE_arrayArg)
 
