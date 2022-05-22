@@ -46,7 +46,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(len(ensDomain) > 10, quiet, "Domain must be at least 7 characters long")
 		cli.Assert(len(strings.Split(ensDomain, ".")) == 2, quiet, "Name must not contain . (except for ending in .eth)")
 
-		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
+		registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 
 		// Obtain the registrant
@@ -74,10 +74,10 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 		cli.Assert(registrant != ens.UnknownAddress, quiet, "Failed to obtain registrant")
 
-		outputIf(verbose, fmt.Sprintf("Current registrant is %s", ens.Format(client, registrant)))
+		outputIf(verbose, fmt.Sprintf("Current registrant is %s", ens.Format(c.Client(), registrant)))
 
 		// Transfer the registration
-		newRegistrantAddress, err := ens.Resolve(client, ensTransferNewRegistrantStr)
+		newRegistrantAddress, err := c.Resolve(ensTransferNewRegistrantStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("unknown new registrant %s", ensTransferNewRegistrantStr))
 		opts, err := generateTxOpts(registrant)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")

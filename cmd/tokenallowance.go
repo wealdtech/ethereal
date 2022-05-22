@@ -21,7 +21,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenAllowanceRaw bool
@@ -39,11 +38,11 @@ var tokenAllowanceCmd = &cobra.Command{
 In quiet mode this will return 0 if the allowance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(tokenAllowanceHolderAddress != "", quiet, "--holder is required")
-		holderAddress, err := ens.Resolve(client, tokenAllowanceHolderAddress)
+		holderAddress, err := c.Resolve(tokenAllowanceHolderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenAllowanceHolderAddress))
 
 		cli.Assert(tokenAllowanceSpenderAddress != "", quiet, "--spender is required")
-		spenderAddress, err := ens.Resolve(client, tokenAllowanceSpenderAddress)
+		spenderAddress, err := c.Resolve(tokenAllowanceSpenderAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain spender address")
 
 		cli.Assert(tokenStr != "", quiet, "--token is required")

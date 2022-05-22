@@ -22,7 +22,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -41,7 +40,7 @@ var etherBalanceCmd = &cobra.Command{
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(etherBalanceAddress != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, etherBalanceAddress)
+		address, err := c.Resolve(etherBalanceAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address")
 
 		var blockNumber *big.Int
@@ -54,7 +53,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 				blockHash := common.HexToHash(etherBalanceBlock)
 				ctx, cancel := localContext()
 				defer cancel()
-				block, err := client.BlockByHash(ctx, blockHash)
+				block, err := c.Client().BlockByHash(ctx, blockHash)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain block %s", etherBalanceBlock))
 				blockNumber = block.Number()
 			}
@@ -62,7 +61,7 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 
 		ctx, cancel := localContext()
 		defer cancel()
-		balance, err := client.BalanceAt(ctx, address, blockNumber)
+		balance, err := c.Client().BalanceAt(ctx, address, blockNumber)
 		cli.Assert(err == nil || !strings.HasPrefix(err.Error(), "missing trie node"), quiet, "Connection does not have information on that block, please change the connection parameter to point to a full synced node")
 		cli.ErrCheck(err, quiet, "Failed to obtain balance")
 

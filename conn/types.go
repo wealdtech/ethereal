@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,24 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package conn
 
 import (
-	"github.com/spf13/cobra"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
-var blockStr string
+// TransactionData contains data to build a transaction.
+type TransactionData struct {
+	From common.Address
+	To   *common.Address
 
-// blockCmd represents the block command
-var blockCmd = &cobra.Command{
-	Use:   "block",
-	Short: "Manage blocks",
-	Long:  `Obtain information about blocks and their transactions`,
-}
+	GasLimit *uint64
 
-func init() {
-	RootCmd.AddCommand(blockCmd)
-}
-func blockFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&blockStr, "block", "latest", "block hash or number, or 'latest'")
+	Value *big.Int
+	Data  []byte
+
+	Nonce *int64
+
+	MaxFeePerGas         *big.Int
+	MaxPriorityFeePerGas *big.Int
 }

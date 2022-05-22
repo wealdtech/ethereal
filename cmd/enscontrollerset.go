@@ -40,7 +40,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the controller of the name
@@ -49,7 +49,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!bytes.Equal(controller.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("%s has no controller", ensDomain))
 
 		cli.Assert(ensControllerSetControllerStr != "", quiet, "--controller is required")
-		newControllerAddress, err := ens.Resolve(client, ensControllerSetControllerStr)
+		newControllerAddress, err := c.Resolve(ensControllerSetControllerStr)
 		cli.Assert(!bytes.Equal(newControllerAddress.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Attempt to set controller to 0x00 disallowed")
 		cli.ErrCheck(err, quiet, "Failed to obtain new controller address")
 

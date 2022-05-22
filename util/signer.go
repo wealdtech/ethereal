@@ -33,7 +33,7 @@ func KeySigner(chainID *big.Int, key *ecdsa.PrivateKey) (signerfn bind.SignerFn)
 		if address != keyAddr {
 			return nil, errors.New("not authorized to sign this account")
 		}
-		return types.SignTx(tx, types.NewEIP155Signer(chainID), key)
+		return types.SignTx(tx, types.NewLondonSigner(chainID), key)
 	}
 
 	return

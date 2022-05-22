@@ -42,20 +42,20 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
-		outputIf(verbose, fmt.Sprintf("Domain is owned by %s", ens.Format(client, owner)))
+		outputIf(verbose, fmt.Sprintf("Domain is owned by %s", ens.Format(c.Client(), owner)))
 
 		// Obtain the address: could be an ENS name or a number
 		var data []byte
 		if strings.Contains(ensAddressSetAddressStr, ".") {
 			// Assume ENS address
-			address, err := ens.Resolve(client, ensAddressSetAddressStr)
+			address, err := c.Resolve(ensAddressSetAddressStr)
 			cli.Assert(!bytes.Equal(address.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Invalid address; if you are trying to clear an existing address use \"ens address clear\"")
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 			data = address.Bytes()
@@ -66,9 +66,9 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 
 		// Obtain the resolver for this name
-		resolver, err := ens.NewResolver(client, ensDomain)
+		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
-		outputIf(verbose, fmt.Sprintf("Resolver is %s", ens.Format(client, resolver.ContractAddr)))
+		outputIf(verbose, fmt.Sprintf("Resolver is %s", ens.Format(c.Client(), resolver.ContractAddr)))
 
 		opts, err := generateTxOpts(owner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")

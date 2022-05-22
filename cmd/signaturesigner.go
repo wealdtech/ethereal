@@ -53,7 +53,7 @@ In quiet mode this will return 0 if the signature provides a valid signer, other
 			os.Exit(exitSuccess)
 		}
 
-		fmt.Printf("%s\n", ens.Format(client, address))
+		fmt.Printf("%s\n", ens.Format(c.Client(), address))
 	},
 }
 

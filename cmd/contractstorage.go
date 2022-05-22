@@ -21,7 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var contractStorageKey string
@@ -37,14 +36,14 @@ var contractStorageCmd = &cobra.Command{
 In quiet mode this will return 0 if the storage contains a non-zero value, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(contractStr != "", quiet, "--contract is required")
-		contractAddress, err := ens.Resolve(client, contractStr)
+		contractAddress, err := c.Resolve(contractStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
 
 		cli.Assert(contractStorageKey != "", quiet, "--key is required")
 		hash := common.HexToHash(strings.TrimPrefix(contractStorageKey, "0x"))
 		ctx, cancel := localContext()
 		defer cancel()
-		value, err := client.StorageAt(ctx, contractAddress, hash, nil)
+		value, err := c.Client().StorageAt(ctx, contractAddress, hash, nil)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain storage for contract %s", contractStr))
 
 		if quiet {

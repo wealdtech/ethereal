@@ -38,7 +38,7 @@ In quiet mode this will return 0 if the transaction is mined before the time lim
 		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 
-		mined := util.WaitForTransaction(client, txHash, transactionWaitLimit)
+		mined := util.WaitForTransaction(c.Client(), txHash, transactionWaitLimit)
 		if mined {
 			outputIf(!quiet, "Transaction mined")
 			os.Exit(exitSuccess)

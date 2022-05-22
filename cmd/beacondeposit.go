@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -33,6 +34,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/conn"
 	"github.com/wealdtech/ethereal/v2/util"
 	"github.com/wealdtech/ethereal/v2/util/contracts"
 	ens "github.com/wealdtech/go-ens/v3"
@@ -117,7 +119,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 If you are *completely sure* you know what you are doing, you can use the --allow-unknown-contract option to carry out this transaction.  Otherwise, please seek support to ensure you do not lose your Ether.`)
 		outputIf(verbose && contractName != "", fmt.Sprintf("Deposit contract is %s", contract.network))
 
-		cli.Assert(chainID.Cmp(contract.chainID) == 0, quiet, "Ethereal is not connected to the correct Ethereum 1 network.  Please ensure that if you are depositing for the mainnet deposit contract you are on the Ethereum 1 mainnet, and likewise for test networks.")
+		cli.Assert(c.ChainID().Cmp(contract.chainID) == 0, quiet, "Ethereal is not connected to the correct Ethereum 1 network.  Please ensure that if you are depositing for the mainnet deposit contract you are on the Ethereum 1 mainnet, and likewise for test networks.")
 
 		// Confirm the deposit data before sending any.
 		for i := range depositInfo {
@@ -142,11 +144,11 @@ If you are *completely sure* you know what you are doing, you can use the --allo
 		}
 
 		cli.Assert(beaconDepositFrom != "", quiet, "--from is required")
-		fromAddress, err := resolveAddress(client, beaconDepositFrom)
+		fromAddress, err := resolveAddress(c.Client(), beaconDepositFrom)
 		cli.ErrCheck(err, quiet, "Failed to obtain address for --from")
 
 		if offline {
-			sendOffline(depositInfo, contract, fromAddress)
+			sendOffline(c, depositInfo, contract, fromAddress)
 		} else {
 			sendOnline(depositInfo, contract, fromAddress)
 		}
@@ -204,7 +206,7 @@ func loadDepositInfo(input string) ([]*util.DepositInfo, error) {
 	return depositInfo, nil
 }
 
-func sendOffline(deposits []*util.DepositInfo, contractDetails *beaconDepositContract, fromAddress common.Address) {
+func sendOffline(c *conn.Conn, deposits []*util.DepositInfo, contractDetails *beaconDepositContract, fromAddress common.Address) {
 	address := common.BytesToAddress(contractDetails.address)
 	abi, err := abi.JSON(strings.NewReader(depositABI))
 	cli.ErrCheck(err, quiet, "Failed to generate deposit contract ABI")
@@ -222,7 +224,15 @@ func sendOffline(deposits []*util.DepositInfo, contractDetails *beaconDepositCon
 		} else {
 			value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
 		}
-		signedTx, err := createSignedTransaction(fromAddress, &address, value, 500000, dataBytes)
+		gasLimit := uint64(200000)
+		signedTx, err := c.CreateSignedTransaction(context.Background(),
+			&conn.TransactionData{
+				From:     fromAddress,
+				To:       &address,
+				Value:    value,
+				GasLimit: &gasLimit,
+				Data:     dataBytes,
+			})
 		cli.ErrCheck(err, quiet, "Failed to create signed transaction")
 		buf := new(bytes.Buffer)
 		err = signedTx.EncodeRLP(buf)
@@ -234,7 +244,7 @@ func sendOffline(deposits []*util.DepositInfo, contractDetails *beaconDepositCon
 func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositContract, fromAddress common.Address) {
 	address := common.BytesToAddress(contractDetails.address)
 
-	contract, err := contracts.NewEth2Deposit(address, client)
+	contract, err := contracts.NewEth2Deposit(address, c.Client())
 	cli.ErrCheck(err, quiet, "Failed to obtain deposit contract")
 
 	cli.Assert(len(deposits) > 0, quiet, "No deposit data supplied")
@@ -265,7 +275,7 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 
 		outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Amount)), true), deposit.Account))
 
-		_, err = nextNonce(fromAddress)
+		_, err = c.NextNonce(context.Background(), fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain next nonce")
 		var depositDataRoot [32]byte
 		copy(depositDataRoot[:], deposit.DepositDataRoot)
@@ -360,7 +370,7 @@ func fetchBeaconDepositContract(contractAddress string, network string) (*beacon
 
 	if len(address) > 0 {
 		for _, contract := range beaconDepositKnownContracts {
-			if bytes.Equal(address, contract.address) && chainID.Cmp(contract.chainID) == 0 {
+			if bytes.Equal(address, contract.address) && c.ChainID().Cmp(contract.chainID) == 0 {
 				return contract, nil
 			}
 		}
@@ -370,7 +380,7 @@ func fetchBeaconDepositContract(contractAddress string, network string) (*beacon
 			// We allow this; return a synthetic contract definition.
 			return &beaconDepositContract{
 				network:    "user-supplied network",
-				chainID:    chainID,
+				chainID:    c.ChainID(),
 				address:    address,
 				minVersion: 0,
 				maxVersion: 999,
@@ -404,6 +414,6 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowExcessiveDeposit, "allow-excessive-deposit", false, "Allow sending more than 32 Ether in a single deposit (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/ropsten/prater)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/ropsten)")
 	addTransactionFlags(beaconDepositCmd, "the account from which to send the deposit")
 }

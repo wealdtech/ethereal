@@ -43,21 +43,23 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
+		outputIf(debug, fmt.Sprintf("ENS domain is %s", ensDomain))
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
+		outputIf(debug, fmt.Sprintf("Owner of %s is %#x", ensDomain, owner))
 
 		// Set the resolver from either command-line or default
 		var resolverAddress common.Address
 		if ensResolverSetResolverStr == "" {
-			resolverAddress, err = ens.PublicResolverAddress(client)
-			cli.ErrCheck(err, quiet, fmt.Sprintf("No public resolver for network id %v", chainID))
+			resolverAddress, err = ens.PublicResolverAddress(c.Client())
+			cli.ErrCheck(err, quiet, fmt.Sprintf("No public resolver for network id %v", c.ChainID()))
 		} else {
-			resolverAddress, err = ens.Resolve(client, ensResolverSetResolverStr)
+			resolverAddress, err = c.Resolve(ensResolverSetResolverStr)
 			cli.Assert(!bytes.Equal(resolverAddress.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Invalid resolver; if you are trying to clear an existing resolver use \"ens resolver clear\"")
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 		}

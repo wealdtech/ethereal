@@ -207,7 +207,7 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.AddressTy:
 		addr := val.(common.Address)
-		return ens.Format(client, addr), nil
+		return ens.Format(c.Client(), addr), nil
 	case abi.FixedBytesTy:
 		arrayVal := reflect.ValueOf(val)
 		castVal := make([]byte, arrayVal.Len())

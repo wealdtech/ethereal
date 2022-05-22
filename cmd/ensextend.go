@@ -70,16 +70,16 @@ This will return an exit status of 0 if the transactions are successfully submit
 			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
 			// Ensure the domain is owned
-			registry, err := ens.NewRegistry(client)
+			registry, err := ens.NewRegistry(c.Client())
 			cli.ErrCheck(err, quiet, "Failed to obtain ENS registry")
 			owner, err := registry.Owner(domain)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain owner for %s", domain))
 			cli.Assert(owner != ens.UnknownAddress, quiet, fmt.Sprintf("%s is not registered", domain))
 
-			controller, err := ens.NewETHController(client, ens.Domain(domain))
+			controller, err := ens.NewETHController(c.Client(), ens.Domain(domain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s controller", ens.Domain(domain)))
 
-			registrar, err := ens.NewBaseRegistrar(client, ens.Domain(domain))
+			registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Domain(domain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s registrar", ens.Domain(domain)))
 
 			// Obtain current expiry

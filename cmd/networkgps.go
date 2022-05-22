@@ -44,7 +44,7 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 		for i := networkGPSBlocks + 1; i > 0; i-- {
 			ctx, cancel := localContext()
 			defer cancel()
-			block, err := client.BlockByNumber(ctx, blockNumber)
+			block, err := c.Client().BlockByNumber(ctx, blockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about block")
 
 			blockTime := time.Unix(int64(block.Time()), 0)

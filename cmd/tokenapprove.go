@@ -24,7 +24,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenApproveAmount string
@@ -44,11 +43,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(tokenApproveHolderAddress != "", quiet, "--holder is required")
-		holderAddress, err := ens.Resolve(client, tokenApproveHolderAddress)
+		holderAddress, err := c.Resolve(tokenApproveHolderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenApproveHolderAddress))
 
 		cli.Assert(tokenApproveSpenderAddress != "", quiet, "--spender is required")
-		spenderAddress, err := ens.Resolve(client, tokenApproveSpenderAddress)
+		spenderAddress, err := c.Resolve(tokenApproveSpenderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve spender address %s", tokenApproveSpenderAddress))
 
 		cli.Assert(tokenStr != "", quiet, "--token is required")

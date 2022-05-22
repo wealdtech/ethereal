@@ -19,7 +19,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var ensDomainGetAddress string
@@ -36,10 +35,10 @@ In quiet mode this will return 0 if the address has a reverse resolution, otherw
 
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomainGetAddress != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, ensDomainGetAddress)
+		address, err := c.Resolve(ensDomainGetAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address for lookup")
 
-		domain, err := ens.ReverseResolve(client, address)
+		domain, err := c.ReverseResolve(address)
 		if err != nil {
 			if err.Error() == "No resolution" {
 				os.Exit(exitFailure)

@@ -33,10 +33,10 @@ This will return an exit status of 0 if the transaction is successfully submitte
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(registryImplementerInterface != "", quiet, "--interface is required")
 
-		address, err := ens.Resolve(client, registryImplementerAddressStr)
+		address, err := c.Resolve(registryImplementerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 
-		registry, err := erc1820.NewRegistry(client)
+		registry, err := erc1820.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 registry")
 
 		opts, err := generateTxOpts(address)

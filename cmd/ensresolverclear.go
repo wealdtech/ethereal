@@ -38,7 +38,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name

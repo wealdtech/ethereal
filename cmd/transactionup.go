@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,16 +15,18 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"os"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/conn"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -44,25 +46,40 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		txHash := common.HexToHash(transactionStr)
 		ctx, cancel := localContext()
 		defer cancel()
-		tx, pending, err := client.TransactionByHash(ctx, txHash)
+		tx, pending, err := c.Client().TransactionByHash(ctx, txHash)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 		cli.Assert(pending, quiet, fmt.Sprintf("Transaction %s has already been mined", txHash.Hex()))
 
-		minGasPrice := new(big.Int).Add(new(big.Int).Add(tx.GasPrice(), new(big.Int).Div(tx.GasPrice(), big.NewInt(10))), big.NewInt(1))
-		if viper.GetString("gasprice") == "" {
-			// No gas price supplied; use the calculated minimum
-			gasPrice = minGasPrice
-		} else {
-			// Gas price supplied; ensure it is over 10% more than the current gas price
-			cli.Assert(gasPrice.Cmp(minGasPrice) > 0, quiet, fmt.Sprintf("Gas price must be at least %s", string2eth.WeiToString(minGasPrice, true)))
+		// Increase priority fee by 10% (+1 wei, to avoid rounding issues).
+		feePerGas := new(big.Int).Add(new(big.Int).Add(tx.GasFeeCap(), new(big.Int).Div(tx.GasFeeCap(), big.NewInt(10))), big.NewInt(1))
+		// Increase priority fee by 10% (+1 wei, to avoid rounding issues).
+		priorityFeePerGas := new(big.Int).Add(new(big.Int).Add(tx.GasTipCap(), new(big.Int).Div(tx.GasTipCap(), big.NewInt(10))), big.NewInt(1))
+
+		// Ensure that the total fee per gas does not exceed the max allowed.
+		totalFeePerGas := new(big.Int).Add(feePerGas, priorityFeePerGas)
+		if viper.GetString("max-fee-per-gas") == "" {
+			viper.Set("max-fee-per-gas", "200gwei")
 		}
+		maxFeePerGas, err := string2eth.StringToWei(viper.GetString("max-fee-per-gas"))
+		cli.ErrCheck(err, quiet, "failed to obtain max fee per gas")
+		cli.Assert(totalFeePerGas.Cmp(maxFeePerGas) <= 0, quiet, fmt.Sprintf("increased total fee per gas of %s too high; increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToString(totalFeePerGas, true)))
 
 		// Create and sign the transaction
-		fromAddress, err := txFrom(tx)
+		fromAddress, err := types.Sender(signer, tx)
 		cli.ErrCheck(err, quiet, "Failed to obtain from address")
 
-		nonce = int64(tx.Nonce())
-		signedTx, err := createSignedTransaction(fromAddress, tx.To(), tx.Value(), tx.Gas(), tx.Data())
+		nonce := int64(tx.Nonce())
+		gasLimit := tx.Gas()
+		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
+			From:                 fromAddress,
+			To:                   tx.To(),
+			Nonce:                &nonce,
+			Value:                tx.Value(),
+			GasLimit:             &gasLimit,
+			MaxFeePerGas:         feePerGas,
+			MaxPriorityFeePerGas: priorityFeePerGas,
+			Data:                 tx.Data(),
+		})
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		if offline {
@@ -71,18 +88,15 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-			os.Exit(exitSuccess)
+		} else {
+			err = c.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+			handleSubmittedTransaction(signedTx, log.Fields{
+				"group":       "transaction",
+				"command":     "up",
+				"oldgasprice": tx.GasPrice().String(),
+			}, true)
 		}
-
-		ctx, cancel = localContext()
-		defer cancel()
-		err = client.SendTransaction(ctx, signedTx)
-		cli.ErrCheck(err, quiet, "Failed to send transaction")
-		handleSubmittedTransaction(signedTx, log.Fields{
-			"group":       "transaction",
-			"command":     "up",
-			"oldgasprice": tx.GasPrice().String(),
-		}, true)
 	},
 }
 

@@ -54,19 +54,19 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 		totalTxs := int64(0)
 
 		if gas > 0 {
-			lowestGasPrice, err = util.GasPriceForBlocks(client, gasPriceBlocks, gas, verbose)
+			lowestGasPrice, err = util.GasPriceForBlocks(c.Client(), gasPriceBlocks, gas, verbose)
 			cli.ErrCheck(err, quiet, "Failed to obtain gas price")
 		} else {
 			var blockNumber *big.Int
 			for blocks := gasPriceBlocks; blocks > 0; blocks-- {
 				ctx, cancel := localContext()
 				defer cancel()
-				block, err := client.BlockByNumber(ctx, blockNumber)
+				block, err := c.Client().BlockByNumber(ctx, blockNumber)
 				cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 				blockNumber = big.NewInt(0).Set(block.Number())
 				blockTime := time.Unix(int64(block.Time()), 0)
 
-				if util.BlockHasMinerTransactions(block, chainID) {
+				if util.BlockHasMinerTransactions(block, c.ChainID()) {
 					outputIf(verbose, fmt.Sprintf("Block %v contains self-mined transactions; ignoring", blockNumber))
 					blockNumber = blockNumber.Sub(blockNumber, big.NewInt(1))
 					blocks++

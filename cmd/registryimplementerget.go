@@ -36,10 +36,10 @@ In quiet mode this will return 0 if the implementer has an address, otherwise 1.
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(registryImplementerInterface != "", quiet, "--interface is required")
 
-		address, err := ens.Resolve(client, registryImplementerAddressStr)
+		address, err := c.Resolve(registryImplementerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve name")
 
-		registry, err := erc1820.NewRegistry(client)
+		registry, err := erc1820.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 registry")
 
 		implementer, err := registry.InterfaceImplementer(registryImplementerInterface, &address)
@@ -49,7 +49,7 @@ In quiet mode this will return 0 if the implementer has an address, otherwise 1.
 			os.Exit(exitFailure)
 		}
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, *implementer))
+			fmt.Printf("%s\n", ens.Format(c.Client(), *implementer))
 		}
 		os.Exit(exitSuccess)
 	},

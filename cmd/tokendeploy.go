@@ -15,17 +15,18 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/conn"
 	"github.com/wealdtech/ethereal/v2/util"
 	"github.com/wealdtech/ethereal/v2/util/funcparser"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenDeployName string
@@ -56,7 +57,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		supply.Mul(supply, new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(tokenDeployDecimals)), nil))
 
 		cli.Assert(tokenDeployOwner != "", quiet, "--owner is required")
-		owner, err := ens.Resolve(client, tokenDeployOwner)
+		owner, err := c.Resolve(tokenDeployOwner)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve owner address %s", tokenDeployOwner))
 
 		contract, err := util.ParseCombinedJSON(erc20ContractData, "ERC20Token")
@@ -64,14 +65,24 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		// Set up the constructor
 		constructor := fmt.Sprintf("constructor(%q,%q,%v,%v)", tokenDeployName, tokenDeploySymbol, tokenDeployDecimals, supply)
-		_, constructorArgs, err := funcparser.ParseCall(client, contract, constructor)
+		_, constructorArgs, err := funcparser.ParseCall(c.Client(), contract, constructor)
 		cli.ErrCheck(err, quiet, "Failed to parse constructor")
 		argData, err := contract.Abi.Pack("", constructorArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
 		contract.Binary = append(contract.Binary, argData...)
 
+		var gasLimit *uint64
+		limit := uint64(viper.GetInt64("gaslimit"))
+		if limit > 0 {
+			gasLimit = &limit
+		}
+
 		// Deploy the token contract
-		signedTx, err := createSignedTransaction(owner, nil, big.NewInt(0), gasLimit, contract.Binary)
+		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
+			From:     owner,
+			GasLimit: gasLimit,
+			Data:     contract.Binary,
+		})
 		cli.ErrCheck(err, quiet, "Failed to create token contract deployment transaction")
 
 		if offline {
@@ -80,22 +91,18 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-			os.Exit(exitSuccess)
+		} else {
+			err = c.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+			handleSubmittedTransaction(signedTx, log.Fields{
+				"group":    "token",
+				"command":  "deploy",
+				"name":     tokenDeployName,
+				"symbol":   tokenDeploySymbol,
+				"decimals": tokenDeployDecimals,
+				"supply":   tokenDeploySupply,
+			}, true)
 		}
-
-		ctx, cancel := localContext()
-		defer cancel()
-		err = client.SendTransaction(ctx, signedTx)
-		cli.ErrCheck(err, quiet, "Failed to send token contract deployment transaction")
-
-		handleSubmittedTransaction(signedTx, log.Fields{
-			"group":    "token",
-			"command":  "deploy",
-			"name":     tokenDeployName,
-			"symbol":   tokenDeploySymbol,
-			"decimals": tokenDeployDecimals,
-			"supply":   tokenDeploySupply,
-		}, true)
 	},
 }
 

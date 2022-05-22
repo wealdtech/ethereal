@@ -43,7 +43,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(ensTextKey != "", quiet, "--key is required")
 		cli.Assert(ensTextSetText != "", quiet, "--text is required; to clear the value use \"ens text clear\"")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Fetch the owner of the name
@@ -52,7 +52,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
 		// Obtain the resolver for this name
-		resolver, err := ens.NewResolver(client, ensDomain)
+		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 
 		opts, err := generateTxOpts(owner)

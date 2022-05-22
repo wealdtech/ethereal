@@ -46,7 +46,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 		{
 			ctx, cancel := localContext()
 			defer cancel()
-			block, err := client.BlockByNumber(ctx, lastBlockNumber)
+			block, err := c.Client().BlockByNumber(ctx, lastBlockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 			lastBlockNumber = new(big.Int).Set(block.Number())
 			lastBlockTime = time.Unix(int64(block.Time()), 0)
@@ -72,7 +72,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 			for {
 				ctx, cancel := localContext()
 				defer cancel()
-				block, err := client.BlockByNumber(ctx, guessBlockNumber)
+				block, err := c.Client().BlockByNumber(ctx, guessBlockNumber)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", guessBlockNumber))
 				huntBlockNumber = new(big.Int).Set(block.Number())
 				huntBlockTime = time.Unix(int64(block.Time()), 0)
@@ -107,7 +107,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 			{
 				ctx, cancel := localContext()
 				defer cancel()
-				block, err := client.BlockByNumber(ctx, oldBlockNumber)
+				block, err := c.Client().BlockByNumber(ctx, oldBlockNumber)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain information about block %v", oldBlockNumber))
 				oldBlockTime = time.Unix(int64(block.Time()), 0)
 				outputIf(verbose, fmt.Sprintf("Block %v mined at %v", oldBlockNumber, oldBlockTime))

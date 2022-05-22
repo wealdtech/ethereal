@@ -59,7 +59,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
 		if ens.DomainLevel(ensDomain) == 1 && ens.Tld(ensDomain) == "eth" {
 			// Work out if this is on the old or new .eth registrar and act accordingly
-			registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
+			registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Tld(ensDomain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 			outputIf(debug, fmt.Sprintf("Registrar address is %#x", registrar.ContractAddr))
 
@@ -80,8 +80,8 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 				os.Exit(exitFailure)
 			}
 
-			outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(client, registrar.ContractAddr)))
-			registrantName, _ := ens.ReverseResolve(client, registrant)
+			outputIf(verbose, fmt.Sprintf("Registrar is %s", ens.Format(c.Client(), registrar.ContractAddr)))
+			registrantName, _ := c.ReverseResolve(registrant)
 			if registrantName == "" {
 				fmt.Printf("Registrant is %s\n", registrant.Hex())
 			} else {
@@ -91,7 +91,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			cli.ErrCheck(err, quiet, "Failed to obtain expiry")
 			fmt.Printf("Registration expires at %v\n", time.Unix(int64(expiry.Uint64()), 0))
 
-			controller, err := ens.NewETHController(client, ens.Domain(ensDomain))
+			controller, err := ens.NewETHController(c.Client(), ens.Domain(ensDomain))
 			cli.ErrCheck(err, quiet, "Failed to obtain controller")
 			rentPerSec, err := controller.RentCost(ensDomain)
 			if err == nil {
@@ -102,7 +102,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
 			// See if there is an outstanding deed.
 			auctionRegistrarAddress := common.HexToAddress("0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef")
-			auctionRegistrar, err := ens.NewAuctionRegistrarAt(client, ens.Tld(ensDomain), auctionRegistrarAddress)
+			auctionRegistrar, err := ens.NewAuctionRegistrarAt(c.Client(), ens.Tld(ensDomain), auctionRegistrarAddress)
 			cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
 			entry, err := auctionRegistrar.Entry(ensDomain)
 			if err == nil && entry != nil && entry.Deed != ens.UnknownAddress {
@@ -123,7 +123,7 @@ func init() {
 
 // It is possible for an unregistered domain to have a resolver; report if this is the case
 func unregisteredResolverCheck(domain string) {
-	registry, err := ens.NewRegistry(client)
+	registry, err := ens.NewRegistry(c.Client())
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 	resolverAddress, err := registry.ResolverAddress(domain)
 	if err != nil {
@@ -143,7 +143,7 @@ a malicious part could register the domain and change the resolution.`)
 // genericInfo prints generic info about any ENS domain.
 // It returns true if the domain exists, otherwise false
 func genericInfo(name string) bool {
-	registry, err := ens.NewRegistry(client)
+	registry, err := ens.NewRegistry(c.Client())
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 	controllerAddress, err := registry.Owner(ensDomain)
 	cli.ErrCheck(err, quiet, "Failed to obtain controller")
@@ -151,7 +151,7 @@ func genericInfo(name string) bool {
 		fmt.Println("Owner not set")
 		return false
 	}
-	controllerName, _ := ens.ReverseResolve(client, controllerAddress)
+	controllerName, _ := c.ReverseResolve(controllerAddress)
 	if controllerName == "" {
 		fmt.Printf("Controller is %s\n", controllerAddress.Hex())
 	} else {
@@ -164,7 +164,7 @@ func genericInfo(name string) bool {
 		fmt.Println("Resolver not configured")
 		return true
 	}
-	resolverName, _ := ens.ReverseResolve(client, resolverAddress)
+	resolverName, _ := c.ReverseResolve(resolverAddress)
 	if resolverName == "" {
 		fmt.Printf("Resolver is %s\n", resolverAddress.Hex())
 	} else {
@@ -172,18 +172,18 @@ func genericInfo(name string) bool {
 	}
 
 	// Address
-	address, err := ens.Resolve(client, name)
+	address, err := c.Resolve(name)
 	if err == nil && address != ens.UnknownAddress {
 		fmt.Printf("Domain resolves to %s\n", address.Hex())
 		// Reverse resolution
-		reverseDomain, err := ens.ReverseResolve(client, address)
+		reverseDomain, err := c.ReverseResolve(address)
 		if err == nil && reverseDomain != "" {
 			fmt.Printf("Address resolves to %s\n", reverseDomain)
 		}
 	}
 
 	// Content hash
-	resolver, err := ens.NewResolverAt(client, name, resolverAddress)
+	resolver, err := ens.NewResolverAt(c.Client(), name, resolverAddress)
 	if err == nil {
 		bytes, err := resolver.Contenthash()
 		if err == nil && len(bytes) > 0 {

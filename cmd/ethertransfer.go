@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,15 +15,16 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
-	"os"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
+	"github.com/wealdtech/ethereal/v2/conn"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -44,23 +45,25 @@ This will return an exit status of 0 if the transaction is successfully submitte
 	Aliases: []string{"send"},
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(etherTransferFromAddress != "", quiet, "--from is required")
-		fromAddress, err := ens.Resolve(client, etherTransferFromAddress)
+		fromAddress, err := c.Resolve(etherTransferFromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain from address for transfer")
 
 		cli.Assert(etherTransferToAddress != "", quiet, "--to is required")
-		toAddress, err := ens.Resolve(client, etherTransferToAddress)
+		toAddress, err := c.Resolve(etherTransferToAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain to address for transfer")
 
 		cli.Assert(etherTransferAmount != "", quiet, "--amount is required")
 		amount, err := string2eth.StringToWei(etherTransferAmount)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
-		// Obtain the balance of the address
-		ctx, cancel := localContext()
-		defer cancel()
-		balance, err := client.BalanceAt(ctx, fromAddress, nil)
-		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
-		cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", string2eth.WeiToString(balance, true)))
+		// Obtain the balance of the address.
+		if !offline {
+			ctx, cancel := localContext()
+			defer cancel()
+			balance, err := c.Client().BalanceAt(ctx, fromAddress, nil)
+			cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
+			cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", string2eth.WeiToString(balance, true)))
+		}
 
 		// Turn the data string in to hex
 		etherTransferData = strings.TrimPrefix(etherTransferData, "0x")
@@ -71,8 +74,20 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		data, err := hex.DecodeString(etherTransferData)
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
+		var gasLimit *uint64
+		limit := uint64(viper.GetInt64("gaslimit"))
+		if limit > 0 {
+			gasLimit = &limit
+		}
+
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, &toAddress, amount, gasLimit, data)
+		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
+			From:     fromAddress,
+			To:       &toAddress,
+			Value:    amount,
+			GasLimit: gasLimit,
+			Data:     data,
+		})
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 		if offline {
@@ -81,18 +96,14 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
-			os.Exit(exitSuccess)
+		} else {
+			err = c.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+			handleSubmittedTransaction(signedTx, log.Fields{
+				"group":   "ether",
+				"command": "transfer",
+			}, true)
 		}
-
-		ctx, cancel = localContext()
-		defer cancel()
-		err = client.SendTransaction(ctx, signedTx)
-		cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-		handleSubmittedTransaction(signedTx, log.Fields{
-			"group":   "ether",
-			"command": "transfer",
-		}, true)
 	},
 }
 

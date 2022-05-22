@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/util/contracts"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenStr string
@@ -36,10 +35,10 @@ var unknownAddress = common.HexToAddress("00")
 
 func tokenContractAddress(input string) (address common.Address, err error) {
 	// Guess 1 - might be an ENS name or a hex string
-	address, err = ens.Resolve(client, input)
+	address, err = c.Resolve(input)
 	if (address == unknownAddress || err != nil) && !strings.HasSuffix(input, ".eth") {
 		// Guess 2 - try {input}.thetoken.eth
-		address, err = ens.Resolve(client, input+".thetoken.eth")
+		address, err = c.Resolve(input + ".thetoken.eth")
 		if err != nil {
 			// Give up
 			err = fmt.Errorf("unknown token %s", input)
@@ -52,7 +51,7 @@ func tokenContractAddress(input string) (address common.Address, err error) {
 func tokenContract(input string) (contract *contracts.ERC20, err error) {
 	address, err := tokenContractAddress(input)
 	if err == nil {
-		contract, err = contracts.NewERC20(address, client)
+		contract, err = contracts.NewERC20(address, c.Client())
 	}
 	return
 }

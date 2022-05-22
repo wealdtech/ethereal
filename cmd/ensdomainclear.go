@@ -37,11 +37,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(ensDomainClearAddress != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, ensDomainClearAddress)
+		address, err := c.Resolve(ensDomainClearAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address to clear domain")
 
 		// Obtain the reverse registrar
-		registrar, err := ens.NewReverseRegistrar(client)
+		registrar, err := ens.NewReverseRegistrar(c.Client())
 		cli.ErrCheck(err, quiet, "Failed to obtain reverse registrar")
 
 		opts, err := generateTxOpts(address)

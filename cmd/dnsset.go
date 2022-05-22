@@ -58,7 +58,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		outputIf(verbose, fmt.Sprintf("ENS domain hash is 0x%x", domainHash))
 
 		// Obtain the registry contract
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Obtain owner for the domain
@@ -66,10 +66,10 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(!bytes.Equal(domainOwner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Owner is not set")
-		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, domainOwner)))
+		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(c.Client(), domainOwner)))
 
 		// Obtain DNS resolver for the domain
-		resolver, err := ens.NewDNSResolver(client, ensDomain)
+		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 
 		var signedTx *types.Transaction

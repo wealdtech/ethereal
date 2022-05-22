@@ -35,7 +35,7 @@ In quiet mode this will return 0 if the network ID is obtained, otherwise 1.`,
 
 		ctx, cancel := localContext()
 		defer cancel()
-		id, err := client.NetworkID(ctx)
+		id, err := c.Client().NetworkID(ctx)
 		cli.ErrCheck(err, quiet, "Failed to obtain network ID")
 		if !quiet {
 			fmt.Printf("%v\n", id)

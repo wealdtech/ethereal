@@ -17,7 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 
@@ -34,11 +33,11 @@ var registryManagerSetCmd = &cobra.Command{
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(registryManagerAddressStr != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, registryManagerAddressStr)
+		address, err := c.Resolve(registryManagerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 
 		cli.Assert(registryManagerSetManagerStr != "", quiet, "--manager is required")
-		manager, err := ens.Resolve(client, registryManagerSetManagerStr)
+		manager, err := c.Resolve(registryManagerSetManagerStr)
 		if err != nil {
 			if err.Error() == "could not parse address" {
 				cli.Err(quiet, "Invalid manager address; if you are trying to clear an existing entry use \"registry manager clear\"")
@@ -46,7 +45,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 		cli.ErrCheck(err, quiet, "failed to resolve manager")
 
-		registry, err := erc1820.NewRegistry(client)
+		registry, err := erc1820.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 registry")
 
 		existingManager, err := registry.Manager(&address)

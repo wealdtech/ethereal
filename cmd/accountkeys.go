@@ -51,7 +51,7 @@ In quiet mode this will return 0 if the account was successfully decoded, otherw
 			cli.ErrCheck(err, quiet, "Invalid private key")
 		} else {
 			address := common.HexToAddress(accountKeysAddress)
-			key, err = util.PrivateKeyForAccount(chainID, address, accountKeysPassphrase)
+			key, err = util.PrivateKeyForAccount(c.ChainID(), address, accountKeysPassphrase)
 		}
 		cli.ErrCheck(err, quiet, "Failed to access account")
 		if quiet {

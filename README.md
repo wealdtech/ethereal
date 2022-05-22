@@ -112,9 +112,11 @@ Commands will have an exit status of 0 on success and 1 on failure.  The specifi
 
 ### Transactions
 
-Many Ethereal commands generate Ethereum transactions.  These commands have a number of settings
+Many Ethereal commands generate Ethereum transactions.  These commands have a number of settings.
 
-The `--gasprice` argument sets the gas price for the transaction, for example `--gasprice="4.2 gwei"`.  If not supplied the gas price defaults to 4Gwei.
+The `--priority-fee-per-gas` argument sets the tip for the transaction, for example `--priority-fee-per-gas="2 gwei"`.  If not supplied it defaults to 1.5 Gwei.
+
+The `--max-fee-per-gas` argument sets the maximum combined fee plus priority fee for the transaction, for example `--max-fee-per-gas=100gwei`.  If not supplied it defaults to 200 Gwei.
 
 The `--gaslimit` argument hardcodes the maximum gas for the transaction, for example `--gas=100000"`.  If not supplied the gas price will be automatically calculated.
 
@@ -954,7 +956,7 @@ $ ethereal transaction cancel --transaction="0x19f5c8369d49bf96e82941e938d3978f4
 0x4dada7ddd3841d9e754fa1caa4232155d1a6d976fef610da5c3c0d00025bd0c1
 ```
 
-Note that in reality Ethereum has no notion of cancelling transactions so instead the transaction is replaced with a new transaction that does nothing.  To do this the gas price needs to be higher than that of the existing transaction; if not supplied explicitly it will default to just over 10% higher than the gas price of the transaction to be cancelled (the minimum it can be incremented for the cancellation to be accepted).  A specific gas price can be supplied with the `--gasprice` argument as normal.
+Note that in reality Ethereum has no notion of cancelling transactions so instead the transaction is replaced with a new transaction that does nothing.  For this command to succeed transaction's maximum base fee and priority fee must both be increased by 10% over that of the existing transaction; this will happen automatically.
 
 #### `info`
 
@@ -1010,7 +1012,7 @@ $ ethereal transaction send --from=0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf --
 $ ethereal transaction up --transaction=0x581560df6b07612293996772a40966e8b85f70af2d53eee624513324fad8a99a
 ```
 
-For this command to succeed the gas price needs to be higher than that of the existing transaction; if not supplied explicitly it will default to just over 10% higher than the gas price of the transaction to be cancelled (the minimum it can be incremented for the cancellation to be accepted).  A specific gas price can be supplied with the `--gasprice` argument as normal.
+For this command to succeed transaction's maximum base fee and priority fee must both be increased by 10% over that of the existing transaction; this will happen automatically.
 
 #### `wait`
 

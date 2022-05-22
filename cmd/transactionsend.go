@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -27,8 +28,9 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
+	"github.com/wealdtech/ethereal/v2/conn"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -82,25 +84,31 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			}
 
 			for i := range signedTxs {
-				ctx, cancel := localContext()
-				defer cancel()
-				err = client.SendTransaction(ctx, signedTxs[i])
-				cli.ErrCheck(err, quiet, "Failed to send transaction")
+				if offline {
+					if !quiet {
+						buf := new(bytes.Buffer)
+						cli.ErrCheck(signedTxs[i].EncodeRLP(buf), quiet, "failed to encode transaction")
+						fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+					}
+				} else {
+					err = c.SendTransaction(context.Background(), signedTxs[i])
+					cli.ErrCheck(err, quiet, "Failed to send transaction")
 
-				logTransaction(signedTxs[i], log.Fields{
-					"group":   "transaction",
-					"command": "send",
-				})
+					logTransaction(signedTxs[i], log.Fields{
+						"group":   "transaction",
+						"command": "send",
+					})
 
-				if !quiet {
-					fmt.Println(signedTxs[i].Hash().Hex())
+					if !quiet {
+						fmt.Println(signedTxs[i].Hash().Hex())
+					}
 				}
 			}
 			os.Exit(exitSuccess)
 		}
 
 		cli.Assert(transactionSendFromAddress != "", quiet, "--from is required")
-		fromAddress, err := ens.Resolve(client, transactionSendFromAddress)
+		fromAddress, err := c.Resolve(transactionSendFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", transactionSendFromAddress))
 
 		var toAddress *common.Address
@@ -108,7 +116,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			// This is valid because it can be a contract creation, but only if there is data as well
 			cli.Assert(transactionSendData != "", quiet, "Transactions without a to address are contract creations and must have data")
 		} else {
-			tmp, err := ens.Resolve(client, transactionSendToAddress)
+			tmp, err := c.Resolve(transactionSendToAddress)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve to address %s", transactionSendToAddress))
 			toAddress = &tmp
 		}
@@ -122,12 +130,18 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 
 		// Obtain the balance of the address
-		if client != nil {
+		if c.Client() != nil {
 			ctx, cancel := localContext()
 			defer cancel()
-			balance, err := client.BalanceAt(ctx, fromAddress, nil)
+			balance, err := c.Client().BalanceAt(ctx, fromAddress, nil)
 			cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 			cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", string2eth.WeiToString(balance, true)))
+		}
+
+		var gasLimit *uint64
+		limit := uint64(viper.GetInt64("gaslimit"))
+		if limit > 0 {
+			gasLimit = &limit
 		}
 
 		// Turn the data string in to hex
@@ -141,7 +155,13 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		for i := 0; i < transactionSendRepeat; i++ {
 			// Create and sign the transaction
-			signedTx, err := createSignedTransaction(fromAddress, toAddress, amount, gasLimit, data)
+			signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
+				From:     fromAddress,
+				To:       toAddress,
+				Value:    amount,
+				GasLimit: gasLimit,
+				Data:     data,
+			})
 			cli.ErrCheck(err, quiet, "Failed to create transaction")
 
 			if offline {
@@ -150,17 +170,14 @@ This will return an exit status of 0 if the transaction is successfully submitte
 					cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
-				os.Exit(exitSuccess)
+			} else {
+				err = c.SendTransaction(context.Background(), signedTx)
+				cli.ErrCheck(err, quiet, "Failed to send transaction")
+				handleSubmittedTransaction(signedTx, log.Fields{
+					"group":   "transaction",
+					"command": "send",
+				}, false)
 			}
-
-			ctx, cancel := localContext()
-			defer cancel()
-			err = client.SendTransaction(ctx, signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
-			handleSubmittedTransaction(signedTx, log.Fields{
-				"group":   "transaction",
-				"command": "send",
-			}, false)
 		}
 	},
 }

@@ -34,7 +34,7 @@ In quiet mode this will return 0 if the node is synchronised, otherwise 1.`,
 		ctx, cancel := localContext()
 		defer cancel()
 
-		syncProgress, err := client.SyncProgress(ctx)
+		syncProgress, err := c.Client().SyncProgress(ctx)
 
 		cli.ErrCheck(err, quiet, "Failed to obtain node sync status")
 

@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -54,7 +55,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 		}
 
 		auctionRegistrarAddress := common.HexToAddress("0x6090A6e47849629b7245Dfa1Ca21D94cd15878Ef")
-		auctionRegistrar, err := ens.NewAuctionRegistrarAt(client, ens.Tld(domains[0]), auctionRegistrarAddress)
+		auctionRegistrar, err := ens.NewAuctionRegistrarAt(c.Client(), ens.Tld(domains[0]), auctionRegistrarAddress)
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS auction registrar contract")
 
 		for _, domain := range domains {
@@ -68,13 +69,13 @@ This will return an exit status of 0 if the transactions are successfully submit
 			owner, err := auctionRegistrar.Owner(domain)
 			cli.ErrCheck(err, quiet, "Failed to obtain domain owner")
 
-			outputIf(verbose, fmt.Sprintf("Domain %s owner is %s", domain, ens.Format(client, owner)))
+			outputIf(verbose, fmt.Sprintf("Domain %s owner is %s", domain, ens.Format(c.Client(), owner)))
 
 			opts, err := generateTxOpts(owner)
 			cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 			signedTx, err := auctionRegistrar.Release(opts, domain)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
-			_, err = nextNonce(owner)
+			_, err = c.NextNonce(context.Background(), owner)
 			cli.ErrCheck(err, quiet, "failed to increment nonce")
 
 			handleSubmittedTransaction(signedTx, log.Fields{

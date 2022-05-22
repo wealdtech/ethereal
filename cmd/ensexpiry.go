@@ -41,7 +41,7 @@ In quiet mode this will return 0 if the domain has an expiry date in the future,
 		ensDomain, err := ens.NormaliseDomain(ensDomain)
 		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
-		registrar, err := ens.NewBaseRegistrar(client, ens.Tld(ensDomain))
+		registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 
 		expiryTS, err := registrar.Expiry(ensDomain)

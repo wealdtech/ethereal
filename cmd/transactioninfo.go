@@ -74,7 +74,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			ctx, cancel := localContext()
 			defer cancel()
 			var err error
-			tx, pending, err = client.TransactionByHash(ctx, txHash)
+			tx, pending, err = c.Client().TransactionByHash(ctx, txHash)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain transaction %s", txHash.Hex()))
 		}
 
@@ -118,7 +118,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			}
 			ctx, cancel := localContext()
 			defer cancel()
-			receipt, err = client.TransactionReceipt(ctx, txHash)
+			receipt, err = c.Client().TransactionReceipt(ctx, txHash)
 			if receipt != nil {
 				if receipt.Status == 0 {
 					fmt.Printf("Result:\t\t\tFailed\n")
@@ -133,18 +133,18 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			fmt.Printf("Block:\t\t\t%d\n", receipt.Logs[0].BlockNumber)
 		}
 
-		fromAddress, err := txFrom(tx)
+		fromAddress, err := types.Sender(signer, tx)
 		if err == nil {
-			fmt.Printf("From:\t\t\t%v\n", ens.Format(client, fromAddress))
+			fmt.Printf("From:\t\t\t%v\n", ens.Format(c.Client(), fromAddress))
 		}
 
 		// To
 		if tx.To() == nil {
 			if receipt != nil {
-				fmt.Printf("Contract address:\t%v\n", ens.Format(client, receipt.ContractAddress))
+				fmt.Printf("Contract address:\t%v\n", ens.Format(c.Client(), receipt.ContractAddress))
 			}
 		} else {
-			fmt.Printf("To:\t\t\t%v\n", ens.Format(client, *tx.To()))
+			fmt.Printf("To:\t\t\t%v\n", ens.Format(c.Client(), *tx.To()))
 		}
 
 		if verbose {
@@ -173,7 +173,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 
 		var block *types.Block
 		if receipt != nil {
-			block, err = client.BlockByHash(context.Background(), receipt.BlockHash)
+			block, err = c.Client().BlockByHash(context.Background(), receipt.BlockHash)
 			if err != nil {
 				// We can carry on without it.
 				block = nil
@@ -211,16 +211,16 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		fmt.Printf("Value:\t\t\t%v\n", string2eth.WeiToString(tx.Value(), true))
 
 		if tx.To() != nil && len(tx.Data()) > 0 {
-			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(client, tx.Data()))
+			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(c.Client(), tx.Data()))
 		}
 
 		if verbose && receipt != nil && len(receipt.Logs) > 0 {
 			fmt.Printf("Logs:\n")
 			for i, log := range receipt.Logs {
 				fmt.Printf("\t%d:\n", i)
-				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(client, log.Address))
+				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(c.Client(), log.Address))
 				// Try to obtain decoded log
-				decoded := txdata.EventToString(client, log)
+				decoded := txdata.EventToString(c.Client(), log)
 				if decoded != "" {
 					fmt.Printf("\t\tEvent:\t%s\n", decoded)
 				} else {

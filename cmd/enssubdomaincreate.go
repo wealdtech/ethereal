@@ -46,7 +46,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(ensSubdomainCreateSubdomain != "", quiet, "--subdomain is required")
 		cli.Assert(!strings.Contains(ensSubdomainCreateSubdomain, "."), quiet, "subdomain should not contain the '.' character")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
 
 		// Fetch the controller of the name.
@@ -61,7 +61,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			// Subdomain owner == controller.
 			subdomainOwner = controller
 		} else {
-			subdomainOwner, err = ens.Resolve(client, ensSubdomainCreateOwnerStr)
+			subdomainOwner, err = c.Resolve(ensSubdomainCreateOwnerStr)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("invalid subdomain name/address %s", ensSubdomainCreateOwnerStr))
 		}
 		outputIf(debug, fmt.Sprintf("Controller of subdomain will be %s", subdomainOwner.Hex()))

@@ -22,9 +22,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenTransferAmount string
@@ -43,11 +43,11 @@ var tokenTransferCmd = &cobra.Command{
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(tokenTransferFromAddress != "", quiet, "--from is required")
-		fromAddress, err := ens.Resolve(client, tokenTransferFromAddress)
+		fromAddress, err := c.Resolve(tokenTransferFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", tokenTransferFromAddress))
 
 		cli.Assert(tokenTransferToAddress != "", quiet, "--to is required")
-		toAddress, err := ens.Resolve(client, tokenTransferToAddress)
+		toAddress, err := c.Resolve(tokenTransferToAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve to address %s", tokenTransferToAddress))
 
 		cli.Assert(tokenStr != "", quiet, "--token is required")
@@ -56,7 +56,8 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		var decimals uint8
 		if offline {
-			cli.Assert(gasLimit != 0, quiet, "--gaslimit is required if offline")
+			gasLimit := viper.GetInt64("gaslimit")
+			cli.Assert(gasLimit > 0, quiet, "--gaslimit is required if offline")
 			cli.Assert(tokenTransferDecimals != "", quiet, "--decimals is required if offline")
 			tmpDecimals, err := strconv.Atoi(tokenTransferDecimals)
 			cli.ErrCheck(err, quiet, "Failed to obtain token decimals")

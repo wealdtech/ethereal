@@ -35,13 +35,13 @@ In quiet mode this will return 0 if the name has a controller, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "failed to obtain registry contract")
 		controller, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "failed to obtain controller")
 
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, controller))
+			fmt.Printf("%s\n", ens.Format(c.Client(), controller))
 		}
 		os.Exit(exitSuccess)
 	},

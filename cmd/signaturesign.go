@@ -70,7 +70,7 @@ provided below:
 		var err error
 		if signatureSignPassphrase != "" {
 			signer := common.HexToAddress(signatureSignSigner)
-			key, err = util.PrivateKeyForAccount(chainID, signer, signatureSignPassphrase)
+			key, err = util.PrivateKeyForAccount(c.ChainID(), signer, signatureSignPassphrase)
 			cli.ErrCheck(err, quiet, "Invalid account or passphrse")
 		} else if signatureSignPrivateKey != "" {
 			key, err = crypto.HexToECDSA(strings.TrimPrefix(signatureSignPrivateKey, "0x"))

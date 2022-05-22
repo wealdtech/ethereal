@@ -32,7 +32,6 @@ var dnsZonehashSetCmd = &cobra.Command{
 	Short: "Set the zone hash of a DNS domain held in ENS",
 	Long: `Set the zone hash of a DNS domain registered with the Ethereum Name Service (ENS).  For example:
 
- TODO
     ethereal dns zone set --domain=enstest.eth --zonehash=/swarm/d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162 --passphrase="my secret passphrase"
 
 The keystore for the account that owns the name must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
@@ -60,7 +59,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		outputIf(verbose, fmt.Sprintf("Zonehash is %#x", data))
 
 		// Obtain the registry contract
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
 		// Obtain owner for the domain
@@ -68,10 +67,10 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(!bytes.Equal(domainOwner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Owner is not set")
-		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(client, domainOwner)))
+		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(c.Client(), domainOwner)))
 
 		// Obtain DNS resolver for the domain
-		resolver, err := ens.NewDNSResolver(client, ensDomain)
+		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 
 		opts, err := generateTxOpts(domainOwner)

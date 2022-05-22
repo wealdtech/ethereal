@@ -36,10 +36,10 @@ Note that this will always return the managing address if possible.  This means 
 In quiet mode this will return 0 if the manager was obtained without error, otherwise 1.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		address, err := ens.Resolve(client, registryManagerAddressStr)
+		address, err := c.Resolve(registryManagerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 
-		registry, err := erc1820.NewRegistry(client)
+		registry, err := erc1820.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 registry")
 
 		manager, err := registry.Manager(&address)
@@ -50,7 +50,7 @@ In quiet mode this will return 0 if the manager was obtained without error, othe
 		}
 
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, *manager))
+			fmt.Printf("%s\n", ens.Format(c.Client(), *manager))
 		}
 		os.Exit(exitSuccess)
 	},

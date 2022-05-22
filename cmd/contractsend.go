@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -22,9 +23,10 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/conn"
 	"github.com/wealdtech/ethereal/v2/util/funcparser"
-	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -46,14 +48,14 @@ This will return an exit status of 0 if the transaction is successfully submitte
 	Aliases: []string{"transaction", "transmit"},
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(contractSendFromAddress != "", quiet, "--from is required")
-		fromAddress, err := ens.Resolve(client, contractSendFromAddress)
+		fromAddress, err := c.Resolve(contractSendFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractSendFromAddress))
 
 		// We need to have 'call'
 		cli.Assert(contractSendCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
-		method, methodArgs, err := funcparser.ParseCall(client, contract, contractSendCall)
+		method, methodArgs, err := funcparser.ParseCall(c.Client(), contract, contractSendCall)
 		cli.ErrCheck(err, quiet, "Failed to parse call")
 
 		data, err := contract.Abi.Pack(method.Name, methodArgs...)
@@ -61,7 +63,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
-		contractAddress, err := ens.Resolve(client, contractStr)
+		contractAddress, err := c.Resolve(contractStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
 
 		amount := big.NewInt(0)
@@ -70,8 +72,20 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid amount %s", contractSendAmount))
 		}
 
+		var gasLimit *uint64
+		limit := uint64(viper.GetInt64("gaslimit"))
+		if limit > 0 {
+			gasLimit = &limit
+		}
+
 		// Create and sign the transaction
-		signedTx, err := createSignedTransaction(fromAddress, &contractAddress, amount, gasLimit, data)
+		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
+			From:     fromAddress,
+			To:       &contractAddress,
+			Value:    amount,
+			GasLimit: gasLimit,
+			Data:     data,
+		})
 		cli.ErrCheck(err, quiet, "Failed to create contract method transaction")
 
 		if offline {
@@ -81,17 +95,14 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 			os.Exit(exitSuccess)
+		} else {
+			err = c.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+			handleSubmittedTransaction(signedTx, log.Fields{
+				"group":   "contract",
+				"command": "send",
+			}, false)
 		}
-
-		ctx, cancel := localContext()
-		defer cancel()
-		err = client.SendTransaction(ctx, signedTx)
-		cli.ErrCheck(err, quiet, "Failed to send contract method transaction")
-
-		handleSubmittedTransaction(signedTx, log.Fields{
-			"group":   "contract",
-			"command": "send",
-		}, false)
 	},
 }
 

@@ -35,12 +35,12 @@ In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		registry, err := ens.NewRegistry(client)
+		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
 		resolver, err := registry.ResolverAddress(ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 		if !quiet {
-			fmt.Printf("%s\n", ens.Format(client, resolver))
+			fmt.Printf("%s\n", ens.Format(c.Client(), resolver))
 		}
 		os.Exit(exitSuccess)
 	},

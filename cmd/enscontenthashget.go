@@ -38,7 +38,7 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		// Obtain resolver for the domain
-		resolver, err := ens.NewResolver(client, ensDomain)
+		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 
 		bytes, err := resolver.Contenthash()

@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 
@@ -41,10 +40,10 @@ In quiet mode this will return 0 if the address implements the interface, otherw
 		cli.Assert(registryImplementsInterface != "", quiet, "--interface is required")
 
 		cli.Assert(registryImplementsAddressStr != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, registryImplementsAddressStr)
+		address, err := c.Resolve(registryImplementsAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve name")
 
-		implementer, err := erc1820.NewImplementer(client, &address)
+		implementer, err := erc1820.NewImplementer(c.Client(), &address)
 		cli.ErrCheck(err, quiet, "failed to obtain contract")
 
 		anyone := common.HexToAddress("00")

@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -55,7 +56,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 		cli.Assert(ensDomain != "" || ensRegisterDomains != "", quiet, "--domain or --domains is required")
 
 		cli.Assert(ensRegisterOwnerStr != "", quiet, "--owner is required")
-		owner, err := ens.Resolve(client, ensRegisterOwnerStr)
+		owner, err := c.Resolve(ensRegisterOwnerStr)
 		cli.ErrCheck(err, quiet, "Failed to obtain new owner address")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Unknown owner")
 
@@ -71,7 +72,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 			domains[0] = ensDomain
 		}
 
-		controller, err := ens.NewETHController(client, ens.Domain(domains[0]))
+		controller, err := ens.NewETHController(c.Client(), ens.Domain(domains[0]))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s controller", ens.Domain(domains[0])))
 
 		tmp, err := controller.MinCommitmentInterval()
@@ -131,13 +132,13 @@ This will return an exit status of 0 if the transactions are successfully submit
 				"secret":    hex.EncodeToString(secret[:]),
 			})
 			outputIf(verbose, fmt.Sprintf("Commit transaction %x submitted for %s", lastTx.Hash(), domain))
-			_, err = nextNonce(owner)
+			_, err = c.NextNonce(context.Background(), owner)
 			cli.ErrCheck(err, quiet, "failed to increment nonce")
 		}
 
 		// Wait
 		outputIf(!quiet, "Waiting for commit transaction(s) to be mined")
-		mined := util.WaitForTransaction(client, lastTx.Hash(), 0)
+		mined := util.WaitForTransaction(c.Client(), lastTx.Hash(), 0)
 		cli.Assert(mined, quiet, "Failed to mine commit transaction(s)")
 		outputIf(!quiet, fmt.Sprintf("Waiting for commit/reveal interval to pass (done at %s)", time.Now().Add(interval).Format("15:04:05")))
 		time.Sleep(interval)
@@ -161,7 +162,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 				"secret":    hex.EncodeToString(secret[:]),
 			})
 			outputIf(verbose, fmt.Sprintf("Reveal transaction %x submitted for %s", lastTx.Hash(), domain))
-			_, err = nextNonce(owner)
+			_, err = c.NextNonce(context.Background(), owner)
 			cli.ErrCheck(err, quiet, "failed to increment nonce")
 		}
 		handleSubmittedTransaction(lastTx, nil, true)

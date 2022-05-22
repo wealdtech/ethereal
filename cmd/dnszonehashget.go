@@ -57,7 +57,7 @@ In quiet mode this will return 0 if the name has a valid zone hash, otherwise 1.
 		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
 
 		// Obtain DNS resolver for the domain
-		resolver, err := ens.NewDNSResolver(client, ensDomain)
+		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 
 		bytes, err := resolver.Zonehash()

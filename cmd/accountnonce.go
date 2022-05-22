@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var accountNonceAddress string
@@ -36,13 +35,13 @@ var accountNonceCmd = &cobra.Command{
 In quiet mode this will return 0 if the nonce can be obtained, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(accountNonceAddress != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, accountNonceAddress)
+		address, err := c.Resolve(accountNonceAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain address of %s", accountNonceAddress))
 
 		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 		defer cancel()
 
-		nonce, err := client.PendingNonceAt(ctx, address)
+		nonce, err := c.Client().PendingNonceAt(ctx, address)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain nonce for %s", accountNonceAddress))
 
 		if !quiet {

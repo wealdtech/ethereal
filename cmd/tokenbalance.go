@@ -21,7 +21,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenBalanceHolderAddress string
@@ -38,7 +37,7 @@ var tokenBalanceCmd = &cobra.Command{
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(tokenBalanceHolderAddress != "", quiet, "--holder is required")
-		address, err := ens.Resolve(client, tokenBalanceHolderAddress)
+		address, err := c.Resolve(tokenBalanceHolderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenBalanceHolderAddress))
 
 		cli.Assert(tokenStr != "", quiet, "--token is required")

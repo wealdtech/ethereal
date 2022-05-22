@@ -23,7 +23,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var tokenTransferFromAmount string
@@ -44,15 +43,15 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(tokenTransferFromFromAddress != "", quiet, "--from is required")
-		fromAddress, err := ens.Resolve(client, tokenTransferFromFromAddress)
+		fromAddress, err := c.Resolve(tokenTransferFromFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", tokenTransferFromFromAddress))
 
 		cli.Assert(tokenTransferFromToAddress != "", quiet, "--to is required")
-		toAddress, err := ens.Resolve(client, tokenTransferFromToAddress)
+		toAddress, err := c.Resolve(tokenTransferFromToAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve to address %s", tokenTransferFromToAddress))
 
 		cli.Assert(tokenTransferFromByAddress != "", quiet, "--by is required")
-		byAddress, err := ens.Resolve(client, tokenTransferFromByAddress)
+		byAddress, err := c.Resolve(tokenTransferFromByAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve by address %s", tokenTransferFromByAddress))
 
 		cli.Assert(tokenStr != "", quiet, "--token is required")

@@ -43,7 +43,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 		for i := blockOverviewBlocks; i > 0; i-- {
 			ctx, cancel := localContext()
 			defer cancel()
-			block, err := client.BlockByNumber(ctx, blockNumber)
+			block, err := c.Client().BlockByNumber(ctx, blockNumber)
 			cli.ErrCheck(err, quiet, "Failed to obtain information about latest block")
 			blockNumber = big.NewInt(0).Set(block.Number())
 			blockTime := time.Unix(int64(block.Time()), 0)
@@ -56,7 +56,7 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 					fmt.Printf("%v", gap)
 				}
 				coinbase := block.Coinbase()
-				fmt.Printf("\t%s\n", ens.Format(client, coinbase))
+				fmt.Printf("\t%s\n", ens.Format(c.Client(), coinbase))
 				lastBlockTime = &blockTime
 			}
 			blockNumber = blockNumber.Sub(blockNumber, big.NewInt(1))

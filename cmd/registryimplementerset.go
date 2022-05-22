@@ -36,11 +36,11 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.Assert(registryImplementerInterface != "", quiet, "--interface is required")
 
 		cli.Assert(registryImplementerAddressStr != "", quiet, "--address is required")
-		address, err := ens.Resolve(client, registryImplementerAddressStr)
+		address, err := c.Resolve(registryImplementerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 
 		cli.Assert(registryImplementerSetImplementerStr != "", quiet, "--implementer is required")
-		implementer, err := ens.Resolve(client, registryImplementerSetImplementerStr)
+		implementer, err := c.Resolve(registryImplementerSetImplementerStr)
 		if err != nil {
 			if err.Error() == "could not parse address" {
 				cli.Err(quiet, "Invalid implementer address; if you are trying to clear an existing entry use \"registry implementer clear\"")
@@ -48,13 +48,13 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 		cli.ErrCheck(err, quiet, "failed to resolve implementer")
 
-		implementerContract, err := erc1820.NewImplementer(client, &implementer)
+		implementerContract, err := erc1820.NewImplementer(c.Client(), &implementer)
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 implementer contract")
 		implementsIface, err := implementerContract.ImplementsInterface(registryImplementerInterface, &address)
 		cli.ErrCheck(err, quiet, "failed to check if contract implements ERC-1820")
 		cli.Assert(implementsIface, quiet, "implementer does not implement that interface for that address")
 
-		registry, err := erc1820.NewRegistry(client)
+		registry, err := erc1820.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "failed to obtain ERC-1820 registry")
 
 		managerAddr, err := registry.Manager(&address)

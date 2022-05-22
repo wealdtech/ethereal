@@ -116,7 +116,7 @@ func GasPriceForBlocks(client *ethclient.Client, blocks int64, gasRequired uint6
 
 // BlockHasMinerTransactions returns true if the block contains any transactions signed by the same account that mined the block.
 func BlockHasMinerTransactions(block *types.Block, chainID *big.Int) bool {
-	signer := types.NewEIP155Signer(chainID)
+	signer := types.NewLondonSigner(chainID)
 	for _, tx := range block.Transactions() {
 		sender, err := types.Sender(signer, tx)
 		if err == nil && sender == block.Coinbase() {

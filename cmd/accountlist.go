@@ -19,7 +19,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
-	ens "github.com/wealdtech/go-ens/v3"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
@@ -33,7 +32,7 @@ var accountListCmd = &cobra.Command{
 
 In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		wallets, err := cli.ObtainWallets(chainID)
+		wallets, err := cli.ObtainWallets(c.ChainID())
 		foundAccounts := false
 		if err == nil {
 			for _, wallet := range wallets {
@@ -46,17 +45,17 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 							fmt.Printf("Location:\t%s\n", account.URL)
 							fmt.Printf("Address:\t%s\n", account.Address.Hex())
 							if !offline {
-								name, err := ens.ReverseResolve(client, account.Address)
+								name, err := c.ReverseResolve(account.Address)
 								if err == nil {
 									fmt.Printf("Name:\t\t%s\n", name)
 								}
 								ctx, cancel := localContext()
 								defer cancel()
-								balance, err := client.BalanceAt(ctx, account.Address, nil)
+								balance, err := c.Client().BalanceAt(ctx, account.Address, nil)
 								if err == nil {
 									fmt.Printf("Balance:\t%s\n", string2eth.WeiToString(balance, true))
 								}
-								nonce, err := client.PendingNonceAt(ctx, account.Address)
+								nonce, err := c.Client().PendingNonceAt(ctx, account.Address)
 								if err == nil {
 									fmt.Printf("Next nonce:\t%v\n", nonce)
 								}

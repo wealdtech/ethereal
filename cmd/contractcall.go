@@ -23,7 +23,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util/funcparser"
-	ens "github.com/wealdtech/go-ens/v3"
 )
 
 var contractCallFromAddress string
@@ -43,11 +42,11 @@ var contractCallCmd = &cobra.Command{
 In quiet mode this will return 0 if the contract is successfully called, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(contractCallFromAddress != "", quiet, "--from is required")
-		fromAddress, err := ens.Resolve(client, contractCallFromAddress)
+		fromAddress, err := c.Resolve(contractCallFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
-		contractAddress, err := ens.Resolve(client, contractStr)
+		contractAddress, err := c.Resolve(contractStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
 
 		if contractCallData != "" {
@@ -62,7 +61,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			}
 			ctx, cancel := localContext()
 			defer cancel()
-			result, err := client.CallContract(ctx, msg, nil)
+			result, err := c.Client().CallContract(ctx, msg, nil)
 			cli.ErrCheck(err, quiet, "Call failed")
 			outputIf(!quiet, fmt.Sprintf("%x", result))
 			os.Exit(exitSuccess)
@@ -72,7 +71,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
-		method, methodArgs, err := funcparser.ParseCall(client, contract, contractCallCall)
+		method, methodArgs, err := funcparser.ParseCall(c.Client(), contract, contractCallCall)
 		cli.ErrCheck(err, quiet, "Failed to parse call")
 		data, err := contract.Abi.Pack(method.Name, methodArgs...)
 		cli.ErrCheck(err, quiet, "Failed to convert arguments")
@@ -87,7 +86,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		}
 		ctx, cancel := localContext()
 		defer cancel()
-		result, err := client.CallContract(ctx, msg, nil)
+		result, err := c.Client().CallContract(ctx, msg, nil)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call %s", method.Name))
 		if len(method.Outputs) == 0 {
 			// No output

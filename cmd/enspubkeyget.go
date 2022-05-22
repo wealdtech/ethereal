@@ -36,7 +36,7 @@ In quiet mode this will return 0 if the name has a public key, otherwise 1.`,
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		// Obtain resolver for the domain
-		resolver, err := ens.NewResolver(client, ensDomain)
+		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 
 		x, y, err := resolver.PubKey()

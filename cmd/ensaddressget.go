@@ -36,7 +36,7 @@ In quiet mode this will return 0 if the name has an address, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		resolver, err := ens.NewResolver(client, ensDomain)
+		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "failed to obtain resolver")
 
 		bytes, err := resolver.MultiAddress(ensAddressCoinType)
