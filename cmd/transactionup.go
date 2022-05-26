@@ -36,7 +36,7 @@ var transactionUpCmd = &cobra.Command{
 	Short: "Increase the gas cost for a pending transaction",
 	Long: `Increase the gas cost for a pending transaction.  For example:
 
-    ethereal transaction up --gasprice=20gwei --passphrase=secret --transaction=0x454d2274155cce506359de6358785ce5366f6c13e825263674c272eec8532c0c
+    ethereal transaction up --passphrase=secret --transaction=0x454d2274155cce506359de6358785ce5366f6c13e825263674c272eec8532c0c
 
 If no gas price is supplied then it will default to just over 10% higher than the current gas price for the transaction.
 
@@ -92,9 +92,10 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			err = c.SendTransaction(context.Background(), signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 			handleSubmittedTransaction(signedTx, log.Fields{
-				"group":       "transaction",
-				"command":     "up",
-				"oldgasprice": tx.GasPrice().String(),
+				"group":                    "transaction",
+				"command":                  "up",
+				"old-fee-per-gas":          tx.GasFeeCap().String(),
+				"old-priority-fee-per-gas": tx.GasTipCap().String(),
 			}, true)
 		}
 	},
