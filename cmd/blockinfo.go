@@ -30,7 +30,6 @@ import (
 	"github.com/attestantio/go-execution-client/types"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
@@ -52,9 +51,12 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		ctx := context.Background()
 		cli.Assert(blockStr != "", quiet, "--block is required")
 
+		connectionAddress, err := connectionAddress(ctx)
+		cli.ErrCheck(err, quiet, "Failed to obtain connection address")
+
 		execClient, err := jsonrpc.New(context.Background(),
 			jsonrpc.WithLogLevel(zerolog.Disabled),
-			jsonrpc.WithAddress(viper.GetString("connection")),
+			jsonrpc.WithAddress(connectionAddress),
 		)
 		cli.ErrCheck(err, quiet, "Failed to access client")
 		block, err := execClient.(execclient.BlocksProvider).Block(ctx, blockStr)

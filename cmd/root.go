@@ -167,29 +167,10 @@ func connect(ctx context.Context) error {
 		// Handle offline connection.
 		c, err = conn.New(ctx, "offline")
 	} else {
-		if viper.GetString("connection") != "" {
-			outputIf(debug, fmt.Sprintf("Connecting to %s", viper.GetString("connection")))
-			c, err = conn.New(ctx, viper.GetString("connection"))
-		} else {
-			switch strings.ToLower(viper.GetString("network")) {
-			case "mainnet":
-				outputIf(debug, "Connecting to mainnet")
-				c, err = conn.New(ctx, "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-			case "ropsten":
-				outputIf(debug, "Connecting to ropsten")
-				c, err = conn.New(ctx, "https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-			case "rinkeby":
-				outputIf(debug, "Connecting to rinkeby")
-				c, err = conn.New(ctx, "https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-			case "goerli", "gorli", "görli":
-				outputIf(debug, "Connecting to goerli")
-				c, err = conn.New(ctx, "https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-			case "sepolia":
-				outputIf(debug, "Connecting to sepolia")
-				c, err = conn.New(ctx, "https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-			default:
-				cli.Err(quiet, fmt.Sprintf("Unknown network %s", viper.GetString("network")))
-			}
+		var address string
+		address, err = connectionAddress(ctx)
+		if err == nil {
+			c, err = conn.New(ctx, address)
 		}
 	}
 	if err != nil {
@@ -199,6 +180,28 @@ func connect(ctx context.Context) error {
 	signer = types.NewLondonSigner(c.ChainID())
 
 	return nil
+}
+
+// connectionAddress provides the address of an execution client.
+func connectionAddress(ctx context.Context) (string, error) {
+	if viper.GetString("connection") != "" {
+		return viper.GetString("connection"), nil
+	}
+
+	switch strings.ToLower(viper.GetString("network")) {
+	case "mainnet":
+		return "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+	case "ropsten":
+		return "https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+	case "rinkeby":
+		return "https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+	case "goerli", "gorli", "görli":
+		return "https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+	case "sepolia":
+		return "https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+	default:
+		return "", fmt.Errorf("unknown network %s", viper.GetString("network"))
+	}
 }
 
 // cmdPath recurses up the command information to create a path for this command through commands and subcommands
@@ -266,12 +269,13 @@ func logTransaction(tx *types.Transaction, fields log.Fields) {
 	setupLogging()
 
 	txFields := log.Fields{
-		"networkid":     c.ChainID(),
-		"transactionid": tx.Hash().Hex(),
-		"gas":           tx.Gas(),
-		"gasprice":      tx.GasPrice().String(),
-		"value":         tx.Value().String(),
-		"data":          hex.EncodeToString(tx.Data()),
+		"networkid":            c.ChainID(),
+		"transactionid":        tx.Hash().Hex(),
+		"gas":                  tx.Gas(),
+		"fee-per-gas":          tx.GasFeeCap().String(),
+		"priority-fee-per-gas": tx.GasTipCap().String(),
+		"value":                tx.Value().String(),
+		"data":                 hex.EncodeToString(tx.Data()),
 	}
 	fromAddress, err := types.Sender(signer, tx)
 	if err == nil {
