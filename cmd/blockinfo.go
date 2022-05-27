@@ -74,7 +74,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 			cli.ErrCheck(err, quiet, "failed to obtain berlin block info")
 			res.WriteString(info)
 		case spec.ForkLondon:
-			info, err := outputLondonText(ctx, block.London)
+			info, err := outputLondonText(ctx, execClient, block.London)
 			cli.ErrCheck(err, quiet, "failed to obtain london block info")
 			res.WriteString(info)
 		default:
@@ -104,7 +104,7 @@ func outputBerlinText(ctx context.Context, block *spec.BerlinBlock) (string, err
 	return builder.String(), nil
 }
 
-func outputLondonText(ctx context.Context, block *spec.LondonBlock) (string, error) {
+func outputLondonText(ctx context.Context, execClient execclient.Service, block *spec.LondonBlock) (string, error) {
 	builder := new(strings.Builder)
 	outputNumber(builder, block.Number)
 	outputHash(builder, block.Hash)
@@ -118,7 +118,7 @@ func outputLondonText(ctx context.Context, block *spec.LondonBlock) (string, err
 		outputTotalDifficulty(builder, block.TotalDifficulty)
 	}
 	outputUncles(builder, block.Uncles, verbose)
-	outputTimeToMerge(builder, block.TotalDifficulty, block.Difficulty)
+	outputTimeToMerge(ctx, execClient, builder, block.TotalDifficulty, block.Difficulty)
 	outputTransactions(builder, block.Transactions, verbose)
 
 	return builder.String(), nil
@@ -141,7 +141,7 @@ func outputTimestamp(builder *strings.Builder, timestamp time.Time) {
 }
 
 func outputBaseFee(builder *strings.Builder, baseFee uint64) {
-	builder.WriteString(fmt.Sprintf("Base fee: %s\n", string2eth.WeiToString(big.NewInt(int64(baseFee)), true)))
+	builder.WriteString(fmt.Sprintf("Base fee: %s\n", string2eth.WeiToGWeiString(big.NewInt(int64(baseFee)))))
 }
 
 func outputGas(builder *strings.Builder, gasUsed uint32, gasLimit uint32) {
@@ -167,15 +167,35 @@ func outputTotalDifficulty(builder *strings.Builder, totalDifficulty *big.Int) {
 	builder.WriteString(fmt.Sprintf("Total difficulty: %s\n", totalDifficulty.String()))
 }
 
-func outputTimeToMerge(builder *strings.Builder, totalDifficulty *big.Int, difficulty uint64) {
-	if difficulty > 0 {
-		ttd := big.NewInt(20000000000000)
-		left := new(big.Int).Sub(ttd, totalDifficulty)
-		blocksLeft := new(big.Int).Div(left, big.NewInt(int64(difficulty))).Int64()
-		timeLeft := blocksLeft * 14
-		when := time.Now().Add(time.Duration(timeLeft) * time.Second)
-		builder.WriteString(fmt.Sprintf("Approximate merge time: %s\n", when))
+func outputTimeToMerge(ctx context.Context,
+	execClient execclient.Service,
+	builder *strings.Builder,
+	totalDifficulty *big.Int,
+	difficulty uint64,
+) {
+	chainID, err := execClient.(execclient.ChainIDProvider).ChainID(ctx)
+	if err != nil {
+		return
 	}
+
+	ttds := map[uint64]*big.Int{
+		3: big.NewInt(43531756765713534),
+	}
+
+	if difficulty <= 0 {
+		return
+	}
+
+	ttd, exists := ttds[chainID]
+	if !exists {
+		return
+	}
+
+	left := new(big.Int).Sub(ttd, totalDifficulty)
+	blocksLeft := new(big.Int).Div(left, big.NewInt(int64(difficulty))).Int64()
+	timeLeft := blocksLeft * 14
+	when := time.Now().Add(time.Duration(timeLeft) * time.Second)
+	builder.WriteString(fmt.Sprintf("Approximate merge time: %s\n", when))
 }
 
 func outputUncles(builder *strings.Builder, uncles []types.Hash, verbose bool) {
@@ -194,14 +214,8 @@ func outputUncles(builder *strings.Builder, uncles []types.Hash, verbose bool) {
 }
 
 func outputTransactions(builder *strings.Builder, transactions []*spec.Transaction, verbose bool) {
-	if verbose {
-		if len(transactions) > 0 {
-			builder.WriteString("TODO: transactions")
-		}
-	} else {
-		builder.WriteString("Transactions: ")
-		builder.WriteString(fmt.Sprintf("%d", len(transactions)))
-	}
+	builder.WriteString("Transactions: ")
+	builder.WriteString(fmt.Sprintf("%d", len(transactions)))
 }
 
 func init() {

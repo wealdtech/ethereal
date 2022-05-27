@@ -48,7 +48,7 @@ func (c *Conn) CalculateFees() (*big.Int, *big.Int, error) {
 	// Ensure that the total fee per gas does not exceed the max allowed.
 	totalFeePerGas := new(big.Int).Add(feePerGas, priorityFeePerGas)
 	if totalFeePerGas.Cmp(maxFeePerGas) > 0 {
-		return nil, nil, fmt.Errorf("calculated total fee per gas of %s too high; increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToString(totalFeePerGas, true))
+		return nil, nil, fmt.Errorf("base fee %s plus priority fee %s (total %s) is higher than specified maximum (%s); increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToGWeiString(feePerGas), string2eth.WeiToGWeiString(priorityFeePerGas), string2eth.WeiToGWeiString(totalFeePerGas), string2eth.WeiToGWeiString(maxFeePerGas))
 	}
 
 	// Try to double the base fee, but not exceed the max allowed.

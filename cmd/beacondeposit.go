@@ -91,6 +91,14 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		maxVersion:  3,
 		subgraph:    "attestantio/eth2deposits-prater",
 	},
+	{
+		network:     "Kiln",
+		chainID:     big.NewInt(1337802),
+		address:     util.MustDecodeHexString("0x4242424242424242424242424242424242424242"),
+		forkVersion: []byte{0x70, 0x00, 0x00, 0x69},
+		minVersion:  3,
+		maxVersion:  3,
+	},
 }
 
 // beaconDepositCmd represents the beacon deposit command

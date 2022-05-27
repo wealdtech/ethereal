@@ -383,7 +383,7 @@ func initConfig() {
 func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("passphrase", "", fmt.Sprintf("passphrase for %s", explanation))
 	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
-	cmd.Flags().String("max-fee-per-gas", "200 Gwei", "Maximum fee per gas for transaction")
+	cmd.Flags().String("max-fee-per-gas", "200Gwei", "Maximum fee per gas for transaction")
 	cmd.Flags().String("priority-fee-per-gas", "1.5 Gwei", "Priority fee per gas for transaction")
 	cmd.Flags().String("value", "", "Ether to send with the transaction")
 	cmd.Flags().Int64("gaslimit", 0, "Gas limit for the transaction; 0 is auto-select")
