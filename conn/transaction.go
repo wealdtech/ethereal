@@ -109,6 +109,9 @@ func (c *Conn) SendTransaction(ctx context.Context,
 	if c.client == nil {
 		return errors.New("cannot send transaction when offline")
 	}
+	if tx == nil {
+		return errors.New("transaction is nil")
+	}
 
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
