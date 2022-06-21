@@ -25,28 +25,28 @@ import (
 func (c *Conn) CreateSignedTransaction(ctx context.Context,
 	txData *TransactionData,
 ) (
-	signedTx *types.Transaction,
-	err error,
+	*types.Transaction,
+	error,
 ) {
 	tx, err := c.CreateTransaction(ctx, txData)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Sign the transaction.
-	signedTx, err = c.SignTransaction(ctx, txData.From, tx)
+	signedTx, err := c.SignTransaction(ctx, txData.From, tx)
 	if err != nil {
 		err = fmt.Errorf("failed to sign transaction: %v", err)
-		return
+		return nil, err
 	}
 
 	// Increment the nonce for the next transaction.
 	_, err = c.NextNonce(ctx, txData.From)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return
+	return signedTx, nil
 }
 
 // CreateTransaction creates a transaction.

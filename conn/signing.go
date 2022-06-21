@@ -53,6 +53,10 @@ func (c *Conn) SignTransaction(ctx context.Context,
 		if signer != keyAddr {
 			return nil, errors.New("not authorized to sign this account")
 		}
+		signedTx, err = types.SignTx(tx, types.NewLondonSigner(c.ChainID()), key)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, errors.New("no passphrase or private key; cannot sign")
 	}

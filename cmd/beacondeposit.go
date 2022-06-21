@@ -51,8 +51,10 @@ var beaconDepositAllowNewData bool
 var beaconDepositAllowExcessiveDeposit bool
 var beaconDepositAllowUnknownContract bool
 var beaconDepositAllowDuplicateDeposit bool
+var beaconDepositForceZeroValue bool
 var beaconDepositContractAddress string
 var beaconDepositEth2Network string
+var beaconDepositOverrideGas uint64
 
 type beaconDepositContract struct {
 	network     string
@@ -96,6 +98,14 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		chainID:     big.NewInt(1337802),
 		address:     util.MustDecodeHexString("0x4242424242424242424242424242424242424242"),
 		forkVersion: []byte{0x70, 0x00, 0x00, 0x69},
+		minVersion:  3,
+		maxVersion:  3,
+	},
+	{
+		network:     "Sepolia",
+		chainID:     big.NewInt(11155111),
+		address:     util.MustDecodeHexString("0x7f02C3E3c98b133055B8B348B2Ac625669Ed295D"),
+		forkVersion: []byte{0x90, 0x00, 0x00, 0x69},
 		minVersion:  3,
 		maxVersion:  3,
 	},
@@ -225,14 +235,27 @@ func sendOffline(c *conn.Conn, deposits []*util.DepositInfo, contractDetails *be
 		dataBytes, err := abi.Pack("deposit", deposit.PublicKey, deposit.WithdrawalCredentials, deposit.Signature, depositDataRoot)
 		cli.ErrCheck(err, quiet, "Failed to create deposit transaction")
 		var value *big.Int
-		if deposit.Amount == 0 {
-			cli.Assert(viper.GetString("value") != "", quiet, "No value from either deposit data or command line; cannot create transaction")
-			value, err = string2eth.StringToWei(viper.GetString("value"))
-			cli.ErrCheck(err, quiet, "Failed to understand value")
+		if beaconDepositForceZeroValue {
+			value = big.NewInt(0)
 		} else {
-			value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+			if deposit.Amount == 0 {
+				cli.Assert(viper.GetString("value") != "", quiet, "No value from either deposit data or command line; cannot create transaction")
+				value, err = string2eth.StringToWei(viper.GetString("value"))
+				cli.ErrCheck(err, quiet, "Failed to understand value")
+			} else {
+				value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+			}
 		}
-		gasLimit := uint64(200000)
+		var gasLimit uint64
+		if beaconDepositOverrideGas != 0 {
+			// Gas limit has been overridden.
+			gasLimit = beaconDepositOverrideGas
+		} else {
+			// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
+			// This is just above the maximum gas possible used by the contract, as calculated in section 4.2 of
+			// https://raw.githubusercontent.com/runtimeverification/deposit-contract-verification/master/deposit-contract-verification.pdf
+			gasLimit = 160000
+		}
 		signedTx, err := c.CreateSignedTransaction(context.Background(),
 			&conn.TransactionData{
 				From:     fromAddress,
@@ -260,19 +283,28 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 	for _, deposit := range deposits {
 		opts, err := generateTxOpts(fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to generate deposit options")
-		// Need to override the value with the info from the JSON (if present).
-		if deposit.Amount == 0 {
-			cli.Assert(opts.Value.Cmp(big.NewInt(0)) != 0, quiet, "No value from either deposit data or command line; cannot create transaction")
-			opts.Value, err = string2eth.StringToWei(viper.GetString("value"))
-			cli.ErrCheck(err, quiet, "Failed to understand value")
+		if beaconDepositForceZeroValue {
+			opts.Value = big.NewInt(0)
 		} else {
-			opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+			// Need to override the value with the info from the JSON (if present).
+			if deposit.Amount == 0 {
+				cli.Assert(opts.Value.Cmp(big.NewInt(0)) != 0, quiet, "No value from either deposit data or command line; cannot create transaction")
+				opts.Value, err = string2eth.StringToWei(viper.GetString("value"))
+				cli.ErrCheck(err, quiet, "Failed to understand value")
+			} else {
+				opts.Value = new(big.Int).Mul(new(big.Int).SetUint64(deposit.Amount), big.NewInt(1000000000))
+			}
 		}
 
-		// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
-		// This is just above the maximum gas possible used by the contract, as calculated in section 4.2 of
-		// https://raw.githubusercontent.com/runtimeverification/deposit-contract-verification/master/deposit-contract-verification.pdf
-		opts.GasLimit = 160000
+		if beaconDepositOverrideGas != 0 {
+			// Gas limit has been overridden.
+			opts.GasLimit = beaconDepositOverrideGas
+		} else {
+			// Need to set gas limit because it moves around a fair bit with the merkle tree calculations.
+			// This is just above the maximum gas possible used by the contract, as calculated in section 4.2 of
+			// https://raw.githubusercontent.com/runtimeverification/deposit-contract-verification/master/deposit-contract-verification.pdf
+			opts.GasLimit = 160000
+		}
 
 		// Would be good to recalculate signature to ensure correcteness, but need a pure Go BLS implementation.
 
@@ -287,6 +319,10 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 		cli.ErrCheck(err, quiet, "Failed to obtain next nonce")
 		var depositDataRoot [32]byte
 		copy(depositDataRoot[:], deposit.DepositDataRoot)
+
+		opts.GasFeeCap, opts.GasTipCap, err = c.CalculateFees()
+		cli.ErrCheck(err, quiet, "Failed to obtain fees")
+
 		signedTx, err := contract.Deposit(opts, deposit.PublicKey, deposit.WithdrawalCredentials, deposit.Signature, depositDataRoot)
 		cli.ErrCheck(err, quiet, "Failed to send deposit")
 
@@ -421,7 +457,9 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowNewData, "allow-new-data", false, "Allow sending from a newer version of deposit data than supported (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowExcessiveDeposit, "allow-excessive-deposit", false, "Allow sending more than 32 Ether in a single deposit (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
+	beaconDepositCmd.Flags().BoolVar(&beaconDepositForceZeroValue, "force-zero-value", false, "Sending the deposit with 0 Ether regardless of the information in the deposit data")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/ropsten)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/ropsten/sepolia)")
+	beaconDepositCmd.Flags().Uint64Var(&beaconDepositOverrideGas, "override-gas", 0, "Override the gas limit for the deposit transaction")
 	addTransactionFlags(beaconDepositCmd, "the account from which to send the deposit")
 }
