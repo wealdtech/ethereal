@@ -179,7 +179,8 @@ func outputTimeToMerge(ctx context.Context,
 	}
 
 	ttds := map[uint64]*big.Int{
-		3: big.NewInt(50000000000000000),
+		3:        big.NewInt(50000000000000000),
+		11155111: big.NewInt(17000000000000000),
 	}
 
 	if difficulty <= 0 {

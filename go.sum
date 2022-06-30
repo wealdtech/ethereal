@@ -115,6 +115,8 @@ github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj
 github.com/armon/go-radix v1.0.0/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/attestantio/go-execution-client v0.7.3 h1:pBpL5NHAnNv1WMgokcQ1R/YK5jns/USiS6C7EfzV6aQ=
 github.com/attestantio/go-execution-client v0.7.3/go.mod h1:00fGxH6GTcvFkI2cZwNq6MBAQqunsNOQHqyLlxZkFRI=
+github.com/attestantio/go-execution-client v0.7.4 h1:i9qS7R7mBfq62yeJqocbNMLh8MQbR7hUmtPNTvQC5c4=
+github.com/attestantio/go-execution-client v0.7.4/go.mod h1:00fGxH6GTcvFkI2cZwNq6MBAQqunsNOQHqyLlxZkFRI=
 github.com/aws/aws-sdk-go v1.25.48/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go-v2 v1.2.0/go.mod h1:zEQs02YRBw1DjK0PoJv3ygDYOFTre1ejlJWl8FwAuQo=
 github.com/aws/aws-sdk-go-v2/config v1.1.1/go.mod h1:0XsVy9lBI/BCXm+2Tuvt39YmdHwS5unDQmxZOYe8F5Y=

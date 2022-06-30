@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/VictoriaMetrics/fastcache v1.10.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed
-	github.com/attestantio/go-execution-client v0.7.3
+	github.com/attestantio/go-execution-client v0.7.4
 	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/ethereum/go-ethereum v1.10.17
