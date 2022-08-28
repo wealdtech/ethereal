@@ -181,7 +181,9 @@ func outputTimeToMerge(ctx context.Context,
 	ttds := map[uint64]*big.Int{
 		3:        big.NewInt(50000000000000000),
 		11155111: big.NewInt(17000000000000000),
+		5:        big.NewInt(10790000),
 	}
+	ttds[1], _ = new(big.Int).SetString("58750000000000000000000", 10)
 
 	if difficulty <= 0 {
 		return
@@ -195,8 +197,10 @@ func outputTimeToMerge(ctx context.Context,
 	left := new(big.Int).Sub(ttd, totalDifficulty)
 	blocksLeft := new(big.Int).Div(left, big.NewInt(int64(difficulty))).Int64()
 	timeLeft := time.Duration(blocksLeft*13) * time.Second
-	when := time.Now().Add(timeLeft)
-	builder.WriteString(fmt.Sprintf("Approximate merge time: %s (%v to go)\n", when.Format(time.RFC3339), timeLeft))
+	if timeLeft > 0 {
+		when := time.Now().Add(timeLeft)
+		builder.WriteString(fmt.Sprintf("Approximate merge time: %s (%v to go)\n", when.Format(time.RFC3339), timeLeft))
+	}
 }
 
 func outputUncles(builder *strings.Builder, uncles []types.Hash, verbose bool) {
