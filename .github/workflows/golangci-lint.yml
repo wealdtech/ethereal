@@ -20,4 +20,4 @@ jobs:
         with:
           skip-go-installation: true
           version: latest
-          args: --timeout=10m
+          args: --timeout=60m
