@@ -73,7 +73,7 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		address:     util.MustDecodeHexString("0x00000000219ab540356cBB839Cbe05303d7705Fa"),
 		forkVersion: []byte{0x00, 0x00, 0x00, 0x00},
 		minVersion:  3,
-		maxVersion:  3,
+		maxVersion:  4,
 		subgraph:    "attestantio/eth2deposits",
 	},
 	{
@@ -82,7 +82,7 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		address:     util.MustDecodeHexString("0x6f22fFbC56eFF051aECF839396DD1eD9aD6BBA9D"),
 		forkVersion: []byte{0x80, 0x00, 0x00, 0x69},
 		minVersion:  3,
-		maxVersion:  3,
+		maxVersion:  4,
 	},
 	{
 		network:     "Prater",
@@ -90,7 +90,7 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		address:     util.MustDecodeHexString("0xff50ed3d0ec03aC01D4C79aAd74928BFF48a7b2b"),
 		forkVersion: []byte{0x00, 0x00, 0x10, 0x20},
 		minVersion:  3,
-		maxVersion:  3,
+		maxVersion:  4,
 		subgraph:    "attestantio/eth2deposits-prater",
 	},
 	{
@@ -99,7 +99,7 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		address:     util.MustDecodeHexString("0x4242424242424242424242424242424242424242"),
 		forkVersion: []byte{0x70, 0x00, 0x00, 0x69},
 		minVersion:  3,
-		maxVersion:  3,
+		maxVersion:  4,
 	},
 	{
 		network:     "Sepolia",
@@ -107,7 +107,7 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		address:     util.MustDecodeHexString("0x7f02C3E3c98b133055B8B348B2Ac625669Ed295D"),
 		forkVersion: []byte{0x90, 0x00, 0x00, 0x69},
 		minVersion:  3,
-		maxVersion:  3,
+		maxVersion:  4,
 	},
 }
 

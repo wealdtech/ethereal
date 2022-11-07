@@ -89,6 +89,18 @@ type depositInfoCLI struct {
 	Amount                uint64 `json:"amount"`
 }
 
+// depositInfoAPIV4 is an API V4 deposit structure.
+type depositInfoAPIV4 struct {
+	PublicKey             string `json:"validator_pubkey"`
+	WithdrawalCredentials string `json:"withdrawal_credentials"`
+	Signature             string `json:"validator_signature"`
+	DepositDataRoot       string `json:"deposit_data_root"`
+	DepositMessageRoot    string `json:"deposit_message_root"`
+	ForkVersion           string `json:"fork_version"`
+	Amount                string `json:"amount"`
+	Version               string `json:"data_version"`
+}
+
 // DepositInfoFromJSON obtains deposit info from any supported JSON format.
 func DepositInfoFromJSON(input []byte) ([]*DepositInfo, error) {
 	// Work out the type of data that we're dealing with, and decode it appropriately.
@@ -100,10 +112,13 @@ func DepositInfoFromJSON(input []byte) ([]*DepositInfo, error) {
 			if err != nil {
 				depositInfo, err = tryV1DepositInfoFromJSON(input)
 				if err != nil {
-					depositInfo, err = tryCLIDepositInfoFromJSON(input)
+					depositInfo, err = tryAPIV4DepositInfoFromJSON(input)
 					if err != nil {
-						// Give up
-						return nil, errors.New("unknown deposit data format")
+						depositInfo, err = tryCLIDepositInfoFromJSON(input)
+						if err != nil {
+							// Give up
+							return nil, errors.New("unknown deposit data format")
+						}
 					}
 				}
 			}
@@ -178,6 +193,62 @@ func tryV3DepositInfoFromJSON(data []byte) ([]*DepositInfo, error) {
 			ForkVersion:           forkVersion,
 			Amount:                deposit.Amount,
 			Version:               3,
+		}
+	}
+
+	return depositInfos, nil
+}
+
+func tryAPIV4DepositInfoFromJSON(data []byte) ([]*DepositInfo, error) {
+	var depositData []*depositInfoAPIV4
+	err := json.Unmarshal(data, &depositData)
+	if err != nil {
+		return nil, err
+	}
+
+	depositInfos := make([]*DepositInfo, len(depositData))
+	for i, deposit := range depositData {
+		if deposit.Version != "4" {
+			return nil, errors.New("incorrect V4 deposit version")
+		}
+		publicKey, err := hex.DecodeString(strings.TrimPrefix(deposit.PublicKey, "0x"))
+		if err != nil {
+			return nil, errors.New("public key invalid")
+		}
+		withdrawalCredentials, err := hex.DecodeString(strings.TrimPrefix(deposit.WithdrawalCredentials, "0x"))
+		if err != nil {
+			return nil, errors.New("withdrawal credentials invalid")
+		}
+		signature, err := hex.DecodeString(strings.TrimPrefix(deposit.Signature, "0x"))
+		if err != nil {
+			return nil, errors.New("signature invalid")
+		}
+		depositDataRoot, err := hex.DecodeString(strings.TrimPrefix(deposit.DepositDataRoot, "0x"))
+		if err != nil {
+			return nil, errors.New("deposit data root invalid")
+		}
+		depositMessageRoot, err := hex.DecodeString(strings.TrimPrefix(deposit.DepositMessageRoot, "0x"))
+		if err != nil {
+			return nil, errors.New("deposit message root invalid")
+		}
+		forkVersion, err := hex.DecodeString(strings.TrimPrefix(deposit.ForkVersion, "0x"))
+		if err != nil {
+			return nil, errors.New("fork version invalid")
+		}
+		amount, err := strconv.ParseUint(deposit.Amount, 10, 64)
+		if err != nil {
+			return nil, errors.New("amount invalid")
+		}
+
+		depositInfos[i] = &DepositInfo{
+			PublicKey:             publicKey,
+			WithdrawalCredentials: withdrawalCredentials,
+			Signature:             signature,
+			DepositDataRoot:       depositDataRoot,
+			DepositMessageRoot:    depositMessageRoot,
+			ForkVersion:           forkVersion,
+			Amount:                amount,
+			Version:               4,
 		}
 	}
 
