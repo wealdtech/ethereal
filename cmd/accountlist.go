@@ -32,7 +32,7 @@ var accountListCmd = &cobra.Command{
 
 In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		wallets, err := cli.ObtainWallets(c.ChainID())
+		wallets, err := cli.ObtainWallets(c.ChainID(), debug)
 		foundAccounts := false
 		if err == nil {
 			for _, wallet := range wallets {

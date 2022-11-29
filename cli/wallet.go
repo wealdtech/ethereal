@@ -33,22 +33,22 @@ import (
 )
 
 // ObtainWallets obtains all known wallets for a given chain
-func ObtainWallets(chainID *big.Int) ([]accounts.Wallet, error) {
+func ObtainWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	var wallets []accounts.Wallet
 
-	gethWallets, err := obtainGethWallets(chainID)
+	gethWallets, err := obtainGethWallets(chainID, debug)
 	if err != nil {
 		return nil, err
 	}
 	wallets = append(wallets, gethWallets...)
 
-	parityWallets, err := obtainParityWallets(chainID)
+	parityWallets, err := obtainParityWallets(chainID, debug)
 	if err != nil {
 		return nil, err
 	}
 	wallets = append(wallets, parityWallets...)
 
-	ledgerWallets, err := obtainLedgerWallets(chainID)
+	ledgerWallets, err := obtainLedgerWallets(chainID, debug)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 	return wallet, err
 }
 
-func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
+func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	keydir := DefaultDataDir()
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
@@ -120,6 +120,9 @@ func obtainGethWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 		keydir = filepath.Join(keydir, "sepolia")
 	}
 	keydir = filepath.Join(keydir, "keystore")
+	if debug {
+		fmt.Printf("Geth key directory is %s\n", keydir)
+	}
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
 	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
@@ -156,7 +159,7 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 	return wallet, err
 }
 
-func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
+func obtainParityWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	keydir, err := homedir.Dir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to find home directory")
@@ -178,13 +181,17 @@ func obtainParityWallets(chainID *big.Int) ([]accounts.Wallet, error) {
 		keydir = filepath.Join(keydir, "test")
 	}
 
+	if debug {
+		fmt.Printf("Parity key directory is %s\n", keydir)
+	}
+
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
 	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 	return accountManager.Wallets(), nil
 }
 
-func obtainLedgerWallets(chainID *big.Int) ([]accounts.Wallet, error) {
+func obtainLedgerWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	ledgerhub, err := usbwallet.NewLedgerHub()
 	if err != nil {
 		return nil, err
