@@ -16,6 +16,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"os"
@@ -35,6 +36,7 @@ import (
 )
 
 var blockInfoTransactions bool
+var blockInfoJSON bool
 
 var blockInfoNumberRegexp = regexp.MustCompile("^[0-9]+$")
 
@@ -66,24 +68,57 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 			os.Exit(exitSuccess)
 		}
 
-		res := strings.Builder{}
-
-		switch block.Fork {
-		case spec.ForkBerlin:
-			info, err := outputBerlinText(ctx, block.Berlin)
-			cli.ErrCheck(err, quiet, "failed to obtain berlin block info")
-			res.WriteString(info)
-		case spec.ForkLondon:
-			info, err := outputLondonText(ctx, execClient, block.London)
-			cli.ErrCheck(err, quiet, "failed to obtain london block info")
-			res.WriteString(info)
-		default:
-			res.WriteString("Unhandled block fork ")
-			res.WriteString(block.Fork.String())
-
+		var res string
+		if blockInfoJSON {
+			res = outputBlockInfoJSON(ctx, block)
+		} else {
+			res = outputBlockInfoText(ctx, block)
 		}
-		fmt.Println(res.String())
+
+		fmt.Println(strings.TrimSuffix(res, "\n"))
 	},
+}
+
+func outputBlockInfoJSON(ctx context.Context, block *spec.Block) string {
+	var res []byte
+	var err error
+
+	switch block.Fork {
+	case spec.ForkBerlin:
+		res, err = json.Marshal(block.Berlin)
+		cli.ErrCheck(err, quiet, "failed to generate berlin block info")
+	case spec.ForkLondon:
+		res, err = json.Marshal(block.London)
+		cli.ErrCheck(err, quiet, "failed to generate london block info")
+	case spec.ForkShanghai:
+		res, err = json.Marshal(block.Shanghai)
+		cli.ErrCheck(err, quiet, "failed to generate shanghai block info")
+	default:
+		res = []byte(fmt.Sprintf("Unhandled block fork %v", block.Fork))
+	}
+
+	return string(res)
+}
+
+func outputBlockInfoText(ctx context.Context, block *spec.Block) string {
+	var res string
+	var err error
+
+	switch block.Fork {
+	case spec.ForkBerlin:
+		res, err = outputBerlinText(ctx, block.Berlin)
+		cli.ErrCheck(err, quiet, "failed to generate berlin block info")
+	case spec.ForkLondon:
+		res, err = outputLondonText(ctx, block.London)
+		cli.ErrCheck(err, quiet, "failed to generate london block info")
+	case spec.ForkShanghai:
+		res, err = outputShanghaiText(ctx, block.Shanghai)
+		cli.ErrCheck(err, quiet, "failed to generate shanghai block info")
+	default:
+		res = fmt.Sprintf("Unhandled block fork %v", block.Fork)
+	}
+
+	return res
 }
 
 func outputBerlinText(ctx context.Context, block *spec.BerlinBlock) (string, error) {
@@ -104,7 +139,7 @@ func outputBerlinText(ctx context.Context, block *spec.BerlinBlock) (string, err
 	return builder.String(), nil
 }
 
-func outputLondonText(ctx context.Context, execClient execclient.Service, block *spec.LondonBlock) (string, error) {
+func outputLondonText(ctx context.Context, block *spec.LondonBlock) (string, error) {
 	builder := new(strings.Builder)
 	outputNumber(builder, block.Number)
 	outputHash(builder, block.Hash)
@@ -118,8 +153,27 @@ func outputLondonText(ctx context.Context, execClient execclient.Service, block 
 		outputTotalDifficulty(builder, block.TotalDifficulty)
 	}
 	outputUncles(builder, block.Uncles, verbose)
-	outputTimeToMerge(ctx, execClient, builder, block.TotalDifficulty, block.Difficulty)
 	outputTransactions(builder, block.Transactions, verbose)
+
+	return builder.String(), nil
+}
+
+func outputShanghaiText(ctx context.Context, block *spec.ShanghaiBlock) (string, error) {
+	builder := new(strings.Builder)
+	outputNumber(builder, block.Number)
+	outputHash(builder, block.Hash)
+	outputTimestamp(builder, block.Timestamp)
+	outputBaseFee(builder, block.BaseFeePerGas)
+	outputGas(builder, block.GasUsed, block.GasLimit)
+	if verbose {
+		outputCoinbase(builder, block.Miner)
+		outputExtraData(builder, block.ExtraData)
+		outputDifficulty(builder, block.Difficulty)
+		outputTotalDifficulty(builder, block.TotalDifficulty)
+	}
+	outputUncles(builder, block.Uncles, verbose)
+	outputTransactions(builder, block.Transactions, verbose)
+	outputWithdrawals(builder, block.Withdrawals, verbose)
 
 	return builder.String(), nil
 }
@@ -133,7 +187,7 @@ func outputHash(builder *strings.Builder, hash types.Hash) {
 }
 
 func outputCoinbase(builder *strings.Builder, coinbase types.Address) {
-	builder.WriteString(fmt.Sprintf("Coinbase: %#x\n", coinbase))
+	builder.WriteString(fmt.Sprintf("Fee recipient: %#x\n", coinbase))
 }
 
 func outputTimestamp(builder *strings.Builder, timestamp time.Time) {
@@ -167,42 +221,6 @@ func outputTotalDifficulty(builder *strings.Builder, totalDifficulty *big.Int) {
 	builder.WriteString(fmt.Sprintf("Total difficulty: %s\n", totalDifficulty.String()))
 }
 
-func outputTimeToMerge(ctx context.Context,
-	execClient execclient.Service,
-	builder *strings.Builder,
-	totalDifficulty *big.Int,
-	difficulty uint64,
-) {
-	chainID, err := execClient.(execclient.ChainIDProvider).ChainID(ctx)
-	if err != nil {
-		return
-	}
-
-	ttds := map[uint64]*big.Int{
-		3:        big.NewInt(50000000000000000),
-		11155111: big.NewInt(17000000000000000),
-		5:        big.NewInt(10790000),
-	}
-	ttds[1], _ = new(big.Int).SetString("58750000000000000000000", 10)
-
-	if difficulty <= 0 {
-		return
-	}
-
-	ttd, exists := ttds[chainID]
-	if !exists {
-		return
-	}
-
-	left := new(big.Int).Sub(ttd, totalDifficulty)
-	blocksLeft := new(big.Int).Div(left, big.NewInt(int64(difficulty))).Int64()
-	timeLeft := time.Duration(blocksLeft*13) * time.Second
-	if timeLeft > 0 {
-		when := time.Now().Add(timeLeft)
-		builder.WriteString(fmt.Sprintf("Approximate merge time: %s (%v to go)\n", when.Format(time.RFC3339), timeLeft))
-	}
-}
-
 func outputUncles(builder *strings.Builder, uncles []types.Hash, verbose bool) {
 	if verbose {
 		if len(uncles) > 0 {
@@ -213,18 +231,31 @@ func outputUncles(builder *strings.Builder, uncles []types.Hash, verbose bool) {
 		}
 	} else {
 		if len(uncles) > 0 {
-			builder.WriteString(fmt.Sprintf("Uncles %d", len(uncles)))
+			builder.WriteString(fmt.Sprintf("Uncles: %d", len(uncles)))
 		}
 	}
 }
 
 func outputTransactions(builder *strings.Builder, transactions []*spec.Transaction, verbose bool) {
 	builder.WriteString("Transactions: ")
-	builder.WriteString(fmt.Sprintf("%d", len(transactions)))
+	builder.WriteString(fmt.Sprintf("%d\n", len(transactions)))
+}
+
+func outputWithdrawals(builder *strings.Builder, withdrawals []*spec.Withdrawal, verbose bool) {
+	builder.WriteString("Withdrawals: ")
+	if !verbose {
+		builder.WriteString(fmt.Sprintf("%d\n", len(withdrawals)))
+	} else {
+		builder.WriteString("\n")
+		for _, withdrawal := range withdrawals {
+			builder.WriteString(fmt.Sprintf("  %s from %d to %#x\n", string2eth.WeiToGWeiString(big.NewInt(int64(withdrawal.Amount.Uint64()))), withdrawal.ValidatorIndex, withdrawal.Address))
+		}
+	}
 }
 
 func init() {
 	blockCmd.AddCommand(blockInfoCmd)
 	blockInfoCmd.Flags().BoolVar(&blockInfoTransactions, "transactions", false, "Display hashes of all block transactions")
+	blockInfoCmd.Flags().BoolVar(&blockInfoJSON, "json", false, "Display JSON output")
 	blockFlags(blockInfoCmd)
 }
