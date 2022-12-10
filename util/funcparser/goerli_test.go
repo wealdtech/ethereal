@@ -28,7 +28,7 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-func TestRopsten(t *testing.T) {
+func TestGoerli(t *testing.T) {
 	tests := []struct {
 		json   string
 		input  string
@@ -139,9 +139,9 @@ func TestRopsten(t *testing.T) {
 		},
 	}
 
-	// Connect to ropsten
-	conn, err := ethclient.Dial("https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-	require.Nil(t, err, "failed to connect to ropsten")
+	// Connect to goerli
+	conn, err := ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	require.Nil(t, err, "failed to connect to goerli")
 
 	json, err := ioutil.ReadFile("Tester.json")
 	require.Nil(t, err, "failed to read Tester ABI")
@@ -149,7 +149,7 @@ func TestRopsten(t *testing.T) {
 	require.Nil(t, err, "failed to parse contract JSON")
 
 	fromAddress := common.HexToAddress("0x0000000000000000000000000000000000000000")
-	contractAddress := common.HexToAddress("0x8672a0a4AE5DB04AE30cD2bd58dd8E846432f5f3")
+	contractAddress := common.HexToAddress("0xf942De0Be16b8B30C07C4D0d3Fca725277306892")
 	for i, test := range tests {
 		method, args, err := ParseCall(conn, contract, test.input)
 		require.Nil(t, err, fmt.Sprintf("failed to parse call at test %d", i))
