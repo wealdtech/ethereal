@@ -6,7 +6,7 @@ PAGES=$((1+$COUNT/100))
 OUTPUT=signatures.go
 
 cat >${OUTPUT} <<EOSTART
-// Copyright © 2018, 2019 Weald Technology Trading
+// Copyright © 2018 - 2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -21,28 +21,35 @@ cat >${OUTPUT} <<EOSTART
 
 package txdata
 
-// InitFunctionMap initialises the function (and event) map with known signatures
 // nolint:misspell
+var sigs = []string{
+EOSTART
+for PAGE in $(seq 1 $PAGES)
+do
+  for FUNC in `curl -s "${BASE}?page=${PAGE}" | jq '.results[].text_signature'`
+  do
+    echo ${FUNC}, >>${OUTPUT}
+  done
+done
+cat >>${OUTPUT} <<EOEND 
+}
+
+// InitFunctionMap initialises the function (and event) map with known signatures
 func InitFunctionMap() {
     functions = make(map[[4]byte]function)
     events = make(map[[32]byte]function)
 
-EOSTART
-for PAGE in $(seq 1 $PAGES)
-do
-        for FUNC in `curl -s "${BASE}?page=${PAGE}" | jq '.results[].text_signature'`
-        do
-                echo "    AddFunctionSignature(${FUNC})" >>${OUTPUT}
-        done
-done
-cat >>${OUTPUT} <<EOEND 
+    for _, f := range sigs {
+      AddFunctionSignature(f)
+    }
+
     // Also add events
     initEventMap()
 }
 EOEND
 
 # Sort the functions in-place
-echo 'x' | ex -s -c '21,$-1!sort' ${OUTPUT}
+echo 'x' | ex -s -c '17,$-14!sort' ${OUTPUT}
 
 # Tidy
 gofmt -w ${OUTPUT}
