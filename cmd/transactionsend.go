@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -18,7 +18,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"strings"
@@ -57,7 +56,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 			if !strings.HasPrefix(transactionSendRaw, "0x") {
 				// Data is a file.
-				data, err := ioutil.ReadFile(transactionSendRaw)
+				data, err := os.ReadFile(transactionSendRaw)
 				cli.ErrCheck(err, quiet, "Failed to read raw transaction from filesystem")
 				lines := bytes.Split(bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")), []byte("\n"))
 				for i := range lines {

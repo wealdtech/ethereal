@@ -1,4 +1,4 @@
-// Copyright © 2019 Weald Technology Trading
+// Copyright © 2019, 2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,8 +16,8 @@ package funcparser
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"math/big"
+	"os"
 	"testing"
 
 	ethereum "github.com/ethereum/go-ethereum"
@@ -143,7 +143,7 @@ func TestGoerli(t *testing.T) {
 	conn, err := ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
 	require.Nil(t, err, "failed to connect to goerli")
 
-	json, err := ioutil.ReadFile("Tester.json")
+	json, err := os.ReadFile("Tester.json")
 	require.Nil(t, err, "failed to read Tester ABI")
 	contract, err := util.ParseCombinedJSON(string(json), "Tester")
 	require.Nil(t, err, "failed to parse contract JSON")

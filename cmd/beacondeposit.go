@@ -19,7 +19,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/big"
 	"net/http"
 	"os"
@@ -205,7 +205,7 @@ func loadDepositInfo(input string) ([]*util.DepositInfo, error) {
 		data = []byte(input)
 	default:
 		// Assume it's a path to JSON
-		data, err = ioutil.ReadFile(input)
+		data, err = os.ReadFile(input)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find deposit data file")
 		}
@@ -347,7 +347,7 @@ func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdraw
 		return errors.Wrap(err, "failed to check if there is already a deposit for this validator")
 	}
 	defer graphResp.Body.Close()
-	body, err := ioutil.ReadAll(graphResp.Body)
+	body, err := io.ReadAll(graphResp.Body)
 	if err != nil {
 		return errors.Wrap(err, "bad information returned from existing deposit check")
 	}

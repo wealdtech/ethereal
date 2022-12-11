@@ -1,4 +1,4 @@
-// Copyright © 2017-2021 Weald Technology Trading
+// Copyright © 2017-2022 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -18,7 +18,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"strings"
@@ -53,7 +52,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		var tx *types.Transaction
 		if !strings.HasPrefix(transactionStr, "0x") {
 			// Read from file.
-			fileBytes, err := ioutil.ReadFile(transactionStr)
+			fileBytes, err := os.ReadFile(transactionStr)
 			cli.ErrCheck(err, quiet, "Failed to read transaction from filesystem")
 			transactionStr = strings.TrimSpace(string(fileBytes))
 		}
