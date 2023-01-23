@@ -1,13 +1,12 @@
-// Code generated from Func.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
 package parser // Func
-
 import (
 	"fmt"
 	"strconv"
 	"sync"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
 
 // Suppress unused import errors
@@ -99,7 +98,7 @@ func NewFuncParser(input antlr.TokenStream) *FuncParser {
 	this.RuleNames = staticData.ruleNames
 	this.LiteralNames = staticData.literalNames
 	this.SymbolicNames = staticData.symbolicNames
-	this.GrammarFileName = "Func.g4"
+	this.GrammarFileName = "java-escape"
 
 	return this
 }
@@ -502,7 +501,7 @@ func (p *FuncParser) FuncArgs() (localctx IFuncArgsContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<FuncParserT__3)|(1<<FuncParserT__4)|(1<<FuncParserT__5)|(1<<FuncParserT__6)|(1<<FuncParserINT)|(1<<FuncParserHEX)|(1<<FuncParserSTRING)|(1<<FuncParserDOMAIN))) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&23792) != 0 {
 		{
 			p.SetState(28)
 			p.Arg()

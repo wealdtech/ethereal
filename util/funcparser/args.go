@@ -16,7 +16,7 @@ package funcparser
 import (
 	"errors"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/ethereal/v2/util"
