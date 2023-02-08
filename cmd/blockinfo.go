@@ -1,4 +1,4 @@
-// Copyright © 2017-2022 Weald Technology Trading
+// Copyright © 2017-2023 Weald Technology Trading.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -35,10 +35,12 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var blockInfoTransactions bool
-var blockInfoJSON bool
-
-var blockInfoNumberRegexp = regexp.MustCompile("^[0-9]+$")
+var (
+	blockInfoTransactions bool
+	blockInfoJSON         bool
+	blockInfoNumberRegexp = regexp.MustCompile("^[0-9]+$")
+	gWeiToWei             = big.NewInt(1e9)
+)
 
 // blockInfoCmd represents the block info command
 var blockInfoCmd = &cobra.Command{
@@ -152,7 +154,6 @@ func outputLondonText(ctx context.Context, block *spec.LondonBlock) (string, err
 		outputDifficulty(builder, block.Difficulty)
 		outputTotalDifficulty(builder, block.TotalDifficulty)
 	}
-	outputUncles(builder, block.Uncles, verbose)
 	outputTransactions(builder, block.Transactions, verbose)
 
 	return builder.String(), nil
@@ -171,7 +172,6 @@ func outputShanghaiText(ctx context.Context, block *spec.ShanghaiBlock) (string,
 		outputDifficulty(builder, block.Difficulty)
 		outputTotalDifficulty(builder, block.TotalDifficulty)
 	}
-	outputUncles(builder, block.Uncles, verbose)
 	outputTransactions(builder, block.Transactions, verbose)
 	outputWithdrawals(builder, block.Withdrawals, verbose)
 
@@ -248,7 +248,7 @@ func outputWithdrawals(builder *strings.Builder, withdrawals []*spec.Withdrawal,
 	} else {
 		builder.WriteString("\n")
 		for _, withdrawal := range withdrawals {
-			builder.WriteString(fmt.Sprintf("  %s from %d to %#x\n", string2eth.WeiToGWeiString(big.NewInt(int64(withdrawal.Amount.Uint64()))), withdrawal.ValidatorIndex, withdrawal.Address))
+			builder.WriteString(fmt.Sprintf("  %s from %d to %#x\n", string2eth.WeiToString(new(big.Int).Mul(big.NewInt(int64(withdrawal.Amount.Uint64())), gWeiToWei), true), withdrawal.ValidatorIndex, withdrawal.Address))
 		}
 	}
 }
