@@ -9,7 +9,7 @@ on:
 jobs:
   # Set variables that will be available to all builds.
   env_vars:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       release_version: ${{ steps.release_version.outputs.release_version }}
       binary: ${{ steps.binary.outputs.binary }}
@@ -25,7 +25,7 @@ jobs:
 
   # Create a github release to hold the assets once built.
   create_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: env_vars
     outputs:
       upload_url: ${{ steps.release_action.outputs.upload_url }}
@@ -40,13 +40,13 @@ jobs:
 
   # Build and pack the binaries for linux.
   build_linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [create_release, env_vars]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ^1.19
+          go-version: '^1.20'
 
       - name: Check out repository into the Go module directory
         uses: actions/checkout@v3
@@ -59,7 +59,11 @@ jobs:
 
       - name: Compile
         run: |
-          go build -tags osusergo,netgo -ldflags="-extldflags=-static" -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }}"
+          # Do not attempt to upgrade grub, as it errors on github (24th Feb 2023)
+          sudo apt-mark hold grub-efi-amd64-signed grub-efi-amd64-bin
+          sudo apt-get update
+          sudo apt-get upgrade
+          go build -tags osusergo,netgo -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }} -extldflags -static"
           tar zcf ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-linux-amd64.tar.gz ${{ needs.env_vars.outputs.binary }}
           sha256sum ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-linux-amd64.tar.gz | sed -e 's/ .*//' >${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-linux-amd64.tar.gz.sha256
       - name: Upload binary
@@ -84,7 +88,8 @@ jobs:
 
       - name: Cross compile (ARM64)
         run: |
-          GOOS=linux GOARCH=arm64 go build -tags osusergo,netgo -ldflags="-extldflags=-static" -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }}"
+          sudo apt install -y gcc-aarch64-linux-gnu libstdc++-11-pic-arm64-cross
+          CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -tags osusergo,netgo -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }} -extldflags -static"
           tar zcf ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-linux-arm64.tar.gz ${{ needs.env_vars.outputs.binary }}
           sha256sum ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-linux-arm64.tar.gz | sed -e 's/ .*//' >${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-linux-arm64.tar.gz.sha256
 
@@ -116,7 +121,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ^1.19
+          go-version: '^1.20'
 
       - name: Check out repository into the Go module directory
         uses: actions/checkout@v3
@@ -129,7 +134,7 @@ jobs:
 
       - name: Compile
         run: |
-          go build -tags osusergo,netgo -ldflags="-extldflags=-static" -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }}"
+          go build -tags osusergo,netgo -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }}"
           tar zcf ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-darwin-amd64.tar.gz ${{ needs.env_vars.outputs.binary }}
           brew install coreutils
           sha256sum ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-darwin-amd64.tar.gz | sed -e 's/ .*//' >${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-darwin-amd64.tar.gz.sha256
@@ -161,7 +166,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: ^1.19
+          go-version: '^1.20'
 
       - name: Check out repository into the Go module directory
         uses: actions/checkout@v3
@@ -174,7 +179,7 @@ jobs:
 
       - name: Compile
         run: |
-          go build -tags osusergo,netgo -ldflags="-extldflags=-static" -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }}"
+          go build -v -ldflags="-X github.com/${{ github.repository }}/cmd.ReleaseVersion=${{ needs.env_vars.outputs.release_version }} -extldflags -static"
           choco install zip
           zip --junk-paths ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-windows-exe.zip ${{ needs.env_vars.outputs.binary }}.exe
           $FileHash=(certutil -hashfile ${{ needs.env_vars.outputs.binary }}-${{ needs.env_vars.outputs.release_version }}-windows-exe.zip SHA256 | findstr /v hash | findstr /v SHA).replace(" ", "")
