@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017 - 2023 Weald Technology Trading.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -25,6 +25,7 @@ import (
 	bip32 "github.com/tyler-smith/go-bip32"
 	bip39 "github.com/tyler-smith/go-bip39"
 	"github.com/wealdtech/ethereal/v2/cli"
+	"golang.org/x/text/unicode/norm"
 )
 
 var hdKeysPath string
@@ -58,7 +59,7 @@ In quiet mode this will return 0 if the keys were successfully obtained, otherwi
 			}
 		}
 
-		seed, err := bip39.NewSeedWithErrorChecking(hdKeysMnemonic, hdKeysSecret)
+		seed, err := bip39.NewSeedWithErrorChecking(expandMnemonic(hdKeysMnemonic), hdKeysSecret)
 		cli.ErrCheck(err, quiet, "Failed to obtain seed from mnemonic")
 
 		masterKey, err := bip32.NewMasterKey(seed)
@@ -79,6 +80,35 @@ In quiet mode this will return 0 if the keys were successfully obtained, otherwi
 
 		os.Exit(exitSuccess)
 	},
+}
+
+// expandMnmenonic expands mnemonics from their 4-letter versions.
+func expandMnemonic(input string) string {
+	wordList := bip39.GetWordList()
+	truncatedWords := make(map[string]string, len(wordList))
+	for _, word := range wordList {
+		if len(word) > 4 {
+			truncatedWords[firstFour(word)] = word
+		}
+	}
+	mnemonicWords := strings.Split(input, " ")
+	for i := range mnemonicWords {
+		if fullWord, exists := truncatedWords[norm.NFKC.String(mnemonicWords[i])]; exists {
+			mnemonicWords[i] = fullWord
+		}
+	}
+	return strings.Join(mnemonicWords, " ")
+}
+
+// firstFour provides the first four letters for a potentially longer word.
+func firstFour(s string) string {
+	// Use NFKC here for composition, to avoid accents counting as their own characters.
+	s = norm.NFKC.String(s)
+	r := []rune(s)
+	if len(r) > 4 {
+		return string(r[:4])
+	}
+	return s
 }
 
 func init() {
