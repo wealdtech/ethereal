@@ -67,8 +67,8 @@ func TestGoerli(t *testing.T) {
 		{ // 6 - array of array of string parameters
 			input: `testString2DArray([["foo","bar","baz"],["qux","quux","quuz"]])`,
 			output: []interface{}{[][]string{
-				[]string{`foo`, `bar`, `baz`},
-				[]string{`qux`, `quux`, `quuz`},
+				{`foo`, `bar`, `baz`},
+				{`qux`, `quux`, `quuz`},
 			}},
 		},
 		{ // 7 - bool parameter
@@ -84,8 +84,8 @@ func TestGoerli(t *testing.T) {
 		{ // 9 - array of array of bool parameters
 			input: `testBool2DArray([[true, false],[false, true]])`,
 			output: []interface{}{[][]bool{
-				[]bool{true, false},
-				[]bool{false, true},
+				{true, false},
+				{false, true},
 			}},
 		},
 		{ // 10 - address parameter
@@ -103,16 +103,17 @@ func TestGoerli(t *testing.T) {
 		{ // 12 - array of array of address parameters
 			input: `testAddress2DArray([[0x108b7768c04a0c750C3D6b58d44Ff5041DD90480,0x108B7768C04a0C750C3d6B58D44fF5041dd90481,0x108B7768c04A0c750C3D6b58d44fF5041dD90482],[0x108B7768c04a0c750C3d6b58D44FF5041DD90483,0x108b7768c04a0C750c3D6b58d44FF5041dD90484,0x108b7768c04A0c750C3D6b58d44Ff5041dd90485]])`,
 			output: []interface{}{[][]common.Address{
-				[]common.Address{
+				{
 					common.HexToAddress("0x108b7768c04a0c750C3D6b58d44Ff5041DD90480"),
 					common.HexToAddress("0x108B7768C04a0C750C3d6B58D44fF5041dd90481"),
 					common.HexToAddress("0x108B7768c04A0c750C3D6b58d44fF5041dD90482"),
 				},
-				[]common.Address{
+				{
 					common.HexToAddress("0x108B7768c04a0c750C3d6b58D44FF5041DD90483"),
 					common.HexToAddress("0x108b7768c04a0C750c3D6b58d44FF5041dD90484"),
 					common.HexToAddress("0x108b7768c04A0c750C3D6b58d44Ff5041dd90485"),
-				}}},
+				},
+			}},
 		},
 		{ // 13 - bytes parameter
 			input:  `testBytes(0x0102030405)`,
@@ -128,14 +129,15 @@ func TestGoerli(t *testing.T) {
 		{ // 15 - array of array of bytes parameters
 			input: `testBytes2DArray([[0x0102030405,0x060708090a],[0x0b0c0d0e0f,0x1011121314]])`,
 			output: []interface{}{[][][]byte{
-				[][]byte{
+				{
 					_bytes("0102030405"),
 					_bytes("060708090a"),
 				},
-				[][]byte{
+				{
 					_bytes("0b0c0d0e0f"),
 					_bytes("1011121314"),
-				}}},
+				},
+			}},
 		},
 	}
 

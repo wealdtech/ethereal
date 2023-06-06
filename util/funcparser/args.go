@@ -16,7 +16,7 @@ package funcparser
 import (
 	"errors"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
+	"github.com/antlr4-go/antlr/v4"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/ethereal/v2/util"
@@ -32,7 +32,7 @@ func ParseCall(client *ethclient.Client, contract *util.Contract, call string) (
 	is := antlr.NewInputStream(call)
 	lexer := parser.NewFuncLexer(is)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	tree := parser.NewFuncParser(stream).Start()
+	tree := parser.NewFuncParser(stream).Start_()
 	methodListener := newMethodListener(client, contract)
 	antlr.ParseTreeWalkerDefault.Walk(methodListener, tree)
 

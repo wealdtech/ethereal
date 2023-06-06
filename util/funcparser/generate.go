@@ -13,6 +13,7 @@
 
 package funcparser
 
-//nogo:generate java -jar /home/jgm/tools/antlr/antlr-4.11.1-complete.jar -Dlanguage=Go -o parser Func.g4
+//nogo:generate java -jar /home/jgm/tools/antlr/antlr-4.13.0-complete.jar -Dlanguage=Go -o parser Func.g4
 //go:generate abigen --abi Tester.abi --pkg funcparser --type tester --out tester.go
-//go:generate java -Xmx500M -jar /home/jgm/tools/antlr/antlr-4.11.1-complete.jar -Dlanguage=Go -package parser -o parser Func.g4
+//go:generate java -Xmx500M -jar /home/jgm/tools/antlr/antlr-4.13.0-complete.jar -Dlanguage=Go -package parser -o parser Func.g4
+//go:generate rm -f parser/Func.interp parser/Func.tokens parser/FuncLexer.interp parser/FuncLexer.tokens

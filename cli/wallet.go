@@ -87,8 +87,6 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
 		// Nothing to add for mainnet
-	case chainID.Cmp(params.RopstenChainConfig.ChainID) == 0:
-		keydir = filepath.Join(keydir, "testnet")
 	case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "rinkeby")
 	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
@@ -110,8 +108,6 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
 		// Nothing to add for mainnet
-	case chainID.Cmp(params.RopstenChainConfig.ChainID) == 0:
-		keydir = filepath.Join(keydir, "testnet")
 	case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "rinkeby")
 	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
@@ -136,19 +132,13 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 	}
 	switch runtime.GOOS {
 	case "windows":
-		keydir = filepath.Join(keydir, "AppData\\Roaming\\Parity\\Ethereum\\keys")
+		keydir = filepath.Join(keydir, "AppData\\Roaming\\Parity\\Ethereum\\keys\\ethereum")
 	case "darwin":
-		keydir = filepath.Join(keydir, "Library/Application Support/io.parity.ethereum/keys")
+		keydir = filepath.Join(keydir, "Library/Application Support/io.parity.ethereum/keys/ethereum")
 	case "linux":
-		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys")
+		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys/ethereum")
 	default:
 		return nil, fmt.Errorf("unsupported operating system")
-	}
-
-	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
-		keydir = filepath.Join(keydir, "ethereum")
-	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
-		keydir = filepath.Join(keydir, "test")
 	}
 
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
@@ -166,19 +156,13 @@ func obtainParityWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error
 	}
 	switch runtime.GOOS {
 	case "windows":
-		keydir = filepath.Join(keydir, "AppData\\Roaming\\Parity\\Ethereum\\keys")
+		keydir = filepath.Join(keydir, "AppData\\Roaming\\Parity\\Ethereum\\keys\\ethereum")
 	case "darwin":
-		keydir = filepath.Join(keydir, "Library/Application Support/io.parity.ethereum/keys")
+		keydir = filepath.Join(keydir, "Library/Application Support/io.parity.ethereum/keys/ethereum")
 	case "linux":
-		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys")
+		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys/ethereum")
 	default:
 		return nil, fmt.Errorf("unsupported operating system")
-	}
-
-	if chainID.Cmp(params.MainnetChainConfig.ChainID) == 0 {
-		keydir = filepath.Join(keydir, "ethereum")
-	} else if chainID.Cmp(params.RopstenChainConfig.ChainID) == 0 {
-		keydir = filepath.Join(keydir, "test")
 	}
 
 	if debug {

@@ -51,8 +51,8 @@ func TestParse(t *testing.T) {
 			json:  `{"contracts":{"Test.sol:Test":{"abi":"[{\"constant\":false,\"inputs\":[{\"name\":\"arg1\",\"type\":\"int256[][]\"}],\"name\":\"test\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"}}}`,
 			input: `test([[1,2,3],[4,5,6]])`,
 			output: []interface{}{[][]*big.Int{
-				[]*big.Int{big.NewInt(1), big.NewInt(2), big.NewInt(3)},
-				[]*big.Int{big.NewInt(4), big.NewInt(5), big.NewInt(6)},
+				{big.NewInt(1), big.NewInt(2), big.NewInt(3)},
+				{big.NewInt(4), big.NewInt(5), big.NewInt(6)},
 			}},
 		},
 		{ // 4 - string parameter
@@ -71,8 +71,8 @@ func TestParse(t *testing.T) {
 			json:  `{"contracts":{"Test.sol:Test":{"abi":"[{\"constant\":false,\"inputs\":[{\"name\":\"arg1\",\"type\":\"string[][]\"}],\"name\":\"test\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"}}}`,
 			input: `test([["foo","bar","baz"],["qux","quux","quuz"]])`,
 			output: []interface{}{[][]string{
-				[]string{`foo`, `bar`, `baz`},
-				[]string{`qux`, `quux`, `quuz`},
+				{`foo`, `bar`, `baz`},
+				{`qux`, `quux`, `quuz`},
 			}},
 		},
 		{ // 7 - bool parameter
@@ -91,8 +91,8 @@ func TestParse(t *testing.T) {
 			json:  `{"contracts":{"Test.sol:Test":{"abi":"[{\"constant\":false,\"inputs\":[{\"name\":\"arg1\",\"type\":\"bool[][]\"}],\"name\":\"test\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"}}}`,
 			input: `test([[true, false],[false, true]])`,
 			output: []interface{}{[][]bool{
-				[]bool{true, false},
-				[]bool{false, true},
+				{true, false},
+				{false, true},
 			}},
 		},
 		{ // 10 - address parameter
@@ -113,16 +113,17 @@ func TestParse(t *testing.T) {
 			json:  `{"contracts":{"Test.sol:Test":{"abi":"[{\"constant\":false,\"inputs\":[{\"name\":\"arg1\",\"type\":\"address[][]\"}],\"name\":\"test\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"}}}`,
 			input: `test([[0x008b7768c04a0c750C3D6b58d44Ff5041DD90480,0x008B7768C04a0C750C3d6B58D44fF5041dd90481,0x008B7768c04A0c750C3D6b58d44fF5041dD90482],[0x008B7768c04a0c750C3d6b58D44FF5041DD90483,0x008b7768c04a0C750c3D6b58d44FF5041dD90484,0x008b7768c04A0c750C3D6b58d44Ff5041dd90485]])`,
 			output: []interface{}{[][]common.Address{
-				[]common.Address{
+				{
 					common.HexToAddress("0x008b7768c04a0c750C3D6b58d44Ff5041DD90480"),
 					common.HexToAddress("0x008B7768C04a0C750C3d6B58D44fF5041dd90481"),
 					common.HexToAddress("0x008B7768c04A0c750C3D6b58d44fF5041dD90482"),
 				},
-				[]common.Address{
+				{
 					common.HexToAddress("0x008B7768c04a0c750C3d6b58D44FF5041DD90483"),
 					common.HexToAddress("0x008b7768c04a0C750c3D6b58d44FF5041dD90484"),
 					common.HexToAddress("0x008b7768c04A0c750C3D6b58d44Ff5041dd90485"),
-				}}},
+				},
+			}},
 		},
 		{ // 13 - bytes parameter
 			json:   `{"contracts":{"Test.sol:Test":{"abi":"[{\"constant\":false,\"inputs\":[{\"name\":\"arg1\",\"type\":\"bytes\"}],\"name\":\"test\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"}}}`,
@@ -141,14 +142,15 @@ func TestParse(t *testing.T) {
 			json:  `{"contracts":{"Test.sol:Test":{"abi":"[{\"constant\":false,\"inputs\":[{\"name\":\"arg1\",\"type\":\"bytes[][]\"}],\"name\":\"test\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"}}}`,
 			input: `test([[0x0102030405,0x060708090a],[0x0b0c0d0e0f,0x1011121314]])`,
 			output: []interface{}{[][][]byte{
-				[][]byte{
+				{
 					_bytes("0102030405"),
 					_bytes("060708090a"),
 				},
-				[][]byte{
+				{
 					_bytes("0b0c0d0e0f"),
 					_bytes("1011121314"),
-				}}},
+				},
+			}},
 		},
 		{ // 16 - constructor
 			json:  `{"contracts":{"Test.sol:Test":{"abi":"[{\"inputs\":[{\"name\":\"arg1\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]"}}}`,
