@@ -19,7 +19,7 @@ import (
 
 var ensTextKey string
 
-// ensTextCmd represents the ens text command
+// ensTextCmd represents the ens text command.
 var ensTextCmd = &cobra.Command{
 	Use:   "text",
 	Short: "Manage ENS text entries",

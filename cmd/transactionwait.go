@@ -25,7 +25,7 @@ import (
 
 var transactionWaitLimit time.Duration
 
-// transactionWaitCmd represents the transaction info command
+// transactionWaitCmd represents the transaction info command.
 var transactionWaitCmd = &cobra.Command{
 	Use:   "wait",
 	Short: "Wait for a transaction to be mined",
@@ -42,10 +42,9 @@ In quiet mode this will return 0 if the transaction is mined before the time lim
 		if mined {
 			outputIf(!quiet, "Transaction mined")
 			os.Exit(exitSuccess)
-		} else {
-			outputIf(!quiet, "Transaction not mined")
-			os.Exit(exitFailure)
 		}
+		outputIf(!quiet, "Transaction not mined")
+		os.Exit(exitFailure)
 	},
 }
 

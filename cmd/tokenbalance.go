@@ -23,10 +23,12 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var tokenBalanceHolderAddress string
-var tokenBalanceRaw bool
+var (
+	tokenBalanceHolderAddress string
+	tokenBalanceRaw           bool
+)
 
-// tokenBalanceCmd represents the ether balance command
+// tokenBalanceCmd represents the token balance command.
 var tokenBalanceCmd = &cobra.Command{
 	Use:   "balance",
 	Short: "Obtain the token balance for an address",
@@ -53,9 +55,8 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		if quiet {
 			if balance.Cmp(big.NewInt(0)) == 0 {
 				os.Exit(exitFailure)
-			} else {
-				os.Exit(exitSuccess)
 			}
+			os.Exit(exitSuccess)
 		}
 
 		if tokenBalanceRaw {

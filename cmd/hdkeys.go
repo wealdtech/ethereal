@@ -28,11 +28,13 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-var hdKeysPath string
-var hdKeysSecret string
-var hdKeysMnemonic string
+var (
+	hdKeysPath     string
+	hdKeysSecret   string
+	hdKeysMnemonic string
+)
 
-// hdKeysCmd represents the hd keys command
+// hdKeysCmd represents the hd keys command.
 var hdKeysCmd = &cobra.Command{
 	Use:   "keys",
 	Short: "Display keys for a given seed and path",

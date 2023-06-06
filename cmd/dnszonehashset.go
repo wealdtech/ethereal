@@ -26,7 +26,7 @@ import (
 
 var dnsZonehashSetZonehashStr string
 
-// dnsZonehashSetCmd represents the dns zonehash set command
+// dnsZonehashSetCmd represents the dns zonehash set command.
 var dnsZonehashSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the zone hash of a DNS domain held in ENS",
@@ -58,18 +58,18 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Invalid zone")
 		outputIf(verbose, fmt.Sprintf("Zonehash is %#x", data))
 
-		// Obtain the registry contract
+		// Obtain the registry contract.
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Obtain owner for the domain
+		// Obtain owner for the domain.
 		domainOwner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(!bytes.Equal(domainOwner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(c.Client(), domainOwner)))
 
-		// Obtain DNS resolver for the domain
+		// Obtain DNS resolver for the domain.
 		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 

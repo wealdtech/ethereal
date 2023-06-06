@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package util contains utilities for Ethereal
+// Package util contains utilities for Ethereal.
 package util
 
 import (
@@ -20,15 +20,17 @@ import (
 	"strings"
 )
 
-// Used in TokenValueToString
+// Used in TokenValueToString.
 var zero = big.NewInt(0)
 
-// TokenValueToString converts a token value to a suitable string representation
-func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output string) {
-	// Take a string version of the input
+// TokenValueToString converts a token value to a suitable string representation.
+func TokenValueToString(input *big.Int, decimals uint8, _ bool) string {
+	output := ""
+
+	// Take a string version of the input.
 	value := input.String()
 
-	// Input sanity checks
+	// Input sanity checks.
 	if input.Cmp(zero) == 0 {
 		return "0"
 	}
@@ -36,50 +38,50 @@ func TokenValueToString(input *big.Int, decimals uint8, usePrefix bool) (output 
 	nonDecimalLength := len(value) - int(decimals)
 	switch {
 	case nonDecimalLength <= 0:
-		// We need to add leading decimal 0s
+		// We need to add leading decimal 0s.
 		output = "0." + strings.Repeat("0", int(decimals)-len(value)) + value
 		output = strings.TrimRight(output, "0")
 	case nonDecimalLength == len(value):
 		output = value
 	default:
-		// We might need to add decimal point
+		// We might need to add decimal point.
 		postDecimalsAllZero, _ := regexp.MatchString("^0+$", value[nonDecimalLength:])
 		if postDecimalsAllZero {
-			// Nope; just take the leading figures
+			// Nope; just take the leading figures.
 			output = value[:nonDecimalLength]
 		} else {
-			// Yep; add the zeros
+			// Yep; add the zeros.
 			output = value[:nonDecimalLength] + "." + value[nonDecimalLength:]
 			output = strings.TrimRight(output, "0")
 		}
 	}
-	return
+	return output
 }
 
-// StringToTokenValue converts a string to a number of tokens
-func StringToTokenValue(input string, decimals uint8) (output *big.Int, err error) {
-	output = big.NewInt(0)
+// StringToTokenValue converts a string to a number of tokens.
+func StringToTokenValue(input string, decimals uint8) (*big.Int, error) {
+	output := big.NewInt(0)
 	if input == "" {
-		return
+		return output, nil
 	}
 
-	// Count the number of items after the decimal point
+	// Count the number of items after the decimal point.
 	parts := strings.Split(input, ".")
 	var additionalZeros int
 	if len(parts) == 2 {
-		// There is a decimal place
+		// There is a decimal place.
 		additionalZeros = int(decimals) - len(parts[1])
 	} else {
-		// There is not a decimal place
+		// There is not a decimal place.
 		additionalZeros = int(decimals)
 	}
-	// Remove the decimal point
+	// Remove the decimal point.
 	tmp := strings.ReplaceAll(input, ".", "")
-	// Add zeros to ensure that there are an appropriate number of decimals
+	// Add zeros to ensure that there are an appropriate number of decimals.
 	tmp += strings.Repeat("0", additionalZeros)
 
 	// Set the output
 	output.SetString(tmp, 10)
 
-	return
+	return output, nil
 }

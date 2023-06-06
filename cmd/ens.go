@@ -19,7 +19,7 @@ import (
 
 var ensDomain string
 
-// ensCmd represents the ens command
+// ensCmd represents the ens command.
 var ensCmd = &cobra.Command{
 	Use:   "ens",
 	Short: "Manage ENS",

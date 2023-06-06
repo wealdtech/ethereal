@@ -33,10 +33,12 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var ensRegisterDomains string
-var ensRegisterOwnerStr string
+var (
+	ensRegisterDomains  string
+	ensRegisterOwnerStr string
+)
 
-// ensRegisterCmd represents the register command
+// ensRegisterCmd represents the register command.
 var ensRegisterCmd = &cobra.Command{
 	Use:   "register",
 	Short: "Register an ENS domain",
@@ -77,12 +79,12 @@ This will return an exit status of 0 if the transactions are successfully submit
 
 		tmp, err := controller.MinCommitmentInterval()
 		cli.ErrCheck(err, quiet, "Failed to find out minimum commitment interval")
-		// Interval is min commitment interval plus 2 minutes
+		// Interval is min commitment interval plus 2 minutes.
 		interval := time.Duration(tmp.Int64()+120) * time.Second
 		minDuration, err := controller.MinRegistrationDuration()
 		cli.ErrCheck(err, quiet, "Failed to obtain minimum registration duration")
 
-		// Check loop
+		// Check loop.
 		for _, domain := range domains {
 			domain, err = ens.NormaliseDomain(domain)
 			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
@@ -98,12 +100,12 @@ This will return an exit status of 0 if the transactions are successfully submit
 			costPerSecond, err := controller.RentCost(domain)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain rental cost for %s", domain))
 			duration := new(big.Int).Div(value, costPerSecond)
-			// Ensure duration is greater than minimum duration
+			// Ensure duration is greater than minimum duration.
 			cli.Assert(big.NewInt(int64(minDuration.Seconds())).Cmp(duration) <= 0, quiet, fmt.Sprintf("Not enough funds to cover minimum duration of %v for %s", minDuration, domain))
 			outputIf(verbose, fmt.Sprintf("%s will be registered until approximately %v", domain, time.Now().Add(time.Duration(duration.Int64())*time.Second).Format("2006-01-02 15:04")))
 		}
 
-		// Commit loop
+		// Commit loop.
 		secrets := make(map[string][32]byte)
 		var lastTx *types.Transaction
 		for _, domain := range domains {
@@ -118,7 +120,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 			opts, err := generateTxOpts(owner)
 			cli.ErrCheck(err, quiet, "failed to generate transaction options")
 
-			// Commitments have no value
+			// Commitments have no value.
 			opts.Value = nil
 			cli.ErrCheck(err, quiet, "failed to generate commit transaction options")
 			lastTx, err = controller.Commit(opts, domain, owner, secrets[domain])
@@ -136,14 +138,14 @@ This will return an exit status of 0 if the transactions are successfully submit
 			cli.ErrCheck(err, quiet, "failed to increment nonce")
 		}
 
-		// Wait
+		// Wait.
 		outputIf(!quiet, "Waiting for commit transaction(s) to be mined")
 		mined := util.WaitForTransaction(c.Client(), lastTx.Hash(), 0)
 		cli.Assert(mined, quiet, "Failed to mine commit transaction(s)")
 		outputIf(!quiet, fmt.Sprintf("Waiting for commit/reveal interval to pass (done at %s)", time.Now().Add(interval).Format("15:04:05")))
 		time.Sleep(interval)
 
-		// Reveal loop
+		// Reveal loop.
 		for _, domain := range domains {
 			domain, err = ens.NormaliseDomain(domain)
 			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")

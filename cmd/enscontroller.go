@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensControllerCmd represents the ens controller command
+// ensControllerCmd represents the ens controller command.
 var ensControllerCmd = &cobra.Command{
 	Use:   "controller",
 	Short: "Manage ENS controllers",

@@ -27,11 +27,13 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var accountKeysAddress string
-var accountKeysPassphrase string
-var accountKeysPrivateKey string
+var (
+	accountKeysAddress    string
+	accountKeysPassphrase string
+	accountKeysPrivateKey string
+)
 
-// accountKeysCmd represents the account keys command
+// accountKeysCmd represents the account keys command.
 var accountKeysCmd = &cobra.Command{
 	Use:   "keys",
 	Short: "Display keys for a given address",

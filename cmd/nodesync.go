@@ -21,7 +21,7 @@ import (
 	"github.com/wealdtech/ethereal/v2/cli"
 )
 
-// nodeSyncCmd represents the node sync command
+// nodeSyncCmd represents the node sync command.
 var nodeSyncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Obtain sync information",

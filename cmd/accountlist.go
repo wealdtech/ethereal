@@ -22,7 +22,7 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-// accountListCmd represents the account list command
+// accountListCmd represents the account list command.
 var accountListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List visible accounts",
@@ -70,9 +70,8 @@ In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
 		if quiet {
 			if foundAccounts {
 				os.Exit(exitSuccess)
-			} else {
-				os.Exit(exitFailure)
 			}
+			os.Exit(exitFailure)
 		}
 	},
 }

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// dnsZonehashCmd represents the dns zonehash command
+// dnsZonehashCmd represents the dns zonehash command.
 var dnsZonehashCmd = &cobra.Command{
 	Use:   "zonehash",
 	Short: "Manage DNS zonehash entries",

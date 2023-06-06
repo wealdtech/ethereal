@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// beaconCmd represents the beacon command
+// beaconCmd represents the beacon command.
 var beaconCmd = &cobra.Command{
 	Use:   "beacon",
 	Short: "Manage beacon chain deposits",
@@ -28,5 +28,5 @@ func init() {
 	RootCmd.AddCommand(beaconCmd)
 }
 
-func beaconFlags(cmd *cobra.Command) {
+func beaconFlags(_ *cobra.Command) {
 }

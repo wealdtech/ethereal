@@ -22,7 +22,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// ensResolverGetCmd represents the resolver get command
+// ensResolverGetCmd represents the resolver get command.
 var ensResolverGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the resolver of an ENS domain",

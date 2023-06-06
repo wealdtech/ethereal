@@ -30,11 +30,13 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var contractSendAmount string
-var contractSendFromAddress string
-var contractSendCall string
+var (
+	contractSendAmount      string
+	contractSendFromAddress string
+	contractSendCall        string
+)
 
-// contractSendCmd represents the contract call command
+// contractSendCmd represents the contract call command.
 var contractSendCmd = &cobra.Command{
 	Use:   "send",
 	Short: "Send a contract method",
@@ -51,7 +53,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		fromAddress, err := c.Resolve(contractSendFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractSendFromAddress))
 
-		// We need to have 'call'
+		// We need to have 'call'.
 		cli.Assert(contractSendCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
@@ -78,7 +80,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			gasLimit = &limit
 		}
 
-		// Create and sign the transaction
+		// Create and sign the transaction.
 		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
 			From:     fromAddress,
 			To:       &contractAddress,
@@ -95,14 +97,13 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 			os.Exit(exitSuccess)
-		} else {
-			err = c.SendTransaction(context.Background(), signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
-			handleSubmittedTransaction(signedTx, log.Fields{
-				"group":   "contract",
-				"command": "send",
-			}, false)
 		}
+		err = c.SendTransaction(context.Background(), signedTx)
+		cli.ErrCheck(err, quiet, "Failed to send transaction")
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":   "contract",
+			"command": "send",
+		}, false)
 	},
 }
 

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensResolverCmd represents the ens resolver command
+// ensResolverCmd represents the ens resolver command.
 var ensResolverCmd = &cobra.Command{
 	Use:   "resolver",
 	Short: "Manage ENS resolvers",

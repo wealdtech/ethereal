@@ -25,7 +25,7 @@ import (
 
 var networkGPSBlocks int64
 
-// networkGPSCmd represents the network gps command
+// networkGPSCmd represents the network gps command.
 var networkGPSCmd = &cobra.Command{
 	Use:   "gps",
 	Short: "Obtain gas-per-second",
@@ -70,9 +70,8 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 		if quiet {
 			if gas == 0 {
 				os.Exit(exitFailure)
-			} else {
-				os.Exit(exitSuccess)
 			}
+			os.Exit(exitSuccess)
 		}
 
 		gasPerSecond := float64(gas) / duration

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// gasCmd represents the gas command
+// gasCmd represents the gas command.
 var gasCmd = &cobra.Command{
 	Use:   "gas",
 	Short: "Manage gas",

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensSubdomainCmd represents the ens subdomain command
+// ensSubdomainCmd represents the ens subdomain command.
 var ensSubdomainCmd = &cobra.Command{
 	Use:   "subdomain",
 	Short: "Manage ENS subdomains",

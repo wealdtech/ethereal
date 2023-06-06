@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// etherCmd represents the ether command
+// etherCmd represents the ether command.
 var etherCmd = &cobra.Command{
 	Use:     "ether",
 	Aliases: []string{"eth"},

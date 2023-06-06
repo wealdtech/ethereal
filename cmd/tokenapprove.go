@@ -26,11 +26,13 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var tokenApproveAmount string
-var tokenApproveHolderAddress string
-var tokenApproveSpenderAddress string
+var (
+	tokenApproveAmount         string
+	tokenApproveHolderAddress  string
+	tokenApproveSpenderAddress string
+)
 
-// tokenApproveCmd represents the token approve command
+// tokenApproveCmd represents the token approve command.
 var tokenApproveCmd = &cobra.Command{
 	Use:   "approve",
 	Short: "Approve an address to transfer tokens",

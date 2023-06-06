@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// nodeCmd represents the node command
+// nodeCmd represents the node command.
 var nodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: "Node information",
@@ -28,5 +28,5 @@ func init() {
 	RootCmd.AddCommand(nodeCmd)
 }
 
-func nodeFlags(cmd *cobra.Command) {
+func nodeFlags(_ *cobra.Command) {
 }

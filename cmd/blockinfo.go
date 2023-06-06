@@ -42,7 +42,7 @@ var (
 	gWeiToWei             = big.NewInt(1e9)
 )
 
-// blockInfoCmd represents the block info command
+// blockInfoCmd represents the block info command.
 var blockInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Obtain information about a block",
@@ -81,7 +81,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 	},
 }
 
-func outputBlockInfoJSON(ctx context.Context, block *spec.Block) string {
+func outputBlockInfoJSON(_ context.Context, block *spec.Block) string {
 	var res []byte
 	var err error
 
@@ -123,7 +123,7 @@ func outputBlockInfoText(ctx context.Context, block *spec.Block) string {
 	return res
 }
 
-func outputBerlinText(ctx context.Context, block *spec.BerlinBlock) (string, error) {
+func outputBerlinText(_ context.Context, block *spec.BerlinBlock) (string, error) {
 	builder := new(strings.Builder)
 	outputNumber(builder, block.Number)
 	outputHash(builder, block.Hash)
@@ -141,7 +141,7 @@ func outputBerlinText(ctx context.Context, block *spec.BerlinBlock) (string, err
 	return builder.String(), nil
 }
 
-func outputLondonText(ctx context.Context, block *spec.LondonBlock) (string, error) {
+func outputLondonText(_ context.Context, block *spec.LondonBlock) (string, error) {
 	builder := new(strings.Builder)
 	outputNumber(builder, block.Number)
 	outputHash(builder, block.Hash)
@@ -159,7 +159,7 @@ func outputLondonText(ctx context.Context, block *spec.LondonBlock) (string, err
 	return builder.String(), nil
 }
 
-func outputShanghaiText(ctx context.Context, block *spec.ShanghaiBlock) (string, error) {
+func outputShanghaiText(_ context.Context, block *spec.ShanghaiBlock) (string, error) {
 	builder := new(strings.Builder)
 	outputNumber(builder, block.Number)
 	outputHash(builder, block.Hash)
@@ -236,7 +236,7 @@ func outputUncles(builder *strings.Builder, uncles []types.Hash, verbose bool) {
 	}
 }
 
-func outputTransactions(builder *strings.Builder, transactions []*spec.Transaction, verbose bool) {
+func outputTransactions(builder *strings.Builder, transactions []*spec.Transaction, _ bool) {
 	builder.WriteString("Transactions: ")
 	builder.WriteString(fmt.Sprintf("%d\n", len(transactions)))
 }

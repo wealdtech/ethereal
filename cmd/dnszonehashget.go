@@ -23,7 +23,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// dnsZonehashGetCmd represents the zonehash get command
+// dnsZonehashGetCmd represents the zonehash get command.
 var dnsZonehashGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the zonehash of a DNS domain on ENS",
@@ -56,7 +56,7 @@ In quiet mode this will return 0 if the name has a valid zone hash, otherwise 1.
 		}
 		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
 
-		// Obtain DNS resolver for the domain
+		// Obtain DNS resolver for the domain.
 		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 

@@ -18,18 +18,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dnsDomain string
-var dnsResource string
-var dnsName string
+var (
+	dnsDomain   string
+	dnsResource string
+	dnsName     string
+)
 
-// dnsCmd represents the dns command
+// dnsCmd represents the dns command.
 var dnsCmd = &cobra.Command{
 	Use:   "dns",
 	Short: "Manage DNS",
 	Long:  `Set and obtain DNS information held in Ethereum`,
 }
 
-// Reverse map of TypeToString in DNS package
+// Reverse map of TypeToString in DNS package.
 var stringToType = map[string]uint16{}
 
 func initStringToTypeMap() {

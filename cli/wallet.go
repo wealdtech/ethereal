@@ -32,7 +32,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ObtainWallets obtains all known wallets for a given chain
+// ObtainWallets obtains all known wallets for a given chain.
 func ObtainWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	var wallets []accounts.Wallet
 
@@ -42,13 +42,13 @@ func ObtainWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	}
 	wallets = append(wallets, gethWallets...)
 
-	parityWallets, err := obtainParityWallets(chainID, debug)
+	parityWallets, err := obtainParityWallets(debug)
 	if err != nil {
 		return nil, err
 	}
 	wallets = append(wallets, parityWallets...)
 
-	ledgerWallets, err := obtainLedgerWallets(chainID, debug)
+	ledgerWallets, err := obtainLedgerWallets(debug)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func ObtainWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 	return wallets, nil
 }
 
-// ObtainWalletAndAccount obtains the wallet and account for an address
+// ObtainWalletAndAccount obtains the wallet and account for an address.
 func ObtainWalletAndAccount(chainID *big.Int, address common.Address) (accounts.Wallet, *accounts.Account, error) {
 	var account *accounts.Account
 	wallet, err := ObtainWallet(chainID, address)
@@ -67,16 +67,16 @@ func ObtainWalletAndAccount(chainID *big.Int, address common.Address) (accounts.
 	return wallet, account, err
 }
 
-// ObtainWallet fetches the wallet for a given address
+// ObtainWallet fetches the wallet for a given address.
 func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
 	wallet, err := obtainGethWallet(chainID, address)
 	if err == nil {
 		return wallet, nil
 	}
 
-	wallet, err = obtainParityWallet(chainID, address)
+	wallet, err = obtainParityWallet(address)
 	if err == nil {
-		return wallet, err
+		return wallet, nil
 	}
 
 	return wallet, fmt.Errorf("failed to obtain wallet for %s", address.Hex())
@@ -86,7 +86,7 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 	keydir := DefaultDataDir()
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
-		// Nothing to add for mainnet
+		// Nothing to add for mainnet.
 	case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "rinkeby")
 	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
@@ -107,7 +107,7 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 	keydir := DefaultDataDir()
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
-		// Nothing to add for mainnet
+		// Nothing to add for mainnet.
 	case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "rinkeby")
 	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
@@ -125,7 +125,7 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 	return accountManager.Wallets(), nil
 }
 
-func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
+func obtainParityWallet(address common.Address) (accounts.Wallet, error) {
 	keydir, err := homedir.Dir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to find home directory")
@@ -149,7 +149,7 @@ func obtainParityWallet(chainID *big.Int, address common.Address) (accounts.Wall
 	return wallet, err
 }
 
-func obtainParityWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
+func obtainParityWallets(debug bool) ([]accounts.Wallet, error) {
 	keydir, err := homedir.Dir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to find home directory")
@@ -175,7 +175,7 @@ func obtainParityWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error
 	return accountManager.Wallets(), nil
 }
 
-func obtainLedgerWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
+func obtainLedgerWallets(_ bool) ([]accounts.Wallet, error) {
 	ledgerhub, err := usbwallet.NewLedgerHub()
 	if err != nil {
 		return nil, err
@@ -202,7 +202,7 @@ func obtainLedgerWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error
 	return accountManager.Wallets(), nil
 }
 
-// ObtainAccount fetches the account for a given address
+// ObtainAccount fetches the account for a given address.
 func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase string) (*accounts.Account, error) {
 	for _, account := range (*wallet).Accounts() {
 		if *address == account.Address {
@@ -215,7 +215,7 @@ func ObtainAccount(wallet *accounts.Wallet, address *common.Address, passphrase 
 	return nil, errors.New("account not found")
 }
 
-// VerifyPassphrase confirms that a passphrase is correct for an account
+// VerifyPassphrase confirms that a passphrase is correct for an account.
 func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphrase string) bool {
 	_, err := wallet.SignDataWithPassphrase(account, passphrase, "application/octet-stream", []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	return err == nil
@@ -224,7 +224,7 @@ func VerifyPassphrase(wallet accounts.Wallet, account accounts.Account, passphra
 // DefaultDataDir is the default data directory to use for the databases and other
 // persistence requirements.
 func DefaultDataDir() string {
-	// Try to place the data folder in the user's home dir
+	// Try to place the data folder in the user's home dir.
 	home := homeDir()
 	if home != "" {
 		switch runtime.GOOS {
@@ -244,7 +244,7 @@ func DefaultDataDir() string {
 			return filepath.Join(home, ".ethereum")
 		}
 	}
-	// As we cannot guess a stable location, return empty and handle later
+	// As we cannot guess a stable location, return empty and handle later.
 	return ""
 }
 

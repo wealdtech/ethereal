@@ -26,7 +26,7 @@ import (
 
 var ensResolverSetResolverStr string
 
-// ensResolverSetCmd represents the ens resolver set command
+// ensResolverSetCmd represents the ens resolver set command.
 var ensResolverSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the resolver of an ENS domain",
@@ -46,14 +46,14 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Fetch the owner of the name
+		// Fetch the owner of the name.
 		outputIf(debug, fmt.Sprintf("ENS domain is %s", ensDomain))
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 		outputIf(debug, fmt.Sprintf("Owner of %s is %#x", ensDomain, owner))
 
-		// Set the resolver from either command-line or default
+		// Set the resolver from either command-line or default.
 		var resolverAddress common.Address
 		if ensResolverSetResolverStr == "" {
 			resolverAddress, err = ens.PublicResolverAddress(c.Client())

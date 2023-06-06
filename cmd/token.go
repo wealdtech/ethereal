@@ -24,7 +24,7 @@ import (
 
 var tokenStr string
 
-// tokenCmd represents the token command
+// tokenCmd represents the token command.
 var tokenCmd = &cobra.Command{
 	Use:   "token",
 	Short: "Manage tokens",
@@ -33,27 +33,28 @@ var tokenCmd = &cobra.Command{
 
 var unknownAddress = common.HexToAddress("00")
 
-func tokenContractAddress(input string) (address common.Address, err error) {
-	// Guess 1 - might be an ENS name or a hex string
-	address, err = c.Resolve(input)
+func tokenContractAddress(input string) (common.Address, error) {
+	// Guess 1 - might be an ENS name or a hex string.
+	address, err := c.Resolve(input)
 	if (address == unknownAddress || err != nil) && !strings.HasSuffix(input, ".eth") {
-		// Guess 2 - try {input}.thetoken.eth
+		// Guess 2 - try {input}.thetoken.eth.
 		address, err = c.Resolve(input + ".thetoken.eth")
 		if err != nil {
-			// Give up
+			// Give up.
 			err = fmt.Errorf("unknown token %s", input)
 		}
 	}
-	return
+	return address, err
 }
 
-// Obtain the token contract given a string
-func tokenContract(input string) (contract *contracts.ERC20, err error) {
+// Obtain the token contract given a string.
+func tokenContract(input string) (*contracts.ERC20, error) {
 	address, err := tokenContractAddress(input)
-	if err == nil {
-		contract, err = contracts.NewERC20(address, c.Client())
+	if err != nil {
+		return nil, err
 	}
-	return
+
+	return contracts.NewERC20(address, c.Client())
 }
 
 func init() {

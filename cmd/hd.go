@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// hdCmd represents the hd command
+// hdCmd represents the hd command.
 var hdCmd = &cobra.Command{
 	Use:   "hd",
 	Short: "Manage HD wallets",

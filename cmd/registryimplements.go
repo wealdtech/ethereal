@@ -23,10 +23,12 @@ import (
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 
-var registryImplementsInterface string
-var registryImplementsAddressStr string
+var (
+	registryImplementsInterface  string
+	registryImplementsAddressStr string
+)
 
-// registryImplementsCmd represents the registry implements command
+// registryImplementsCmd represents the registry implements command.
 var registryImplementsCmd = &cobra.Command{
 	Use:   "implements",
 	Short: "Check if an address implements an interface according to ERC-1820",
@@ -60,9 +62,8 @@ In quiet mode this will return 0 if the address implements the interface, otherw
 
 		if implementsInterface {
 			os.Exit(exitSuccess)
-		} else {
-			os.Exit(exitFailure)
 		}
+		os.Exit(exitFailure)
 	},
 }
 

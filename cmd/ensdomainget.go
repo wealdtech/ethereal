@@ -23,7 +23,7 @@ import (
 
 var ensDomainGetAddress string
 
-// ensDomainGetCmd represents the domain get command
+// ensDomainGetCmd represents the domain get command.
 var ensDomainGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the ENS reverse resolution of an address",
@@ -42,9 +42,8 @@ In quiet mode this will return 0 if the address has a reverse resolution, otherw
 		if err != nil {
 			if err.Error() == "No resolution" {
 				os.Exit(exitFailure)
-			} else {
-				cli.ErrCheck(err, quiet, "Failed to check reverse resolution")
 			}
+			cli.ErrCheck(err, quiet, "Failed to check reverse resolution")
 		}
 		fmt.Println(domain)
 	},

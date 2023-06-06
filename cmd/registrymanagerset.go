@@ -22,7 +22,7 @@ import (
 
 var registryManagerSetManagerStr string
 
-// registryManagerSetCmd represents the registry manager set command
+// registryManagerSetCmd represents the registry manager set command.
 var registryManagerSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the address of an ERC-1820 address manager",

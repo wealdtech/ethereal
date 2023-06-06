@@ -28,12 +28,14 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var etherTransferAmount string
-var etherTransferFromAddress string
-var etherTransferToAddress string
-var etherTransferData string
+var (
+	etherTransferAmount      string
+	etherTransferFromAddress string
+	etherTransferToAddress   string
+	etherTransferData        string
+)
 
-// etherTransferCmd represents the ether transfer command
+// etherTransferCmd represents the ether transfer command.
 var etherTransferCmd = &cobra.Command{
 	Use:   "transfer",
 	Short: "Transfer funds to a given address",
@@ -56,7 +58,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		amount, err := string2eth.StringToWei(etherTransferAmount)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
-		// Obtain the balance of the address.
+		// Obtain the balance of the address..
 		if !offline {
 			ctx, cancel := localContext()
 			defer cancel()
@@ -65,10 +67,10 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			cli.Assert(balance.Cmp(amount) > 0, quiet, fmt.Sprintf("Balance of %s insufficient for transfer", string2eth.WeiToString(balance, true)))
 		}
 
-		// Turn the data string in to hex
+		// Turn the data string in to hex.
 		etherTransferData = strings.TrimPrefix(etherTransferData, "0x")
 		if len(etherTransferData)%2 == 1 {
-			// Doesn't like odd numbers
+			// Doesn't like odd numbers.
 			etherTransferData = "0" + etherTransferData
 		}
 		data, err := hex.DecodeString(etherTransferData)
@@ -80,7 +82,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			gasLimit = &limit
 		}
 
-		// Create and sign the transaction
+		// Create and sign the transaction.
 		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
 			From:     fromAddress,
 			To:       &toAddress,

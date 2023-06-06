@@ -23,7 +23,7 @@ import (
 	"golang.org/x/crypto/scrypt"
 )
 
-// PrivateKeyForAccount returns the private key for an account
+// PrivateKeyForAccount returns the private key for an account.
 func PrivateKeyForAccount(chainID *big.Int, address common.Address, passphrase string) (*ecdsa.PrivateKey, error) {
 	var account *accounts.Account
 	_, account, err := cli.ObtainWalletAndAccount(chainID, address)
@@ -68,11 +68,9 @@ const (
 	version = 3
 )
 
-var (
-	errDecrypt = errors.New("could not decrypt key with given passphrase")
-)
+var errDecrypt = errors.New("could not decrypt key with given passphrase")
 
-func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byte, keyID []byte, err error) {
+func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) ([]byte, []byte, error) {
 	if keyProtected.Version != version {
 		return nil, nil, fmt.Errorf("version not supported: %v", keyProtected.Version)
 	}
@@ -81,7 +79,7 @@ func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byt
 		return nil, nil, fmt.Errorf("cipher not supported: %v", keyProtected.Crypto.Cipher)
 	}
 
-	keyID = uuid.Parse(keyProtected.ID)
+	keyID := uuid.Parse(keyProtected.ID)
 	mac, err := hex.DecodeString(keyProtected.Crypto.MAC)
 	if err != nil {
 		return nil, nil, err
@@ -114,8 +112,8 @@ func decryptKeyV3(keyProtected *encryptedKeyJSONV3, auth string) (keyBytes []byt
 	return plainText, keyID, err
 }
 
-func decryptKeyV1(keyProtected *encryptedKeyJSONV1, auth string) (keyBytes []byte, keyID []byte, err error) {
-	keyID = uuid.Parse(keyProtected.ID)
+func decryptKeyV1(keyProtected *encryptedKeyJSONV1, auth string) ([]byte, []byte, error) {
+	keyID := uuid.Parse(keyProtected.ID)
 	mac, err := hex.DecodeString(keyProtected.Crypto.MAC)
 	if err != nil {
 		return nil, nil, err
@@ -187,7 +185,6 @@ func getKDFKey(cryptoJSON cryptoJSON, auth string) ([]byte, error) {
 		r := ensureInt(cryptoJSON.KDFParams["r"])
 		p := ensureInt(cryptoJSON.KDFParams["p"])
 		return scrypt.Key(authArray, salt, n, r, p, dkLen)
-
 	} else if cryptoJSON.KDF == "pbkdf2" {
 		c := ensureInt(cryptoJSON.KDFParams["c"])
 		prf := cryptoJSON.KDFParams["prf"].(string)
@@ -208,6 +205,7 @@ func ensureInt(x interface{}) int {
 	}
 	return res
 }
+
 func aesCTRXOR(key, inText, iv []byte) ([]byte, error) {
 	// AES-128 is selected due to size of encryptKey.
 	aesBlock, err := aes.NewCipher(key)
@@ -234,6 +232,7 @@ func aesCBCDecrypt(key, cipherText, iv []byte) ([]byte, error) {
 	}
 	return plaintext, err
 }
+
 func pkcs7Unpad(in []byte) []byte {
 	if len(in) == 0 {
 		return nil

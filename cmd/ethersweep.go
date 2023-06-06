@@ -30,10 +30,12 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var etherSweepFromAddress string
-var etherSweepToAddress string
+var (
+	etherSweepFromAddress string
+	etherSweepToAddress   string
+)
 
-// etherSweepCmd represents the ether sweep command
+// etherSweepCmd represents the ether sweep command.
 var etherSweepCmd = &cobra.Command{
 	Use:   "sweep",
 	Short: "Sweep funds to a given address",
@@ -51,14 +53,14 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		toAddress, err := c.Resolve(etherSweepToAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain to address for sweep")
 
-		// Obtain the balance of the address
+		// Obtain the balance of the address.
 		ctx, cancel := localContext()
 		defer cancel()
 		balance, err := c.Client().BalanceAt(ctx, fromAddress, nil)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, fmt.Sprintf("Balance of %s is 0; nothing to sweep", ens.Format(c.Client(), fromAddress)))
 
-		// Obtain the amount of gas required to send the transaction, and calculate the amount to send
+		// Obtain the amount of gas required to send the transaction, and calculate the amount to send.
 		gas, err := c.EstimateGas(context.Background(), &conn.TransactionData{
 			From:  fromAddress,
 			To:    &toAddress,
@@ -83,7 +85,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			gasLimit = &limit
 		}
 
-		// Create and sign the transaction
+		// Create and sign the transaction.
 		signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
 			From:                 fromAddress,
 			To:                   &toAddress,
@@ -101,14 +103,13 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 			}
 			os.Exit(exitSuccess)
-		} else {
-			err = c.SendTransaction(context.Background(), signedTx)
-			cli.ErrCheck(err, quiet, "Failed to send transaction")
-			handleSubmittedTransaction(signedTx, log.Fields{
-				"group":   "ether",
-				"command": "sweep",
-			}, true)
 		}
+		err = c.SendTransaction(context.Background(), signedTx)
+		cli.ErrCheck(err, quiet, "Failed to send transaction")
+		handleSubmittedTransaction(signedTx, log.Fields{
+			"group":   "ether",
+			"command": "sweep",
+		}, true)
 	},
 }
 

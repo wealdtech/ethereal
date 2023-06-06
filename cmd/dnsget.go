@@ -27,7 +27,7 @@ import (
 
 var dnsGetWire bool
 
-// dnsGetCmd represents the dns get command
+// dnsGetCmd represents the dns get command.
 var dnsGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get a value for a DNS record",
@@ -59,12 +59,12 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		}
 		outputIf(verbose, fmt.Sprintf("DNS name is %s", dnsName))
 
-		// Obtain DNS resolver for the domain
+		// Obtain DNS resolver for the domain.
 		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 
 		var data []byte
-		// Attempt to fetch record
+		// Attempt to fetch record.
 		dnsResource := strings.ToUpper(dnsResource)
 		resourceNum, exists := stringToType[dnsResource]
 		cli.Assert(exists, quiet, fmt.Sprintf("Unknown resource %s", dnsResource))
@@ -80,7 +80,7 @@ In quiet mode this will return 0 if the resource exists, otherwise 1.`,
 		if dnsGetWire {
 			fmt.Println(hex.EncodeToString(data))
 		} else {
-			// Decode the data resource record(s)
+			// Decode the data resource record(s).
 			offset := 0
 			var result dns.RR
 			for offset < len(data) {

@@ -30,7 +30,7 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-// transactionUpCmd represents the transaction up command
+// transactionUpCmd represents the transaction up command.
 var transactionUpCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Increase the gas cost for a pending transaction",
@@ -64,7 +64,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "failed to obtain max fee per gas")
 		cli.Assert(totalFeePerGas.Cmp(maxFeePerGas) <= 0, quiet, fmt.Sprintf("increased total fee per gas of %s too high; increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToString(totalFeePerGas, true)))
 
-		// Create and sign the transaction
+		// Create and sign the transaction.
 		fromAddress, err := types.Sender(signer, tx)
 		cli.ErrCheck(err, quiet, "Failed to obtain from address")
 

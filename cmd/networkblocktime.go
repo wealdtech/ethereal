@@ -23,10 +23,12 @@ import (
 	"github.com/wealdtech/ethereal/v2/cli"
 )
 
-var networkBlocktimeBlocks int64
-var networkBlocktimeTime time.Duration
+var (
+	networkBlocktimeBlocks int64
+	networkBlocktimeTime   time.Duration
+)
 
-// networkBlocktimeCmd represents the network blocktime command
+// networkBlocktimeCmd represents the network blocktime command.
 var networkBlocktimeCmd = &cobra.Command{
 	Use:   "blocktime",
 	Short: "Obtain the time between recent blocks",
@@ -40,7 +42,7 @@ Or to find the blocktime over a given time period (in this case the last hour):
 
 In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Fetch current block
+		// Fetch current block.
 		var lastBlockTime time.Time
 		var lastBlockNumber *big.Int
 		{
@@ -56,13 +58,13 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 		var oldBlockTime time.Time
 		var oldBlockNumber *big.Int
 		if networkBlocktimeTime > time.Duration(0) {
-			// Time
+			// Time.
 			requiredBlockTime := time.Now().Add(-networkBlocktimeTime)
 
-			// Start off by guessing 15s per block
+			// Start off by guessing 15s per block.
 			guessBlockNumber := new(big.Int).Sub(lastBlockNumber, big.NewInt(int64(networkBlocktimeTime.Seconds()/15)))
 
-			// Loop until we find a suitable block
+			// Loop until we find a suitable block.
 			interval := 14
 			checkedBlocks := make(map[uint64]bool)
 			checkedBlocks[lastBlockNumber.Uint64()] = true
@@ -77,16 +79,16 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 				huntBlockNumber = new(big.Int).Set(block.Number())
 				huntBlockTime = time.Unix(int64(block.Time()), 0)
 				checkedBlocks[huntBlockNumber.Uint64()] = true
-				// If this block is next to (or equal to) the previous block we're done
+				// If this block is next to (or equal to) the previous block we're done.
 				blockDiff := new(big.Int).Abs(new(big.Int).Sub(huntBlockNumber, oldBlockNumber))
 				if blockDiff.Cmp(big.NewInt(0)) == 0 || blockDiff.Cmp(big.NewInt(1)) == 0 {
 					break
 				}
 
-				// Guess a new block given our diff
+				// Guess a new block given our diff.
 				delta := huntBlockTime.Sub(requiredBlockTime)
 				guessBlockNumber.Sub(guessBlockNumber, big.NewInt(int64(delta.Seconds()/float64(interval))))
-				// If we have already seen this block increase the interval
+				// If we have already seen this block increase the interval.
 				if checkedBlocks[guessBlockNumber.Uint64()] {
 					interval *= 2
 					guessBlockNumber.Add(guessBlockNumber, big.NewInt(int64(delta.Seconds()/float64(interval))))
@@ -95,14 +97,14 @@ In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
 				oldBlockTime = huntBlockTime
 				oldBlockNumber = huntBlockNumber
 
-				// If our next guess is the same block as the last one we're done
+				// If our next guess is the same block as the last one we're done.
 				if guessBlockNumber.Cmp(oldBlockNumber) == 0 {
 					break
 				}
 			}
 			outputIf(verbose, fmt.Sprintf("Block %v mined at %v", oldBlockNumber, oldBlockTime))
 		} else {
-			// Number of blocks
+			// Number of blocks.
 			oldBlockNumber = new(big.Int).Sub(lastBlockNumber, big.NewInt(networkBlocktimeBlocks))
 			{
 				ctx, cancel := localContext()

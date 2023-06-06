@@ -24,7 +24,7 @@ import (
 
 var accountNonceAddress string
 
-// accountNonceCmd represents the account nonce command
+// accountNonceCmd represents the account nonce command.
 var accountNonceCmd = &cobra.Command{
 	Use:   "nonce",
 	Short: "Obtain the current nonce for an account",

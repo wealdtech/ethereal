@@ -30,7 +30,7 @@ import (
 
 var ensExtendDomains string
 
-// ensExtendCmd represents the extend command
+// ensExtendCmd represents the extend command.
 var ensExtendCmd = &cobra.Command{
 	Use:   "extend",
 	Short: "Extend the registration of an ENS domain",
@@ -63,13 +63,13 @@ This will return an exit status of 0 if the transactions are successfully submit
 
 		value, err := string2eth.StringToWei(viper.GetString("value"))
 		cli.ErrCheck(err, quiet, "Could not understand value")
-		// Extend loop
+		// Extend loop.
 		var lastTx *types.Transaction
 		for _, domain := range domains {
 			domain, err = ens.NormaliseDomain(domain)
 			cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
-			// Ensure the domain is owned
+			// Ensure the domain is owned.
 			registry, err := ens.NewRegistry(c.Client())
 			cli.ErrCheck(err, quiet, "Failed to obtain ENS registry")
 			owner, err := registry.Owner(domain)
@@ -82,7 +82,7 @@ This will return an exit status of 0 if the transactions are successfully submit
 			registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Domain(domain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain %s registrar", ens.Domain(domain)))
 
-			// Obtain current expiry
+			// Obtain current expiry.
 			expiryTS, err := registrar.Expiry(domain)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain expiry for %s", domain))
 			expiry := time.Unix(expiryTS.Int64(), 0)

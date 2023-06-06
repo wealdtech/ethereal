@@ -21,7 +21,7 @@ import (
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 
-// registryImplementerClearCmd represents the registry implementer clear command
+// registryImplementerClearCmd represents the registry implementer clear command.
 var registryImplementerClearCmd = &cobra.Command{
 	Use:   "clear",
 	Short: "Clear the address of an ERC-1820 interface implementer",

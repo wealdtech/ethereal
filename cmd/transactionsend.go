@@ -33,14 +33,16 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var transactionSendAmount string
-var transactionSendFromAddress string
-var transactionSendToAddress string
-var transactionSendData string
-var transactionSendRaw string
-var transactionSendRepeat int
+var (
+	transactionSendAmount      string
+	transactionSendFromAddress string
+	transactionSendToAddress   string
+	transactionSendData        string
+	transactionSendRaw         string
+	transactionSendRepeat      int
+)
 
-// transactionSendCmd represents the transaction send command
+// transactionSendCmd represents the transaction send command.
 var transactionSendCmd = &cobra.Command{
 	Use:   "send",
 	Short: "Send a transaction",
@@ -74,7 +76,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 				// Data is a direct transaction.
 				data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
 				cli.ErrCheck(err, quiet, "Failed to decode data")
-				// Decode the raw transaction
+				// Decode the raw transaction.
 				signedTx := &types.Transaction{}
 				stream := rlp.NewStream(bytes.NewReader(data), 0)
 				err = signedTx.DecodeRLP(stream)
@@ -112,7 +114,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		var toAddress *common.Address
 		if transactionSendToAddress == "" {
-			// This is valid because it can be a contract creation, but only if there is data as well
+			// This is valid because it can be a contract creation, but only if there is data as well.
 			cli.Assert(transactionSendData != "", quiet, "Transactions without a to address are contract creations and must have data")
 		} else {
 			tmp, err := c.Resolve(transactionSendToAddress)
@@ -128,7 +130,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			cli.ErrCheck(err, quiet, "Invalid amount")
 		}
 
-		// Obtain the balance of the address
+		// Obtain the balance of the address.
 		if c.Client() != nil {
 			ctx, cancel := localContext()
 			defer cancel()
@@ -143,17 +145,17 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			gasLimit = &limit
 		}
 
-		// Turn the data string in to hex
+		// Turn the data string in to hex.
 		transactionSendData = strings.TrimPrefix(transactionSendData, "0x")
 		if len(transactionSendData)%2 == 1 {
-			// Doesn't like odd numbers
+			// Doesn't like odd numbers.
 			transactionSendData = "0" + transactionSendData
 		}
 		data, err := hex.DecodeString(transactionSendData)
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
 		for i := 0; i < transactionSendRepeat; i++ {
-			// Create and sign the transaction
+			// Create and sign the transaction.
 			signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
 				From:     fromAddress,
 				To:       toAddress,

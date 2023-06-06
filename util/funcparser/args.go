@@ -23,7 +23,7 @@ import (
 	"github.com/wealdtech/ethereal/v2/util/funcparser/parser"
 )
 
-// ParseCall parses a call string and returns a suitable Method
+// ParseCall parses a call string and returns a suitable Method.
 func ParseCall(client *ethclient.Client, contract *util.Contract, call string) (*abi.Method, []interface{}, error) {
 	if contract == nil {
 		return nil, nil, errors.New("no contract")

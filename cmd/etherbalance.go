@@ -25,11 +25,13 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var etherBalanceAddress string
-var etherBalanceBlock string
-var etherBalanceWei bool
+var (
+	etherBalanceAddress string
+	etherBalanceBlock   string
+	etherBalanceWei     bool
+)
 
-// etherBalanceCmd represents the ether balance command
+// etherBalanceCmd represents the ether balance command.
 var etherBalanceCmd = &cobra.Command{
 	Use:   "balance",
 	Short: "Obtain the balance for an address",
@@ -68,16 +70,16 @@ In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`
 		if balance.Cmp(big.NewInt(0)) == 0 {
 			outputIf(!quiet, "0")
 			os.Exit(exitFailure)
-		} else {
-			if !quiet {
-				if etherBalanceWei {
-					fmt.Printf("%s\n", balance.String())
-				} else {
-					fmt.Printf("%s\n", string2eth.WeiToString(balance, true))
-				}
-			}
-			os.Exit(exitSuccess)
 		}
+
+		if !quiet {
+			if etherBalanceWei {
+				fmt.Printf("%s\n", balance.String())
+			} else {
+				fmt.Printf("%s\n", string2eth.WeiToString(balance, true))
+			}
+		}
+		os.Exit(exitSuccess)
 	},
 }
 

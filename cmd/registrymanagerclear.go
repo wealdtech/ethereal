@@ -21,7 +21,7 @@ import (
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 
-// registryManagerClearCmd represents the registry manager set command
+// registryManagerClearCmd represents the registry manager set command.
 var registryManagerClearCmd = &cobra.Command{
 	Use:   "clear",
 	Short: "Clear the address of an ERC-1820 address manager",

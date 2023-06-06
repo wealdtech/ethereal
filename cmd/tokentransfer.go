@@ -27,12 +27,14 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var tokenTransferAmount string
-var tokenTransferFromAddress string
-var tokenTransferToAddress string
-var tokenTransferDecimals string
+var (
+	tokenTransferAmount      string
+	tokenTransferFromAddress string
+	tokenTransferToAddress   string
+	tokenTransferDecimals    string
+)
 
-// tokenTransferCmd represents the token transfer command
+// tokenTransferCmd represents the token transfer command.
 var tokenTransferCmd = &cobra.Command{
 	Use:   "transfer",
 	Short: "Transfer tokens to a given address",
@@ -71,7 +73,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		amount, err := util.StringToTokenValue(tokenTransferAmount, decimals)
 		cli.ErrCheck(err, quiet, "Invalid amount")
 
-		// Obtain the balance of the address (if online)
+		// Obtain the balance of the address (if online).
 		if !offline {
 			balance, err := token.BalanceOf(nil, fromAddress)
 			cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")

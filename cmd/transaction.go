@@ -19,7 +19,7 @@ import (
 
 var transactionStr string
 
-// transactionCmd represents the transaction command
+// transactionCmd represents the transaction command.
 var transactionCmd = &cobra.Command{
 	Use:     "transaction",
 	Aliases: []string{"tx"},
@@ -30,6 +30,7 @@ var transactionCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(transactionCmd)
 }
+
 func transactionFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&transactionStr, "transaction", "t", "", "raw transaction data or ID of the transaction")
 }

@@ -24,7 +24,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// dnsZonehashClearCmd represents the dns zonehash clear command
+// dnsZonehashClearCmd represents the dns zonehash clear command.
 var dnsZonehashClearCmd = &cobra.Command{
 	Use:   "clear",
 	Short: "Clear the zone hash of a DNS domain held in ENS",
@@ -51,18 +51,18 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		cli.ErrCheck(err, quiet, "Failed to obtain name hash of ENS domain")
 		outputIf(verbose, fmt.Sprintf("ENS domain hash is 0x%x", domainHash))
 
-		// Obtain the registry contract
+		// Obtain the registry contract.
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Obtain owner for the domain
+		// Obtain owner for the domain.
 		domainOwner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(!bytes.Equal(domainOwner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(c.Client(), domainOwner)))
 
-		// Obtain DNS resolver for the domain
+		// Obtain DNS resolver for the domain.
 		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 

@@ -27,7 +27,7 @@ import (
 
 var ensAddressSetAddressStr string
 
-// ensAddressSetCmd represents the ens address set command
+// ensAddressSetCmd represents the ens address set command.
 var ensAddressSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the address of an ENS domain",
@@ -45,27 +45,27 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Fetch the owner of the name
+		// Fetch the owner of the name.
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 		outputIf(verbose, fmt.Sprintf("Domain is owned by %s", ens.Format(c.Client(), owner)))
 
-		// Obtain the address: could be an ENS name or a number
+		// Obtain the address: could be an ENS name or a number.
 		var data []byte
 		if strings.Contains(ensAddressSetAddressStr, ".") {
-			// Assume ENS address
+			// Assume ENS address.
 			address, err := c.Resolve(ensAddressSetAddressStr)
 			cli.Assert(!bytes.Equal(address.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Invalid address; if you are trying to clear an existing address use \"ens address clear\"")
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid name/address %s", ensAddressSetAddressStr))
 			data = address.Bytes()
 		} else {
-			// Assume hex string
+			// Assume hex string.
 			data, err = hex.DecodeString(strings.TrimPrefix(ensAddressSetAddressStr, "0x"))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Unrecognised name/address %s", ensAddressSetAddressStr))
 		}
 
-		// Obtain the resolver for this name
+		// Obtain the resolver for this name.
 		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 		outputIf(verbose, fmt.Sprintf("Resolver is %s", ens.Format(c.Client(), resolver.ContractAddr)))

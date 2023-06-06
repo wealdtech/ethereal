@@ -25,10 +25,12 @@ import (
 	"github.com/wealdtech/ethereal/v2/cli"
 )
 
-var signatureVerifySignature string
-var signatureVerifySigner string
+var (
+	signatureVerifySignature string
+	signatureVerifySigner    string
+)
 
-// signatureVerifyCmd represents the signature verify command
+// signatureVerifyCmd represents the signature verify command.
 var signatureVerifyCmd = &cobra.Command{
 	Use:   "verify",
 	Short: "Verify a signature",
@@ -56,10 +58,9 @@ In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
 		if bytes.Equal(signer.Bytes(), verifySigner.Bytes()) {
 			outputIf(!quiet, "Verified")
 			os.Exit(exitSuccess)
-		} else {
-			outputIf(!quiet, "Not verified")
-			os.Exit(exitFailure)
 		}
+		outputIf(!quiet, "Not verified")
+		os.Exit(exitFailure)
 	},
 }
 

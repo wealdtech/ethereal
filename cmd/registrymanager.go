@@ -19,7 +19,7 @@ import (
 
 var registryManagerAddressStr string
 
-// registryManagerCmd represents the registry manager command
+// registryManagerCmd represents the registry manager command.
 var registryManagerCmd = &cobra.Command{
 	Use:   "manager",
 	Short: "Manage ERC-1820 registry managers",

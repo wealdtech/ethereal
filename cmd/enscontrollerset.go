@@ -25,7 +25,7 @@ import (
 
 var ensControllerSetControllerStr string
 
-// ensControllerSetCmd represents the ens controller set command
+// ensControllerSetCmd represents the ens controller set command.
 var ensControllerSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the controller of an ENS domain",
@@ -43,7 +43,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Fetch the controller of the name
+		// Fetch the controller of the name.
 		controller, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain current controller")
 		cli.Assert(!bytes.Equal(controller.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("%s has no controller", ensDomain))

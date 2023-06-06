@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// WaitForTransaction waits for the transaction to be mined, or for the limit to expire
+// WaitForTransaction waits for the transaction to be mined, or for the limit to expire.
 func WaitForTransaction(client *ethclient.Client, txHash common.Hash, limit time.Duration) bool {
 	start := time.Now()
 	first := true

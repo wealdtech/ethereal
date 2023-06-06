@@ -26,12 +26,14 @@ import (
 	"github.com/wealdtech/ethereal/v2/util/funcparser"
 )
 
-var signatureDataStr string
-var signatureTypes string
-var signatureNoHash bool
-var signaturePacked bool
+var (
+	signatureDataStr string
+	signatureTypes   string
+	signatureNoHash  bool
+	signaturePacked  bool
+)
 
-// signatureCmd represents the signature command
+// signatureCmd represents the signature command.
 var signatureCmd = &cobra.Command{
 	Use:     "signature",
 	Aliases: []string{"sig"},
@@ -42,17 +44,17 @@ var signatureCmd = &cobra.Command{
 func generateDataHash() []byte {
 	var data []byte
 	if signatureTypes == "" {
-		// No types; might be a hex string or a non-hex string
+		// No types; might be a hex string or a non-hex string.
 		bytes, err := hex.DecodeString(strings.TrimPrefix(signatureDataStr, "0x"))
 		if err != nil {
-			// Not a hex string; keep it as a normal string
+			// Not a hex string; keep it as a normal string.
 			data = []byte(signatureDataStr)
 		} else {
-			// Is a hex string
+			// Is a hex string.
 			data = bytes
 		}
 	} else {
-		// Types are present; Ethereum types
+		// Types are present; Ethereum types.
 		args, vals := argumentsAndValues(signatureDataStr, signatureTypes)
 		var err error
 		if signaturePacked {
@@ -88,9 +90,9 @@ func generateDataHash() []byte {
 	}
 	outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
-	// Hash if required
+	// Hash if required.
 	if !signatureNoHash {
-		// Hash the data
+		// Hash the data.
 		data = crypto.Keccak256(data)
 		outputIf(verbose, fmt.Sprintf("Hashed data is %x", data))
 	}
@@ -110,8 +112,6 @@ func argumentsAndValues(items string, types string) (abi.Arguments, []interface{
 	parser = csv.NewReader(strings.NewReader(types))
 	dataTypes, err := parser.Read()
 	cli.ErrCheck(err, quiet, "Failed to parse data types")
-
-	//	cli.Assert(len(dataItems) == len(dataTypes), quiet, "Mismatch between number of data elements and number of data types")
 
 	// Lean on ABI function parsing even though we don't have an ABI...
 	vals := make([]interface{}, 0)

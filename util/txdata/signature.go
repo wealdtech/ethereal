@@ -28,8 +28,10 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-var functions map[[4]byte]function
-var events map[[32]byte]function
+var (
+	functions map[[4]byte]function
+	events    map[[32]byte]function
+)
 
 type function struct {
 	name   string
@@ -84,7 +86,7 @@ func (f *function) String() string {
 	return buffer.String()
 }
 
-// DataToString takes a transaction's data bytes and converts it in to a useful representation if one exists
+// DataToString takes a transaction's data bytes and converts it in to a useful representation if one exists.
 func DataToString(client *ethclient.Client, input []byte) string {
 	if len(input) == 0 {
 		return ""
@@ -117,7 +119,7 @@ func DataToString(client *ethclient.Client, input []byte) string {
 	return buffer.String()
 }
 
-// EventToString takes a transaction's event information and converts it to a useful representation if one exists
+// EventToString takes a transaction's event information and converts it to a useful representation if one exists.
 func EventToString(client *ethclient.Client, input *types.Log) string {
 	function, exists := events[input.Topics[0]]
 	if !exists {
@@ -126,7 +128,7 @@ func EventToString(client *ethclient.Client, input *types.Log) string {
 	var buffer bytes.Buffer
 	buffer.WriteString(fmt.Sprintf("%s(", function.name))
 
-	// Turn topics in to a byte array
+	// Turn topics in to a byte array.
 	topics := make([]byte, 32*len(input.Topics))
 	for i := range input.Topics {
 		copy(topics[i*32:i*32+32], input.Topics[i].Bytes())
@@ -174,8 +176,8 @@ func valueToString(client *ethclient.Client, argType abi.Type, index uint32, off
 		return "false", nil
 	case abi.StringTy:
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
-		len := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
-		return fmt.Sprintf("\"%s\"", string(data[offset+start+32:offset+start+32+len])), nil
+		length := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
+		return fmt.Sprintf("\"%s\"", string(data[offset+start+32:offset+start+32+length])), nil
 	case abi.SliceTy, abi.ArrayTy:
 		res := make([]string, 0)
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
@@ -195,8 +197,8 @@ func valueToString(client *ethclient.Client, argType abi.Type, index uint32, off
 		return fmt.Sprintf("0x%x", data[offset+index*32+32-uint32(argType.Size):offset+index*32+32]), nil
 	case abi.BytesTy:
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
-		len := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
-		return fmt.Sprintf("0x%x", data[offset+start+32:offset+start+32+len]), nil
+		length := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
+		return fmt.Sprintf("0x%x", data[offset+start+32:offset+start+32+length]), nil
 	case abi.HashTy:
 		return fmt.Sprintf("0x%x", data[offset+index*32:offset+index*32+32]), nil
 	case abi.FixedPointTy:
@@ -208,9 +210,9 @@ func valueToString(client *ethclient.Client, argType abi.Type, index uint32, off
 	}
 }
 
-// AddFunctionSignature adds a function signature to the translation list
+// AddFunctionSignature adds a function signature to the translation list.
 func AddFunctionSignature(signature string) {
-	// Start off removing parameter names if present
+	// Start off removing parameter names if present.
 	sigBits := strings.Split(strings.TrimSuffix(signature, ")"), "(")
 	name := sigBits[0]
 	params := strings.Split(sigBits[1], ",")
@@ -223,7 +225,7 @@ func AddFunctionSignature(signature string) {
 	}
 	signature = fmt.Sprintf("%s(%s)", name, strings.Join(params, ","))
 
-	// Do not add if on the blacklist
+	// Do not add if on the blacklist.
 	if _, exists := blacklist[signature]; exists {
 		return
 	}
@@ -239,13 +241,13 @@ func AddFunctionSignature(signature string) {
 	copy(sig[:], hash[:4])
 
 	functions[sig] = function{name: name, params: params}
-	// Also add to events
+	// Also add to events.
 	events[hash] = function{name: name, params: params}
 }
 
-// AddEventSignature adds an event signature to the translation list
+// AddEventSignature adds an event signature to the translation list.
 func AddEventSignature(signature string) {
-	// Start off removing parameter names if present
+	// Start off removing parameter names if present.
 	sigBits := strings.Split(strings.TrimSuffix(signature, ")"), "(")
 	name := sigBits[0]
 	params := strings.Split(sigBits[1], ",")

@@ -63,7 +63,7 @@ func StrTo(inputType *abi.Type, input string) (interface{}, error) {
 }
 
 // StrToInt turns a string in to an int type as given by the ABI information.
-// It can return various types so return interface{}
+// It can return various types so return interface{}.
 func StrToInt(inputType *abi.Type, input string) (interface{}, error) {
 	val := big.NewInt(0)
 	val, success := val.SetString(input, 10)
@@ -86,11 +86,11 @@ func StrToInt(inputType *abi.Type, input string) (interface{}, error) {
 	}
 }
 
-// _zero is for checking negative values against unsigned definitions
+// _zero is for checking negative values against unsigned definitions.
 var _zero = big.NewInt(0)
 
 // StrToUint turns a string in to a uint type as given by the ABI information.
-// It can return various types so return interface{}
+// It can return various types so return interface{}.
 func StrToUint(inputType *abi.Type, input string) (interface{}, error) {
 	val := big.NewInt(0)
 	val, success := val.SetString(input, 10)
@@ -117,29 +117,29 @@ func StrToUint(inputType *abi.Type, input string) (interface{}, error) {
 }
 
 // StrToStr turns a string in to a string type as given by the ABI information.
-func StrToStr(inputType *abi.Type, input string) (string, error) {
+func StrToStr(_ *abi.Type, input string) (string, error) {
 	rep := strings.NewReplacer(`\"`, "")
 	input = rep.Replace(input)
 	return input[1 : len(input)-1], nil
 }
 
 // StrToBool turns a string in to a boolean type as given by the ABI information.
-func StrToBool(inputType *abi.Type, input string) (bool, error) {
+func StrToBool(_ *abi.Type, input string) (bool, error) {
 	return input == "true", nil
 }
 
 // StrToAddress turns a string in to an address type as given by the ABI information.
-func StrToAddress(inputType *abi.Type, input string) (common.Address, error) {
+func StrToAddress(_ *abi.Type, input string) (common.Address, error) {
 	return common.HexToAddress(strings.TrimPrefix(input, "0x")), nil
 }
 
 // StrToHash turns a string in to a hash type as given by the ABI information.
-func StrToHash(inputType *abi.Type, input string) (common.Hash, error) {
+func StrToHash(_ *abi.Type, input string) (common.Hash, error) {
 	return common.HexToHash(strings.TrimPrefix(input, "0x")), nil
 }
 
 // StrToBytes turns a string in to a bytes type as given by the ABI information.
-// It can return various types so return interface{}
+// It can return various types so return interface{}.
 // nolint:gocyclo
 func StrToBytes(inputType *abi.Type, input string) (interface{}, error) {
 	decoded, err := hex.DecodeString(strings.TrimPrefix(input, "0x"))

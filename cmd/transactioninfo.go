@@ -32,11 +32,13 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var transactionInfoRaw bool
-var transactionInfoJSON bool
-var transactionInfoSignatures string
+var (
+	transactionInfoRaw        bool
+	transactionInfoJSON       bool
+	transactionInfoSignatures string
+)
 
-// transactionInfoCmd represents the transaction info command
+// transactionInfoCmd represents the transaction info command.
 var transactionInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Obtain information about a transaction",
@@ -57,7 +59,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			transactionStr = strings.TrimSpace(string(fileBytes))
 		}
 		if len(transactionStr) > 66 {
-			// Assume input is a raw transaction
+			// Assume input is a raw transaction.
 			data, err := hex.DecodeString(strings.TrimPrefix(transactionStr, "0x"))
 			cli.ErrCheck(err, quiet, "Failed to decode data")
 			tx = &types.Transaction{}
@@ -68,7 +70,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			// Assume pending.
 			pending = true
 		} else {
-			// Assume input is a transaction ID
+			// Assume input is a transaction ID.
 			txHash = common.HexToHash(transactionStr)
 			ctx, cancel := localContext()
 			defer cancel()
@@ -128,7 +130,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		}
 
 		if receipt != nil && len(receipt.Logs) > 0 {
-			// We can obtain the block number from the log
+			// We can obtain the block number from the log.
 			fmt.Printf("Block:\t\t\t%d\n", receipt.Logs[0].BlockNumber)
 		}
 
@@ -218,7 +220,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			for i, log := range receipt.Logs {
 				fmt.Printf("\t%d:\n", i)
 				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(c.Client(), log.Address))
-				// Try to obtain decoded log
+				// Try to obtain decoded log.
 				decoded := txdata.EventToString(c.Client(), log)
 				if decoded != "" {
 					fmt.Printf("\t\tEvent:\t%s\n", decoded)

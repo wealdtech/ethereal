@@ -24,21 +24,21 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-// Contract contains some basic information about a contract
+// Contract contains some basic information about a contract.
 type Contract struct {
 	Name   string
 	Abi    abi.ABI
 	Binary []byte
 }
 
-// ParseCombinedJSON parses a combined JSON output of solc for a specific contract
+// ParseCombinedJSON parses a combined JSON output of solc for a specific contract.
 func ParseCombinedJSON(input string, name string) (*Contract, error) {
 	var err error
 	var data []byte
 	if strings.HasPrefix(input, "{") {
 		data = []byte(input)
 	} else {
-		// input is a filename
+		// Input is a filename.
 		data, err = os.ReadFile(input)
 		if err != nil {
 			return nil, err
@@ -56,15 +56,15 @@ func ParseCombinedJSON(input string, name string) (*Contract, error) {
 		return nil, errors.New("JSON does not contain contracts element")
 	}
 	contractsMap := contracts.(map[string]interface{})
-	// See if this is our name
+	// See if this is our name.
 	for contractKey, contractValue := range contractsMap {
 		if strings.HasSuffix(contractKey, fmt.Sprintf(":%s", name)) {
-			// Found our contract
+			// Found our contract.
 			contract := &Contract{Name: name}
 
 			contractJSON := contractValue.(map[string]interface{})
 
-			// Obtain ABI
+			// Obtain ABI.
 			abiJSON, exists := contractJSON["abi"]
 			if exists {
 				abi, err := abi.JSON(strings.NewReader(abiJSON.(string)))
@@ -74,7 +74,7 @@ func ParseCombinedJSON(input string, name string) (*Contract, error) {
 				contract.Abi = abi
 			}
 
-			// Obtain binary
+			// Obtain binary.
 			binStr, exists := contractJSON["bin"]
 			if exists {
 				bin, err := hex.DecodeString(binStr.(string))

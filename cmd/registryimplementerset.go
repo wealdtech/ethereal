@@ -23,7 +23,7 @@ import (
 
 var registryImplementerSetImplementerStr string
 
-// registryImplementerSetCmd represents the registry implementer set command
+// registryImplementerSetCmd represents the registry implementer set command.
 var registryImplementerSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the address of an ERC-1820 interface implementer",

@@ -31,13 +31,15 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var contractStr string
-var contractAbi string
-var contractFunction string
-var contractJSON string
-var contractName string
+var (
+	contractStr      string
+	contractAbi      string
+	contractFunction string
+	contractJSON     string
+	contractName     string
+)
 
-// contractCmd represents the contract command
+// contractCmd represents the contract command.
 var contractCmd = &cobra.Command{
 	Use:   "contract",
 	Short: "Manage contracts",
@@ -56,12 +58,12 @@ func contractFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&contractName, "name", "", "Name of the contract (required when using json)")
 }
 
-// parse contract given the information from various flags
+// parse contract given the information from various flags.
 func parseContract(binStr string) *util.Contract {
 	var contract *util.Contract
 	if contractJSON != "" {
 		if contractName == "" {
-			// Attempt to obtain the contract name from the JSON file
+			// Attempt to obtain the contract name from the JSON file.
 			contractName = strings.Split(filepath.Base(contractJSON), ".")[0]
 		}
 		contract, err = util.ParseCombinedJSON(contractJSON, contractName)
@@ -69,18 +71,18 @@ func parseContract(binStr string) *util.Contract {
 	} else {
 		contract = &util.Contract{}
 
-		// Add name if present
+		// Add name if present.
 		if contractName != "" {
 			contract.Name = contractName
 		}
 
-		// Add binary if present
+		// Add binary if present.
 		var bin []byte
 		bin, err = hex.DecodeString(strings.TrimPrefix(binStr, "0x"))
 		cli.ErrCheck(err, quiet, "Failed to decode data")
 		contract = &util.Contract{Binary: bin}
 
-		// Add ABI if present either directly or via a function
+		// Add ABI if present either directly or via a function.
 		if contractAbi != "" {
 			abi, err := contractParseAbi(contractAbi)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to parse ABI %s", contractAbi))
@@ -94,32 +96,34 @@ func parseContract(binStr string) *util.Contract {
 	return contract
 }
 
-func contractParseAbi(input string) (output abi.ABI, err error) {
+func contractParseAbi(input string) (abi.ABI, error) {
 	var reader io.Reader
+	var err error
 
 	if strings.HasPrefix(contractAbi, "[") {
-		// ABI is direct
+		// ABI is direct.
 		reader = strings.NewReader(input)
 	} else {
-		// ABI value is a path
+		// ABI value is a path.
 		reader, err = os.Open(input)
 		if err != nil {
-			return
+			return abi.ABI{}, err
 		}
 	}
+
 	return abi.JSON(reader)
 }
 
 var intFixRe = regexp.MustCompile(`^([u]?int)($|[^0-9])`)
 
 // contractParseFunction turns a function definition in to an ABI
-// function definition is  a string of form "methodName(argtype [argname],...) returns (outputtype [outputname],...)"
+// function definition is  a string of form "methodName(argtype [argname],...) returns (outputtype [outputname],...)".
 func contractParseFunction(input string) (*abi.ABI, error) {
 	input = strings.TrimSpace(input)
 	bits := strings.Split(input, "(")
-	// Method name is part before first "("
+	// Method name is part before first "(".
 	methodName := bits[0]
-	// Method arguments are comma-separated values before first ")"
+	// Method arguments are comma-separated values before first ")".
 	argsBits := strings.Split(strings.Split(bits[1], ")")[0], ",")
 	methodInputs := make([]abi.Argument, 0)
 	for _, argsBit := range argsBits {
@@ -144,7 +148,7 @@ func contractParseFunction(input string) (*abi.ABI, error) {
 	}
 	var methodOutputs []abi.Argument
 	if len(bits) > 2 {
-		// Method outputs are comma-separated values after last "("
+		// Method outputs are comma-separated values after last "(".
 		outputTypes := strings.Split(strings.TrimSuffix(bits[2], ")"), ",")
 		methodOutputs = make([]abi.Argument, len(outputTypes))
 		for i, outputType := range outputTypes {

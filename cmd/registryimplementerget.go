@@ -23,7 +23,7 @@ import (
 	erc1820 "github.com/wealdtech/go-erc1820"
 )
 
-// registryImplementerGetCmd represents the registry implementer get command
+// registryImplementerGetCmd represents the registry implementer get command.
 var registryImplementerGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the address of an ERC-1820 interface implementer",

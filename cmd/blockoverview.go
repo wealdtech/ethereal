@@ -25,7 +25,7 @@ import (
 
 var blockOverviewBlocks int64
 
-// blockOverviewCmd represents the block overview command
+// blockOverviewCmd represents the block overview command.
 var blockOverviewCmd = &cobra.Command{
 	Use:   "overview",
 	Short: "Obtain overview about recent blocks",

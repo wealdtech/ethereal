@@ -19,7 +19,7 @@ import (
 
 var blockStr string
 
-// blockCmd represents the block command
+// blockCmd represents the block command.
 var blockCmd = &cobra.Command{
 	Use:   "block",
 	Short: "Manage blocks",
@@ -29,6 +29,7 @@ var blockCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(blockCmd)
 }
+
 func blockFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&blockStr, "block", "latest", "block hash or number, or 'latest'")
 }

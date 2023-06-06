@@ -24,7 +24,7 @@ import (
 
 var ensContenthashGetRaw bool
 
-// ensContenthashGetCmd represents the content hash get command
+// ensContenthashGetCmd represents the content hash get command.
 var ensContenthashGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the content hash of an ENS domain",
@@ -37,7 +37,7 @@ In quiet mode this will return 0 if the name has a valid content hash, otherwise
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		// Obtain resolver for the domain
+		// Obtain resolver for the domain.
 		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// registryCmd represents the registry command
+// registryCmd represents the registry command.
 var registryCmd = &cobra.Command{
 	Use:   "registry",
 	Short: "Manage ERC-1820 registry",
@@ -28,5 +28,5 @@ func init() {
 	RootCmd.AddCommand(registryCmd)
 }
 
-func registryFlags(cmd *cobra.Command) {
+func registryFlags(_ *cobra.Command) {
 }

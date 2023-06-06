@@ -25,7 +25,7 @@ import (
 
 var ensExpiryTimestamp bool
 
-// ensExpiryCmd represents the ens expiry command
+// ensExpiryCmd represents the ens expiry command.
 var ensExpiryCmd = &cobra.Command{
 	Use:   "expiry",
 	Short: "Obtain the expiry date of an ENS domain",
@@ -48,7 +48,7 @@ In quiet mode this will return 0 if the domain has an expiry date in the future,
 		cli.ErrCheck(err, quiet, "Failed to obtain expiry")
 
 		if expiryTS.Uint64() == uint64(0) {
-			// No expiry
+			// No expiry.
 			outputIf(!quiet, "Domain is not registered")
 			os.Exit(exitFailure)
 		}
@@ -67,7 +67,6 @@ In quiet mode this will return 0 if the domain has an expiry date in the future,
 			os.Exit(exitFailure)
 		}
 		os.Exit(exitSuccess)
-
 	},
 }
 

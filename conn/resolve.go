@@ -23,7 +23,7 @@ func (c *Conn) Resolve(name string) (common.Address, error) {
 	return ens.Resolve(c.client, name)
 }
 
-// ReverseResolve resolves an address to a name
+// ReverseResolve resolves an address to a name.
 func (c *Conn) ReverseResolve(address common.Address) (string, error) {
 	return ens.ReverseResolve(c.client, address)
 }

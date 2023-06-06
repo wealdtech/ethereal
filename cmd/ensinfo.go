@@ -28,7 +28,7 @@ import (
 
 var zero = big.NewInt(0)
 
-// ensInfoCmd represents the ens info command
+// ensInfoCmd represents the ens info command.
 var ensInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Obtain information about an ENS domain",
@@ -44,7 +44,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		ensDomain, err := ens.NormaliseDomain(ensDomain)
 		cli.ErrCheck(err, quiet, "Failed to normalise ENS domain")
 
-		// Domain information
+		// Domain information.
 		outputIf(verbose, fmt.Sprintf("Normalised domain is %s", ensDomain))
 		outputIf(verbose, fmt.Sprintf("Top-level domain is %s", ens.Tld(ensDomain)))
 		outputIf(verbose, fmt.Sprintf("Domain level is %v", ens.DomainLevel(ensDomain)))
@@ -58,7 +58,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 		outputIf(verbose, fmt.Sprintf("Label hash of %s is 0x%x", label, labelHash))
 
 		if ens.DomainLevel(ensDomain) == 1 && ens.Tld(ensDomain) == "eth" {
-			// Work out if this is on the old or new .eth registrar and act accordingly
+			// Work out if this is on the old or new .eth registrar and act accordingly.
 			registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Tld(ensDomain))
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 			outputIf(debug, fmt.Sprintf("Registrar address is %#x", registrar.ContractAddr))
@@ -70,9 +70,8 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 				if err.Error() == "abi: attempting to unmarshall an empty string while arguments are expected" {
 					fmt.Println("Name not recognised by registrar")
 					os.Exit(exitFailure)
-				} else {
-					cli.ErrCheck(err, quiet, "Failed to obtain registrant")
 				}
+				cli.ErrCheck(err, quiet, "Failed to obtain registrant")
 			}
 			if registrant == ens.UnknownAddress {
 				fmt.Println("Name not recognised by registrar")
@@ -95,7 +94,7 @@ In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 			cli.ErrCheck(err, quiet, "Failed to obtain controller")
 			rentPerSec, err := controller.RentCost(ensDomain)
 			if err == nil {
-				// Select (approximate) cost per year
+				// Select (approximate) cost per year.
 				rentPerYear := new(big.Int).Mul(big.NewInt(31536000), rentPerSec)
 				fmt.Printf("Approximate rent per year is %s\n", string2eth.WeiToString(rentPerYear, true))
 			}
@@ -121,7 +120,7 @@ func init() {
 	ensFlags(ensInfoCmd)
 }
 
-// It is possible for an unregistered domain to have a resolver; report if this is the case
+// It is possible for an unregistered domain to have a resolver; report if this is the case.
 func unregisteredResolverCheck(domain string) {
 	registry, err := ens.NewRegistry(c.Client())
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
@@ -141,7 +140,7 @@ a malicious part could register the domain and change the resolution.`)
 }
 
 // genericInfo prints generic info about any ENS domain.
-// It returns true if the domain exists, otherwise false
+// It returns true if the domain exists, otherwise false.
 func genericInfo(name string) bool {
 	registry, err := ens.NewRegistry(c.Client())
 	cli.ErrCheck(err, quiet, "Failed to obtain registry contract")
@@ -158,7 +157,7 @@ func genericInfo(name string) bool {
 		fmt.Printf("Controller is %s (%s)\n", controllerName, controllerAddress.Hex())
 	}
 
-	// Resolver
+	// Resolver.
 	resolverAddress, err := registry.ResolverAddress(name)
 	if err != nil || resolverAddress == ens.UnknownAddress {
 		fmt.Println("Resolver not configured")
@@ -171,18 +170,18 @@ func genericInfo(name string) bool {
 		fmt.Printf("Resolver is %s (%s)\n", resolverName, resolverAddress.Hex())
 	}
 
-	// Address
+	// Address.
 	address, err := c.Resolve(name)
 	if err == nil && address != ens.UnknownAddress {
 		fmt.Printf("Domain resolves to %s\n", address.Hex())
-		// Reverse resolution
+		// Reverse resolution.
 		reverseDomain, err := c.ReverseResolve(address)
 		if err == nil && reverseDomain != "" {
 			fmt.Printf("Address resolves to %s\n", reverseDomain)
 		}
 	}
 
-	// Content hash
+	// Content hash.
 	resolver, err := ens.NewResolverAt(c.Client(), name, resolverAddress)
 	if err == nil {
 		bytes, err := resolver.Contenthash()

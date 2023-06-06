@@ -23,7 +23,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// tokenInfoCmd represents the token info command
+// tokenInfoCmd represents the token info command.
 var tokenInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Obtain information about a token",

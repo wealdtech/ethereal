@@ -31,13 +31,15 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var contractDeployFromAddress string
-var contractDeployConstructor string
-var contractDeployData string
-var contractDeployAmount string
-var contractDeployRepeat int
+var (
+	contractDeployFromAddress string
+	contractDeployConstructor string
+	contractDeployData        string
+	contractDeployAmount      string
+	contractDeployRepeat      int
+)
 
-// contractDeployCmd represents the contract deploy command
+// contractDeployCmd represents the contract deploy command.
 var contractDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy a contract",
@@ -86,7 +88,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		var signedTx *types.Transaction
 		for i := 0; i < contractDeployRepeat; i++ {
-			// Create and sign the transaction
+			// Create and sign the transaction.
 			signedTx, err = c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
 				From:     fromAddress,
 				Value:    amount,
@@ -104,17 +106,16 @@ This will return an exit status of 0 if the transaction is successfully submitte
 					fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
 				}
 				os.Exit(exitSuccess)
-			} else {
-				err = c.SendTransaction(context.Background(), signedTx)
-				cli.ErrCheck(err, quiet, "Failed to send transaction")
-				logTransaction(signedTx, log.Fields{
-					"group":   "contract",
-					"command": "deploy",
-				})
 			}
+			err = c.SendTransaction(context.Background(), signedTx)
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+			logTransaction(signedTx, log.Fields{
+				"group":   "contract",
+				"command": "deploy",
+			})
 		}
 
-		// Wait for the last transaction if requested
+		// Wait for the last transaction if requested.
 		handleSubmittedTransaction(signedTx, nil, false)
 	},
 }

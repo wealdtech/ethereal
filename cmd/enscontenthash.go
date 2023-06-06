@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensContenthashCmd represents the ens contenthash command
+// ensContenthashCmd represents the ens contenthash command.
 var ensContenthashCmd = &cobra.Command{
 	Use:   "contenthash",
 	Short: "Manage ENS contenthash entries",

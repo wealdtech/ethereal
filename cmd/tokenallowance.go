@@ -23,11 +23,13 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var tokenAllowanceRaw bool
-var tokenAllowanceHolderAddress string
-var tokenAllowanceSpenderAddress string
+var (
+	tokenAllowanceRaw            bool
+	tokenAllowanceHolderAddress  string
+	tokenAllowanceSpenderAddress string
+)
 
-// tokenAllowanceCmd represents the token allowance command
+// tokenAllowanceCmd represents the token allowance command.
 var tokenAllowanceCmd = &cobra.Command{
 	Use:   "allowance",
 	Short: "Obtain the token allowance for a holder and spender",
@@ -58,9 +60,8 @@ In quiet mode this will return 0 if the allowance is greater than 0, otherwise 1
 		if quiet {
 			if allowance.Cmp(big.NewInt(0)) == 0 {
 				os.Exit(exitFailure)
-			} else {
-				os.Exit(exitSuccess)
 			}
+			os.Exit(exitSuccess)
 		}
 
 		if tokenAllowanceRaw {

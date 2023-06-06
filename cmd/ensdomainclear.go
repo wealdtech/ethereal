@@ -22,7 +22,7 @@ import (
 
 var ensDomainClearAddress string
 
-// ensDomainClearCmd represents the ens domain clear command
+// ensDomainClearCmd represents the ens domain clear command.
 var ensDomainClearCmd = &cobra.Command{
 	Use:   "clear",
 	Short: "Clear the ENS domain of an address",
@@ -40,7 +40,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		address, err := c.Resolve(ensDomainClearAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address to clear domain")
 
-		// Obtain the reverse registrar
+		// Obtain the reverse registrar.
 		registrar, err := ens.NewReverseRegistrar(c.Client())
 		cli.ErrCheck(err, quiet, "Failed to obtain reverse registrar")
 

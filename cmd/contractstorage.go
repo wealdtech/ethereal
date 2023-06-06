@@ -25,7 +25,7 @@ import (
 
 var contractStorageKey string
 
-// contractStorageCmd represents the contract storage command
+// contractStorageCmd represents the contract storage command.
 var contractStorageCmd = &cobra.Command{
 	Use:   "storage",
 	Short: "Obtain details about a contract's storage",
@@ -55,7 +55,7 @@ In quiet mode this will return 0 if the storage contains a non-zero value, other
 			os.Exit(exitFailure)
 		}
 
-		// Output the result
+		// Output the result.
 		fmt.Printf("0x%x\n", value)
 	},
 }

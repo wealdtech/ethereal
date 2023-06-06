@@ -21,7 +21,7 @@ import (
 	"github.com/wealdtech/ethereal/v2/cli"
 )
 
-// networkIDCmd represents the network id command
+// networkIDCmd represents the network id command.
 var networkIDCmd = &cobra.Command{
 	Use:   "id",
 	Short: "Obtain the ID of the network",

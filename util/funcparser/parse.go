@@ -33,13 +33,13 @@ type methodListener struct {
 	// Arrays are all of the same type but can be nested.
 	curArray      []interface{}
 	maxArrayLevel int
-	// Result of parsing the argument
+	// Result of parsing the argument.
 	method *abi.Method
 	args   []interface{}
 	err    error
 }
 
-// newMethodListener creates a new method listener
+// newMethodListener creates a new method listener.
 func newMethodListener(client *ethclient.Client, contract *util.Contract) *methodListener {
 	return &methodListener{
 		client:   client,
@@ -50,7 +50,7 @@ func newMethodListener(client *ethclient.Client, contract *util.Contract) *metho
 }
 
 func (l *methodListener) EnterFuncName(c *parser.FuncNameContext) {
-	// Ensure we have the function in the contract
+	// Ensure we have the function in the contract.
 	if c.GetText() == "constructor" {
 		l.method = &l.contract.Abi.Constructor
 	} else {
@@ -127,7 +127,7 @@ func (l *methodListener) EnterArrayArg(c *parser.ArrayArgContext) {
 			l.curArray = make([]interface{}, 0)
 			l.maxArrayLevel = level
 		} else {
-			// Extend existing array
+			// Extend existing array.
 			level -= len(l.curArray)
 		}
 		for ; level > 0; level-- {
@@ -142,14 +142,14 @@ func (l *methodListener) EnterArrayArg(c *parser.ArrayArgContext) {
 }
 
 // nolint:gocyclo
-func (l *methodListener) ExitArrayArg(c *parser.ArrayArgContext) {
+func (l *methodListener) ExitArrayArg(_ *parser.ArrayArgContext) {
 	if l.err == nil {
 		level := len(l.curArray)
 		if level == 1 {
-			// Only array; push to args
+			// Only array; push to args.
 			l.args = append(l.args, l.curArray[0])
 		} else {
-			// Nested arrays; push to one above
+			// Nested arrays; push to one above.
 			input := l.method.Inputs[l.curArg]
 			baseType := baseType(&input.Type)
 			level = l.maxArrayLevel + 1 - level
@@ -287,7 +287,7 @@ func (l *methodListener) EnterHexArg(c *parser.HexArgContext) {
 	}
 }
 
-func (l *methodListener) EnterArg(c *parser.ArgContext) {
+func (l *methodListener) EnterArg(_ *parser.ArgContext) {
 	if l.err == nil {
 		if l.curArg >= len(l.method.Inputs) {
 			l.err = fmt.Errorf("too many arguments (expected %d)", len(l.method.Inputs))
@@ -295,9 +295,9 @@ func (l *methodListener) EnterArg(c *parser.ArgContext) {
 	}
 }
 
-func (l *methodListener) ExitArg(c *parser.ArgContext) {
+func (l *methodListener) ExitArg(_ *parser.ArgContext) {
 	if l.err == nil {
-		// We only increment the argument if we aren't in an array
+		// We only increment the argument if we aren't in an array.
 		if len(l.curArray) == 0 {
 			l.curArg++
 		}
@@ -315,7 +315,7 @@ func baseType(inputType *abi.Type) *abi.Type {
 	}
 }
 
-// arrayLevel returns the number of levels of array in the type
+// arrayLevel returns the number of levels of array in the type.
 func arrayLevel(inputType *abi.Type) int {
 	switch inputType.T {
 	case abi.SliceTy, abi.ArrayTy:

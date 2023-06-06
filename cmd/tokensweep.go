@@ -26,10 +26,12 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var tokenSweepFromAddress string
-var tokenSweepToAddress string
+var (
+	tokenSweepFromAddress string
+	tokenSweepToAddress   string
+)
 
-// tokenSweepCmd represents the token sweep command
+// tokenSweepCmd represents the token sweep command.
 var tokenSweepCmd = &cobra.Command{
 	Use:   "sweep",
 	Short: "Sweep tokens to a given address",
@@ -53,7 +55,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		token, err := tokenContract(tokenStr)
 		cli.ErrCheck(err, quiet, "Failed to obtain token contract")
 
-		// Obtain the balance of the address
+		// Obtain the balance of the address.
 		balance, err := token.BalanceOf(nil, fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain balance of address from which to send funds")
 		cli.Assert(balance.Cmp(big.NewInt(0)) > 0, quiet, "No balance")

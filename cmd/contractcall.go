@@ -25,11 +25,13 @@ import (
 	"github.com/wealdtech/ethereal/v2/util/funcparser"
 )
 
-var contractCallFromAddress string
-var contractCallCall string
-var contractCallData string
+var (
+	contractCallFromAddress string
+	contractCallCall        string
+	contractCallData        string
+)
 
-// contractCallCmd represents the contract call command
+// contractCallCmd represents the contract call command.
 var contractCallCmd = &cobra.Command{
 	Use:   "call",
 	Short: "Call a contract method",
@@ -50,10 +52,10 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))
 
 		if contractCallData != "" {
-			// Raw data in and out
+			// Raw data in and out.
 			data, err := hex.DecodeString(strings.TrimPrefix(contractCallData, "0x"))
 			cli.ErrCheck(err, quiet, "Failed to decode data")
-			// Make the call
+			// Make the call.
 			msg := ethereum.CallMsg{
 				From: fromAddress,
 				To:   &contractAddress,
@@ -67,7 +69,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			os.Exit(exitSuccess)
 		}
 
-		// We need to have 'call'
+		// We need to have 'call'.
 		cli.Assert(contractCallCall != "", quiet, "--call is required")
 
 		contract := parseContract("")
@@ -78,7 +80,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 
 		outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
-		// Make the call
+		// Make the call.
 		msg := ethereum.CallMsg{
 			From: fromAddress,
 			To:   &contractAddress,
@@ -89,7 +91,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		result, err := c.Client().CallContract(ctx, msg, nil)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call %s", method.Name))
 		if len(method.Outputs) == 0 {
-			// No output
+			// No output.
 			os.Exit(exitSuccess)
 		}
 		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return expected data", method.Name))
@@ -110,7 +112,7 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			results = append(results, val)
 		}
 
-		// Output the result
+		// Output the result.
 		fmt.Printf("%s\n", strings.Join(results, ","))
 	},
 }

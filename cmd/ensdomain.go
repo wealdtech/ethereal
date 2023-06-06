@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensDomainCmd represents the ens domain command
+// ensDomainCmd represents the ens domain command.
 var ensDomainCmd = &cobra.Command{
 	Use:   "domain",
 	Short: "Manage ENS reverse resolution",
@@ -28,6 +28,6 @@ func init() {
 	ensCmd.AddCommand(ensDomainCmd)
 }
 
-func ensDomainFlags(cmd *cobra.Command) {
-	// Most commands require a --domain, this does not so do not include the ENS flags
+func ensDomainFlags(_ *cobra.Command) {
+	// Most commands require a --domain, this does not so do not include the ENS flags.
 }

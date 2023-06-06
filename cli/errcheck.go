@@ -19,7 +19,7 @@ import (
 	"os"
 )
 
-// ErrCheck checks for an error and quits if it is present
+// ErrCheck checks for an error and quits if it is present.
 func ErrCheck(err error, quiet bool, msg string) {
 	if err != nil {
 		if !quiet {
@@ -33,7 +33,7 @@ func ErrCheck(err error, quiet bool, msg string) {
 	}
 }
 
-// ErrAssert checks a condition and quits if it is false
+// ErrAssert checks a condition and quits if it is false.
 func ErrAssert(condition bool, err error, quiet bool, msg string) {
 	if !condition {
 		if err != nil {
@@ -49,14 +49,14 @@ func ErrAssert(condition bool, err error, quiet bool, msg string) {
 	}
 }
 
-// Assert checks a condition and quits if it is false
+// Assert checks a condition and quits if it is false.
 func Assert(condition bool, quiet bool, msg string) {
 	if !condition {
 		Err(quiet, msg)
 	}
 }
 
-// Err prints an error and quits
+// Err prints an error and quits.
 func Err(quiet bool, msg string) {
 	if !quiet {
 		fmt.Fprintf(os.Stderr, "%s\n", msg)
@@ -64,7 +64,7 @@ func Err(quiet bool, msg string) {
 	os.Exit(1)
 }
 
-// WarnCheck checks for an error and warns if it is present
+// WarnCheck checks for an error and warns if it is present.
 func WarnCheck(err error, quiet bool, msg string) {
 	if err != nil {
 		if !quiet {
@@ -77,14 +77,14 @@ func WarnCheck(err error, quiet bool, msg string) {
 	}
 }
 
-// Check checks a condition and warns if it is false
+// Check checks a condition and warns if it is false.
 func Check(condition bool, quiet bool, msg string) {
 	if !condition {
 		Warn(quiet, msg)
 	}
 }
 
-// Warn prints a warning
+// Warn prints a warning.
 func Warn(quiet bool, msg string) {
 	if !quiet {
 		fmt.Fprintf(os.Stderr, "%s\n", msg)

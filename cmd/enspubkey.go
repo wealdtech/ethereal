@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ensPubkeyCmd represents the ens pubkey command
+// ensPubkeyCmd represents the ens pubkey command.
 var ensPubkeyCmd = &cobra.Command{
 	Use:   "pubkey",
 	Short: "Manage ENS public keys",

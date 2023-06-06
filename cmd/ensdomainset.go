@@ -20,10 +20,12 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var ensDomainSetAddress string
-var ensDomainSetDomain string
+var (
+	ensDomainSetAddress string
+	ensDomainSetDomain  string
+)
 
-// ensDomainSetCmd represents the ens domain set command
+// ensDomainSetCmd represents the ens domain set command.
 var ensDomainSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the ENS domain of an address",
@@ -43,7 +45,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		cli.Assert(ensDomainSetDomain != "", quiet, "--domain is required")
 
-		// Obtain the reverse registrar
+		// Obtain the reverse registrar.
 		registrar, err := ens.NewReverseRegistrar(c.Client())
 		cli.ErrCheck(err, quiet, "Failed to obtain reverse registrar")
 

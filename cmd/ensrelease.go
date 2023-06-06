@@ -27,7 +27,7 @@ import (
 
 var ensReleaseDomains string
 
-// ensReleaseCmd represents the release command
+// ensReleaseCmd represents the release command.
 var ensReleaseCmd = &cobra.Command{
 	Use:   "release",
 	Short: "Release funds from an auction registrar deed",

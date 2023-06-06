@@ -30,11 +30,13 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var dnsSetTTL time.Duration
-var dnsSetRecord string
-var dnsSetNoSoa bool
+var (
+	dnsSetTTL    time.Duration
+	dnsSetRecord string
+	dnsSetNoSoa  bool
+)
 
-// dnsSetCmd represents the dns set command
+// dnsSetCmd represents the dns set command.
 var dnsSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set a value for a DNS record",
@@ -57,18 +59,18 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		cli.ErrCheck(err, quiet, "Failed to obtain name hash of ENS domain")
 		outputIf(verbose, fmt.Sprintf("ENS domain hash is 0x%x", domainHash))
 
-		// Obtain the registry contract
+		// Obtain the registry contract.
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Obtain owner for the domain
+		// Obtain owner for the domain.
 		domainOwner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 
 		cli.Assert(!bytes.Equal(domainOwner.Bytes(), ens.UnknownAddress.Bytes()), quiet, "Owner is not set")
 		outputIf(verbose, fmt.Sprintf("Domain owner is %s", ens.Format(c.Client(), domainOwner)))
 
-		// Obtain DNS resolver for the domain
+		// Obtain DNS resolver for the domain.
 		resolver, err := ens.NewDNSResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain resolver contract for %s", dnsDomain))
 
@@ -93,7 +95,7 @@ In This will return an exit status of 0 if the transaction is successfully submi
 
 		cli.Assert(dnsSetRecord != "", quiet, "--record is required")
 
-		// Create the data resource record(s)
+		// Create the data resource record(s).
 		offset := 0
 		values := strings.Split(dnsSetRecord, "&&")
 		for _, value := range values {
@@ -107,11 +109,11 @@ In This will return an exit status of 0 if the transaction is successfully submi
 		data = data[0:offset]
 
 		if dnsResource != "SOA" && !dnsSetNoSoa {
-			// Obtain the current SOA
+			// Obtain the current SOA.
 			curSoaData, err := resolver.Record(dnsDomain, dns.TypeSOA)
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain SOA resource for %s", dnsDomain))
 			if len(curSoaData) > 0 {
-				// We have an SOA so increment the serial as per RFC 1912
+				// We have an SOA so increment the serial as per RFC 1912.
 				soaRr, _, err := dns.UnpackRR(curSoaData, 0)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to unpack SOA resource for %s", dnsDomain))
 				outputIf(verbose, fmt.Sprintf("Current SOA record is %v", soaRr))
@@ -122,12 +124,12 @@ In This will return an exit status of 0 if the transaction is successfully submi
 				offset, err := dns.PackRR(soaRr, soaData, 0, nil, false)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to pack resource record %v", soaRr))
 				soaData = soaData[0:offset]
-				data = append(data, soaData...)
+				copy(data[offset:], soaData)
 			}
 		}
 		outputIf(verbose, fmt.Sprintf("DNS data is %x", data))
 
-		// Build the transaction
+		// Build the transaction.
 		opts, err := generateTxOpts(domainOwner)
 		cli.ErrCheck(err, quiet, "Failed to generate transaction options")
 		signedTx, err = resolver.SetRecords(opts, data)

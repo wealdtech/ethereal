@@ -27,7 +27,7 @@ import (
 
 var signatureSignerSignature string
 
-// signatureSignerCmd represents the signature signer command
+// signatureSignerCmd represents the signature signer command.
 var signatureSignerCmd = &cobra.Command{
 	Use:   "signer",
 	Short: "Signer of a signature",

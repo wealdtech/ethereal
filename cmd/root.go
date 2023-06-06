@@ -38,11 +38,13 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var cfgFile string
-var quiet bool
-var verbose bool
-var debug bool
-var offline bool
+var (
+	cfgFile string
+	quiet   bool
+	verbose bool
+	debug   bool
+	offline bool
+)
 
 // c is the connection to the execution node.
 var c *conn.Conn
@@ -52,10 +54,10 @@ var signer types.Signer
 
 var err error
 
-// Commands that can be run offline
+// Commands that can be run offline.
 var offlineCmds = make(map[string]bool)
 
-// RootCmd represents the base command when called without any subcommands
+// RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
 	Use:              "ethereal",
 	Short:            "Ethereum CLI",
@@ -63,24 +65,24 @@ var RootCmd = &cobra.Command{
 	PersistentPreRun: persistentPreRun,
 }
 
-func persistentPreRun(cmd *cobra.Command, args []string) {
+func persistentPreRun(cmd *cobra.Command, _ []string) {
 	if cmd.Name() == "help" {
-		// User just wants help
+		// User just wants help.
 		return
 	}
 
 	if cmd.Name() == "version" {
-		// User just wants the version
+		// User just wants the version.
 		return
 	}
 
-	// We bind viper here so that we bind to the correct command
+	// We bind viper here so that we bind to the correct command.
 	quiet = viper.GetBool("quiet")
 	verbose = viper.GetBool("verbose")
 	debug = viper.GetBool("debug")
 	offline = viper.GetBool("offline")
 
-	// If the command does not require access to the chain then override offline accordingly
+	// If the command does not require access to the chain then override offline accordingly.
 	if offlineCmds[cmdPath(cmd)] {
 		offline = true
 	}
@@ -183,7 +185,7 @@ func connect(ctx context.Context) error {
 }
 
 // connectionAddress provides the address of an execution client.
-func connectionAddress(ctx context.Context) (string, error) {
+func connectionAddress(_ context.Context) (string, error) {
 	if viper.GetString("connection") != "" {
 		return viper.GetString("connection"), nil
 	}
@@ -204,7 +206,7 @@ func connectionAddress(ctx context.Context) (string, error) {
 	}
 }
 
-// cmdPath recurses up the command information to create a path for this command through commands and subcommands
+// cmdPath recurses up the command information to create a path for this command through commands and subcommands.
 func cmdPath(cmd *cobra.Command) string {
 	if cmd.Parent() == nil || cmd.Parent().Name() == "ethereal" {
 		return cmd.Name()
@@ -212,7 +214,7 @@ func cmdPath(cmd *cobra.Command) string {
 	return fmt.Sprintf("%s:%s", cmdPath(cmd.Parent()), cmd.Name())
 }
 
-// setupLogging sets up the logging for commands that wish to write output
+// setupLogging sets up the logging for commands that wish to write output.
 func setupLogging() {
 	logFile := viper.GetString("log")
 	if logFile == "" {
@@ -220,7 +222,7 @@ func setupLogging() {
 		cli.ErrCheck(err, quiet, "Failed to access home directory")
 		logFile = filepath.FromSlash(home + "/ethereal.log")
 	}
-	f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
+	f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o755)
 	cli.ErrCheck(err, quiet, "Failed to open log file")
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
@@ -244,18 +246,16 @@ func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields, exi
 		outputIf(!quiet, tx.Hash().Hex())
 		if exit {
 			os.Exit(exitSuccess)
-		} else {
-			return true
 		}
+		return true
 	}
 	mined := util.WaitForTransaction(c.Client(), tx.Hash(), viper.GetDuration("limit"))
 	if mined {
 		outputIf(!quiet, fmt.Sprintf("%s mined", tx.Hash().Hex()))
 		if exit {
 			os.Exit(exitSuccess)
-		} else {
-			return true
 		}
+		return true
 	}
 	outputIf(!quiet, fmt.Sprintf("%s submitted but not mined", tx.Hash().Hex()))
 	if exit {
@@ -264,7 +264,7 @@ func handleSubmittedTransaction(tx *types.Transaction, logFields log.Fields, exi
 	return false
 }
 
-// logTransaction logs a transaction
+// logTransaction logs a transaction.
 func logTransaction(tx *types.Transaction, fields log.Fields) {
 	setupLogging()
 
@@ -357,7 +357,7 @@ func initConfig() {
 		viper.SetConfigName(".ethereal")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.AutomaticEnv() // read in environment variables that match.
 
 	// If a config file is found, read it in.
 	err = viper.ReadInConfig()
@@ -379,7 +379,7 @@ func initConfig() {
 // Helpers
 //
 
-// Add flags for commands that carry out transactions
+// Add flags for commands that carry out transactions.
 func addTransactionFlags(cmd *cobra.Command, explanation string) {
 	cmd.Flags().String("passphrase", "", fmt.Sprintf("passphrase for %s", explanation))
 	cmd.Flags().String("privatekey", "", fmt.Sprintf("private key for %s", explanation))
@@ -395,7 +395,7 @@ func addTransactionFlags(cmd *cobra.Command, explanation string) {
 }
 
 func generateTxOpts(sender common.Address) (*bind.TransactOpts, error) {
-	// Signer depends on what information is available to us
+	// Signer depends on what information is available to us.
 	var signer bind.SignerFn
 	if viper.GetString("passphrase") != "" {
 		wallet, account, err := cli.ObtainWalletAndAccount(c.ChainID(), sender)

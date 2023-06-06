@@ -44,17 +44,19 @@ import (
 // depositABI contains the ABI for the deposit contract.
 var depositABI = `[{"inputs":[{"internalType":"bytes","name":"pubkey","type":"bytes"},{"internalType":"bytes","name":"withdrawal_credentials","type":"bytes"},{"internalType":"bytes","name":"signature","type":"bytes"},{"internalType":"bytes32","name":"deposit_data_root","type":"bytes32"}],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"}]`
 
-var beaconDepositData string
-var beaconDepositFrom string
-var beaconDepositAllowOldData bool
-var beaconDepositAllowNewData bool
-var beaconDepositAllowExcessiveDeposit bool
-var beaconDepositAllowUnknownContract bool
-var beaconDepositAllowDuplicateDeposit bool
-var beaconDepositForceZeroValue bool
-var beaconDepositContractAddress string
-var beaconDepositEth2Network string
-var beaconDepositOverrideGas uint64
+var (
+	beaconDepositData                  string
+	beaconDepositFrom                  string
+	beaconDepositAllowOldData          bool
+	beaconDepositAllowNewData          bool
+	beaconDepositAllowExcessiveDeposit bool
+	beaconDepositAllowUnknownContract  bool
+	beaconDepositAllowDuplicateDeposit bool
+	beaconDepositForceZeroValue        bool
+	beaconDepositContractAddress       string
+	beaconDepositEth2Network           string
+	beaconDepositOverrideGas           uint64
+)
 
 type beaconDepositContract struct {
 	network     string
@@ -111,7 +113,7 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 	},
 }
 
-// beaconDepositCmd represents the beacon deposit command
+// beaconDepositCmd represents the beacon deposit command.
 var beaconDepositCmd = &cobra.Command{
 	Use:   "deposit",
 	Short: "Deposit Ether to the beacon contract.",
@@ -125,6 +127,7 @@ The keystore for the account that owns the name must be local (i.e. listed with 
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
 		cli.Assert(beaconDepositData != "", quiet, "--data is required")
 		depositInfo, err := loadDepositInfo(beaconDepositData)
 		cli.ErrCheck(err, quiet, "failed to load deposit info")
@@ -168,7 +171,7 @@ If you are *completely sure* you know what you are doing, you can use the --allo
 		if offline {
 			sendOffline(c, depositInfo, contract, fromAddress)
 		} else {
-			sendOnline(depositInfo, contract, fromAddress)
+			sendOnline(ctx, depositInfo, contract, fromAddress)
 		}
 		os.Exit(exitSuccess)
 	},
@@ -195,16 +198,16 @@ func resolveAddress(client *ethclient.Client, input string) (common.Address, err
 func loadDepositInfo(input string) ([]*util.DepositInfo, error) {
 	var err error
 	var data []byte
-	// Input could be JSON or a path to JSON
+	// Input could be JSON or a path to JSON.
 	switch {
 	case strings.HasPrefix(input, "{"):
-		// Looks like JSON
+		// Looks like JSON.
 		data = []byte("[" + input + "]")
 	case strings.HasPrefix(input, "["):
-		// Looks like JSON array
+		// Looks like JSON array.
 		data = []byte(input)
 	default:
-		// Assume it's a path to JSON
+		// Assume it's a path to JSON.
 		data, err = os.ReadFile(input)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to find deposit data file")
@@ -272,7 +275,7 @@ func sendOffline(c *conn.Conn, deposits []*util.DepositInfo, contractDetails *be
 	}
 }
 
-func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositContract, fromAddress common.Address) {
+func sendOnline(ctx context.Context, deposits []*util.DepositInfo, contractDetails *beaconDepositContract, fromAddress common.Address) {
 	address := common.BytesToAddress(contractDetails.address)
 
 	contract, err := contracts.NewEth2Deposit(address, c.Client())
@@ -310,7 +313,7 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 
 		// Check thegraph to see if there is already a deposit for this validator public key.
 		if contractDetails.subgraph != "" {
-			cli.ErrCheck(graphCheck(contractDetails.subgraph, deposit.PublicKey, opts.Value.Uint64(), deposit.WithdrawalCredentials), quiet, "Existing deposit check")
+			cli.ErrCheck(graphCheck(ctx, contractDetails.subgraph, deposit.PublicKey, opts.Value.Uint64(), deposit.WithdrawalCredentials), quiet, "Existing deposit check")
 		}
 
 		outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Amount)), true), deposit.Account))
@@ -338,11 +341,16 @@ func sendOnline(deposits []*util.DepositInfo, contractDetails *beaconDepositCont
 }
 
 // graphCheck checks against a subgraph to see if there is already a deposit for this validator key.
-func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdrawalCredentials []byte) error {
+func graphCheck(ctx context.Context, subgraph string, validatorPubKey []byte, amount uint64, _ []byte) error {
 	query := fmt.Sprintf(`{"query": "{deposits(where: {validatorPubKey:\"%#x\"}) { id amount withdrawalCredentials }}"}`, validatorPubKey)
 	url := fmt.Sprintf("https://api.thegraph.com/subgraphs/name/%s", subgraph)
 	// #nosec G107
-	graphResp, err := http.Post(url, "application/json", bytes.NewBufferString(query))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBufferString(query))
+	if err != nil {
+		return errors.Wrap(err, "failed to create request")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	graphResp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return errors.Wrap(err, "failed to check if there is already a deposit for this validator")
 	}
@@ -353,6 +361,7 @@ func graphCheck(subgraph string, validatorPubKey []byte, amount uint64, withdraw
 	}
 	outputIf(debug, fmt.Sprintf("Received response from subgraph: %s", string(body)))
 
+	//nolint:tagliatelle
 	type graphDeposit struct {
 		Index                 string `json:"index"`
 		Amount                string `json:"amount"`

@@ -22,7 +22,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// ensControllerGetCmd represents the controller get command
+// ensControllerGetCmd represents the controller get command.
 var ensControllerGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the controller of an ENS domain",

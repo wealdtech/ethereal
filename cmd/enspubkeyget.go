@@ -22,7 +22,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// ensPubkeyGetCmd represents the pubkey get command
+// ensPubkeyGetCmd represents the pubkey get command.
 var ensPubkeyGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the public key of an ENS domain",
@@ -35,7 +35,7 @@ In quiet mode this will return 0 if the name has a public key, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
-		// Obtain resolver for the domain
+		// Obtain resolver for the domain.
 		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 

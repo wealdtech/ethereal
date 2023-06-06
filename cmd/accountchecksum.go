@@ -24,10 +24,12 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var accountChecksumAddress string
-var accountChecksumCheck bool
+var (
+	accountChecksumAddress string
+	accountChecksumCheck   bool
+)
 
-// accountChecksumCmd represents the account checksum command
+// accountChecksumCmd represents the account checksum command.
 var accountChecksumCmd = &cobra.Command{
 	Use:   "checksum",
 	Short: "Generate or verify the checksum for an account",
@@ -38,7 +40,7 @@ var accountChecksumCmd = &cobra.Command{
 In quiet mode this will return 0 if the provided address is correctly checksummed, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli.Assert(accountChecksumAddress != "", quiet, "--address is required")
-		// We don't use the ususal resolution process as we want to ensure that the address is well-formed
+		// We don't use the ususal resolution process as we want to ensure that the address is well-formed.
 		if !strings.HasPrefix(accountChecksumAddress, "0x") {
 			cli.Err(quiet, "address does not start with 0x")
 		}

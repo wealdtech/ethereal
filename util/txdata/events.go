@@ -13,7 +13,7 @@
 
 package txdata
 
-// initEventMap initialises the event map with event-specific signatures
+// initEventMap initialises the event map with event-specific signatures.
 func initEventMap() {
 	AddEventSignature("ABIChanged(bytes32,uint256)")
 	AddEventSignature("AddrChanged(bytes32,address)")

@@ -23,7 +23,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// ensResolverClearCmd represents the ens resolver clear command
+// ensResolverClearCmd represents the ens resolver clear command.
 var ensResolverClearCmd = &cobra.Command{
 	Use:   "clear",
 	Short: "Clear the resolver of an ENS domain",
@@ -41,7 +41,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "cannot obtain ENS registry contract")
 
-		// Fetch the owner of the name
+		// Fetch the owner of the name.
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "cannot obtain owner")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))

@@ -23,7 +23,7 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-// ensAddressGetCmd represents the address get command
+// ensAddressGetCmd represents the address get command.
 var ensAddressGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Obtain the address of an ENS domain",

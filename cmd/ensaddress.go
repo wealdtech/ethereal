@@ -19,7 +19,7 @@ import (
 
 var ensAddressCoinType uint64
 
-// ensAddressCmd represents the ens address command
+// ensAddressCmd represents the ens address command.
 var ensAddressCmd = &cobra.Command{
 	Use:     "address",
 	Aliases: []string{"addr"},

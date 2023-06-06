@@ -27,7 +27,7 @@ import (
 
 var ensPubkeySetKey string
 
-// ensPubkeySetCmd represents the ens pubkey set command
+// ensPubkeySetCmd represents the ens pubkey set command.
 var ensPubkeySetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set the public key of an ENS domain",
@@ -66,12 +66,12 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registry, err := ens.NewRegistry(c.Client())
 		cli.ErrCheck(err, quiet, "Cannot obtain ENS registry contract")
 
-		// Fetch the owner of the name
+		// Fetch the owner of the name.
 		owner, err := registry.Owner(ensDomain)
 		cli.ErrCheck(err, quiet, "Cannot obtain owner")
 		cli.Assert(!bytes.Equal(owner.Bytes(), ens.UnknownAddress.Bytes()), quiet, fmt.Sprintf("owner of %s is not set", ensDomain))
 
-		// Obtain the resolver for this name
+		// Obtain the resolver for this name.
 		resolver, err := ens.NewResolver(c.Client(), ensDomain)
 		cli.ErrCheck(err, quiet, "No resolver for that name")
 

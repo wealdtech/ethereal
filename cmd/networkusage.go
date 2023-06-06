@@ -24,7 +24,7 @@ import (
 
 var networkUsageBlocks int64
 
-// networkUsageCmd represents the network usage command
+// networkUsageCmd represents the network usage command.
 var networkUsageCmd = &cobra.Command{
 	Use:   "usage",
 	Short: "Obtain usage of the network in terms of % of gas capacity",
@@ -60,9 +60,8 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 		if quiet {
 			if gas == 0 {
 				os.Exit(exitFailure)
-			} else {
-				os.Exit(exitSuccess)
 			}
+			os.Exit(exitSuccess)
 		}
 
 		gasPct := big.NewFloat(0).Quo(big.NewFloat(0).Mul(big.NewFloat(100), big.NewFloat(0).SetInt(big.NewInt(int64(gas)))), big.NewFloat(0).SetInt(big.NewInt(int64(gasLimit))))

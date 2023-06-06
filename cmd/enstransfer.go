@@ -28,7 +28,7 @@ import (
 
 var ensTransferNewRegistrantStr string
 
-// ensTransferCmd represents the transfer command
+// ensTransferCmd represents the transfer command.
 var ensTransferCmd = &cobra.Command{
 	Use:   "transfer",
 	Short: "Transfer an ENS name",
@@ -49,10 +49,10 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		registrar, err := ens.NewBaseRegistrar(c.Client(), ens.Tld(ensDomain))
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain ENS registrar contract for %s", ens.Tld(ensDomain)))
 
-		// Obtain the registrant
+		// Obtain the registrant.
 		domain, err := ens.DomainPart(ensDomain, 1)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("failed to obtain domain for %s", ensDomain))
-		// Work out if this is on the old or new registrar
+		// Work out if this is on the old or new registrar.
 		location, err := registrar.RegisteredWith(ensDomain)
 		cli.ErrCheck(err, quiet, "Failed to obtain domain location")
 		var registrant common.Address
@@ -76,7 +76,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		outputIf(verbose, fmt.Sprintf("Current registrant is %s", ens.Format(c.Client(), registrant)))
 
-		// Transfer the registration
+		// Transfer the registration.
 		newRegistrantAddress, err := c.Resolve(ensTransferNewRegistrantStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("unknown new registrant %s", ensTransferNewRegistrantStr))
 		opts, err := generateTxOpts(registrant)

@@ -25,10 +25,12 @@ import (
 	ens "github.com/wealdtech/go-ens/v3"
 )
 
-var ensSubdomainCreateSubdomain string
-var ensSubdomainCreateOwnerStr string
+var (
+	ensSubdomainCreateSubdomain string
+	ensSubdomainCreateOwnerStr  string
+)
 
-// ensSubdomainCreateCmd represents the ens subdomain create command
+// ensSubdomainCreateCmd represents the ens subdomain create command.
 var ensSubdomainCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a subdomain of an ENS domain",
@@ -66,7 +68,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 		outputIf(debug, fmt.Sprintf("Controller of subdomain will be %s", subdomainOwner.Hex()))
 
-		// Create the subdomain
+		// Create the subdomain.
 		opts, err := generateTxOpts(controller)
 		cli.ErrCheck(err, quiet, "failed to generate transaction options")
 		signedTx, err := registry.SetSubdomainOwner(opts, ensDomain, ensSubdomainCreateSubdomain, subdomainOwner)

@@ -26,7 +26,7 @@ import (
 )
 
 // SignTransaction signs the given transaction, returning a signed transaction.
-func (c *Conn) SignTransaction(ctx context.Context,
+func (c *Conn) SignTransaction(_ context.Context,
 	signer common.Address,
 	tx *types.Transaction,
 ) (

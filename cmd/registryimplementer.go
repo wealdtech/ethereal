@@ -17,10 +17,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var registryImplementerInterface string
-var registryImplementerAddressStr string
+var (
+	registryImplementerInterface  string
+	registryImplementerAddressStr string
+)
 
-// registryImplementerCmd represents the registry implementer command
+// registryImplementerCmd represents the registry implementer command.
 var registryImplementerCmd = &cobra.Command{
 	Use:   "implementer",
 	Short: "Manage ERC-1820 registry implementers",

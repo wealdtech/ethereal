@@ -26,12 +26,14 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-var gasPriceBlocks int64
-var gasPriceWei bool
-var gasPriceLowest bool
-var gas uint64
+var (
+	gasPriceBlocks int64
+	gasPriceWei    bool
+	gasPriceLowest bool
+	gas            uint64
+)
 
-// gasPriceCmd represents the gas price command
+// gasPriceCmd represents the gas price command.
 var gasPriceCmd = &cobra.Command{
 	Use:   "price",
 	Short: "Calculate an expected gas price",
@@ -75,11 +77,11 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 
 				txs := block.Transactions()
 				if len(txs) > 0 {
-					// Order transactions by gas price
+					// Order transactions by gas price.
 					sort.Slice(txs, func(i, j int) bool {
 						return txs[i].GasPrice().Cmp(txs[j].GasPrice()) > 0
 					})
-					// Remove any 0 gas-price transactions
+					// Remove any 0 gas-price transactions.
 					validTxs := txs[:0]
 					for _, tx := range txs {
 						if tx.GasPrice().Cmp(zero) != 0 {
@@ -94,7 +96,7 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 								lowestGasPrice = blockLowestGasPrice
 							}
 						} else {
-							// Take the average gas price of the 9th decile of transactions
+							// Take the average gas price of the 9th decile of transactions.
 							blockGasPrice := big.NewInt(0)
 							blockTxs := int64(0)
 							for _, tx := range validTxs[(len(validTxs)*8)/10 : (len(validTxs)*9)/10+1] {
@@ -111,13 +113,13 @@ In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
 
 				blockNumber = blockNumber.Sub(blockNumber, big.NewInt(1))
 				if blockNumber.Cmp(zero) < 0 {
-					// We've reached the beginning of the chain; stop
+					// We've reached the beginning of the chain; stop.
 					break
 				}
 			}
 		}
 
-		// Obtain final value
+		// Obtain final value.
 		var finalGasPrice *big.Int
 		if gasPriceLowest || gas > 0 {
 			finalGasPrice = lowestGasPrice

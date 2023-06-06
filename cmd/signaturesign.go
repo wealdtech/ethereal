@@ -26,11 +26,13 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-var signatureSignSigner string
-var signatureSignPrivateKey string
-var signatureSignPassphrase string
+var (
+	signatureSignSigner     string
+	signatureSignPrivateKey string
+	signatureSignPassphrase string
+)
 
-// signatureSignCmd represents the signature sign command
+// signatureSignCmd represents the signature sign command.
 var signatureSignCmd = &cobra.Command{
 	Use:   "sign",
 	Short: "Sign data",
@@ -64,7 +66,7 @@ provided below:
 
 		dataHash := generateDataHash()
 
-		// Sign the hash
+		// Sign the hash.
 		var signature []byte
 		var key *ecdsa.PrivateKey
 		var err error

@@ -25,7 +25,7 @@ import (
 
 var networkTPSBlocks int64
 
-// networkTPSCmd represents the network tps command
+// networkTPSCmd represents the network tps command.
 var networkTPSCmd = &cobra.Command{
 	Use:   "tps",
 	Short: "Obtain transactions-per-second",
@@ -70,9 +70,8 @@ In quiet mode this will return 0 if the network is processing transactions, othe
 		if quiet {
 			if transactions == 0 {
 				os.Exit(exitFailure)
-			} else {
-				os.Exit(exitSuccess)
 			}
+			os.Exit(exitSuccess)
 		}
 
 		transactionsPerSecond := float64(transactions) / duration

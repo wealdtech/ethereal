@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// versionCmd represents the version command
+// versionCmd represents the version command.
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Version of Ethereal",

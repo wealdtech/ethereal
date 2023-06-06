@@ -103,7 +103,7 @@ func New(ctx context.Context, url string) (*Conn, error) {
 	return conn, nil
 }
 
-func newOffline(ctx context.Context) (*Conn, error) {
+func newOffline(_ context.Context) (*Conn, error) {
 	var chainID *big.Int
 	if viper.GetString("network") == "" && viper.GetString("chainid") == "" {
 		return nil, errors.New("network or chainid is required when offline")
