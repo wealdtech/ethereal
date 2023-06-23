@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2017-2023 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -23,14 +23,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util"
-)
-
-var (
-	accountKeysAddress    string
-	accountKeysPassphrase string
-	accountKeysPrivateKey string
 )
 
 // accountKeysCmd represents the account keys command.
@@ -45,15 +40,18 @@ Note that this will only work for filesystem-based keystores.  Hardware wallets 
 
 In quiet mode this will return 0 if the account was successfully decoded, otherwise 1.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Assert((accountKeysAddress != "" && accountKeysPassphrase != "") || accountKeysPrivateKey != "", quiet, "--privatekey or both of --address and --passphrase are required")
+		address := viper.GetString("address")
+		passphrase := viper.GetString("passphrase")
+		privateKey := viper.GetString("privatekey")
+		cli.Assert((address != "" && passphrase != "") || privateKey != "", quiet, "--privatekey or both of --address and --passphrase are required")
 
 		var key *ecdsa.PrivateKey
-		if accountKeysPrivateKey != "" {
-			key, err = crypto.HexToECDSA(strings.TrimPrefix(accountKeysPrivateKey, "0x"))
+		if privateKey != "" {
+			key, err = crypto.HexToECDSA(strings.TrimPrefix(privateKey, "0x"))
 			cli.ErrCheck(err, quiet, "Invalid private key")
 		} else {
-			address := common.HexToAddress(accountKeysAddress)
-			key, err = util.PrivateKeyForAccount(c.ChainID(), address, accountKeysPassphrase)
+			addr := common.HexToAddress(address)
+			key, err = util.PrivateKeyForAccount(c.ChainID(), addr, passphrase)
 		}
 		cli.ErrCheck(err, quiet, "Failed to access account")
 		if quiet {
@@ -69,7 +67,7 @@ In quiet mode this will return 0 if the account was successfully decoded, otherw
 func init() {
 	offlineCmds["account:keys"] = true
 	accountCmd.AddCommand(accountKeysCmd)
-	accountKeysCmd.Flags().StringVar(&accountKeysAddress, "address", "", "address for account keys")
-	accountKeysCmd.Flags().StringVar(&accountKeysPassphrase, "passphrase", "", "passphrase for account keys")
-	accountKeysCmd.Flags().StringVar(&accountKeysPrivateKey, "privatekey", "", "private key for account keys")
+	accountKeysCmd.Flags().String("address", "", "address for account keys")
+	accountKeysCmd.Flags().String("passphrase", "", "passphrase for account keys")
+	accountKeysCmd.Flags().String("privatekey", "", "private key for account keys")
 }

@@ -100,6 +100,9 @@ func persistentPreRun(cmd *cobra.Command, _ []string) {
 	if cmd.Flags().Lookup("passphrase") != nil {
 		cli.ErrCheck(viper.BindPFlag("passphrase", cmd.Flags().Lookup("passphrase")), quiet, "failed to bind flag")
 	}
+	if cmd.Flags().Lookup("address") != nil {
+		cli.ErrCheck(viper.BindPFlag("address", cmd.Flags().Lookup("address")), quiet, "failed to bind flag")
+	}
 	if cmd.Flags().Lookup("privatekey") != nil {
 		cli.ErrCheck(viper.BindPFlag("privatekey", cmd.Flags().Lookup("privatekey")), quiet, "failed to bind flag")
 	}
