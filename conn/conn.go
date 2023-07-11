@@ -111,8 +111,6 @@ func newOffline(_ context.Context) (*Conn, error) {
 	switch strings.ToLower(viper.GetString("network")) {
 	case "mainnet":
 		chainID = params.MainnetChainConfig.ChainID
-	case "rinkeby":
-		chainID = params.RinkebyChainConfig.ChainID
 	case "goerli", "gorli", "görli":
 		chainID = params.GoerliChainConfig.ChainID
 	case "sepolia":

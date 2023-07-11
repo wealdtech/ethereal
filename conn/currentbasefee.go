@@ -15,10 +15,12 @@ package conn
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/go-string2eth"
 )
@@ -39,12 +41,12 @@ func (c *Conn) CurrentBaseFee(ctx context.Context) (*big.Int, error) {
 
 	blockNum, err := c.client.BlockNumber(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to obtain current block number")
 	}
 
 	block, err := c.client.BlockByNumber(context.Background(), big.NewInt(int64(blockNum)))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to obtain block %d", blockNum))
 	}
 
 	if c.baseFeePerGas != nil {
