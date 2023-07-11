@@ -198,8 +198,6 @@ func connectionAddress(_ context.Context) (string, error) {
 		return "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
 	case "ropsten":
 		return "https://ropsten.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
-	case "rinkeby":
-		return "https://rinkeby.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
 	case "goerli", "gorli", "görli":
 		return "https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
 	case "sepolia":
@@ -324,7 +322,7 @@ func init() {
 	if err := viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection")); err != nil {
 		panic(err)
 	}
-	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/rinkeby/goerli/sepolia) (overridden by connection option)")
+	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/ropsten/kovan/goerli/sepolia) (overridden by connection option)")
 	if err := viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network")); err != nil {
 		panic(err)
 	}

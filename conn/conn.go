@@ -79,8 +79,6 @@ func New(ctx context.Context, url string) (*Conn, error) {
 	// 	config = params.RopstenChainConfig
 	// case chainID.Cmp(params.SepoliaChainConfig.ChainID) == 0:
 	// 	config = params.SepoliaChainConfig
-	// case chainID.Cmp(params.RinkebyChainConfig.ChainID) == 0:
-	// 	config = params.RinkebyChainConfig
 	// case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
 	// 	config = params.GoerliChainConfig
 	// default:
