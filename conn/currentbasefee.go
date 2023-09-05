@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -53,7 +53,7 @@ func (c *Conn) CurrentBaseFee(ctx context.Context) (*big.Int, error) {
 		return c.baseFeePerGas, nil
 	}
 
-	baseFee := misc.CalcBaseFee(&params.ChainConfig{
+	baseFee := eip1559.CalcBaseFee(&params.ChainConfig{
 		LondonBlock: big.NewInt(0),
 	}, block.Header())
 	return baseFee, nil

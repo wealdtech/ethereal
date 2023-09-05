@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.0
 	github.com/attestantio/go-execution-client v0.8.3
-	github.com/ethereum/go-ethereum v1.12.0
+	github.com/ethereum/go-ethereum v1.12.2
 	github.com/miekg/dns v1.1.55
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pborman/uuid v1.2.1
@@ -17,11 +17,11 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tyler-smith/go-bip32 v1.0.0
 	github.com/tyler-smith/go-bip39 v1.1.0
-	github.com/wealdtech/go-ens/v3 v3.5.5
+	github.com/wealdtech/go-ens/v3 v3.6.0
 	github.com/wealdtech/go-erc1820 v1.2.4
 	github.com/wealdtech/go-string2eth v1.2.1
-	golang.org/x/crypto v0.11.0
-	golang.org/x/text v0.11.0
+	golang.org/x/crypto v0.13.0
+	golang.org/x/text v0.13.0
 )
 
 require (
@@ -52,10 +52,10 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
-	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
+	github.com/holiman/uint256 v1.2.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/ipfs/go-cid v0.2.0 // indirect
-	github.com/karalabe/usb v0.0.2 // indirect
+	github.com/ipfs/go-cid v0.4.1 // indirect
+	github.com/karalabe/usb v0.0.3-0.20230711191512-61db3e06439c // indirect
 	github.com/klauspost/compress v1.15.15 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
@@ -70,8 +70,8 @@ require (
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/multiformats/go-base32 v0.0.3 // indirect
 	github.com/multiformats/go-base36 v0.1.0 // indirect
-	github.com/multiformats/go-multibase v0.1.1 // indirect
-	github.com/multiformats/go-multihash v0.2.0 // indirect
+	github.com/multiformats/go-multibase v0.2.0 // indirect
+	github.com/multiformats/go-multihash v0.2.3 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
@@ -93,11 +93,10 @@ require (
 	github.com/tklauser/numcpus v0.2.2 // indirect
 	github.com/wealdtech/go-multicodec v1.4.0 // indirect
 	github.com/ybbus/jsonrpc/v2 v2.1.7 // indirect
-	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc // indirect
-	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/exp v0.0.0-20230810033253-352e893a4cad // indirect
+	golang.org/x/mod v0.11.0 // indirect
+	golang.org/x/net v0.14.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/tools v0.9.1 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
