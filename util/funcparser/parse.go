@@ -31,11 +31,11 @@ type methodListener struct {
 	contract *util.Contract
 	curArg   int
 	// Arrays are all of the same type but can be nested.
-	curArray      []interface{}
+	curArray      []any
 	maxArrayLevel int
 	// Result of parsing the argument.
 	method *abi.Method
-	args   []interface{}
+	args   []any
 	err    error
 }
 
@@ -45,7 +45,7 @@ func newMethodListener(client *ethclient.Client, contract *util.Contract) *metho
 		client:   client,
 		contract: contract,
 		curArg:   0,
-		args:     make([]interface{}, 0),
+		args:     make([]any, 0),
 	}
 }
 
@@ -67,7 +67,7 @@ func (l *methodListener) EnterIntArg(c *parser.IntArgContext) {
 	if l.err == nil {
 		input := l.method.Inputs[l.curArg]
 		var err error
-		var arg interface{}
+		var arg any
 		baseType := baseType(&input.Type)
 		switch baseType.T {
 		case abi.IntTy:
@@ -123,21 +123,19 @@ func (l *methodListener) EnterArrayArg(c *parser.ArrayArgContext) {
 		baseType := baseType(&input.Type)
 		level := arrayLevel(&input.Type)
 		if len(l.curArray) == 0 {
-			// New array
-			l.curArray = make([]interface{}, 0)
+			// New array.
+			l.curArray = make([]any, 0)
 			l.maxArrayLevel = level
 		} else {
 			// Extend existing array.
 			level -= len(l.curArray)
 		}
-		for ; level > 0; level-- {
-			array, err := makeArray(baseType, level)
-			if err != nil {
-				l.err = err
-				return
-			}
-			l.curArray = append(l.curArray, array)
+		array, err := makeArray(baseType, level)
+		if err != nil {
+			l.err = err
+			return
 		}
+		l.curArray = append(l.curArray, array)
 	}
 }
 
@@ -192,9 +190,16 @@ func (l *methodListener) ExitArrayArg(_ *parser.ArrayArgContext) {
 				case abi.HashTy:
 					l.curArray[parent] = append(l.curArray[parent].([][]common.Hash), l.curArray[child].([]common.Hash))
 				case abi.BytesTy, abi.FixedBytesTy:
-					l.curArray[parent] = append(l.curArray[parent].([][][]byte), l.curArray[child].([][]byte))
+					switch baseType.Size {
+					case 0:
+						l.curArray[parent] = append(l.curArray[parent].([][][]byte), l.curArray[child].([][]byte))
+					case 32:
+						l.curArray[parent] = append(l.curArray[parent].([][][32]byte), l.curArray[child].([][32]byte))
+					default:
+						panic("unhandled size")
+					}
 				default:
-					l.curArray[parent] = append(l.curArray[parent].([]interface{}), l.curArray[child])
+					l.curArray[parent] = append(l.curArray[parent].([]any), l.curArray[child])
 				}
 			} else if level == 2 {
 				switch baseType.T {
@@ -235,7 +240,7 @@ func (l *methodListener) ExitArrayArg(_ *parser.ArrayArgContext) {
 				case abi.BytesTy, abi.FixedBytesTy:
 					l.curArray[parent] = append(l.curArray[parent].([][][][]byte), l.curArray[child].([][][]byte))
 				default:
-					l.curArray[parent] = append(l.curArray[parent].([][]interface{}), l.curArray[child].([]interface{}))
+					l.curArray[parent] = append(l.curArray[parent].([][]any), l.curArray[child].([]any))
 				}
 			}
 		}
@@ -247,7 +252,7 @@ func (l *methodListener) EnterDomainArg(c *parser.DomainArgContext) {
 	if l.err == nil {
 		input := l.method.Inputs[l.curArg]
 		var err error
-		var arg interface{}
+		var arg any
 		baseType := baseType(&input.Type)
 		switch baseType.T {
 		case abi.AddressTy:
@@ -267,7 +272,7 @@ func (l *methodListener) EnterHexArg(c *parser.HexArgContext) {
 	if l.err == nil {
 		input := l.method.Inputs[l.curArg]
 		var err error
-		var arg interface{}
+		var arg any
 		baseType := baseType(&input.Type)
 		switch baseType.T {
 		case abi.AddressTy:
@@ -325,7 +330,7 @@ func arrayLevel(inputType *abi.Type) int {
 	}
 }
 
-func (l *methodListener) pushArg(arg interface{}) {
+func (l *methodListener) pushArg(arg any) {
 	if len(l.curArray) == 0 {
 		l.args = append(l.args, arg)
 	} else {
@@ -367,26 +372,34 @@ func (l *methodListener) pushArg(arg interface{}) {
 		case abi.HashTy:
 			l.curArray[len(l.curArray)-1] = append(l.curArray[len(l.curArray)-1].([]common.Hash), arg.(common.Hash))
 		case abi.BytesTy, abi.FixedBytesTy:
-			l.curArray[len(l.curArray)-1] = append(l.curArray[len(l.curArray)-1].([][]byte), arg.([]byte))
+			switch baseType.Size {
+			case 0:
+				l.curArray[len(l.curArray)-1] = append(l.curArray[len(l.curArray)-1].([][]byte), arg.([]byte))
+			case 32:
+				l.curArray[len(l.curArray)-1] = append(l.curArray[len(l.curArray)-1].([][32]byte), arg.([32]byte))
+			default:
+				panic("not handling size")
+			}
+		case abi.SliceTy:
+			panic("not handling slice")
 		default:
-			l.curArray[len(l.curArray)-1] = append(l.curArray[len(l.curArray)-1].([]interface{}), arg)
+			l.curArray[len(l.curArray)-1] = append(l.curArray[len(l.curArray)-1].([]any), arg)
 		}
 	}
 }
 
-// nolint:gocyclo
-func makeArray(baseType *abi.Type, level int) (interface{}, error) {
+func makeArray(baseType *abi.Type, level int) (any, error) {
 	switch level {
 	case 1:
-		return makeArray1(baseType)
+		return make1DArray(baseType)
 	case 2:
-		return makeArray2(baseType)
+		return make2DArray(baseType)
 	default:
 		return nil, fmt.Errorf("unhandled nesting level %d", level)
 	}
 }
 
-func makeArray2(baseType *abi.Type) (interface{}, error) {
+func make2DArray(baseType *abi.Type) (any, error) {
 	switch baseType.T {
 	case abi.IntTy:
 		switch baseType.Size {
@@ -423,13 +436,20 @@ func makeArray2(baseType *abi.Type) (interface{}, error) {
 	case abi.HashTy:
 		return make([][]common.Hash, 0), nil
 	case abi.BytesTy, abi.FixedBytesTy:
-		return make([][][]byte, 0), nil
+		switch baseType.Size {
+		case 0:
+			return make([][][]byte, 0), nil
+		case 32:
+			return make([][][32]byte, 0), nil
+		default:
+			panic("unhandled size")
+		}
 	default:
 		return nil, fmt.Errorf("unhandled array type %v", baseType.T)
 	}
 }
 
-func makeArray1(baseType *abi.Type) (interface{}, error) {
+func make1DArray(baseType *abi.Type) (any, error) {
 	switch baseType.T {
 	case abi.IntTy:
 		switch baseType.Size {
@@ -466,7 +486,14 @@ func makeArray1(baseType *abi.Type) (interface{}, error) {
 	case abi.HashTy:
 		return make([]common.Hash, 0), nil
 	case abi.BytesTy, abi.FixedBytesTy:
-		return make([][]byte, 0), nil
+		switch baseType.Size {
+		case 0:
+			return make([][]byte, 0), nil
+		case 32:
+			return make([][32]byte, 0), nil
+		default:
+			panic("unhandled size")
+		}
 	default:
 		return nil, fmt.Errorf("unhandled array type %v", baseType.T)
 	}

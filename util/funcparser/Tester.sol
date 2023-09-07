@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.20;
 pragma experimental ABIEncoderV2;
 
 contract Tester {
@@ -193,6 +193,16 @@ contract Tester {
     }
 
     function testBytes2DArray(bytes[][] memory arg1) public pure returns (bytes[][] memory) {
+        return arg1;
+    }
+
+    struct TestTuple {
+      uint32 field1;
+      uint64 field2;
+      bool field3;
+    }
+
+    function testTuple(TestTuple memory arg1) public pure returns (TestTuple memory) {
         return arg1;
     }
 }
