@@ -22,7 +22,7 @@ func TestParseCombinedJSON(t *testing.T) {
 		inputErr error
 		name     string
 	}{
-		{`{"contracts":{"Simple.sol:Simple":{"abi":"[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]","bin":"6080604052348015600f57600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550603580605d6000396000f3006080604052600080fd00a165627a7a7230582083d530c10e079e85c2f5030dc4ff81c9c24ad62d6af39470de661d4596b5766e0029"}},"version":"0.4.23+commit.124ca40d.Linux.g++"}`, nil, "Simple"},
+		{`{"contracts":{"Simple.sol:Simple":{"abi":[{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}],"bin":"6080604052348015600f57600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550603580605d6000396000f3006080604052600080fd00a165627a7a7230582083d530c10e079e85c2f5030dc4ff81c9c24ad62d6af39470de661d4596b5766e0029"}},"version":"0.4.23+commit.124ca40d.Linux.g++"}`, nil, "Simple"},
 	}
 
 	for _, tt := range tests {

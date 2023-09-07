@@ -1,4 +1,4 @@
-// Copyright © 2017, 2022 Weald Technology Trading
+// Copyright © 2017 - 2023 Weald Technology Trading.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,12 +16,12 @@ package util
 import (
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/pkg/errors"
 )
 
 // Contract contains some basic information about a contract.
@@ -45,31 +45,34 @@ func ParseCombinedJSON(input string, name string) (*Contract, error) {
 		}
 	}
 
-	var contractsJSON interface{}
+	var contractsJSON map[string]any
 	err = json.Unmarshal(data, &contractsJSON)
 	if err != nil {
 		return nil, err
 	}
-	contractsJSONMap := contractsJSON.(map[string]interface{})
-	contracts, exists := contractsJSONMap["contracts"]
+	contracts, exists := contractsJSON["contracts"]
 	if !exists {
 		return nil, errors.New("JSON does not contain contracts element")
 	}
-	contractsMap := contracts.(map[string]interface{})
+	contractsMap := contracts.(map[string]any)
 	// See if this is our name.
 	for contractKey, contractValue := range contractsMap {
 		if strings.HasSuffix(contractKey, fmt.Sprintf(":%s", name)) {
 			// Found our contract.
 			contract := &Contract{Name: name}
 
-			contractJSON := contractValue.(map[string]interface{})
+			contractJSON := contractValue.(map[string]any)
 
 			// Obtain ABI.
 			abiJSON, exists := contractJSON["abi"]
 			if exists {
-				abi, err := abi.JSON(strings.NewReader(abiJSON.(string)))
+				bytes, err := json.Marshal(abiJSON)
 				if err != nil {
 					return nil, err
+				}
+				var abi abi.ABI
+				if err := json.Unmarshal(bytes, &abi); err != nil {
+					return nil, errors.Wrap(err, "failed to decode json")
 				}
 				contract.Abi = abi
 			}
