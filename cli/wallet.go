@@ -1,4 +1,4 @@
-// Copyright 2017 Weald Technology Trading Limited
+// Copyright 2017 - 2023 Weald Technology Trading Limited
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,6 +91,8 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 		keydir = filepath.Join(keydir, "goerli")
 	case chainID.Cmp(params.SepoliaChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "sepolia")
+	case chainID.Cmp(params.HoleskyChainConfig.ChainID) == 0:
+		keydir = filepath.Join(keydir, "holesky")
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
@@ -110,6 +112,8 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 		keydir = filepath.Join(keydir, "goerli")
 	case chainID.Cmp(params.SepoliaChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "sepolia")
+	case chainID.Cmp(params.HoleskyChainConfig.ChainID) == 0:
+		keydir = filepath.Join(keydir, "holesky")
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	if debug {

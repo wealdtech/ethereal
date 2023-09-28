@@ -45,6 +45,7 @@ import (
 var depositABI = `[{"inputs":[{"internalType":"bytes","name":"pubkey","type":"bytes"},{"internalType":"bytes","name":"withdrawal_credentials","type":"bytes"},{"internalType":"bytes","name":"signature","type":"bytes"},{"internalType":"bytes32","name":"deposit_data_root","type":"bytes32"}],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"}]`
 
 var (
+	beaconDepositDebug                 bool
 	beaconDepositData                  string
 	beaconDepositFrom                  string
 	beaconDepositAllowOldData          bool
@@ -79,14 +80,6 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		subgraph:    "attestantio/eth2deposits",
 	},
 	{
-		network:     "Ropsten",
-		chainID:     big.NewInt(3),
-		address:     util.MustDecodeHexString("0x6f22fFbC56eFF051aECF839396DD1eD9aD6BBA9D"),
-		forkVersion: []byte{0x80, 0x00, 0x00, 0x69},
-		minVersion:  3,
-		maxVersion:  4,
-	},
-	{
 		network:     "Prater",
 		chainID:     big.NewInt(5),
 		address:     util.MustDecodeHexString("0xff50ed3d0ec03aC01D4C79aAd74928BFF48a7b2b"),
@@ -96,18 +89,18 @@ var beaconDepositKnownContracts = []*beaconDepositContract{
 		subgraph:    "attestantio/eth2deposits-prater",
 	},
 	{
-		network:     "Kiln",
-		chainID:     big.NewInt(1337802),
-		address:     util.MustDecodeHexString("0x4242424242424242424242424242424242424242"),
-		forkVersion: []byte{0x70, 0x00, 0x00, 0x69},
-		minVersion:  3,
-		maxVersion:  4,
-	},
-	{
 		network:     "Sepolia",
 		chainID:     big.NewInt(11155111),
 		address:     util.MustDecodeHexString("0x7f02C3E3c98b133055B8B348B2Ac625669Ed295D"),
 		forkVersion: []byte{0x90, 0x00, 0x00, 0x69},
+		minVersion:  3,
+		maxVersion:  4,
+	},
+	{
+		network:     "Holesky",
+		chainID:     big.NewInt(17000),
+		address:     util.MustDecodeHexString("0x4242424242424242424242424242424242424242"),
+		forkVersion: []byte{0x01, 0x01, 0x70, 0x00},
 		minVersion:  3,
 		maxVersion:  4,
 	},
@@ -459,6 +452,7 @@ If you are sure you want to send to this address you can add --allow-unknown-con
 func init() {
 	beaconCmd.AddCommand(beaconDepositCmd)
 	beaconFlags(beaconDepositCmd)
+	beaconDepositCmd.Flags().BoolVar(&beaconDepositDebug, "debug", false, "Debug output")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositData, "data", "", "The data for the deposit, provided by ethdo or a similar command")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositFrom, "from", "", "The account from which to send the deposit")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowUnknownContract, "allow-unknown-contract", false, "Allow sending to a contract address that is unknown by Ethereal (WARNING: only if you know what you are doing)")

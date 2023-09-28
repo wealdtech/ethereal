@@ -1,4 +1,4 @@
-// Copyright © 2022 Weald Technology Trading
+// Copyright © 2022, 2023 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -71,19 +71,6 @@ func New(ctx context.Context, url string) (*Conn, error) {
 		return nil, errors.New("unable to contact client")
 	}
 
-	// var config *params.ChainConfig
-	// switch {
-	// case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
-	// 	config = params.MainnetChainConfig
-	// case chainID.Cmp(params.RopstenChainConfig.ChainID) == 0:
-	// 	config = params.RopstenChainConfig
-	// case chainID.Cmp(params.SepoliaChainConfig.ChainID) == 0:
-	// 	config = params.SepoliaChainConfig
-	// case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
-	// 	config = params.GoerliChainConfig
-	// default:
-	// }
-
 	timeout := viper.GetDuration("timeout")
 	if timeout == 0 {
 		return nil, errors.New("timeout not specified")
@@ -93,9 +80,8 @@ func New(ctx context.Context, url string) (*Conn, error) {
 		timeout:   timeout,
 		rpcClient: rpcClient,
 		client:    client,
-		// config:    config,
-		chainID: chainID,
-		nonces:  make(map[common.Address]uint64),
+		chainID:   chainID,
+		nonces:    make(map[common.Address]uint64),
 	}
 
 	return conn, nil
@@ -113,6 +99,8 @@ func newOffline(_ context.Context) (*Conn, error) {
 		chainID = params.GoerliChainConfig.ChainID
 	case "sepolia":
 		chainID = params.SepoliaChainConfig.ChainID
+	case "holesky":
+		chainID = params.HoleskyChainConfig.ChainID
 	default:
 		switch {
 		case strings.HasPrefix(viper.GetString("chainid"), "0x"):
