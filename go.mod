@@ -17,8 +17,8 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tyler-smith/go-bip32 v1.0.0
 	github.com/tyler-smith/go-bip39 v1.1.0
-	github.com/wealdtech/go-ens/v3 v3.6.0
-	github.com/wealdtech/go-erc1820 v1.2.4
+	github.com/wealdtech/go-ens/v3 v3.5.5
+	github.com/wealdtech/go-erc1820 v1.2.3
 	github.com/wealdtech/go-string2eth v1.2.1
 	golang.org/x/crypto v0.13.0
 	golang.org/x/text v0.13.0
@@ -40,7 +40,7 @@ require (
 	github.com/cockroachdb/redact v1.0.8 // indirect
 	github.com/cockroachdb/sentry-go v0.6.1-cockroachdb.2 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.12.0 // indirect
+	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deckarep/golang-set/v2 v2.3.1 // indirect
