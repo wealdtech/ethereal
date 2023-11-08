@@ -95,6 +95,9 @@ func outputBlockInfoJSON(_ context.Context, block *spec.Block) string {
 	case spec.ForkShanghai:
 		res, err = json.Marshal(block.Shanghai)
 		cli.ErrCheck(err, quiet, "failed to generate shanghai block info")
+	case spec.ForkCancun:
+		res, err = json.Marshal(block.Cancun)
+		cli.ErrCheck(err, quiet, "failed to generate cancun block info")
 	default:
 		res = []byte(fmt.Sprintf("Unhandled block fork %v", block.Fork))
 	}
@@ -116,6 +119,9 @@ func outputBlockInfoText(ctx context.Context, block *spec.Block) string {
 	case spec.ForkShanghai:
 		res, err = outputShanghaiText(ctx, block.Shanghai)
 		cli.ErrCheck(err, quiet, "failed to generate shanghai block info")
+	case spec.ForkCancun:
+		res, err = outputCancunText(ctx, block.Cancun)
+		cli.ErrCheck(err, quiet, "failed to generate cancun block info")
 	default:
 		res = fmt.Sprintf("Unhandled block fork %v", block.Fork)
 	}
@@ -132,8 +138,10 @@ func outputBerlinText(_ context.Context, block *spec.BerlinBlock) (string, error
 	if verbose {
 		outputCoinbase(builder, block.Miner)
 		outputExtraData(builder, block.ExtraData)
-		outputDifficulty(builder, block.Difficulty)
-		outputTotalDifficulty(builder, block.TotalDifficulty)
+		if block.Difficulty != 0 {
+			outputDifficulty(builder, block.Difficulty)
+			outputTotalDifficulty(builder, block.TotalDifficulty)
+		}
 	}
 	outputUncles(builder, block.Uncles, verbose)
 	outputTransactions(builder, block.Transactions, verbose)
@@ -151,8 +159,10 @@ func outputLondonText(_ context.Context, block *spec.LondonBlock) (string, error
 	if verbose {
 		outputCoinbase(builder, block.Miner)
 		outputExtraData(builder, block.ExtraData)
-		outputDifficulty(builder, block.Difficulty)
-		outputTotalDifficulty(builder, block.TotalDifficulty)
+		if block.Difficulty != 0 {
+			outputDifficulty(builder, block.Difficulty)
+			outputTotalDifficulty(builder, block.TotalDifficulty)
+		}
 	}
 	outputTransactions(builder, block.Transactions, verbose)
 
@@ -169,9 +179,33 @@ func outputShanghaiText(_ context.Context, block *spec.ShanghaiBlock) (string, e
 	if verbose {
 		outputCoinbase(builder, block.Miner)
 		outputExtraData(builder, block.ExtraData)
-		outputDifficulty(builder, block.Difficulty)
-		outputTotalDifficulty(builder, block.TotalDifficulty)
+		if block.Difficulty != 0 {
+			outputDifficulty(builder, block.Difficulty)
+			outputTotalDifficulty(builder, block.TotalDifficulty)
+		}
 	}
+	outputTransactions(builder, block.Transactions, verbose)
+	outputWithdrawals(builder, block.Withdrawals, verbose)
+
+	return builder.String(), nil
+}
+
+func outputCancunText(_ context.Context, block *spec.CancunBlock) (string, error) {
+	builder := new(strings.Builder)
+	outputNumber(builder, block.Number)
+	outputHash(builder, block.Hash)
+	outputTimestamp(builder, block.Timestamp)
+	outputBaseFee(builder, block.BaseFeePerGas)
+	outputGas(builder, block.GasUsed, block.GasLimit)
+	if verbose {
+		outputCoinbase(builder, block.Miner)
+		outputExtraData(builder, block.ExtraData)
+		if block.Difficulty != 0 {
+			outputDifficulty(builder, block.Difficulty)
+			outputTotalDifficulty(builder, block.TotalDifficulty)
+		}
+	}
+	outputParentBeaconBlockRoot(builder, block.ParentBeaconBlockRoot)
 	outputTransactions(builder, block.Transactions, verbose)
 	outputWithdrawals(builder, block.Withdrawals, verbose)
 
@@ -200,6 +234,10 @@ func outputBaseFee(builder *strings.Builder, baseFee uint64) {
 
 func outputGas(builder *strings.Builder, gasUsed uint32, gasLimit uint32) {
 	builder.WriteString(fmt.Sprintf("Gas used: %d/%d (%0.2f%%)\n", gasUsed, gasLimit, float64(gasUsed)*100.0/float64(gasLimit)))
+}
+
+func outputParentBeaconBlockRoot(builder *strings.Builder, root types.Root) {
+	builder.WriteString(fmt.Sprintf("Parent beacon block root: %s\n", root))
 }
 
 func outputExtraData(builder *strings.Builder, extraData []byte) {

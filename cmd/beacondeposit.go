@@ -133,7 +133,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 If you are *completely sure* you know what you are doing, you can use the --allow-unknown-contract option to carry out this transaction.  Otherwise, please seek support to ensure you do not lose your Ether.`)
 		outputIf(verbose && contractName != "", fmt.Sprintf("Deposit contract is %s", contract.network))
 
-		cli.Assert(c.ChainID().Cmp(contract.chainID) == 0, quiet, "Ethereal is not connected to the correct Ethereum 1 network.  Please ensure that if you are depositing for the mainnet deposit contract you are on the Ethereum 1 mainnet, and likewise for test networks.")
+		cli.Assert(c.ChainID().Cmp(contract.chainID) == 0, quiet, fmt.Sprintf("Ethereal is not connected to the correct Ethereum 1 network.  Please ensure that if you are depositing for the mainnet deposit contract you are on the Ethereum 1 mainnet, and likewise for test networks. (Connected to chain ID %v, expected chain ID %v)", c.ChainID(), contract.chainID))
 
 		// Confirm the deposit data before sending any.
 		for i := range depositInfo {
@@ -462,7 +462,7 @@ func init() {
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
 	beaconDepositCmd.Flags().BoolVar(&beaconDepositForceZeroValue, "force-zero-value", false, "Sending the deposit with 0 Ether regardless of the information in the deposit data")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
-	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/ropsten/sepolia)")
+	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/holesky/sepolia)")
 	beaconDepositCmd.Flags().Uint64Var(&beaconDepositOverrideGas, "override-gas", 0, "Override the gas limit for the deposit transaction")
 	addTransactionFlags(beaconDepositCmd, "the account from which to send the deposit")
 }
