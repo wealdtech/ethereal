@@ -459,12 +459,11 @@ func localContext() (context.Context, context.CancelFunc) {
 }
 
 func calculateFees() (*big.Int, *big.Int, error) {
-	// Set max fee per gas.
-	feePerGas, err := c.CurrentBaseFee(context.Background())
+	baseFeePerGas, err := c.CurrentBaseFee(context.Background())
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to obtain current base fee")
 	}
-	outputIf(debug, fmt.Sprintf("Current base fee per gas: %v", string2eth.WeiToString(feePerGas, true)))
+	outputIf(debug, fmt.Sprintf("Current base fee per gas: %v", string2eth.WeiToString(baseFeePerGas, true)))
 
 	if viper.GetString("max-fee-per-gas") == "" {
 		viper.Set("max-fee-per-gas", "200gwei")
@@ -473,24 +472,28 @@ func calculateFees() (*big.Int, *big.Int, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	outputIf(debug, fmt.Sprintf("Max fee per gas: %v", string2eth.WeiToString(maxFeePerGas, true)))
 
-	// Set priority fee per gas.
+	// Obtain priority fee per gas.
 	priorityFeePerGas, err := string2eth.StringToWei(viper.GetString("priority-fee-per-gas"))
 	cli.ErrCheck(err, quiet, "Failed to obtain priority fee per gas")
 
 	// Ensure that the total fee per gas does not exceed the max allowed.
-	totalFeePerGas := new(big.Int).Add(feePerGas, priorityFeePerGas)
+	totalFeePerGas := new(big.Int).Add(baseFeePerGas, priorityFeePerGas)
+	outputIf(debug, fmt.Sprintf("Total fee per gas is %s", string2eth.WeiToString(totalFeePerGas, true)))
 	if totalFeePerGas.Cmp(maxFeePerGas) > 0 {
 		return nil, nil, fmt.Errorf("calculated total fee per gas of %s too high; increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToString(totalFeePerGas, true))
 	}
 
-	// Try to double the base fee, but not exceed the max allowed.
-	feePerGas = new(big.Int).Mul(feePerGas, big.NewInt(2))
-	totalFeePerGas = totalFeePerGas.Add(feePerGas, priorityFeePerGas)
-	if totalFeePerGas.Cmp(maxFeePerGas) >= 0 {
+	// Try to double the base fee to allow for changes in future block base fee, but not exceed the max allowed.
+	doubleBaseFeePerGas := new(big.Int).Add(baseFeePerGas, baseFeePerGas)
+
+	feePerGas := new(big.Int).Add(doubleBaseFeePerGas, priorityFeePerGas)
+	if feePerGas.Cmp(maxFeePerGas) >= 0 {
 		feePerGas = feePerGas.Sub(maxFeePerGas, priorityFeePerGas)
+		outputIf(debug, fmt.Sprintf("Total fee per gas is higher than max fee per gas, reduced to %ss", string2eth.WeiToString(feePerGas, true)))
 	}
-	outputIf(debug, fmt.Sprintf("Calculated fee per gas is %s", string2eth.WeiToString(feePerGas, true)))
+	outputIf(debug, fmt.Sprintf("Final fee per gas is %s, priority fee per gas is %s", string2eth.WeiToString(feePerGas, true), string2eth.WeiToString(priorityFeePerGas, true)))
 
 	return feePerGas, priorityFeePerGas, nil
 }
