@@ -43,9 +43,8 @@ type Conn struct {
 	noncesMu sync.Mutex
 
 	// Information for offline connections.
-	offline       bool
-	chainID       *big.Int
-	baseFeePerGas *big.Int
+	offline bool
+	chainID *big.Int
 }
 
 // New creates a new execution client.

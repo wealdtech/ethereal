@@ -27,34 +27,32 @@ import (
 
 // CurrentBaseFee returns the current base fee of the chain.
 func (c *Conn) CurrentBaseFee(ctx context.Context) (*big.Int, error) {
-	if c.client == nil {
-		if c.baseFeePerGas != nil {
-			return c.baseFeePerGas, nil
-		}
-		var err error
-		c.baseFeePerGas, err = string2eth.StringToWei(viper.GetString("base-fee-per-gas"))
+	// If we have been supplied with a base fee then use it.
+	if viper.GetString("base-fee-per-gas") != "" {
+		baseFee, err := string2eth.StringToWei(viper.GetString("base-fee-per-gas"))
 		if err != nil {
 			return nil, err
 		}
-		return c.baseFeePerGas, nil
+		return baseFee, nil
 	}
 
+	// If we're offline we cannot go any further.
+	if c.client == nil {
+		return nil, errors.New("no client connection; please supply base fee with base-fee-per-gas option")
+	}
+
+	// Obtain the base fee from the current block.
 	blockNum, err := c.client.BlockNumber(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to obtain current block number")
 	}
-
 	block, err := c.client.BlockByNumber(context.Background(), big.NewInt(int64(blockNum)))
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed to obtain block %d", blockNum))
 	}
-
-	if c.baseFeePerGas != nil {
-		return c.baseFeePerGas, nil
-	}
-
 	baseFee := eip1559.CalcBaseFee(&params.ChainConfig{
 		LondonBlock: big.NewInt(0),
 	}, block.Header())
+
 	return baseFee, nil
 }

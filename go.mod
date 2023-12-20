@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.0
-	github.com/attestantio/go-execution-client v0.8.6
+	github.com/attestantio/go-execution-client v0.8.10
 	github.com/ethereum/go-ethereum v1.13.5
 	github.com/miekg/dns v1.1.56
 	github.com/mitchellh/go-homedir v1.1.0
@@ -59,7 +59,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
-	github.com/holiman/uint256 v1.2.3 // indirect
+	github.com/holiman/uint256 v1.2.4 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/ipfs/go-cid v0.4.1 // indirect
 	github.com/karalabe/usb v0.0.2 // indirect
