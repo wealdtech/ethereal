@@ -1,4 +1,4 @@
-FROM golang:1.14-buster as builder
+FROM golang:1.14-bookworm as builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 
 RUN go build
 
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
