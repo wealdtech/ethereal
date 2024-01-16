@@ -151,11 +151,13 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		if verbose {
 			switch tx.Type() {
 			case types.LegacyTxType:
-				fmt.Println("Transaction type:\tLegacy")
-			case types.DynamicFeeTxType:
-				fmt.Println("Transaction type:\tDynamic")
+				fmt.Println("Transaction type:\tLegacy (type 0)")
 			case types.AccessListTxType:
-				fmt.Println("Transaction type:\tAccess list")
+				fmt.Println("Transaction type:\tAccess list (type 1)")
+			case types.DynamicFeeTxType:
+				fmt.Println("Transaction type:\tDynamic (type 2)")
+			case types.BlobTxType:
+				fmt.Println("Transaction type:\tBlob (type 3)")
 			default:
 				fmt.Println("Transaction type:\tUnknown")
 			}
@@ -170,6 +172,18 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			fmt.Printf("Gas price:\t\t%v\n", string2eth.WeiToString(tx.GasPrice(), true))
 		case types.DynamicFeeTxType:
 			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+		case types.BlobTxType:
+			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+			fmt.Printf("Max fee per blob gas:\t%v\n", string2eth.WeiToString(tx.BlobGasFeeCap(), true))
+			blobSidecars := tx.BlobTxSidecar()
+			if blobSidecars != nil {
+				for i := range blobSidecars.Blobs {
+					fmt.Printf("Blob %d:\n", i)
+					fmt.Printf("  Blob data: %#x\n", blobSidecars.Blobs[i])
+					fmt.Printf("  Blob commitment: %#x\n", blobSidecars.Commitments[i])
+					fmt.Printf("  Blob proofs: %#x\n", blobSidecars.Proofs[i])
+				}
+			}
 		}
 
 		var block *types.Block
