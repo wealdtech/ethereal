@@ -67,7 +67,7 @@ func New(ctx context.Context, url string) (*Conn, error) {
 	// Fetch chain ID to confirm connection.
 	chainID, err := client.ChainID(ctx)
 	if err != nil {
-		return nil, errors.New("unable to contact client")
+		return nil, errors.Wrap(err, "unable to contact client")
 	}
 
 	timeout := viper.GetDuration("timeout")

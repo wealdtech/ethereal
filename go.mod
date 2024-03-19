@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.0
-	github.com/attestantio/go-execution-client v0.8.10
+	github.com/attestantio/go-execution-client v0.9.0
 	github.com/ethereum/go-ethereum v1.13.10
 	github.com/miekg/dns v1.1.57
 	github.com/mitchellh/go-homedir v1.1.0

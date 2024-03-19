@@ -1,4 +1,4 @@
-// Copyright © 2017-2022 Weald Technology Trading
+// Copyright © 2017-2024 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -57,6 +57,7 @@ var (
 	beaconDepositContractAddress       string
 	beaconDepositEth2Network           string
 	beaconDepositOverrideGas           uint64
+	beaconDepositJson                  bool
 )
 
 type beaconDepositContract struct {
@@ -309,7 +310,11 @@ func sendOnline(ctx context.Context, deposits []*util.DepositInfo, contractDetai
 			cli.ErrCheck(graphCheck(ctx, contractDetails.subgraph, deposit.PublicKey, opts.Value.Uint64(), deposit.WithdrawalCredentials), quiet, "Existing deposit check")
 		}
 
-		outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Amount)), true), deposit.Account))
+		accountId := deposit.Account
+		if accountId == "" {
+			accountId = fmt.Sprintf("%#x", deposit.PublicKey)
+		}
+		outputIf(verbose, fmt.Sprintf("Creating %s deposit for %s", string2eth.WeiToString(big.NewInt(int64(deposit.Amount)), true), accountId))
 
 		_, err = c.NextNonce(context.Background(), fromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain next nonce")
@@ -319,8 +324,17 @@ func sendOnline(ctx context.Context, deposits []*util.DepositInfo, contractDetai
 		opts.GasFeeCap, opts.GasTipCap, err = c.CalculateFees()
 		cli.ErrCheck(err, quiet, "Failed to obtain fees")
 
+		opts.NoSend = beaconDepositJson
 		signedTx, err := contract.Deposit(opts, deposit.PublicKey, deposit.WithdrawalCredentials, deposit.Signature, depositDataRoot)
 		cli.ErrCheck(err, quiet, "Failed to send deposit")
+
+		if beaconDepositJson {
+			data, err := json.Marshal(signedTx)
+			cli.ErrCheck(err, quiet, "Failed to marshal transaction")
+			fmt.Fprintf(os.Stdout, "%s\n", string(data))
+
+			return
+		}
 
 		handleSubmittedTransaction(signedTx, log.Fields{
 			"group":                        "beacon",
@@ -464,5 +478,6 @@ func init() {
 	beaconDepositCmd.Flags().StringVar(&beaconDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
 	beaconDepositCmd.Flags().StringVar(&beaconDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/holesky/sepolia)")
 	beaconDepositCmd.Flags().Uint64Var(&beaconDepositOverrideGas, "override-gas", 0, "Override the gas limit for the deposit transaction")
+	beaconDepositCmd.Flags().BoolVar(&beaconDepositJson, "json", false, "Print the deposit transaction(s) as JSON rather than broadcast them")
 	addTransactionFlags(beaconDepositCmd, "the account from which to send the deposit")
 }
