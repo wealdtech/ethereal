@@ -191,6 +191,9 @@ func valueToString(client *ethclient.Client, argType abi.Type, index uint32, off
 		}
 		return "[" + strings.Join(res, ",") + "]", nil
 	case abi.AddressTy:
+		if len(data) < int(offset+index*32+32) {
+			return "?", nil
+		}
 		address := common.BytesToAddress(data[offset+index*32+12 : offset+index*32+32])
 		return ens.Format(client, address), nil
 	case abi.FixedBytesTy:

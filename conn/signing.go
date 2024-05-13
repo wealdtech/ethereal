@@ -53,7 +53,7 @@ func (c *Conn) SignTransaction(_ context.Context,
 		if signer != keyAddr {
 			return nil, errors.New("not authorized to sign this account")
 		}
-		signedTx, err = types.SignTx(tx, types.NewLondonSigner(c.ChainID()), key)
+		signedTx, err = types.SignTx(tx, types.NewCancunSigner(c.ChainID()), key)
 		if err != nil {
 			return nil, err
 		}

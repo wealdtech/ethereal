@@ -182,7 +182,7 @@ func connect(ctx context.Context) error {
 		return err
 	}
 
-	signer = types.NewLondonSigner(c.ChainID())
+	signer = types.NewCancunSigner(c.ChainID())
 
 	return nil
 }

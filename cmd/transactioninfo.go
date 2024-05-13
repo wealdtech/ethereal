@@ -1,4 +1,4 @@
-// Copyright © 2017-2022 Weald Technology Trading
+// Copyright © 2017-2024 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -121,8 +122,13 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			defer cancel()
 			receipt, err = c.Client().TransactionReceipt(ctx, txHash)
 			if receipt != nil {
+				fmt.Printf("Block:\t\t\t%d\n", receipt.BlockNumber)
 				if receipt.Status == 0 {
 					fmt.Printf("Result:\t\t\tFailed\n")
+					revertReason := obtainRevertReason(tx, receipt)
+					if revertReason != "" {
+						fmt.Printf("Reason:\t\t\t%s\n", revertReason)
+					}
 				} else {
 					fmt.Printf("Result:\t\t\tSucceeded\n")
 				}
@@ -255,6 +261,51 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			}
 		}
 	},
+}
+
+func obtainRevertReason(tx *types.Transaction, receipt *types.Receipt) string {
+	// To obtain the revert reason we rerun the transaction as a call.
+	from, err := types.Sender(types.NewCancunSigner(tx.ChainId()), tx)
+	if err != nil {
+		// Failed to obtain sender; not a transaction error.
+		return ""
+	}
+
+	msg := ethereum.CallMsg{
+		From:  from,
+		To:    tx.To(),
+		Gas:   tx.Gas(),
+		Value: tx.Value(),
+		Data:  tx.Data(),
+	}
+	switch tx.Type() {
+	case types.LegacyTxType:
+		msg.GasPrice = tx.GasPrice()
+	case types.AccessListTxType:
+		msg.AccessList = tx.AccessList()
+	case types.DynamicFeeTxType:
+		msg.GasFeeCap = tx.GasFeeCap()
+		msg.GasTipCap = tx.GasTipCap()
+		msg.AccessList = tx.AccessList()
+	case types.BlobTxType:
+		msg.GasFeeCap = tx.GasFeeCap()
+		msg.GasTipCap = tx.GasTipCap()
+		msg.AccessList = tx.AccessList()
+	}
+
+	_, err = c.Client().CallContract(context.Background(), msg, receipt.BlockNumber)
+	if err == nil {
+		// Did not fail.
+		return ""
+	}
+
+	revertReason := err.Error()
+	if !strings.Contains(revertReason, "reverted") {
+		// Did not revert.
+		return ""
+	}
+
+	return revertReason
 }
 
 func init() {
