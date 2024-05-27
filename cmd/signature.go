@@ -91,7 +91,9 @@ func generateDataHash() []byte {
 	outputIf(verbose, fmt.Sprintf("Data is %x", data))
 
 	// Hash if required.
-	if !signatureNoHash {
+	if signatureNoHash {
+		outputIf(verbose, "Data is not being hashed")
+	} else {
 		// Hash the data.
 		data = crypto.Keccak256(data)
 		outputIf(verbose, fmt.Sprintf("Hashed data is %x", data))
