@@ -32,7 +32,7 @@ func TestDepositInfoFromJSON(t *testing.T) {
 		},
 		{
 			name:  "DepositCLI2.3.0",
-			input: []byte(`[{"pubkey": "9649b60fa6275144fbcd3766402a519f9fb068f44bb86bfc6ab9dff24aa1be969a6eaeeb7a3121db020b90f7d1073009", "withdrawal_credentials": "009e97a05fc09c70628f47456b99538820275b6d17ad2c9cd71c1a2e3eb6106c", "amount": 32000000000, "signature": "88154f4abd6da76d975deeacfca19e697d65e5f18851361a2054e82585024fd0dd25da33c1b4fda6275d03778d7da4b91324ce5e59749a47206ef04a7312dbe27f7a4eb251a4344a353c21e563fe52283977232d7eb0381e1f71e92397288426", "deposit_message_root": "83e0e7905aaf8fbf663c9d81e26edd03886cfd222ec4b509f8690931432c6b24", "deposit_data_root": "63a396c39029cb49e7f64ab7ad7d256ef202fb1df092be5a6e36c234ada34e09", "fork_version": "00001020", "network_name": "goerli", "deposit_cli_version": "2.3.0"}]`),
+			input: []byte(`[{"pubkey": "9649b60fa6275144fbcd3766402a519f9fb068f44bb86bfc6ab9dff24aa1be969a6eaeeb7a3121db020b90f7d1073009", "withdrawal_credentials": "009e97a05fc09c70628f47456b99538820275b6d17ad2c9cd71c1a2e3eb6106c", "amount": 32000000000, "signature": "88154f4abd6da76d975deeacfca19e697d65e5f18851361a2054e82585024fd0dd25da33c1b4fda6275d03778d7da4b91324ce5e59749a47206ef04a7312dbe27f7a4eb251a4344a353c21e563fe52283977232d7eb0381e1f71e92397288426", "deposit_message_root": "83e0e7905aaf8fbf663c9d81e26edd03886cfd222ec4b509f8690931432c6b24", "deposit_data_root": "63a396c39029cb49e7f64ab7ad7d256ef202fb1df092be5a6e36c234ada34e09", "fork_version": "00001020", "network_name": "holesky", "deposit_cli_version": "2.3.0"}]`),
 		},
 	}
 

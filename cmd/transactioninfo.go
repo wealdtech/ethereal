@@ -25,7 +25,6 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
 	"github.com/wealdtech/ethereal/v2/util/txdata"
@@ -64,9 +63,7 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 			data, err := hex.DecodeString(strings.TrimPrefix(transactionStr, "0x"))
 			cli.ErrCheck(err, quiet, "Failed to decode data")
 			tx = &types.Transaction{}
-			stream := rlp.NewStream(bytes.NewReader(data), 0)
-			err = tx.DecodeRLP(stream)
-			cli.ErrCheck(err, quiet, "Failed to decode raw transaction")
+			cli.ErrCheck(tx.UnmarshalBinary(data), quiet, "Failed to decode raw transaction")
 			txHash = tx.Hash()
 			// Assume pending.
 			pending = true

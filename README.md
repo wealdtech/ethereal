@@ -81,7 +81,7 @@ Alternatively you can use a private key directly with the `--privatekey` option,
 
 Ethereal supports all main Ethereum networks  It auto-detects the network by querying the connected node for the network ID.  The connection should be geth-compatible, so either geth itself or parity with the `--geth` flag to enable geth compatibility mode.  The connection could be a local node or a network service such as Infura.
 
-Ethereal contains default connections via Infura to most major networks that can be defined by the `--network` argument.  Supported neworks are mainnet, goerli, sepolia and holesky.  Alternatively a connection to a custom node can be created using the `--connection` argument.  For example a local IPC node might use `--connection=/home/ethereum/.ethereum/geth.ipc` or `--connection=http://localhost:8545/`
+Ethereal contains default connections via Infura to most major networks that can be defined by the `--network` argument.  Supported neworks are mainnet, sepolia and holesky.  Alternatively a connection to a custom node can be created using the `--connection` argument.  For example a local IPC node might use `--connection=/home/ethereum/.ethereum/geth.ipc` or `--connection=http://localhost:8545/`
 
 **The Infura key for Ethereal is shared among all users.  If you are going to carry out a lot of queries of chain data please either use a local node or your own Infura account.**
 
@@ -828,7 +828,7 @@ Node commands focus on the state of the Ethereum nodes as specified in the conne
 `ethereal node sync` obtains the synchronisation state of the node as defined by the `connection` option.  For example:
 
 ```sh
-$ ethereal node sync --connection=/home/ethereum/.ethereum/goerli/geth.ipc
+$ ethereal node sync --connection=/home/ethereum/.ethereum/sepolia/geth.ipc
 Node is at block 1157120, syncing to block 1165105
 ```
 

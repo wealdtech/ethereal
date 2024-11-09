@@ -87,8 +87,6 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
 		// Nothing to add for mainnet.
-	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
-		keydir = filepath.Join(keydir, "goerli")
 	case chainID.Cmp(params.SepoliaChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "sepolia")
 	case chainID.Cmp(params.HoleskyChainConfig.ChainID) == 0:
@@ -108,8 +106,6 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
 		// Nothing to add for mainnet.
-	case chainID.Cmp(params.GoerliChainConfig.ChainID) == 0:
-		keydir = filepath.Join(keydir, "goerli")
 	case chainID.Cmp(params.SepoliaChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "sepolia")
 	case chainID.Cmp(params.HoleskyChainConfig.ChainID) == 0:

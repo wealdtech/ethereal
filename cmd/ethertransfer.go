@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -33,6 +32,7 @@ var (
 	etherTransferFromAddress string
 	etherTransferToAddress   string
 	etherTransferData        string
+	etherTransferRaw         bool
 )
 
 // etherTransferCmd represents the ether transfer command.
@@ -92,13 +92,18 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		})
 		cli.ErrCheck(err, quiet, "Failed to create transaction")
 
-		if offline {
+		switch {
+		case etherTransferRaw:
+			data, err := signedTx.MarshalBinary()
+			cli.ErrCheck(err, quiet, "failed to encode transaction")
+			fmt.Printf("%#x\n", data)
+		case offline:
 			if !quiet {
-				buf := new(bytes.Buffer)
-				cli.ErrCheck(signedTx.EncodeRLP(buf), quiet, "failed to encode transaction")
-				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+				data, err := signedTx.MarshalBinary()
+				cli.ErrCheck(err, quiet, "failed to encode transaction")
+				fmt.Printf("%#x\n", data)
 			}
-		} else {
+		default:
 			err = c.SendTransaction(context.Background(), signedTx)
 			cli.ErrCheck(err, quiet, "Failed to send transaction")
 			handleSubmittedTransaction(signedTx, log.Fields{
@@ -115,5 +120,6 @@ func init() {
 	etherTransferCmd.Flags().StringVar(&etherTransferFromAddress, "from", "", "Address from which to transfer Ether")
 	etherTransferCmd.Flags().StringVar(&etherTransferToAddress, "to", "", "Address to which to transfer Ether")
 	etherTransferCmd.Flags().StringVar(&etherTransferData, "data", "", "data to send with transaction (as a hex string)")
+	etherTransferCmd.Flags().BoolVar(&etherTransferRaw, "raw", false, "dump raw transaction (as a hex string)")
 	addTransactionFlags(etherTransferCmd, "the address from which to transfer Ether")
 }
