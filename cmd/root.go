@@ -195,11 +195,11 @@ func connectionAddress(_ context.Context) (string, error) {
 
 	switch strings.ToLower(viper.GetString("network")) {
 	case "mainnet":
-		return "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+		return "https://ethereum-rpc.publicnode.com", nil
 	case "sepolia":
-		return "https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+		return "https://ethereum-sepolia-rpc.publicnode.com", nil
 	case "holesky":
-		return "https://holesky.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+		return "https://ethereum-holesky-rpc.publicnode.com", nil
 	default:
 		return "", fmt.Errorf("unknown network %s", viper.GetString("network"))
 	}

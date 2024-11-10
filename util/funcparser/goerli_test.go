@@ -142,7 +142,7 @@ func TestGoerli(t *testing.T) {
 	}
 
 	// Connect to goerli
-	conn, err := ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	conn, err := ethclient.Dial("https://ethereum-sepolia-rpc.publicnode.com")
 	require.Nil(t, err, "failed to connect to goerli")
 
 	json, err := os.ReadFile("Tester.json")
