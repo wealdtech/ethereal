@@ -170,12 +170,12 @@ func connect(ctx context.Context) error {
 
 	if offline {
 		// Handle offline connection.
-		c, err = conn.New(ctx, "offline")
+		c, err = conn.New(ctx, "offline", debug)
 	} else {
 		var address string
 		address, err = connectionAddress(ctx)
 		if err == nil {
-			c, err = conn.New(ctx, address)
+			c, err = conn.New(ctx, address, debug)
 		}
 	}
 	if err != nil {
@@ -397,7 +397,7 @@ func generateTxOpts(sender common.Address) (*bind.TransactOpts, error) {
 	// Signer depends on what information is available to us.
 	var signer bind.SignerFn
 	if viper.GetString("passphrase") != "" {
-		wallet, account, err := cli.ObtainWalletAndAccount(c.ChainID(), sender)
+		wallet, account, err := cli.ObtainWalletAndAccount(c.ChainID(), sender, debug)
 		if err != nil {
 			return nil, err
 		}

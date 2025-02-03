@@ -15,6 +15,8 @@ package conn
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -29,6 +31,7 @@ import (
 func (c *Conn) SignTransaction(_ context.Context,
 	signer common.Address,
 	tx *types.Transaction,
+	debug bool,
 ) (
 	*types.Transaction,
 	error,
@@ -36,7 +39,10 @@ func (c *Conn) SignTransaction(_ context.Context,
 	var signedTx *types.Transaction
 	switch {
 	case viper.GetString("passphrase") != "":
-		wallet, account, err := cli.ObtainWalletAndAccount(c.ChainID(), signer)
+		if c.debug {
+			fmt.Fprintf(os.Stderr, "Signing for account %s with passphrase\n", signer.String())
+		}
+		wallet, account, err := cli.ObtainWalletAndAccount(c.ChainID(), signer, debug)
 		if err != nil {
 			return nil, err
 		}
@@ -45,6 +51,9 @@ func (c *Conn) SignTransaction(_ context.Context,
 			return nil, err
 		}
 	case viper.GetString("privatekey") != "":
+		if c.debug {
+			fmt.Fprintf(os.Stderr, "Signing for account %s with private key\n", signer.String())
+		}
 		key, err := crypto.HexToECDSA(strings.TrimPrefix(viper.GetString("privatekey"), "0x"))
 		if err != nil {
 			return nil, errors.Wrap(err, "invalid private key")

@@ -1,4 +1,4 @@
-// Copyright © 2019, 2022 Weald Technology Trading
+// Copyright © 2019 - 2025 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import (
 	"github.com/wealdtech/ethereal/v2/util"
 )
 
-func TestGoerli(t *testing.T) {
+func TestSepolia(t *testing.T) {
 	tests := []struct {
 		json   string
 		input  string
@@ -141,9 +141,9 @@ func TestGoerli(t *testing.T) {
 		},
 	}
 
-	// Connect to goerli
-	conn, err := ethclient.Dial("https://goerli.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
-	require.Nil(t, err, "failed to connect to goerli")
+	// Connect to sepolia.
+	conn, err := ethclient.Dial("https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6")
+	require.Nil(t, err, "failed to connect to sepolia")
 
 	json, err := os.ReadFile("Tester.json")
 	require.Nil(t, err, "failed to read Tester ABI")
@@ -151,7 +151,7 @@ func TestGoerli(t *testing.T) {
 	require.Nil(t, err, "failed to parse contract JSON")
 
 	fromAddress := common.HexToAddress("0x0000000000000000000000000000000000000000")
-	contractAddress := common.HexToAddress("0xf942De0Be16b8B30C07C4D0d3Fca725277306892")
+	contractAddress := common.HexToAddress("0x30706C450c39cAE416Ae01B024Fc1A4A184ea19E")
 	for i, test := range tests {
 		method, args, err := ParseCall(conn, contract, test.input)
 		require.Nil(t, err, fmt.Sprintf("failed to parse call at test %d", i))

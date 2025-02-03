@@ -33,6 +33,7 @@ import (
 // Conn is a connection to an Ethereum execution client.
 type Conn struct {
 	timeout time.Duration
+	debug   bool
 
 	rpcClient *rpc.Client
 	client    *ethclient.Client
@@ -48,10 +49,10 @@ type Conn struct {
 }
 
 // New creates a new execution client.
-func New(ctx context.Context, url string) (*Conn, error) {
+func New(ctx context.Context, url string, debug bool) (*Conn, error) {
 	if url == "offline" {
 		// We are offline...
-		return newOffline(ctx)
+		return newOffline(ctx, debug)
 	}
 
 	rpcClient, err := rpc.DialContext(ctx, url)
@@ -76,6 +77,7 @@ func New(ctx context.Context, url string) (*Conn, error) {
 	}
 
 	conn := &Conn{
+		debug:     debug,
 		timeout:   timeout,
 		rpcClient: rpcClient,
 		client:    client,
@@ -86,7 +88,7 @@ func New(ctx context.Context, url string) (*Conn, error) {
 	return conn, nil
 }
 
-func newOffline(_ context.Context) (*Conn, error) {
+func newOffline(_ context.Context, debug bool) (*Conn, error) {
 	var chainID *big.Int
 	if viper.GetString("network") == "" && viper.GetString("chainid") == "" {
 		return nil, errors.New("network or chainid is required when offline")
@@ -118,6 +120,7 @@ func newOffline(_ context.Context) (*Conn, error) {
 	}
 
 	return &Conn{
+		debug:   debug,
 		offline: true,
 		chainID: chainID,
 		nonces:  make(map[common.Address]uint64),

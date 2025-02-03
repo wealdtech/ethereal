@@ -24,9 +24,9 @@ import (
 )
 
 // PrivateKeyForAccount returns the private key for an account.
-func PrivateKeyForAccount(chainID *big.Int, address common.Address, passphrase string) (*ecdsa.PrivateKey, error) {
+func PrivateKeyForAccount(chainID *big.Int, address common.Address, passphrase string, debug bool) (*ecdsa.PrivateKey, error) {
 	var account *accounts.Account
-	_, account, err := cli.ObtainWalletAndAccount(chainID, address)
+	_, account, err := cli.ObtainWalletAndAccount(chainID, address, debug)
 	if err != nil {
 		return nil, fmt.Errorf("unable to find account %s", address.Hex())
 	}

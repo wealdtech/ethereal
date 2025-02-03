@@ -1,4 +1,4 @@
-// Copyright 2017 - 2023 Weald Technology Trading Limited
+// Copyright 2017 - 2025 Weald Technology Trading Limited
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,9 +58,9 @@ func ObtainWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) {
 }
 
 // ObtainWalletAndAccount obtains the wallet and account for an address.
-func ObtainWalletAndAccount(chainID *big.Int, address common.Address) (accounts.Wallet, *accounts.Account, error) {
+func ObtainWalletAndAccount(chainID *big.Int, address common.Address, debug bool) (accounts.Wallet, *accounts.Account, error) {
 	var account *accounts.Account
-	wallet, err := ObtainWallet(chainID, address)
+	wallet, err := ObtainWallet(chainID, address, debug)
 	if err == nil {
 		account, err = ObtainAccount(&wallet, &address, viper.GetString("passphrase"))
 	}
@@ -68,21 +68,21 @@ func ObtainWalletAndAccount(chainID *big.Int, address common.Address) (accounts.
 }
 
 // ObtainWallet fetches the wallet for a given address.
-func ObtainWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
-	wallet, err := obtainGethWallet(chainID, address)
+func ObtainWallet(chainID *big.Int, address common.Address, debug bool) (accounts.Wallet, error) {
+	wallet, err := obtainGethWallet(chainID, address, debug)
 	if err == nil {
 		return wallet, nil
 	}
 
-	wallet, err = obtainParityWallet(address)
+	wallet, err = obtainParityWallet(address, debug)
 	if err == nil {
 		return wallet, nil
 	}
 
-	return wallet, fmt.Errorf("failed to obtain wallet for %s", address.Hex())
+	return wallet, errors.Join(fmt.Errorf("failed to obtain wallet for %s", address.Hex()), err)
 }
 
-func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet, error) {
+func obtainGethWallet(chainID *big.Int, address common.Address, debug bool) (accounts.Wallet, error) {
 	keydir := DefaultDataDir()
 	switch {
 	case chainID.Cmp(params.MainnetChainConfig.ChainID) == 0:
@@ -93,11 +93,18 @@ func obtainGethWallet(chainID *big.Int, address common.Address) (accounts.Wallet
 		keydir = filepath.Join(keydir, "holesky")
 	}
 	keydir = filepath.Join(keydir, "keystore")
+	if debug {
+		fmt.Fprintf(os.Stderr, "Looking in %s for %s\n", address.String(), keydir)
+	}
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
 	accountManager := accounts.NewManager(nil, backends...)
 	defer accountManager.Close()
 	account := accounts.Account{Address: address}
 	wallet, err := accountManager.Find(account)
+	if debug && err == nil {
+		fmt.Fprintf(os.Stderr, "Obtained account\n")
+	}
+
 	return wallet, err
 }
 
@@ -121,7 +128,7 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 	return accountManager.Wallets(), nil
 }
 
-func obtainParityWallet(address common.Address) (accounts.Wallet, error) {
+func obtainParityWallet(address common.Address, debug bool) (accounts.Wallet, error) {
 	keydir, err := homedir.Dir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to find home directory")
@@ -135,6 +142,10 @@ func obtainParityWallet(address common.Address) (accounts.Wallet, error) {
 		keydir = filepath.Join(keydir, ".local/share/io.parity.ethereum/keys/ethereum")
 	default:
 		return nil, fmt.Errorf("unsupported operating system")
+	}
+
+	if debug {
+		fmt.Printf("Parity key directory is %s\n", keydir)
 	}
 
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}

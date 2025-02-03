@@ -34,7 +34,7 @@ func (c *Conn) CreateSignedTransaction(ctx context.Context,
 	}
 
 	// Sign the transaction.
-	signedTx, err := c.SignTransaction(ctx, txData.From, tx)
+	signedTx, err := c.SignTransaction(ctx, txData.From, tx, c.debug)
 	if err != nil {
 		err = fmt.Errorf("failed to sign transaction: %v", err)
 		return nil, err
