@@ -51,7 +51,7 @@ var blockInfoCmd = &cobra.Command{
     ethereal block info --block=0xfdf173c82f1e3e393166719ddc580c161b622fa504fa4b2ddd55f174af554fb7
 
 In quiet mode this will return 0 if the block exists, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		ctx := context.Background()
 		cli.Assert(blockStr != "", quiet, "--block is required")
 

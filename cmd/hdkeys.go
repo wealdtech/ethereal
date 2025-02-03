@@ -43,13 +43,13 @@ var hdKeysCmd = &cobra.Command{
     ethereal hd keys --seed="correct horse battery staple" --path="m/44'/60'/0'/0/0"
 
 In quiet mode this will return 0 if the keys were successfully obtained, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(hdKeysMnemonic != "", quiet, "seed is required")
 
 		components := strings.Split(hdKeysPath, "/")
 		cli.Assert(len(components) > 3, quiet, "Invalid path")
 		path := make([]uint32, len(components)-1)
-		for i := 0; i < len(components)-1; i++ {
+		for i := range len(components) - 1 {
 			if strings.HasSuffix(components[i+1], "'") {
 				unhardened, err := strconv.ParseInt(components[i+1][:len(components[i+1])-1], 10, 0)
 				cli.ErrCheck(err, quiet, fmt.Sprintf("Invalid path component %v", components[i+1]))

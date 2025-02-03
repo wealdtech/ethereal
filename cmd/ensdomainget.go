@@ -33,7 +33,7 @@ var ensDomainGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the address has a reverse resolution, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(ensDomainGetAddress != "", quiet, "--address is required")
 		address, err := c.Resolve(ensDomainGetAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain address for lookup")

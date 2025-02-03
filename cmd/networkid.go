@@ -30,7 +30,7 @@ var networkIDCmd = &cobra.Command{
     ethereal network id
 
 In quiet mode this will return 0 if the network ID is obtained, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(!offline, quiet, "Cannot obtain network ID when offline")
 
 		ctx, cancel := localContext()

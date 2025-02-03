@@ -31,7 +31,7 @@ var accountListCmd = &cobra.Command{
     ethereal account list
 
 In quiet mode this will return 0 if any accounts are found, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		wallets, err := cli.ObtainWallets(c.ChainID(), debug)
 		foundAccounts := false
 		if err == nil {

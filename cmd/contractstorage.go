@@ -34,7 +34,7 @@ var contractStorageCmd = &cobra.Command{
    ethereal contract storage --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --key=0x01
 
 In quiet mode this will return 0 if the storage contains a non-zero value, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(contractStr != "", quiet, "--contract is required")
 		contractAddress, err := c.Resolve(contractStr)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve contract address %s", contractStr))

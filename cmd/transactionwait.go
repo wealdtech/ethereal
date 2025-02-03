@@ -34,7 +34,7 @@ var transactionWaitCmd = &cobra.Command{
     ethereal transaction wait --transaction=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --limit=30s
 
 In quiet mode this will return 0 if the transaction is mined before the time limit is reached, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 

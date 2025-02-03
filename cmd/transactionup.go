@@ -41,7 +41,7 @@ var transactionUpCmd = &cobra.Command{
 If no gas price is supplied then it will default to just over 10% higher than the current gas price for the transaction.
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(transactionStr != "", quiet, "--transaction is required")
 		txHash := common.HexToHash(transactionStr)
 		ctx, cancel := localContext()

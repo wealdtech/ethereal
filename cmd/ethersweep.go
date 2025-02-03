@@ -44,7 +44,7 @@ var etherSweepCmd = &cobra.Command{
     etherereal ether sweep --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d --passphrase=secret
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(etherSweepFromAddress != "", quiet, "--from is required")
 		fromAddress, err := c.Resolve(etherSweepFromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain from address for sweep")

@@ -48,7 +48,7 @@ var contractSendCmd = &cobra.Command{
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Aliases: []string{"transaction", "transmit"},
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(contractSendFromAddress != "", quiet, "--from is required")
 		fromAddress, err := c.Resolve(contractSendFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractSendFromAddress))

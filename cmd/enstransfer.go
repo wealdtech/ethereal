@@ -39,7 +39,7 @@ var ensTransferCmd = &cobra.Command{
 The keystore for the address must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 		cli.Assert(ensTransferNewRegistrantStr != "", quiet, "--newregistrant is required")

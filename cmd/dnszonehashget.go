@@ -33,7 +33,7 @@ var dnsZonehashGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the name has a valid zone hash, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")

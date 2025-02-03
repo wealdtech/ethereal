@@ -36,7 +36,7 @@ var dnsGetCmd = &cobra.Command{
     ethereal dns get --domain=wealdtech.eth --name=www --resource=A
 
 In quiet mode this will return 0 if the resource exists, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")

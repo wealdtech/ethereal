@@ -39,7 +39,7 @@ var accountKeysCmd = &cobra.Command{
 Note that this will only work for filesystem-based keystores.  Hardware wallets never reveal their keys so these cannot be obtained.
 
 In quiet mode this will return 0 if the account was successfully decoded, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		address := viper.GetString("address")
 		passphrase := viper.GetString("passphrase")
 		privateKey := viper.GetString("privatekey")

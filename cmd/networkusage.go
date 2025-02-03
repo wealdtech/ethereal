@@ -33,7 +33,7 @@ var networkUsageCmd = &cobra.Command{
     ethereal network usage
 
 In quiet mode this will return 0 if the network is processing transactions, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		gas := uint64(0)
 		gasLimit := uint64(0)
 		var blockNumber *big.Int

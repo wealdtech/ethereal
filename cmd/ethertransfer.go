@@ -45,7 +45,7 @@ var etherTransferCmd = &cobra.Command{
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Aliases: []string{"send"},
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(etherTransferFromAddress != "", quiet, "--from is required")
 		fromAddress, err := c.Resolve(etherTransferFromAddress)
 		cli.ErrCheck(err, quiet, "Failed to obtain from address for transfer")

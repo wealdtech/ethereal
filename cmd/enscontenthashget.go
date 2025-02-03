@@ -34,7 +34,7 @@ var ensContenthashGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the name has a valid content hash, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		// Obtain resolver for the domain.

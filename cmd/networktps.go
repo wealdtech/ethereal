@@ -34,7 +34,7 @@ var networkTPSCmd = &cobra.Command{
     ethereal network tps
 
 In quiet mode this will return 0 if the network is processing transactions, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		now := time.Now()
 		lastBlockTime := now
 		lastBlockTransactions := 0

@@ -32,7 +32,7 @@ var tokenInfoCmd = &cobra.Command{
     ethereal token info --token=omg
 
 In quiet mode this will return 0 if the token exists, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(tokenStr != "", quiet, "--token is required")
 		token, err := tokenContract(tokenStr)
 		cli.ErrCheck(err, quiet, "Failed to obtain token contract")

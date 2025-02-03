@@ -30,7 +30,7 @@ var nodeSyncCmd = &cobra.Command{
     ethereal node sync
 
 In quiet mode this will return 0 if the node is synchronised, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		ctx, cancel := localContext()
 		defer cancel()
 

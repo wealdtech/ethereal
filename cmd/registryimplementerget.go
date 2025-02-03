@@ -33,7 +33,7 @@ var registryImplementerGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the implementer has an address, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(registryImplementerInterface != "", quiet, "--interface is required")
 
 		address, err := c.Resolve(registryImplementerAddressStr)

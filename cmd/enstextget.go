@@ -32,7 +32,7 @@ var ensTextGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the key has text, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		// Obtain resolver for the domain.

@@ -30,7 +30,7 @@ var registryManagerClearCmd = &cobra.Command{
     ethereal registry manager clear --address=0x1234...5678
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		address, err := c.Resolve(registryManagerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 

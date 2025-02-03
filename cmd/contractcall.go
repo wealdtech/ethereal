@@ -42,7 +42,7 @@ var contractCallCmd = &cobra.Command{
    ethereal contract call --contract=0xd26114cd6EE289AccF82350c8d8487fedB8A0C07 --signature="balanceOf(address)" --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --call="balanceOf(@wealdtech.eth)"
 
 In quiet mode this will return 0 if the contract is successfully called, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(contractCallFromAddress != "", quiet, "--from is required")
 		fromAddress, err := c.Resolve(contractCallFromAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))

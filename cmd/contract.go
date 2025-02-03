@@ -190,7 +190,7 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.SliceTy:
 		res := make([]string, 0)
 		arrayVal := reflect.ValueOf(val)
-		for i := 0; i < arrayVal.Len(); i++ {
+		for i := range arrayVal.Len() {
 			elemRes, err := contractValueToString(*argType.Elem, arrayVal.Index(i).Interface())
 			if err != nil {
 				return "", err
@@ -201,7 +201,7 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.ArrayTy:
 		res := make([]string, 0)
 		arrayVal := reflect.ValueOf(val)
-		for i := 0; i < arrayVal.Len(); i++ {
+		for i := range arrayVal.Len() {
 			elemRes, err := contractValueToString(*argType.Elem, arrayVal.Index(i).Interface())
 			if err != nil {
 				return "", err
@@ -215,7 +215,7 @@ func contractValueToString(argType abi.Type, val interface{}) (string, error) {
 	case abi.FixedBytesTy:
 		arrayVal := reflect.ValueOf(val)
 		castVal := make([]byte, arrayVal.Len())
-		for i := 0; i < arrayVal.Len(); i++ {
+		for i := range arrayVal.Len() {
 			castVal[i] = byte(arrayVal.Index(i).Uint())
 		}
 		return fmt.Sprintf("0x%s", hex.EncodeToString(castVal)), nil

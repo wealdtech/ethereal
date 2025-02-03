@@ -199,7 +199,7 @@ func obtainLedgerWallets(_ bool) ([]accounts.Wallet, error) {
 			continue
 		}
 		path := accounts.LegacyLedgerBaseDerivationPath
-		for i := 0; i < usbWallets; i++ {
+		for i := range usbWallets {
 			path[3] = uint32(i)
 			// nolint:errcheck
 			wallet.Derive(path, true)

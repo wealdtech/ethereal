@@ -34,7 +34,7 @@ var blockOverviewCmd = &cobra.Command{
     ethereal block overview
 
 In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		var blockNumber *big.Int
 		var lastBlockTime *time.Time
 		if verbose {

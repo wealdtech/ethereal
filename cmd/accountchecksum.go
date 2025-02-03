@@ -38,7 +38,7 @@ var accountChecksumCmd = &cobra.Command{
     ethereal account checksum --address=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --check
 
 In quiet mode this will return 0 if the provided address is correctly checksummed, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(accountChecksumAddress != "", quiet, "--address is required")
 		// We don't use the ususal resolution process as we want to ensure that the address is well-formed.
 		if !strings.HasPrefix(accountChecksumAddress, "0x") {

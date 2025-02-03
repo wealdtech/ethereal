@@ -39,7 +39,7 @@ var signatureVerifyCmd = &cobra.Command{
     ethereal data verify --data="false,2,0x5FfC014343cd971B7eb70732021E26C35B744cc4" --types="bool,uint256,address" --signature=0xcefd09e935b867a231086f41d98644655081a6e4e87c43e05fbbf621dfda69ea305c64fcf73907e09ce242c8ab8bcb953c4b45dd78262d8e34b22a8e4309734f00 --signer=0x0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the signature is valid, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(signatureDataStr != "", quiet, "--data is required")
 		cli.Assert(signatureVerifySigner != "", quiet, "--signer is required")
 

@@ -42,7 +42,7 @@ Multiple domains can be released with a single command (note this still creates 
 The keystore for the domain(s) owner must be local (i.e. listed with 'get accounts list') and unlockable with the supplied passphrase.
 
 This will return an exit status of 0 if the transactions are successfully submitted (and mined if --wait is supplied), 1 if the transactions are not successfully submitted, and 2 if the transactions are successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(!offline, quiet, "Offline mode not supported at current with this command")
 		cli.Assert(ensDomain != "" || ensReleaseDomains != "", quiet, "--domain or --domains is required")
 

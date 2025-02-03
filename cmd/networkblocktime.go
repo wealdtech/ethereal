@@ -41,7 +41,7 @@ Or to find the blocktime over a given time period (in this case the last hour):
     ethereal network blocktime --time=1h
 
 In quiet mode this will return 0 if the blocks exist, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		// Fetch current block.
 		var lastBlockTime time.Time
 		var lastBlockNumber *big.Int

@@ -32,7 +32,7 @@ var ensResolverGetCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the name has a resolver, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		registry, err := ens.NewRegistry(c.Client())

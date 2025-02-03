@@ -38,7 +38,7 @@ var ensInfoCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the domain is owned, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(ensDomain != "", quiet, "--domain is required")
 
 		ensDomain, err := ens.NormaliseDomain(ensDomain)

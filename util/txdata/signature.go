@@ -182,7 +182,7 @@ func valueToString(client *ethclient.Client, argType abi.Type, index uint32, off
 		res := make([]string, 0)
 		start := binary.BigEndian.Uint32(data[offset+index*32+28 : offset+index*32+32])
 		entries := binary.BigEndian.Uint32(data[offset+start+28 : offset+start+32])
-		for i := uint32(0); i < entries; i++ {
+		for i := range entries {
 			elemRes, err := valueToString(client, *argType.Elem, 1+start/32+i, offset, data)
 			if err != nil {
 				return "", err

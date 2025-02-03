@@ -51,7 +51,7 @@ var transactionSendCmd = &cobra.Command{
     ethereal transaction send --from=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --to=0x2ab7150Bba7D5F181b3aF5623e52b15bB1054845	 --amount=1ether --passphrase=secret --data=0x12345
 
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		if transactionSendRaw != "" {
 			// Send raw transactions.
 			signedTxs := make([]*types.Transaction, 0)
@@ -154,7 +154,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		data, err := hex.DecodeString(transactionSendData)
 		cli.ErrCheck(err, quiet, "Failed to parse data")
 
-		for i := 0; i < transactionSendRepeat; i++ {
+		for range transactionSendRepeat {
 			// Create and sign the transaction.
 			signedTx, err := c.CreateSignedTransaction(context.Background(), &conn.TransactionData{
 				From:     fromAddress,

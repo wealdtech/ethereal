@@ -151,6 +151,11 @@ func StrToBytes(inputType *abi.Type, input string) (interface{}, error) {
 	}
 	slice := make([]byte, inputType.Size)
 	copy(slice[inputType.Size-len(decoded):inputType.Size], decoded)
+	// // Old code
+	// hdr := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+	// // New code
+	// data := unsafe.Slice((*byte)(unsafe.Pointer(&slice[0])), len(slice))
+	//nolint:staticcheck
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
 	switch inputType.Size {
 	case 0:
@@ -218,5 +223,6 @@ func StrToBytes(inputType *abi.Type, input string) (interface{}, error) {
 	case 32:
 		return *(*[32]uint8)(unsafe.Pointer(hdr.Data)), nil
 	}
+
 	return nil, fmt.Errorf("invalid byte size %d", inputType.Size)
 }

@@ -35,7 +35,7 @@ Note that this will always return the managing address if possible.  This means 
 
 In quiet mode this will return 0 if the manager was obtained without error, otherwise 1.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		address, err := c.Resolve(registryManagerAddressStr)
 		cli.ErrCheck(err, quiet, "failed to resolve address")
 

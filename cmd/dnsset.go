@@ -45,7 +45,7 @@ var dnsSetCmd = &cobra.Command{
     ethereal dns set --domain=wealdtech.eth --ttl=3600 --resource=A --name=www --record=193.62.81.1 --passphrase=secret
 
 In This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(dnsDomain != "", quiet, "--domain is required")
 		if !strings.HasSuffix(dnsDomain, ".") {
 			dnsDomain += "."

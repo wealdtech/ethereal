@@ -46,7 +46,7 @@ The per-block expected inclusion price is based on the average of the gas price 
 If the optional --gas parameter is supplied the price will be based on a transaction with the given supplied gas rather than the 9th decile transactions.  This should provide a more accurate indication of gas price for transactions that require the supplied gas.
 
 In quiet mode this will return 0 if it can calculate a gas price, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(gasPriceBlocks > 0, quiet, "--blocks must be greater than 0")
 
 		lowestGasPrice := big.NewInt(0)

@@ -61,7 +61,7 @@ provided below:
     "\\x19Ethereum Signed Message:\n11Hello world"
   - the message is signed with the provided account or private key
 `,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(signatureDataStr != "", quiet, "--data is required")
 
 		dataHash := generateDataHash()

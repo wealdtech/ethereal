@@ -38,7 +38,7 @@ var tokenAllowanceCmd = &cobra.Command{
     ethereal token allowance --token=omg --holder=0x5FfC014343cd971B7eb70732021E26C35B744cc4 --spender=0x52f1A3027d3aA514F17E454C93ae1F79b3B12d5d
 
 In quiet mode this will return 0 if the allowance is greater than 0, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(tokenAllowanceHolderAddress != "", quiet, "--holder is required")
 		holderAddress, err := c.Resolve(tokenAllowanceHolderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenAllowanceHolderAddress))

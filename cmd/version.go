@@ -29,8 +29,8 @@ var versionCmd = &cobra.Command{
 	Long: `Obtain the version of Ethereal.  For example:
 
     ethereal version.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("2.9.2")
+	Run: func(_ *cobra.Command, _ []string) {
+		fmt.Println("2.10.0")
 		if viper.GetBool("verbose") {
 			buildInfo, ok := dbg.ReadBuildInfo()
 			if ok {

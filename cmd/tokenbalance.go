@@ -37,7 +37,7 @@ var tokenBalanceCmd = &cobra.Command{
     ethereal token balance --token=omg --holder=0x5FfC014343cd971B7eb70732021E26C35B744cc4
 
 In quiet mode this will return 0 if the balance is greater than 0, otherwise 1.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		cli.Assert(tokenBalanceHolderAddress != "", quiet, "--holder is required")
 		address, err := c.Resolve(tokenBalanceHolderAddress)
 		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve holder address %s", tokenBalanceHolderAddress))
