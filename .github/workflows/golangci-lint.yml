@@ -1,13 +1,13 @@
 name: 'golangci-lint'
 on:
-  pull_request:
   push:
     branches:
-    - 'master'
-  workflow_dispatch:
+      - 'master'
+  pull_request:
 
 permissions:
   contents: 'read'
+  pull-requests: 'read'
 
 jobs:
   golangci:
