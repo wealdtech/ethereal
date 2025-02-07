@@ -67,12 +67,10 @@ func (c *Conn) CreateTransaction(ctx context.Context,
 	}
 
 	if txData.GasLimit == nil {
-		// Calculate gas limit for the transaction
-		gasLimit, err := c.EstimateGas(ctx, txData)
-		if err != nil {
+		// Set the gas limit (and perhaps the access list).
+		if err := c.PrepareTx(ctx, txData); err != nil {
 			return nil, err
 		}
-		txData.GasLimit = &gasLimit
 	}
 
 	// Calculate fees.
@@ -91,14 +89,15 @@ func (c *Conn) CreateTransaction(ctx context.Context,
 
 	// Create the transaction
 	return types.NewTx(&types.DynamicFeeTx{
-		ChainID:   c.ChainID(),
-		Nonce:     uint64(*txData.Nonce),
-		GasFeeCap: maxFeePerGas,
-		GasTipCap: maxPriorityFeePerGas,
-		Gas:       *txData.GasLimit,
-		To:        txData.To,
-		Value:     txData.Value,
-		Data:      txData.Data,
+		ChainID:    c.ChainID(),
+		Nonce:      uint64(*txData.Nonce),
+		GasFeeCap:  maxFeePerGas,
+		GasTipCap:  maxPriorityFeePerGas,
+		Gas:        *txData.GasLimit,
+		To:         txData.To,
+		Value:      txData.Value,
+		Data:       txData.Data,
+		AccessList: txData.AccessList,
 	}), nil
 }
 

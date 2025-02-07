@@ -20,8 +20,11 @@ import (
 	"strings"
 
 	ethereum "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 	"github.com/wealdtech/ethereal/v2/cli"
+	"github.com/wealdtech/ethereal/v2/util"
 	"github.com/wealdtech/ethereal/v2/util/funcparser"
 )
 
@@ -43,9 +46,11 @@ var contractCallCmd = &cobra.Command{
 
 In quiet mode this will return 0 if the contract is successfully called, otherwise 1.`,
 	Run: func(_ *cobra.Command, _ []string) {
-		cli.Assert(contractCallFromAddress != "", quiet, "--from is required")
-		fromAddress, err := c.Resolve(contractCallFromAddress)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))
+		fromAddress := common.Address{}
+		if contractCallFromAddress != "" {
+			fromAddress, err = c.Resolve(contractCallFromAddress)
+			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", contractCallFromAddress))
+		}
 
 		cli.Assert(contractStr != "", quiet, "--contract is required")
 		contractAddress, err := c.Resolve(contractStr)
@@ -69,16 +74,19 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 			os.Exit(exitSuccess)
 		}
 
-		// We need to have 'call'.
-		cli.Assert(contractCallCall != "", quiet, "--call is required")
+		var data []byte
+		var method *abi.Method
+		var contract *util.Contract
+		if contractCallCall != "" {
+			contract = parseContract("")
+			var methodArgs []any
+			method, methodArgs, err = funcparser.ParseCall(c.Client(), contract, contractCallCall)
+			cli.ErrCheck(err, quiet, "Failed to parse call")
+			data, err = contract.Abi.Pack(method.Name, methodArgs...)
+			cli.ErrCheck(err, quiet, "Failed to convert arguments")
+		}
 
-		contract := parseContract("")
-		method, methodArgs, err := funcparser.ParseCall(c.Client(), contract, contractCallCall)
-		cli.ErrCheck(err, quiet, "Failed to parse call")
-		data, err := contract.Abi.Pack(method.Name, methodArgs...)
-		cli.ErrCheck(err, quiet, "Failed to convert arguments")
-
-		outputIf(verbose, fmt.Sprintf("Data is %x", data))
+		outputIf(verbose && data != nil, fmt.Sprintf("Data is %x", data))
 
 		// Make the call.
 		msg := ethereum.CallMsg{
@@ -89,16 +97,23 @@ In quiet mode this will return 0 if the contract is successfully called, otherwi
 		ctx, cancel := localContext()
 		defer cancel()
 		result, err := c.Client().CallContract(ctx, msg, nil)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to call %s", method.Name))
+		cli.ErrCheck(err, quiet, "call failed")
+
+		if quiet {
+			os.Exit(0)
+		}
+
+		if method == nil {
+			// No contract, just output the raw hex.
+			fmt.Fprintf(os.Stdout, "%x\n", result)
+			os.Exit(exitSuccess)
+		}
+
 		if len(method.Outputs) == 0 {
 			// No output.
 			os.Exit(exitSuccess)
 		}
 		cli.Assert(len(result) > 0, quiet, fmt.Sprintf("Call to %s did not return expected data", method.Name))
-
-		if quiet {
-			os.Exit(0)
-		}
 
 		outputIf(verbose, fmt.Sprintf("Result is %x", result))
 

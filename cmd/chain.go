@@ -1,4 +1,4 @@
-// Copyright © 2022 Weald Technology Trading
+// Copyright © 2023 Weald Technology Trading.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,29 +11,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package conn
+package cmd
 
 import (
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/spf13/cobra"
 )
 
-// TransactionData contains data to build a transaction.
-type TransactionData struct {
-	From common.Address
-	To   *common.Address
+// chainCmd represents the chain command.
+var chainCmd = &cobra.Command{
+	Use:   "chain",
+	Short: "Chain information",
+	Long:  `Obtain information about the execution chain`,
+}
 
-	GasLimit *uint64
+func init() {
+	RootCmd.AddCommand(chainCmd)
+}
 
-	Value *big.Int
-	Data  []byte
-
-	Nonce *int64
-
-	MaxFeePerGas         *big.Int
-	MaxPriorityFeePerGas *big.Int
-
-	AccessList types.AccessList
+func chainFlags(_ *cobra.Command) {
 }

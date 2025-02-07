@@ -1,4 +1,4 @@
-// Copyright © 2017-2023 Weald Technology Trading.
+// Copyright © 2017-2025 Weald Technology Trading.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -98,6 +98,9 @@ func outputBlockInfoJSON(_ context.Context, block *spec.Block) string {
 	case spec.ForkCancun:
 		res, err = json.Marshal(block.Cancun)
 		cli.ErrCheck(err, quiet, "failed to generate cancun block info")
+	case spec.ForkPrague:
+		res, err = json.Marshal(block.Prague)
+		cli.ErrCheck(err, quiet, "failed to generate prague block info")
 	default:
 		res = []byte(fmt.Sprintf("Unhandled block fork %v", block.Fork))
 	}
@@ -122,6 +125,9 @@ func outputBlockInfoText(ctx context.Context, block *spec.Block) string {
 	case spec.ForkCancun:
 		res, err = outputCancunText(ctx, block.Cancun)
 		cli.ErrCheck(err, quiet, "failed to generate cancun block info")
+	case spec.ForkPrague:
+		res, err = outputPragueText(ctx, block.Prague)
+		cli.ErrCheck(err, quiet, "failed to generate prague block info")
 	default:
 		res = fmt.Sprintf("Unhandled block fork %v", block.Fork)
 	}
@@ -191,6 +197,28 @@ func outputShanghaiText(_ context.Context, block *spec.ShanghaiBlock) (string, e
 }
 
 func outputCancunText(_ context.Context, block *spec.CancunBlock) (string, error) {
+	builder := new(strings.Builder)
+	outputNumber(builder, block.Number)
+	outputHash(builder, block.Hash)
+	outputTimestamp(builder, block.Timestamp)
+	outputBaseFee(builder, block.BaseFeePerGas)
+	outputGas(builder, block.GasUsed, block.GasLimit)
+	if verbose {
+		outputCoinbase(builder, block.Miner)
+		outputExtraData(builder, block.ExtraData)
+		if block.Difficulty != 0 {
+			outputDifficulty(builder, block.Difficulty)
+			outputTotalDifficulty(builder, block.TotalDifficulty)
+		}
+	}
+	outputParentBeaconBlockRoot(builder, block.ParentBeaconBlockRoot)
+	outputTransactions(builder, block.Transactions, verbose)
+	outputWithdrawals(builder, block.Withdrawals, verbose)
+
+	return builder.String(), nil
+}
+
+func outputPragueText(_ context.Context, block *spec.PragueBlock) (string, error) {
 	builder := new(strings.Builder)
 	outputNumber(builder, block.Number)
 	outputHash(builder, block.Hash)

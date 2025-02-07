@@ -24,6 +24,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/pkg/errors"
@@ -35,8 +36,9 @@ type Conn struct {
 	timeout time.Duration
 	debug   bool
 
-	rpcClient *rpc.Client
-	client    *ethclient.Client
+	rpcClient  *rpc.Client
+	client     *ethclient.Client
+	gethClient *gethclient.Client
 	// config    *params.ChainConfig
 
 	// nonces tracks per-address nonces.
@@ -76,13 +78,19 @@ func New(ctx context.Context, url string, debug bool) (*Conn, error) {
 		return nil, errors.New("timeout not specified")
 	}
 
+	gethClient := gethclient.New(rpcClient)
+	if client == nil {
+		return nil, errors.New("failed to create geth client")
+	}
+
 	conn := &Conn{
-		debug:     debug,
-		timeout:   timeout,
-		rpcClient: rpcClient,
-		client:    client,
-		chainID:   chainID,
-		nonces:    make(map[common.Address]uint64),
+		debug:      debug,
+		timeout:    timeout,
+		rpcClient:  rpcClient,
+		client:     client,
+		gethClient: gethClient,
+		chainID:    chainID,
+		nonces:     make(map[common.Address]uint64),
 	}
 
 	return conn, nil

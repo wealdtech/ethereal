@@ -1,4 +1,4 @@
-// Copyright © 2017-2019 Weald Technology Trading
+// Copyright © 2025 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,22 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package conn
 
 import (
-	"github.com/spf13/cobra"
+	"encoding/hex"
+	"strings"
 )
 
-// beaconCmd represents the beacon command.
-var beaconCmd = &cobra.Command{
-	Use:   "beacon",
-	Short: "Manage beacon chain deposits",
-	Long:  `Manage beacon chain deposits.`,
-}
+// ConsensusPubkey converts a string to a public key.
+func (c *Conn) ConsensusPubkey(input string) ([48]byte, error) {
+	res := [48]byte{}
+	bytes, err := hex.DecodeString(strings.TrimPrefix(input, "0x"))
+	if err != nil {
+		return res, err
+	}
+	copy(res[:], bytes)
 
-func init() {
-	RootCmd.AddCommand(beaconCmd)
-}
-
-func beaconFlags(_ *cobra.Command) {
+	return res, nil
 }
