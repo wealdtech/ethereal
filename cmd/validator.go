@@ -106,27 +106,6 @@ func getValidatorSystemContractFee(ctx context.Context, address common.Address) 
 	return fee, nil
 }
 
-// TODO remove.
-//func getConsolidationFee(ctx context.Context) (*big.Int, error) {
-//	toAddress := common.HexToAddress(systemConsolidationContractAddress)
-//
-//	msg := ethereum.CallMsg{
-//		To: &toAddress,
-//	}
-//	result, err := c.Client().CallContract(ctx, msg, nil)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	fee := new(big.Int).SetBytes(result)
-//
-//	if debug {
-//		fmt.Fprintf(os.Stderr, "Fee is %s\n", string2eth.WeiToString(fee, true))
-//	}
-//
-//	return fee, nil
-//}
-
 func generateWithdrawalRequest(ctx context.Context,
 	fromAddress common.Address,
 	pubkey [48]byte,
@@ -176,24 +155,3 @@ func generateWithdrawalRequest(ctx context.Context,
 
 	return signedTx, nil
 }
-
-// TODO remove.
-//func getWithdrawalFee(ctx context.Context) (*big.Int, error) {
-//	toAddress := common.HexToAddress(systemWithdrawalContractAddress)
-//
-//	msg := ethereum.CallMsg{
-//		To: &toAddress,
-//	}
-//	result, err := c.Client().CallContract(ctx, msg, nil)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	fee := new(big.Int).SetBytes(result)
-//
-//	if debug {
-//		fmt.Fprintf(os.Stderr, "Fee is %s\n", string2eth.WeiToString(fee, true))
-//	}
-//
-//	return fee, nil
-//}

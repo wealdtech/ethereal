@@ -22,6 +22,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/cli"
 	string2eth "github.com/wealdtech/go-string2eth"
 )
@@ -46,9 +47,8 @@ In quiet mode this will return 0 if the exit transaction is accepted, otherwise 
 
 		cli.Assert(!offline, quiet, "This command needs access to chain data, so cannot run offline")
 
-		cli.Assert(validatorExitFromAddress != "", quiet, "--from is required")
-		fromAddress, err := c.Resolve(validatorExitFromAddress)
-		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to resolve from address %s", validatorExitFromAddress))
+		fromAddress, err := c.Address(validatorExitFromAddress, viper.GetString("privatekey"))
+		cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain from address"))
 
 		cli.Assert(validatorExitValidator != "", quiet, "validator cannot be empty")
 		pubkey, err := c.ConsensusPubkey(validatorExitValidator)

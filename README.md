@@ -1032,7 +1032,7 @@ Note that `ethereal` obtains the information about the amount of Ether to send w
 $ ethereal validator withdraw --withdrawal-amount=0.1eth --validator=0x910d6c844de13cdd767db2e6a7d9a11811171203d2845c2568d3e17bd443a24d188da5406cb4e1693f7ef324bc8e2307 --from=0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5
 ```
 
-The `from` address must match the address in the withdrawal credentials of the supplied validator.
+The `from` address must match the address in the withdrawal credentials of the supplied validator.  Alternatively, the private key for this address can be supplied in `privatekey`.
 
 Note that withdrawing funds from a validator is a charged operation.  The maximum fee accepted for this operation can be set with `--max-fee`.
 
@@ -1044,7 +1044,7 @@ Note that withdrawing funds from a validator is a charged operation.  The maximu
 $ ethereal validator exit --validator=0x910d6c844de13cdd767db2e6a7d9a11811171203d2845c2568d3e17bd443a24d188da5406cb4e1693f7ef324bc8e2307 --from=0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5
 ```
 
-The `from` address must match the address in the withdrawal credentials of the supplied validator.
+The `from` address must match the address in the withdrawal credentials of the supplied validator.  Alternatively, the private key for this address can be supplied in `privatekey`.
 
 Note that exiting a validator is a charged operation.  The maximum fee accepted for this operation can be set with `--max-fee`.
 
@@ -1056,7 +1056,7 @@ Note that exiting a validator is a charged operation.  The maximum fee accepted 
 $ ethereal validator compound --validator=0x910d6c844de13cdd767db2e6a7d9a11811171203d2845c2568d3e17bd443a24d188da5406cb4e1693f7ef324bc8e2307 --from=0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5
 ```
 
-The `from` address must match the address in the withdrawal credentials of the supplied validator.
+The `from` address must match the address in the withdrawal credentials of the supplied validator.  Alternatively, the private key for this address can be supplied in `privatekey`.
 
 Note that changing a validator into a compounding validator is a charged operation.  The maximum fee accepted for this operation can be set with `--max-fee`.
 
@@ -1068,7 +1068,7 @@ Note that changing a validator into a compounding validator is a charged operati
 $ ethereal validator consolidate --source-validator=0x910d6c844de13cdd767db2e6a7d9a11811171203d2845c2568d3e17bd443a24d188da5406cb4e1693f7ef324bc8e2307 --target-validator=0x94a2b68cc7732580d238210d1b165dbf7388384467793ccf01f94d72092474093a1379d55638b0517419517dc9f9f491 --from=0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5
 ```
 
-The `from` address must match the address in the withdrawal credentials of both supplied validators.  The target validator must be a compounding validator.
+The `from` address must match the address in the withdrawal credentials of both supplied validators.  Alternatively, the private key for this address can be supplied in `privatekey`.  The target validator must be a compounding validator.
 
 Note that consolidating validators is a charged operation.  The maximum fee accepted for this operation can be set with `--max-fee`.
 
