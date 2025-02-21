@@ -29,7 +29,7 @@ func (c *Conn) Address(address string, privateKey string) (common.Address, error
 	case privateKey != "":
 		return c.addressFromPrivateKey(privateKey)
 	default:
-		return common.Address{}, errors.New("could not obtain address")
+		return common.Address{}, errors.New("neither address nor private key provided")
 	}
 }
 

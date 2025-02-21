@@ -28,13 +28,6 @@ import (
 	string2eth "github.com/wealdtech/go-string2eth"
 )
 
-const (
-	// systemConsolidationContractAddress is defined in https://eips.ethereum.org/EIPS/eip-7251
-	systemConsolidationContractAddress = "0x0000BBdDc7CE488642fb579F8B00f3a590007251"
-	// systemWithdrawalContractAddress is defined in https://eips.ethereum.org/EIPS/eip-7002
-	systemWithdrawalContractAddress = "0x00000961Ef480Eb55e80D19ad83579A64c007002"
-)
-
 // validatorCmd represents the validator command.
 var validatorCmd = &cobra.Command{
 	Use:     "validator",
@@ -49,6 +42,17 @@ func init() {
 
 func validatorFlags(_ *cobra.Command) {
 }
+
+func validatorBindings(_ *cobra.Command) {
+}
+
+// TODO move these.
+const (
+	// systemConsolidationContractAddress is defined in https://eips.ethereum.org/EIPS/eip-7251
+	systemConsolidationContractAddress = "0x0000BBdDc7CE488642fb579F8B00f3a590007251"
+	// systemWithdrawalContractAddress is defined in https://eips.ethereum.org/EIPS/eip-7002
+	systemWithdrawalContractAddress = "0x00000961Ef480Eb55e80D19ad83579A64c007002"
+)
 
 func generateConsolidationRequest(ctx context.Context,
 	fromAddress common.Address,

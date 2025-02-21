@@ -11,21 +11,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package conn
+package util
 
 import (
-	"encoding/hex"
-	"strings"
+	"fmt"
+
+	"github.com/attestantio/go-eth2-client/spec/phase0"
 )
 
 // ConsensusPubkey converts a string to a public key.
-func (c *Conn) ConsensusPubkey(input string) ([48]byte, error) {
-	res := [48]byte{}
-	bytes, err := hex.DecodeString(strings.TrimPrefix(input, "0x"))
-	if err != nil {
-		return res, err
+func ConsensusPubkey(input string) (phase0.BLSPubKey, error) {
+	res := phase0.BLSPubKey{}
+	if err := res.UnmarshalJSON([]byte(fmt.Sprintf("%q", input))); err != nil {
+		return phase0.BLSPubKey{}, err
 	}
-	copy(res[:], bytes)
 
 	return res, nil
 }

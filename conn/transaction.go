@@ -1,4 +1,4 @@
-// Copyright © 2022 Weald Technology Trading
+// Copyright © 2022, 2025 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,9 +16,13 @@ package conn
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/wealdtech/ethereal/v2/util"
 )
 
 // CreateSignedTransaction creates a signed transaction.
@@ -119,4 +123,33 @@ func (c *Conn) SendTransaction(ctx context.Context,
 	}
 
 	return nil
+}
+
+// HandleSubmittedTransaction handles logging and waiting for a submitted transaction to be mined.
+// It will not log the transaction if logFields is nil.
+// This function will return false if asked to wait and the transaction is not mined, otherwise true.
+func (c *Conn) HandleSubmittedTransaction(tx *types.Transaction, logFields log.Fields) bool {
+	//	if logFields != nil {
+	//		logTransaction(tx, logFields)
+	//	}
+
+	// TODO reinstate quiet.
+	if !viper.GetBool("wait") {
+		// outputIf(!quiet, tx.Hash().Hex())
+		fmt.Fprintln(os.Stdout, tx.Hash().Hex())
+
+		return true
+	}
+
+	mined := util.WaitForTransaction(c.Client(), tx.Hash(), viper.GetDuration("limit"))
+	if mined {
+		// outputIf(!quiet, fmt.Sprintf("%s mined", tx.Hash().Hex()))
+		fmt.Fprintf(os.Stdout, "%s mined\n", tx.Hash().Hex())
+
+		return true
+	}
+	// outputIf(!quiet, fmt.Sprintf("%s submitted but not mined", tx.Hash().Hex()))
+	fmt.Fprintf(os.Stdout, "%s submitted but not mined\n", tx.Hash().Hex())
+
+	return false
 }

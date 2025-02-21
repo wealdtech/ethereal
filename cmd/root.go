@@ -57,6 +57,13 @@ var err error
 // Commands that can be run offline.
 var offlineCmds = make(map[string]bool)
 
+var bindings = map[string]func(cmd *cobra.Command){
+	"validator/compound":    validatorCompoundBindings,
+	"validator/consolidate": validatorConsolidateBindings,
+	"validator/exit":        validatorExitBindings,
+	"validator/withdraw":    validatorWithdrawBindings,
+}
+
 // RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
 	Use:              "ethereal",
@@ -92,6 +99,11 @@ func persistentPreRun(cmd *cobra.Command, _ []string) {
 	}
 	if quiet && debug {
 		cli.Err(false, "Cannot supply both quiet and debug flags")
+	}
+
+	// Command-specific bindings.
+	if bindingsFunc, exists := bindings[commandPath(cmd)]; exists {
+		bindingsFunc(cmd)
 	}
 
 	// Lots of commands have transaction-related flags (e.g.) 'passphrase'
@@ -291,7 +303,6 @@ func logTransaction(tx *types.Transaction, fields log.Fields) {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(exitFailure)
 	}
 }
@@ -334,6 +345,10 @@ func init() {
 	}
 	RootCmd.PersistentFlags().Int("usbwallets", 1, "number of USB wallets to show")
 	if err := viper.BindPFlag("usbwallets", RootCmd.PersistentFlags().Lookup("usbwallets")); err != nil {
+		panic(err)
+	}
+	RootCmd.PersistentFlags().String("consensus-connection", "", "the URL to a consensus node")
+	if err := viper.BindPFlag("consensus-connection", RootCmd.PersistentFlags().Lookup("consensus-connection")); err != nil {
 		panic(err)
 	}
 }
@@ -494,4 +509,15 @@ func calculateFees() (*big.Int, *big.Int, error) {
 	outputIf(debug, fmt.Sprintf("Final fee per gas is %s, priority fee per gas is %s", string2eth.WeiToString(feePerGas, true), string2eth.WeiToString(priorityFeePerGas, true)))
 
 	return feePerGas, priorityFeePerGas, nil
+}
+
+func commandPath(cmd *cobra.Command) string {
+	path := ""
+	for {
+		path = fmt.Sprintf("%s/%s", cmd.Name(), path)
+		if cmd.Parent().Name() == "ethereal" {
+			return strings.TrimRight(path, "/")
+		}
+		cmd = cmd.Parent()
+	}
 }
