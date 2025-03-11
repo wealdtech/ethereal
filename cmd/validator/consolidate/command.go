@@ -18,7 +18,6 @@ import (
 	"time"
 
 	consensusclient "github.com/attestantio/go-eth2-client"
-	apiv1 "github.com/attestantio/go-eth2-client/api/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/conn"
@@ -39,16 +38,13 @@ type command struct {
 	// Connections.
 	timeout                  time.Duration
 	allowInsecureConnections bool
-	consensusUrl             string
-	executionUrl             string
+	consensusURL             string
+	executionURL             string
 
 	// Data access.
 	consensusClient    consensusclient.Service
 	validatorsProvider consensusclient.ValidatorsProvider
 	executionConn      *conn.Conn
-
-	// Output.
-	validatorInfo *apiv1.Validator
 }
 
 func newCommand(_ context.Context) (*command, error) {
@@ -59,8 +55,8 @@ func newCommand(_ context.Context) (*command, error) {
 		debug:                    viper.GetBool("debug"),
 		noSafetyChecks:           viper.GetBool("no-safety-checks"),
 		timeout:                  viper.GetDuration("timeout"),
-		consensusUrl:             viper.GetString("consensus-connection"),
-		executionUrl:             viper.GetString("connection"),
+		consensusURL:             viper.GetString("consensus-connection"),
+		executionURL:             viper.GetString("connection"),
 		allowInsecureConnections: viper.GetBool("allow-insecure-connections"),
 		sourceValidator:          viper.GetString("source-validator"),
 		targetValidator:          viper.GetString("target-validator"),

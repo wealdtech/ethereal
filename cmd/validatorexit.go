@@ -51,10 +51,12 @@ func init() {
 	validatorExitCmd.Flags().String("from", "", "Address from which to send the exit request")
 	validatorExitCmd.Flags().String("validator", "", "Public key of the consensus validator")
 	validatorExitCmd.Flags().String("max-fee", "1gwei", "Maximum fee to pay to exit the validator (excluding gas)")
+	validatorExitCmd.Flags().Bool("no-safety-checks", false, "Do not carry out safety checks")
 	addTransactionFlags(validatorExitCmd, "the withdrawal address of the validator")
 }
 
 func validatorExitBindings(cmd *cobra.Command) {
+	validatorBindings(cmd)
 	if err := viper.BindPFlag("from", cmd.Flags().Lookup("from")); err != nil {
 		panic(err)
 	}

@@ -17,17 +17,22 @@ import (
 	"context"
 	"encoding/hex"
 	"math/big"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -35,10 +40,12 @@ import (
 type Conn struct {
 	timeout time.Duration
 	debug   bool
+	quiet   bool
 
 	rpcClient  *rpc.Client
 	client     *ethclient.Client
 	gethClient *gethclient.Client
+	signer     types.Signer
 	// config    *params.ChainConfig
 
 	// nonces tracks per-address nonces.
@@ -51,10 +58,10 @@ type Conn struct {
 }
 
 // New creates a new execution client.
-func New(ctx context.Context, url string, debug bool) (*Conn, error) {
+func New(ctx context.Context, url string, debug bool, quiet bool) (*Conn, error) {
 	if url == "offline" {
 		// We are offline...
-		return newOffline(ctx, debug)
+		return newOffline(ctx, debug, quiet)
 	}
 
 	rpcClient, err := rpc.DialContext(ctx, url)
@@ -83,8 +90,9 @@ func New(ctx context.Context, url string, debug bool) (*Conn, error) {
 		return nil, errors.New("failed to create geth client")
 	}
 
-	conn := &Conn{
+	c := &Conn{
 		debug:      debug,
+		quiet:      quiet,
 		timeout:    timeout,
 		rpcClient:  rpcClient,
 		client:     client,
@@ -93,10 +101,14 @@ func New(ctx context.Context, url string, debug bool) (*Conn, error) {
 		nonces:     make(map[common.Address]uint64),
 	}
 
-	return conn, nil
+	if err := c.setupLogging(); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
-func newOffline(_ context.Context, debug bool) (*Conn, error) {
+func newOffline(_ context.Context, debug bool, quiet bool) (*Conn, error) {
 	var chainID *big.Int
 	if viper.GetString("network") == "" && viper.GetString("chainid") == "" {
 		return nil, errors.New("network or chainid is required when offline")
@@ -127,12 +139,19 @@ func newOffline(_ context.Context, debug bool) (*Conn, error) {
 		}
 	}
 
-	return &Conn{
+	c := &Conn{
 		debug:   debug,
+		quiet:   quiet,
 		offline: true,
 		chainID: chainID,
 		nonces:  make(map[common.Address]uint64),
-	}, nil
+	}
+
+	if err := c.setupLogging(); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 // Client returns the ethclient for the connection.
@@ -143,4 +162,28 @@ func (c *Conn) Client() *ethclient.Client {
 // ChainID returns the chain ID for the connection.
 func (c *Conn) ChainID() *big.Int {
 	return c.chainID
+}
+
+// setupLogging sets up the logging for commands that wish to write output.
+func (c *Conn) setupLogging() error {
+	logFile := viper.GetString("log")
+	if logFile == "" {
+		home, err := homedir.Dir()
+		if err != nil {
+			return errors.Wrap(err, "failed to access home directory")
+		}
+		logFile = filepath.FromSlash(home + "/ethereal.log")
+	}
+	f, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o755)
+	if err != nil {
+		return errors.Wrap(err, "failed to open logfile")
+	}
+	log.SetOutput(f)
+	log.SetFormatter(&log.JSONFormatter{})
+
+	return nil
+}
+
+func (c *Conn) SetSigner(signer types.Signer) {
+	c.signer = signer
 }

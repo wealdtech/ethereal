@@ -57,6 +57,7 @@ func init() {
 }
 
 func validatorWithdrawBindings(cmd *cobra.Command) {
+	validatorBindings(cmd)
 	if err := viper.BindPFlag("from", cmd.Flags().Lookup("from")); err != nil {
 		panic(err)
 	}

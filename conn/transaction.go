@@ -15,6 +15,7 @@ package conn
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -129,13 +130,14 @@ func (c *Conn) SendTransaction(ctx context.Context,
 // It will not log the transaction if logFields is nil.
 // This function will return false if asked to wait and the transaction is not mined, otherwise true.
 func (c *Conn) HandleSubmittedTransaction(tx *types.Transaction, logFields log.Fields) bool {
-	//	if logFields != nil {
-	//		logTransaction(tx, logFields)
-	//	}
+	if logFields != nil {
+		c.logTransaction(tx, logFields)
+	}
 
-	// TODO reinstate quiet.
 	if !viper.GetBool("wait") {
-		// outputIf(!quiet, tx.Hash().Hex())
+		if !c.quiet {
+			fmt.Fprintf(os.Stdout, "%x\n", tx.Hash().Hex())
+		}
 		fmt.Fprintln(os.Stdout, tx.Hash().Hex())
 
 		return true
@@ -152,4 +154,28 @@ func (c *Conn) HandleSubmittedTransaction(tx *types.Transaction, logFields log.F
 	fmt.Fprintf(os.Stdout, "%s submitted but not mined\n", tx.Hash().Hex())
 
 	return false
+}
+
+// logTransaction logs a transaction.
+func (c *Conn) logTransaction(tx *types.Transaction, fields log.Fields) {
+	txFields := log.Fields{
+		"networkid":            c.ChainID(),
+		"transactionid":        tx.Hash().Hex(),
+		"gas":                  tx.Gas(),
+		"fee-per-gas":          tx.GasFeeCap().String(),
+		"priority-fee-per-gas": tx.GasTipCap().String(),
+		"value":                tx.Value().String(),
+		"data":                 hex.EncodeToString(tx.Data()),
+	}
+	if c.signer != nil {
+		fromAddress, err := types.Sender(c.signer, tx)
+		if err == nil {
+			txFields["from"] = fromAddress.Hex()
+		}
+	}
+	if tx.To() != nil {
+		txFields["to"] = tx.To().Hex()
+	}
+
+	log.WithFields(fields).WithFields(txFields).Info("transaction submitted")
 }

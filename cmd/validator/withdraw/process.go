@@ -47,20 +47,30 @@ func (c *command) process(ctx context.Context) error {
 	}
 
 	if c.consensusClient == nil && !c.noSafetyChecks {
-		return errors.New("no connection to a consensus client provided.  Please provide one with --consensus-connection to allow safety check operations to proceed.  If you really want to proceed without safety checks, provide the --no-safety-checks flag however doing this could lose your Ether.")
+		return errors.New("no connection to a consensus client provided.  Please provide one with --consensus-connection to allow safety check operations to proceed.  If you really want to proceed without safety checks, provide the --no-safety-checks flag however doing this could lose your Ether")
 	}
 
-	pubkey, err := util.ConsensusPubkey(c.validator)
+	consensusValidator, found, err := util.ConsensusValidatorInfo(ctx, c.consensusClient, c.validator)
 	if err != nil {
 		return errors.Join(errors.New("failed to obtain validator"), err)
+	}
+	if !found {
+		return errors.New("validator is not known")
+	}
+	if consensusValidator.Validator == nil {
+		return errors.New("validator is not yet active")
+	}
+	if consensusValidator.Validator.PublicKey.IsZero() {
+		return errors.New("validator public key must be provided or obtained from the consensus chain to create a compound request")
 	}
 
 	amount, err := string2eth.StringToWei(c.withdrawalAmount)
 	if err != nil {
 		return errors.Join(errors.New("invalid withdrawal amount"), err)
 	}
-	if amount.Sign() <= 0 {
-		return errors.New("withdrawal amount must be more than zero")
+	gweiAmount := new(big.Int).Div(amount, big.NewInt(1e9))
+	if gweiAmount.Sign() <= 0 {
+		return errors.New("withdrawal amount must be specified and >1gwei")
 	}
 
 	fromAddress, err := c.executionConn.Address(viper.GetString("from"), viper.GetString("privatekey"))
@@ -82,7 +92,7 @@ func (c *command) process(ctx context.Context) error {
 		return errors.New("max fee must be a positive value")
 	}
 
-	signedTx, err := validator.GenerateWithdrawalRequest(ctx, c.executionConn, fromAddress, pubkey, amount, maxFee, c.debug)
+	signedTx, err := validator.GenerateWithdrawalRequest(ctx, c.executionConn, fromAddress, consensusValidator.Validator.PublicKey, amount, maxFee, c.debug)
 	if err != nil {
 		return err
 	}
@@ -103,9 +113,9 @@ func (c *command) process(ctx context.Context) error {
 func (c *command) setup(ctx context.Context) error {
 	var err error
 
-	// Attempt to onnect to the consensus node.
+	// Attempt to connect to the consensus node.
 	c.consensusClient, err = util.ConnectToConsensusNode(ctx, &util.ConnectOpts{
-		Address:       c.consensusUrl,
+		Address:       c.consensusURL,
 		Timeout:       c.timeout,
 		AllowInsecure: c.allowInsecureConnections,
 		LogFallback:   !c.quiet,
@@ -147,7 +157,7 @@ func (c *command) setup(ctx context.Context) error {
 		c.minValidatorWithdrawabilityDelay = specResponse.Data["MIN_VALIDATOR_WITHDRAWABILITY_DELAY"].(uint64)
 	}
 
-	c.executionConn, err = conn.New(ctx, c.executionUrl, c.debug)
+	c.executionConn, err = conn.New(ctx, c.executionURL, c.debug, c.quiet)
 	if err != nil {
 		return errors.Join(errors.New("failed to connect to execution node"), err)
 	}

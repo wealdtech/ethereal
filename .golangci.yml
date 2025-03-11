@@ -113,7 +113,6 @@ linters:
     - errorlint
     - exhaustive
     - exhaustruct
-    - exportloopref
     - forbidigo
     - forcetypeassert
     - funlen
@@ -136,6 +135,7 @@ linters:
     - promlinter
     - rowserrcheck
     - sqlclosecheck
+    - tenv
     - unparam
     - varnamelen
     - wastedassign

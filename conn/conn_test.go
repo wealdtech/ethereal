@@ -25,7 +25,7 @@ import (
 // TestConnBad tests bad connection creation.
 func TestConnBad(t *testing.T) {
 	ctx := context.Background()
-	_, err := conn.New(ctx, "Bad", false)
+	_, err := conn.New(ctx, "Bad", false, false)
 	require.NotNil(t, err)
 }
 
@@ -36,6 +36,6 @@ func TestConn(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	_, err := conn.New(ctx, os.Getenv("EXECUTION_URL"), false)
+	_, err := conn.New(ctx, os.Getenv("EXECUTION_URL"), false, false)
 	require.Nil(t, err)
 }

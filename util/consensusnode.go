@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -25,7 +26,7 @@ import (
 	consensusclient "github.com/attestantio/go-eth2-client"
 	"github.com/attestantio/go-eth2-client/api"
 	apiv1 "github.com/attestantio/go-eth2-client/api/v1"
-	"github.com/attestantio/go-eth2-client/http"
+	consensushttp "github.com/attestantio/go-eth2-client/http"
 	"github.com/attestantio/go-eth2-client/spec/phase0"
 	"github.com/rs/zerolog"
 )
@@ -100,10 +101,10 @@ func connectToConsensusNode(ctx context.Context, address string, timeout time.Du
 			fmt.Println("Connections to remote consensus nodes should be secure.  This warning can be silenced with --allow-insecure-connections")
 		}
 	}
-	consensusClient, err := http.New(ctx,
-		http.WithLogLevel(zerolog.Disabled),
-		http.WithAddress(address),
-		http.WithTimeout(timeout),
+	consensusClient, err := consensushttp.New(ctx,
+		consensushttp.WithLogLevel(zerolog.Disabled),
+		consensushttp.WithAddress(address),
+		consensushttp.WithTimeout(timeout),
 	)
 	if err != nil {
 		return nil, errors.Join(errors.New("failed to connect to consensus node"), err)
@@ -140,6 +141,18 @@ func ConsensusValidatorInfo(ctx context.Context,
 		indices = append(indices, index)
 	}
 
+	if consensusClient == nil {
+		// Without a connection to a consensus client we can only return minimal information.
+		res := &apiv1.Validator{Validator: &phase0.Validator{}}
+		if len(pubkeys) > 0 {
+			res.Validator.PublicKey = pubkeys[0]
+		}
+		if len(indices) > 0 {
+			res.Index = indices[0]
+		}
+		return res, true, nil
+	}
+
 	validatorsProvider, isValidatorsProvider := consensusClient.(consensusclient.ValidatorsProvider)
 	if !isValidatorsProvider {
 		return nil, false, errors.New("service is not a validators provider")
@@ -151,7 +164,14 @@ func ConsensusValidatorInfo(ctx context.Context,
 		PubKeys: pubkeys,
 	})
 	if err != nil {
-		// TODO check for 404?
+		var apiErr *api.Error
+		if errors.As(err, &apiErr) {
+			//nolint:gocritic
+			switch apiErr.StatusCode {
+			case http.StatusNotFound:
+				return nil, false, nil
+			}
+		}
 		return nil, false, errors.Join(errors.New("failed to access consensus client"), err)
 	}
 	validators := validatorsResponse.Data

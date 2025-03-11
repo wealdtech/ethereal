@@ -42,7 +42,7 @@ func (c *command) process(ctx context.Context) error {
 	}
 
 	if c.consensusClient == nil && !c.noSafetyChecks {
-		return errors.New("no connection to a consensus client provided.  Please provide one with --consensus-connection to allow safety check operations to proceed.  If you really want to proceed without safety checks, provide the --no-safety-checks flag however doing this could lose your Ether.")
+		return errors.New("no connection to a consensus client provided.  Please provide one with --consensus-connection to allow safety check operations to proceed.  If you really want to proceed without safety checks, provide the --no-safety-checks flag however doing this could lose your Ether")
 	}
 
 	maxFee, err := string2eth.StringToWei(c.maxFee)
@@ -53,14 +53,32 @@ func (c *command) process(ctx context.Context) error {
 		return errors.New("max fee must be a positive value")
 	}
 
-	sourcePubkey, err := util.ConsensusPubkey(c.sourceValidator)
+	sourceValidator, found, err := util.ConsensusValidatorInfo(ctx, c.consensusClient, c.sourceValidator)
 	if err != nil {
 		return errors.Join(errors.New("failed to obtain source validator"), err)
 	}
+	if !found {
+		return errors.New("source validator is not known")
+	}
+	if sourceValidator.Validator == nil {
+		return errors.New("source validator is not yet active")
+	}
+	if sourceValidator.Validator.PublicKey.IsZero() {
+		return errors.New("source validator public key must be provided or obtained from the consensus chain to create a compound request")
+	}
 
-	targetPubkey, err := util.ConsensusPubkey(c.targetValidator)
+	targetValidator, found, err := util.ConsensusValidatorInfo(ctx, c.consensusClient, c.targetValidator)
 	if err != nil {
 		return errors.Join(errors.New("failed to obtain target validator"), err)
+	}
+	if !found {
+		return errors.New("target validator is not known")
+	}
+	if targetValidator.Validator == nil {
+		return errors.New("target validator is not yet active")
+	}
+	if targetValidator.Validator.PublicKey.IsZero() {
+		return errors.New("target validator public key must be provided or obtained from the consensus chain to create a compound request")
 	}
 
 	fromAddress, err := c.executionConn.Address(viper.GetString("from"), viper.GetString("privatekey"))
@@ -74,7 +92,7 @@ func (c *command) process(ctx context.Context) error {
 		}
 	}
 
-	signedTx, err := validator.GenerateConsolidationRequest(ctx, c.executionConn, fromAddress, sourcePubkey, targetPubkey, maxFee, c.debug)
+	signedTx, err := validator.GenerateConsolidationRequest(ctx, c.executionConn, fromAddress, sourceValidator.Validator.PublicKey, targetValidator.Validator.PublicKey, maxFee, c.debug)
 	if err != nil {
 		return err
 	}
@@ -97,7 +115,7 @@ func (c *command) setup(ctx context.Context) error {
 
 	// Attempt to connect to the consensus node.
 	c.consensusClient, err = util.ConnectToConsensusNode(ctx, &util.ConnectOpts{
-		Address:       c.consensusUrl,
+		Address:       c.consensusURL,
 		Timeout:       c.timeout,
 		AllowInsecure: c.allowInsecureConnections,
 		LogFallback:   !c.quiet,
@@ -116,7 +134,7 @@ func (c *command) setup(ctx context.Context) error {
 		}
 	}
 
-	c.executionConn, err = conn.New(ctx, c.executionUrl, c.debug)
+	c.executionConn, err = conn.New(ctx, c.executionURL, c.debug, c.quiet)
 	if err != nil {
 		return errors.Join(errors.New("failed to connect to execution node"), err)
 	}

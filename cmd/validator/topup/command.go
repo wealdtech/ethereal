@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package compound
+package topup
 
 import (
 	"context"
@@ -21,6 +21,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/wealdtech/ethereal/v2/conn"
+	"github.com/wealdtech/ethereal/v2/services/chaintime"
 )
 
 type command struct {
@@ -31,8 +32,8 @@ type command struct {
 	noSafetyChecks bool
 
 	// Input.
-	validator string
-	maxFee    string
+	validator   string
+	topupAmount string
 
 	// Connections.
 	timeout                  time.Duration
@@ -41,9 +42,12 @@ type command struct {
 	executionURL             string
 
 	// Data access.
-	consensusClient    consensusclient.Service
-	validatorsProvider consensusclient.ValidatorsProvider
-	executionConn      *conn.Conn
+	consensusClient                  consensusclient.Service
+	validatorsProvider               consensusclient.ValidatorsProvider
+	executionConn                    *conn.Conn
+	chainTime                        chaintime.Service
+	shardCommitteePeriod             uint64
+	minValidatorWithdrawabilityDelay uint64
 }
 
 func newCommand(_ context.Context) (*command, error) {
@@ -58,7 +62,7 @@ func newCommand(_ context.Context) (*command, error) {
 		executionURL:             viper.GetString("connection"),
 		allowInsecureConnections: viper.GetBool("allow-insecure-connections"),
 		validator:                viper.GetString("validator"),
-		maxFee:                   viper.GetString("max-fee"),
+		topupAmount:              viper.GetString("topup-amount"),
 	}
 
 	// Timeout.

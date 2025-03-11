@@ -30,7 +30,7 @@ func TestCurrentBaseFee(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	c, err := conn.New(ctx, os.Getenv("EXECUTION_URL"), false)
+	c, err := conn.New(ctx, os.Getenv("EXECUTION_URL"), false, false)
 	require.NoError(t, err)
 	baseFee, err := c.CurrentBaseFee(ctx)
 	require.NoError(t, err)

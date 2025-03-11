@@ -22,13 +22,6 @@ import (
 	validatorconsolidate "github.com/wealdtech/ethereal/v2/cmd/validator/consolidate"
 )
 
-var (
-	validatorConsolidateFromAddress     string
-	validatorConsolidateSourceValidator string
-	validatorConsolidateTargetValidator string
-	validatorConsolidateMaxFee          string
-)
-
 // validatorConsolidateCmd represents the contract call command.
 var validatorConsolidateCmd = &cobra.Command{
 	Use:   "consolidate",
@@ -64,6 +57,7 @@ func init() {
 }
 
 func validatorConsolidateBindings(cmd *cobra.Command) {
+	validatorBindings(cmd)
 	if err := viper.BindPFlag("from", cmd.Flags().Lookup("from")); err != nil {
 		panic(err)
 	}

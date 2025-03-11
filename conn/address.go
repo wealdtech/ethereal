@@ -36,7 +36,7 @@ func (c *Conn) Address(address string, privateKey string) (common.Address, error
 func (c *Conn) addressFromPrivateKey(privateKey string) (common.Address, error) {
 	key, err := crypto.HexToECDSA(strings.TrimPrefix(privateKey, "0x"))
 	if err != nil {
-		return common.Address{}, err
+		return common.Address{}, errors.Join(errors.New("failed to obtain public key from private key"), err)
 	}
 
 	return crypto.PubkeyToAddress(key.PublicKey), nil

@@ -15,30 +15,8 @@ package exit
 
 import (
 	"context"
-	"strings"
 )
 
 func (c *command) output(_ context.Context) (string, error) {
-	if c.quiet {
-		return "", nil
-	}
-
-	builder := strings.Builder{}
-
-	// TODO.
-	//	switch c.validatorInfo.Validator.WithdrawalCredentials[0] {
-	//	case 0:
-	//		builder.WriteString("BLS credentials: ")
-	//		builder.WriteString(fmt.Sprintf("%#x", c.validatorInfo.Validator.WithdrawalCredentials))
-	//	case 1:
-	//		builder.WriteString("Ethereum execution address: ")
-	//		builder.WriteString(addressBytesToEIP55(c.validatorInfo.Validator.WithdrawalCredentials[12:]))
-	//		if c.verbose {
-	//			builder.WriteString("\n")
-	//			builder.WriteString("Withdrawal credentials: ")
-	//			builder.WriteString(fmt.Sprintf("%#x", c.validatorInfo.Validator.WithdrawalCredentials))
-	//		}
-	//	}
-
-	return builder.String(), nil
+	return "", nil
 }

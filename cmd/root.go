@@ -61,6 +61,7 @@ var bindings = map[string]func(cmd *cobra.Command){
 	"validator/compound":    validatorCompoundBindings,
 	"validator/consolidate": validatorConsolidateBindings,
 	"validator/exit":        validatorExitBindings,
+	"validator/topup":       validatorTopupBindings,
 	"validator/withdraw":    validatorWithdrawBindings,
 }
 
@@ -182,19 +183,20 @@ func connect(ctx context.Context) error {
 
 	if offline {
 		// Handle offline connection.
-		c, err = conn.New(ctx, "offline", debug)
+		c, err = conn.New(ctx, "offline", debug, quiet)
 	} else {
 		var address string
 		address, err = connectionAddress(ctx)
 		if err == nil {
-			c, err = conn.New(ctx, address, debug)
+			c, err = conn.New(ctx, address, debug, quiet)
 		}
 	}
 	if err != nil {
 		return err
 	}
 
-	signer = types.NewCancunSigner(c.ChainID())
+	signer = types.NewPragueSigner(c.ChainID())
+	c.SetSigner(signer)
 
 	return nil
 }
@@ -371,6 +373,8 @@ func initConfig() {
 		viper.SetConfigName(".ethereal")
 	}
 
+	viper.SetEnvPrefix("ETHEREAL")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv() // read in environment variables that match.
 
 	// If a config file is found, read it in.

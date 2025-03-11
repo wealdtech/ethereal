@@ -1026,6 +1026,14 @@ Note that `ethereal` obtains the information about the amount of Ether to send w
 
 `ethereal validator deposit` has a number of options to control deposits.  It carries out as many checks as possible given the information to ensure the deposit is valid, correct and unique, and as such in non-standard deposit situations these options may be required to ensure the deposit is processed.
 
+### `topup`
+
+`ethereal validator topup` creates and sends a transaction to top up an existing validator.  For example:
+
+```sh
+$ ethereal validator topup --topup-amount=1eth --validator=0x910d6c844de13cdd767db2e6a7d9a11811171203d2845c2568d3e17bd443a24d188da5406cb4e1693f7ef324bc8e2307 --from=0x388Ea662EF2c223eC0B047D41Bf3c0f362142ad5
+```
+
 ### `withdraw`
 
 `ethereal validator withdraw` creates and sends a transaction to withdraw some funds from an active consensus validator.  For example:
