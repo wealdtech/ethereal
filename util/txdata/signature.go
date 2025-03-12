@@ -29,8 +29,8 @@ import (
 )
 
 var (
-	functions map[[4]byte]function
-	events    map[[32]byte]function
+	functions = make(map[[4]byte]function)
+	events    = make(map[[32]byte]function)
 )
 
 type function struct {
@@ -121,10 +121,15 @@ func DataToString(client *ethclient.Client, input []byte) string {
 
 // EventToString takes a transaction's event information and converts it to a useful representation if one exists.
 func EventToString(client *ethclient.Client, input *types.Log) string {
+	if len(input.Topics) == 0 {
+		return ""
+	}
+
 	function, exists := events[input.Topics[0]]
 	if !exists {
 		return ""
 	}
+
 	var buffer bytes.Buffer
 	buffer.WriteString(fmt.Sprintf("%s(", function.name))
 

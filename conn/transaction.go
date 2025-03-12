@@ -136,21 +136,18 @@ func (c *Conn) HandleSubmittedTransaction(tx *types.Transaction, logFields log.F
 
 	if !viper.GetBool("wait") {
 		if !c.quiet {
-			fmt.Fprintf(os.Stdout, "%x\n", tx.Hash().Hex())
+			fmt.Fprintf(os.Stdout, "%s\n", tx.Hash().Hex())
 		}
-		fmt.Fprintln(os.Stdout, tx.Hash().Hex())
 
 		return true
 	}
 
 	mined := util.WaitForTransaction(c.Client(), tx.Hash(), viper.GetDuration("limit"))
 	if mined {
-		// outputIf(!quiet, fmt.Sprintf("%s mined", tx.Hash().Hex()))
 		fmt.Fprintf(os.Stdout, "%s mined\n", tx.Hash().Hex())
 
 		return true
 	}
-	// outputIf(!quiet, fmt.Sprintf("%s submitted but not mined", tx.Hash().Hex()))
 	fmt.Fprintf(os.Stdout, "%s submitted but not mined\n", tx.Hash().Hex())
 
 	return false

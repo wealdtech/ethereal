@@ -55,7 +55,7 @@ In quiet mode this will return 0 if the block exists, otherwise 1.`,
 		ctx := context.Background()
 		cli.Assert(blockStr != "", quiet, "--block is required")
 
-		connectionAddress, err := connectionAddress(ctx)
+		connectionAddress, _, err := connectionDetails(ctx)
 		cli.ErrCheck(err, quiet, "Failed to obtain connection address")
 
 		execClient, err := jsonrpc.New(context.Background(),

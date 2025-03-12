@@ -251,7 +251,8 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 					if len(log.Data) > 0 {
 						fmt.Printf("\t\tData:\n")
 						for j := 0; j*32 < len(log.Data); j++ {
-							fmt.Printf("\t\t\t%d:\t0x%s\n", j, hex.EncodeToString(log.Data[j*32:(j+1)*32]))
+							end := min((j+1)*32, len(log.Data))
+							fmt.Printf("\t\t\t%d:\t0x%s\n", j, hex.EncodeToString(log.Data[j*32:end]))
 						}
 					}
 				}

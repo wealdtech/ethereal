@@ -28,7 +28,7 @@ func PrivateKeyForAccount(chainID *big.Int, address common.Address, passphrase s
 	var account *accounts.Account
 	_, account, err := cli.ObtainWalletAndAccount(chainID, address, debug)
 	if err != nil {
-		return nil, fmt.Errorf("unable to find account %s", address.Hex())
+		return nil, fmt.Errorf("unable to obtain account %s: %v", address.Hex(), err)
 	}
 	ks := keystore.NewKeyStore(filepath.Dir(account.URL.Path), keystore.StandardScryptN, keystore.StandardScryptP)
 	exported, err := ks.Export(*account, passphrase, passphrase)

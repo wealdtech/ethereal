@@ -94,7 +94,7 @@ func obtainGethWallet(chainID *big.Int, address common.Address, debug bool) (acc
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	if debug {
-		fmt.Fprintf(os.Stderr, "Looking in %s for %s\n", address.String(), keydir)
+		fmt.Fprintf(os.Stderr, "Looking in %s for %s\n", keydir, address.String())
 	}
 	backends := []accounts.Backend{keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)}
 	accountManager := accounts.NewManager(nil, backends...)

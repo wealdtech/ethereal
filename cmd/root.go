@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/params"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -180,19 +181,26 @@ func setUpGasPrices(cmd *cobra.Command) {
 // connect connects to an Ethereum node.
 func connect(ctx context.Context) error {
 	var err error
+	var chainID *big.Int
 
 	if offline {
 		// Handle offline connection.
 		c, err = conn.New(ctx, "offline", debug, quiet)
 	} else {
 		var address string
-		address, err = connectionAddress(ctx)
+		address, chainID, err = connectionDetails(ctx)
 		if err == nil {
 			c, err = conn.New(ctx, address, debug, quiet)
 		}
 	}
 	if err != nil {
 		return err
+	}
+
+	if chainID != nil && c.ChainID().Cmp(chainID) != 0 {
+		if !quiet {
+			fmt.Fprintln(os.Stderr, "connection and network both supplied, and they conflict.  Using information from connection, and ignoring network")
+		}
 	}
 
 	signer = types.NewPragueSigner(c.ChainID())
@@ -202,20 +210,35 @@ func connect(ctx context.Context) error {
 }
 
 // connectionAddress provides the address of an execution client.
-func connectionAddress(_ context.Context) (string, error) {
+func connectionDetails(_ context.Context) (string, *big.Int, error) {
+	// Obtain the chain ID if it's available.
+	var chainID *big.Int
+	switch strings.ToLower(viper.GetString("network")) {
+	case "mainnet":
+		chainID = params.MainnetChainConfig.ChainID
+	case "sepolia":
+		chainID = params.SepoliaChainConfig.ChainID
+	case "holesky":
+		chainID = params.HoleskyChainConfig.ChainID
+	}
+
 	if viper.GetString("connection") != "" {
-		return viper.GetString("connection"), nil
+		return viper.GetString("connection"), chainID, nil
+	}
+
+	if viper.Get(fmt.Sprintf("connections.%s", strings.ToLower(viper.GetString("network")))) != nil {
+		return viper.GetString(fmt.Sprintf("connections.%s", strings.ToLower(viper.GetString("network")))), chainID, nil
 	}
 
 	switch strings.ToLower(viper.GetString("network")) {
 	case "mainnet":
-		return "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+		return "https://mainnet.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
 	case "sepolia":
-		return "https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+		return "https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
 	case "holesky":
-		return "https://holesky.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", nil
+		return "https://holesky.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
 	default:
-		return "", fmt.Errorf("unknown network %s", viper.GetString("network"))
+		return "", nil, fmt.Errorf("unknown network %s", viper.GetString("network"))
 	}
 }
 
