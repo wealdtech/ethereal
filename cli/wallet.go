@@ -91,6 +91,8 @@ func obtainGethWallet(chainID *big.Int, address common.Address, debug bool) (acc
 		keydir = filepath.Join(keydir, "sepolia")
 	case chainID.Cmp(params.HoleskyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "holesky")
+	case chainID.Cmp(big.NewInt(560048)) == 0: // Use geth parameter when available.
+		keydir = filepath.Join(keydir, "hoodi")
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	if debug {

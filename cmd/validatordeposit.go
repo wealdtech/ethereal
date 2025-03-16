@@ -91,6 +91,14 @@ var validatorDepositKnownContracts = []*validatorDepositContract{
 		minVersion:  3,
 		maxVersion:  4,
 	},
+	{
+		network:     "Hoodi",
+		chainID:     big.NewInt(560048),
+		address:     util.MustDecodeHexString("0x00000000219ab540356cBB839Cbe05303d7705Fa"),
+		forkVersion: []byte{0x10, 0x00, 0x09, 0x10},
+		minVersion:  3,
+		maxVersion:  4,
+	},
 }
 
 // validatorDepositCmd represents the validator deposit command.
@@ -379,7 +387,7 @@ If you are sure you want to send to this address you can add --allow-unknown-con
 				return contract, nil
 			}
 		}
-		return nil, errors.New("unknown Ethereum 2 network")
+		return nil, errors.New("unknown consensus network")
 	}
 
 	return nil, errors.New("not found")
@@ -398,7 +406,7 @@ func init() {
 	validatorDepositCmd.Flags().BoolVar(&validatorDepositAllowDuplicateDeposit, "allow-duplicate-deposit", false, "Allow sending multiple deposits with the same validator public key (WARNING: only if you know what you are doing)")
 	validatorDepositCmd.Flags().BoolVar(&validatorDepositForceZeroValue, "force-zero-value", false, "Sending the deposit with 0 Ether regardless of the information in the deposit data")
 	validatorDepositCmd.Flags().StringVar(&validatorDepositContractAddress, "address", "", "The contract address to which to send the deposit (overrides the value obtained from eth2network)")
-	validatorDepositCmd.Flags().StringVar(&validatorDepositEth2Network, "eth2network", "mainnet", "The name of the Ethereum 2 network for which to send the deposit (mainnet/prater/holesky/sepolia)")
+	validatorDepositCmd.Flags().StringVar(&validatorDepositEth2Network, "eth2network", "mainnet", "The name of the consensus network for which to send the deposit (mainnet/holesky/hoodi/sepolia)")
 	validatorDepositCmd.Flags().Uint64Var(&validatorDepositOverrideGas, "override-gas", 0, "Override the gas limit for the deposit transaction")
 	validatorDepositCmd.Flags().BoolVar(&validatorDepositJSON, "json", false, "Print the deposit transaction(s) as JSON rather than broadcast them")
 	addTransactionFlags(validatorDepositCmd, "the account from which to send the deposit")

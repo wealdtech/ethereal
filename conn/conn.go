@@ -86,9 +86,6 @@ func New(ctx context.Context, url string, debug bool, quiet bool) (*Conn, error)
 	}
 
 	gethClient := gethclient.New(rpcClient)
-	if client == nil {
-		return nil, errors.New("failed to create geth client")
-	}
 
 	c := &Conn{
 		debug:      debug,
@@ -120,6 +117,9 @@ func newOffline(_ context.Context, debug bool, quiet bool) (*Conn, error) {
 		chainID = params.SepoliaChainConfig.ChainID
 	case "holesky":
 		chainID = params.HoleskyChainConfig.ChainID
+	case "hoodi":
+		// Use geth parameter when available.
+		chainID = big.NewInt(560048)
 	default:
 		switch {
 		case strings.HasPrefix(viper.GetString("chainid"), "0x"):

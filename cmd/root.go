@@ -220,6 +220,9 @@ func connectionDetails(_ context.Context) (string, *big.Int, error) {
 		chainID = params.SepoliaChainConfig.ChainID
 	case "holesky":
 		chainID = params.HoleskyChainConfig.ChainID
+	case "hoodi":
+		// Use geth parameter when available.
+		chainID = big.NewInt(560048)
 	}
 
 	if viper.GetString("connection") != "" {
@@ -237,6 +240,8 @@ func connectionDetails(_ context.Context) (string, *big.Int, error) {
 		return "https://sepolia.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
 	case "holesky":
 		return "https://holesky.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
+	case "hoodi":
+		return "https://hoodi.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
 	default:
 		return "", nil, fmt.Errorf("unknown network %s", viper.GetString("network"))
 	}
@@ -356,7 +361,7 @@ func init() {
 	if err := viper.BindPFlag("connection", RootCmd.PersistentFlags().Lookup("connection")); err != nil {
 		panic(err)
 	}
-	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/sepolia/holesky) (overridden by connection option)")
+	RootCmd.PersistentFlags().String("network", "mainnet", "network to access (mainnet/sepolia/holesky/hoodi) (overridden by connection option)")
 	if err := viper.BindPFlag("network", RootCmd.PersistentFlags().Lookup("network")); err != nil {
 		panic(err)
 	}
