@@ -161,6 +161,8 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 				fmt.Println("Transaction type:\tDynamic (type 2)")
 			case types.BlobTxType:
 				fmt.Println("Transaction type:\tBlob (type 3)")
+			case types.SetCodeTxType:
+				fmt.Println("Transaction type:\tSet code (type 4)")
 			default:
 				fmt.Println("Transaction type:\tUnknown")
 			}
@@ -186,6 +188,16 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 					fmt.Printf("  Blob commitment: %#x\n", blobSidecars.Commitments[i])
 					fmt.Printf("  Blob proofs: %#x\n", blobSidecars.Proofs[i])
 				}
+			}
+		case types.SetCodeTxType:
+			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+			authorities := tx.SetCodeAuthorities()
+			authorizations := tx.SetCodeAuthorizations()
+			for i := range authorities {
+				fmt.Printf("Authorization %d:\n", i)
+				fmt.Printf("  Authority: %s\n", authorities[i].Hex())
+				fmt.Printf("  Chain ID: %s\n", authorizations[i].ChainID.Hex())
+				fmt.Printf("  Authorization: %s\n", authorizations[i].Address.Hex())
 			}
 		}
 
