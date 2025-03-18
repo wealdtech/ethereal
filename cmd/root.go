@@ -209,7 +209,7 @@ func connect(ctx context.Context) error {
 	return nil
 }
 
-// connectionAddress provides the address of an execution client.
+// connectionDetails provides the details of an execution client.
 func connectionDetails(_ context.Context) (string, *big.Int, error) {
 	// Obtain the chain ID if it's available.
 	var chainID *big.Int
