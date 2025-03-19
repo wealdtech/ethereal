@@ -37,6 +37,16 @@ const (
 	systemWithdrawalContractAddress = "0x00000961Ef480Eb55e80D19ad83579A64c007002"
 )
 
+var (
+	feeBumpDivisor = big.NewInt(2)
+
+	// minFeeBump is the minimum fee bump, in wei.
+	minFeeBump = big.NewInt(1e6)
+
+	// maxFeeBump is the maximum fee bump, in wei.
+	maxFeeBump = big.NewInt(1e12)
+)
+
 func getValidatorSystemContractFee(ctx context.Context, c *conn.Conn, address common.Address) (*big.Int, error) {
 	msg := ethereum.CallMsg{
 		To: &address,
@@ -48,7 +58,24 @@ func getValidatorSystemContractFee(ctx context.Context, c *conn.Conn, address co
 
 	fee := new(big.Int).SetBytes(result)
 
+	fee = bumpFee(fee)
+
 	return fee, nil
+}
+
+// bumpFee bumps up the fee provided by the system contract to allow for
+func bumpFee(initial *big.Int) *big.Int {
+	// Add a 50% fee bump.
+	feeBump := new(big.Int).Div(initial, feeBumpDivisor)
+	if feeBump.Cmp(minFeeBump) <= 0 {
+		// Fee bump is very small, increase to minimum.
+		feeBump = minFeeBump
+	}
+	if feeBump.Cmp(maxFeeBump) >= 0 {
+		// Fee bump is very large, decrease to maximum.
+		feeBump = maxFeeBump
+	}
+	return new(big.Int).Add(initial, feeBump)
 }
 
 func obtainSystemDepositContractAddress(ctx context.Context,
