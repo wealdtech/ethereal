@@ -71,8 +71,11 @@ func (c *command) process(ctx context.Context) error {
 	if amount.Sign() <= 0 {
 		return errors.New("topup amount must be more than zero")
 	}
-	if new(big.Int).Mod(amount, big.NewInt(1e18)).Sign() != 0 {
-		return errors.New("topup amount must be in whole ether")
+	if amount.Cmp(big.NewInt(1e18)) < 0 {
+		return errors.New("topup amount must be at least 1 ether")
+	}
+	if new(big.Int).Mod(amount, big.NewInt(1e9)).Sign() != 0 {
+		return errors.New("topup amount cannot have fractions of a gwei")
 	}
 
 	fromAddress, err := c.executionConn.Address(viper.GetString("from"), viper.GetString("privatekey"))
