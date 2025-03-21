@@ -63,7 +63,7 @@ func getValidatorSystemContractFee(ctx context.Context, c *conn.Conn, address co
 	return fee, nil
 }
 
-// bumpFee bumps up the fee provided by the system contract to allow for
+// bumpFee bumps up the fee provided by the system contract to allow for fee variations.
 func bumpFee(initial *big.Int) *big.Int {
 	// Add a 50% fee bump.
 	feeBump := new(big.Int).Div(initial, feeBumpDivisor)
