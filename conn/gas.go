@@ -55,16 +55,19 @@ func (c *Conn) PrepareTx(ctx context.Context,
 			fmt.Fprintf(os.Stderr, "Not using access list (%d vs %d)\n", accessListGas, basicGas)
 		}
 		// Add 25% overhead.
-		basicGas *= 5 / 4
+		basicGas = accessListGas * 5 / 4
 		txData.GasLimit = &basicGas
 	} else {
 		if c.debug {
 			fmt.Fprintf(os.Stderr, "Using access list (%d vs %d)\n", accessListGas, basicGas)
 		}
 		// Add 25% overhead and access list.
-		accessListGas *= 5 / 4
+		accessListGas = accessListGas * 5 / 4
 		txData.GasLimit = &accessListGas
 		txData.AccessList = *accessList
+	}
+	if c.debug {
+		fmt.Fprintf(os.Stderr, "Transaction gas limit is %d\n", *txData.GasLimit)
 	}
 
 	return nil
