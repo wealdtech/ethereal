@@ -53,59 +53,9 @@ var transactionSendCmd = &cobra.Command{
 This will return an exit status of 0 if the transaction is successfully submitted (and mined if --wait is supplied), 1 if the transaction is not successfully submitted, and 2 if the transaction is successfully submitted but not mined within the supplied time limit.`,
 	Run: func(_ *cobra.Command, _ []string) {
 		if transactionSendRaw != "" {
-			// Send raw transactions.
-			signedTxs := make([]*types.Transaction, 0)
+			sendRawTransaction()
 
-			if !strings.HasPrefix(transactionSendRaw, "0x") {
-				// Data is a file.
-				data, err := os.ReadFile(transactionSendRaw)
-				cli.ErrCheck(err, quiet, "Failed to read raw transaction from filesystem")
-				lines := bytes.Split(bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")), []byte("\n"))
-				for i := range lines {
-					if len(lines[i]) > 2 {
-						data, err := hex.DecodeString(strings.TrimPrefix(string(lines[i]), "0x"))
-						cli.ErrCheck(err, quiet, "Failed to decode transaction")
-						signedTx := &types.Transaction{}
-						stream := rlp.NewStream(bytes.NewReader(data), 0)
-						err = signedTx.DecodeRLP(stream)
-						cli.ErrCheck(err, quiet, "Failed to decode transaction")
-						signedTxs = append(signedTxs, signedTx)
-					}
-				}
-			} else {
-				// Data is a direct transaction.
-				data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
-				cli.ErrCheck(err, quiet, "Failed to decode data")
-				// Decode the raw transaction.
-				signedTx := &types.Transaction{}
-				stream := rlp.NewStream(bytes.NewReader(data), 0)
-				err = signedTx.DecodeRLP(stream)
-				cli.ErrCheck(err, quiet, "Failed to decode transaction")
-				signedTxs = append(signedTxs, signedTx)
-			}
-
-			for i := range signedTxs {
-				if offline {
-					if !quiet {
-						buf := new(bytes.Buffer)
-						cli.ErrCheck(signedTxs[i].EncodeRLP(buf), quiet, "failed to encode transaction")
-						fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
-					}
-				} else {
-					err = c.SendTransaction(context.Background(), signedTxs[i])
-					cli.ErrCheck(err, quiet, "Failed to send transaction")
-
-					logTransaction(signedTxs[i], log.Fields{
-						"group":   "transaction",
-						"command": "send",
-					})
-
-					if !quiet {
-						fmt.Println(signedTxs[i].Hash().Hex())
-					}
-				}
-			}
-			os.Exit(exitSuccess)
+			return
 		}
 
 		cli.Assert(transactionSendFromAddress != "", quiet, "--from is required")
@@ -181,6 +131,61 @@ This will return an exit status of 0 if the transaction is successfully submitte
 			}
 		}
 	},
+}
+
+func sendRawTransaction() {
+	// Send raw transactions.
+	signedTxs := make([]*types.Transaction, 0)
+
+	if !strings.HasPrefix(transactionSendRaw, "0x") {
+		// Data is a file.
+		data, err := os.ReadFile(transactionSendRaw)
+		cli.ErrCheck(err, quiet, "Failed to read raw transaction from filesystem")
+		lines := bytes.Split(bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n")), []byte("\n"))
+		for i := range lines {
+			if len(lines[i]) > 2 {
+				data, err := hex.DecodeString(strings.TrimPrefix(string(lines[i]), "0x"))
+				cli.ErrCheck(err, quiet, "Failed to decode transaction")
+				signedTx := &types.Transaction{}
+				stream := rlp.NewStream(bytes.NewReader(data), 0)
+				err = signedTx.DecodeRLP(stream)
+				cli.ErrCheck(err, quiet, "Failed to decode transaction")
+				signedTxs = append(signedTxs, signedTx)
+			}
+		}
+	} else {
+		// Data is a direct transaction.
+		data, err := hex.DecodeString(strings.TrimPrefix(transactionSendRaw, "0x"))
+		cli.ErrCheck(err, quiet, "Failed to decode data")
+		// Decode the raw transaction.
+		signedTx := &types.Transaction{}
+		stream := rlp.NewStream(bytes.NewReader(data), 0)
+		err = signedTx.DecodeRLP(stream)
+		cli.ErrCheck(err, quiet, "Failed to decode transaction")
+		signedTxs = append(signedTxs, signedTx)
+	}
+
+	for i := range signedTxs {
+		if offline {
+			if !quiet {
+				buf := new(bytes.Buffer)
+				cli.ErrCheck(signedTxs[i].EncodeRLP(buf), quiet, "failed to encode transaction")
+				fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			}
+		} else {
+			err = c.SendTransaction(context.Background(), signedTxs[i])
+			cli.ErrCheck(err, quiet, "Failed to send transaction")
+
+			logTransaction(signedTxs[i], log.Fields{
+				"group":   "transaction",
+				"command": "send",
+			})
+
+			if !quiet {
+				fmt.Println(signedTxs[i].Hash().Hex())
+			}
+		}
+	}
 }
 
 func init() {
