@@ -1,4 +1,4 @@
-// Copyright © 2017-2024 Weald Technology Trading
+// Copyright © 2017-2025 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -84,14 +84,14 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		if transactionInfoRaw {
 			buf := new(bytes.Buffer)
 			cli.ErrCheck(tx.EncodeRLP(buf), quiet, "failed to encode transaction")
-			fmt.Printf("0x%s\n", hex.EncodeToString(buf.Bytes()))
+			fmt.Fprintf(os.Stdout, "0x%s\n", hex.EncodeToString(buf.Bytes()))
 			os.Exit(exitSuccess)
 		}
 
 		if transactionInfoJSON {
 			json, err := tx.MarshalJSON()
 			cli.ErrCheck(err, quiet, fmt.Sprintf("Failed to obtain JSON for transaction %s", txHash.Hex()))
-			fmt.Printf("%s\n", string(json))
+			fmt.Fprintf(os.Stdout, "%s\n", string(json))
 			os.Exit(exitSuccess)
 		}
 
@@ -105,99 +105,99 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 		var receipt *types.Receipt
 		if pending {
 			if tx.To() == nil {
-				fmt.Printf("Type:\t\t\tPending contract creation\n")
+				fmt.Fprintf(os.Stdout, "Type: Pending contract creation\n")
 			} else {
-				fmt.Printf("Type:\t\t\tPending transaction\n")
+				fmt.Fprintf(os.Stdout, "Type: Pending transaction\n")
 			}
 		} else {
 			if tx.To() == nil {
-				fmt.Printf("Type:\t\t\tMined contract creation\n")
+				fmt.Fprintf(os.Stdout, "Type: Mined contract creation\n")
 			} else {
-				fmt.Printf("Type:\t\t\tMined transaction\n")
+				fmt.Fprintf(os.Stdout, "Type: Mined transaction\n")
 			}
 			ctx, cancel := localContext()
 			defer cancel()
 			receipt, err = c.Client().TransactionReceipt(ctx, txHash)
 			if receipt != nil {
-				fmt.Printf("Block:\t\t\t%d\n", receipt.BlockNumber)
+				fmt.Fprintf(os.Stdout, "Block: %d\n", receipt.BlockNumber)
 				if receipt.Status == 0 {
-					fmt.Printf("Result:\t\t\tFailed\n")
+					fmt.Fprintf(os.Stdout, "Result: Failed\n")
 					revertReason := obtainRevertReason(tx, receipt)
 					if revertReason != "" {
-						fmt.Printf("Reason:\t\t\t%s\n", revertReason)
+						fmt.Fprintf(os.Stdout, "Reason: %s\n", revertReason)
 					}
 				} else {
-					fmt.Printf("Result:\t\t\tSucceeded\n")
+					fmt.Fprintf(os.Stdout, "Result: Succeeded\n")
 				}
 			}
 		}
 
 		if receipt != nil && len(receipt.Logs) > 0 {
 			// We can obtain the block number from the log.
-			fmt.Printf("Block:\t\t\t%d\n", receipt.Logs[0].BlockNumber)
+			fmt.Fprintf(os.Stdout, "Block: %d\n", receipt.Logs[0].BlockNumber)
 		}
 
 		fromAddress, err := types.Sender(signer, tx)
 		if err == nil {
-			fmt.Printf("From:\t\t\t%v\n", ens.Format(c.Client(), fromAddress))
+			fmt.Fprintf(os.Stdout, "From: %v\n", ens.Format(c.Client(), fromAddress))
 		}
 
 		// To
 		if tx.To() == nil {
 			if receipt != nil {
-				fmt.Printf("Contract address:\t%v\n", ens.Format(c.Client(), receipt.ContractAddress))
+				fmt.Fprintf(os.Stdout, "Contract address: %v\n", ens.Format(c.Client(), receipt.ContractAddress))
 			}
 		} else {
-			fmt.Printf("To:\t\t\t%v\n", ens.Format(c.Client(), *tx.To()))
+			fmt.Fprintf(os.Stdout, "To: %v\n", ens.Format(c.Client(), *tx.To()))
 		}
 
 		if verbose {
 			switch tx.Type() {
 			case types.LegacyTxType:
-				fmt.Println("Transaction type:\tLegacy (type 0)")
+				fmt.Println("Transaction type: Legacy (type 0)")
 			case types.AccessListTxType:
-				fmt.Println("Transaction type:\tAccess list (type 1)")
+				fmt.Println("Transaction type: Access list (type 1)")
 			case types.DynamicFeeTxType:
-				fmt.Println("Transaction type:\tDynamic (type 2)")
+				fmt.Println("Transaction type: Dynamic (type 2)")
 			case types.BlobTxType:
-				fmt.Println("Transaction type:\tBlob (type 3)")
+				fmt.Println("Transaction type: Blob (type 3)")
 			case types.SetCodeTxType:
-				fmt.Println("Transaction type:\tSet code (type 4)")
+				fmt.Println("Transaction type: Set code (type 4)")
 			default:
-				fmt.Println("Transaction type:\tUnknown")
+				fmt.Println("Transaction type: Unknown")
 			}
-			fmt.Printf("Nonce:\t\t\t%v\n", tx.Nonce())
-			fmt.Printf("Gas limit:\t\t%v\n", tx.Gas())
+			fmt.Fprintf(os.Stdout, "Nonce: %v\n", tx.Nonce())
+			fmt.Fprintf(os.Stdout, "Gas limit: %v\n", tx.Gas())
 		}
 		if receipt != nil {
-			fmt.Printf("Gas used:\t\t%v\n", receipt.GasUsed)
+			fmt.Fprintf(os.Stdout, "Gas used: %v\n", receipt.GasUsed)
 		}
 		switch tx.Type() {
 		case types.LegacyTxType, types.AccessListTxType:
-			fmt.Printf("Gas price:\t\t%v\n", string2eth.WeiToString(tx.GasPrice(), true))
+			fmt.Fprintf(os.Stdout, "Gas price: %v\n", string2eth.WeiToString(tx.GasPrice(), true))
 		case types.DynamicFeeTxType:
-			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+			fmt.Fprintf(os.Stdout, "Max fee per gas: %v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
 		case types.BlobTxType:
-			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
-			fmt.Printf("Max fee per blob gas:\t%v\n", string2eth.WeiToString(tx.BlobGasFeeCap(), true))
+			fmt.Fprintf(os.Stdout, "Max fee per gas: %v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+			fmt.Fprintf(os.Stdout, "Max fee per blob gas: %v\n", string2eth.WeiToString(tx.BlobGasFeeCap(), true))
 			blobSidecars := tx.BlobTxSidecar()
 			if blobSidecars != nil {
 				for i := range blobSidecars.Blobs {
-					fmt.Printf("Blob %d:\n", i)
-					fmt.Printf("  Blob data: %#x\n", blobSidecars.Blobs[i])
-					fmt.Printf("  Blob commitment: %#x\n", blobSidecars.Commitments[i])
-					fmt.Printf("  Blob proofs: %#x\n", blobSidecars.Proofs[i])
+					fmt.Fprintf(os.Stdout, "Blob %d:\n", i)
+					fmt.Fprintf(os.Stdout, "  Blob data: %#x\n", blobSidecars.Blobs[i])
+					fmt.Fprintf(os.Stdout, "  Blob commitment: %#x\n", blobSidecars.Commitments[i])
+					fmt.Fprintf(os.Stdout, "  Blob proofs: %#x\n", blobSidecars.Proofs[i])
 				}
 			}
 		case types.SetCodeTxType:
-			fmt.Printf("Max fee per gas:\t%v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
+			fmt.Fprintf(os.Stdout, "Max fee per gas: %v\n", string2eth.WeiToString(tx.GasFeeCap(), true))
 			authorities := tx.SetCodeAuthorities()
 			authorizations := tx.SetCodeAuthorizations()
 			for i := range authorities {
-				fmt.Printf("Authorization %d:\n", i)
-				fmt.Printf("  Authority: %s\n", authorities[i].Hex())
-				fmt.Printf("  Chain ID: %s\n", authorizations[i].ChainID.Hex())
-				fmt.Printf("  Authorization: %s\n", authorizations[i].Address.Hex())
+				fmt.Fprintf(os.Stdout, "Authorization %d:\n", i)
+				fmt.Fprintf(os.Stdout, "  Authority: %s\n", authorities[i].Hex())
+				fmt.Fprintf(os.Stdout, "  Chain ID: %s\n", authorizations[i].ChainID.Hex())
+				fmt.Fprintf(os.Stdout, "  Authorization: %s\n", authorizations[i].Address.Hex())
 			}
 		}
 
@@ -212,59 +212,74 @@ In quiet mode this will return 0 if the transaction exists, otherwise 1.`,
 
 		if tx.Type() == types.DynamicFeeTxType {
 			if receipt != nil && block != nil {
-				fmt.Printf("Actual fee per gas:\t%v\n", string2eth.WeiToString(block.BaseFee(), true))
+				fmt.Fprintf(os.Stdout, "Actual fee per gas: %v\n", string2eth.WeiToString(block.BaseFee(), true))
 			}
-			fmt.Printf("Tip per gas:\t\t%v\n", string2eth.WeiToString(tx.GasTipCap(), true))
+			fmt.Fprintf(os.Stdout, "Tip per gas: %v\n", string2eth.WeiToString(tx.GasTipCap(), true))
 		}
 
 		if receipt != nil {
 			gasUsed := big.NewInt(int64(receipt.GasUsed))
 			switch tx.Type() {
 			case types.LegacyTxType, types.AccessListTxType:
-				fmt.Printf("Total fee:\t\t%v", string2eth.WeiToString(new(big.Int).Mul(tx.GasPrice(), gasUsed), true))
+				fmt.Fprintf(os.Stdout, "Total fee: %v", string2eth.WeiToString(new(big.Int).Mul(tx.GasPrice(), gasUsed), true))
 				if verbose {
-					fmt.Printf(" (%v * %v)\n", string2eth.WeiToString(tx.GasPrice(), true), gasUsed)
+					fmt.Fprintf(os.Stdout, " (%v * %v)\n", string2eth.WeiToString(tx.GasPrice(), true), gasUsed)
 				} else {
 					fmt.Println()
 				}
 			case types.DynamicFeeTxType:
 				if block != nil {
-					fmt.Printf("Total fee:\t\t%v", string2eth.WeiToString(new(big.Int).Mul(new(big.Int).Add(block.BaseFee(), tx.GasTipCap()), gasUsed), true))
+					fmt.Fprintf(os.Stdout, "Total fee: %v", string2eth.WeiToString(new(big.Int).Mul(new(big.Int).Add(block.BaseFee(), tx.GasTipCap()), gasUsed), true))
 					if verbose {
-						fmt.Printf(" ((%v + %v) * %v)\n", string2eth.WeiToString(block.BaseFee(), true), string2eth.WeiToString(tx.GasTipCap(), true), gasUsed)
+						fmt.Fprintf(os.Stdout, " ((%v + %v) * %v)\n", string2eth.WeiToString(block.BaseFee(), true), string2eth.WeiToString(tx.GasTipCap(), true), gasUsed)
 					} else {
 						fmt.Println()
 					}
 				}
 			}
 		}
-		fmt.Printf("Value:\t\t\t%v\n", string2eth.WeiToString(tx.Value(), true))
+		fmt.Fprintf(os.Stdout, "Value: %v\n", string2eth.WeiToString(tx.Value(), true))
+
+		if verbose {
+			if tx.Type() == types.AccessListTxType || tx.Type() == types.DynamicFeeTxType || tx.Type() == types.SetCodeTxType {
+				accessList := tx.AccessList()
+				if len(accessList) > 0 {
+					fmt.Fprintf(os.Stdout, "Access list:\n")
+				}
+				for _, tuple := range accessList {
+					fmt.Fprintf(os.Stdout, "  Address: %s\n", tuple.Address.String())
+					for _, key := range tuple.StorageKeys {
+						fmt.Fprintf(os.Stdout, "    Storage key: %s\n", key.Hex())
+					}
+				}
+			}
+		}
 
 		if tx.To() != nil && len(tx.Data()) > 0 {
-			fmt.Printf("Data:\t\t\t%v\n", txdata.DataToString(c.Client(), tx.Data()))
+			fmt.Fprintf(os.Stdout, "Data: %v\n", txdata.DataToString(c.Client(), tx.Data()))
 		}
 
 		if verbose && receipt != nil && len(receipt.Logs) > 0 {
-			fmt.Printf("Logs:\n")
+			fmt.Fprintf(os.Stdout, "Logs:\n")
 			for i, log := range receipt.Logs {
-				fmt.Printf("\t%d:\n", i)
-				fmt.Printf("\t\tFrom:\t%v\n", ens.Format(c.Client(), log.Address))
+				fmt.Fprintf(os.Stdout, "  %2d:\n", i)
+				fmt.Fprintf(os.Stdout, "    From: %v\n", ens.Format(c.Client(), log.Address))
 				// Try to obtain decoded log.
 				decoded := txdata.EventToString(c.Client(), log)
 				if decoded != "" {
-					fmt.Printf("\t\tEvent:\t%s\n", decoded)
+					fmt.Fprintf(os.Stdout, "    Event: %s\n", decoded)
 				} else {
 					if len(log.Topics) > 0 {
-						fmt.Printf("\t\tTopics:\n")
+						fmt.Fprintf(os.Stdout, "    Topics:\n")
 						for j, topic := range log.Topics {
-							fmt.Printf("\t\t\t%d:\t%v\n", j, topic.Hex())
+							fmt.Fprintf(os.Stdout, "        %d: %v\n", j, topic.Hex())
 						}
 					}
 					if len(log.Data) > 0 {
-						fmt.Printf("\t\tData:\n")
+						fmt.Fprintf(os.Stdout, "    Data:\n")
 						for j := 0; j*32 < len(log.Data); j++ {
 							end := min((j+1)*32, len(log.Data))
-							fmt.Printf("\t\t\t%d:\t0x%s\n", j, hex.EncodeToString(log.Data[j*32:end]))
+							fmt.Fprintf(os.Stdout, "        %d: 0x%s\n", j, hex.EncodeToString(log.Data[j*32:end]))
 						}
 					}
 				}
