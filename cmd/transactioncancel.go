@@ -19,6 +19,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"os"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -59,8 +60,21 @@ This will return an exit status of 0 if the transaction is successfully submitte
 
 		// Increase priority fee by 10% (+1 wei, to avoid rounding issues).
 		feePerGas := new(big.Int).Add(new(big.Int).Add(tx.GasFeeCap(), new(big.Int).Div(tx.GasFeeCap(), big.NewInt(10))), big.NewInt(1))
+		if debug {
+			fmt.Fprintf(os.Stderr, "Fee per gas raised from %s to %s\n",
+				string2eth.WeiToString(tx.GasFeeCap(), true),
+				string2eth.WeiToString(feePerGas, true),
+			)
+		}
+
 		// Increase priority fee by 10% (+1 wei, to avoid rounding issues).
 		priorityFeePerGas := new(big.Int).Add(new(big.Int).Add(tx.GasTipCap(), new(big.Int).Div(tx.GasTipCap(), big.NewInt(10))), big.NewInt(1))
+		if debug {
+			fmt.Fprintf(os.Stderr, "Priority fee per gas raised from %s to %s\n",
+				string2eth.WeiToString(tx.GasTipCap(), true),
+				string2eth.WeiToString(priorityFeePerGas, true),
+			)
+		}
 
 		// Ensure that the total fee per gas does not exceed the max allowed.
 		totalFeePerGas := new(big.Int).Add(feePerGas, priorityFeePerGas)
@@ -69,7 +83,7 @@ This will return an exit status of 0 if the transaction is successfully submitte
 		}
 		maxFeePerGas, err := string2eth.StringToWei(viper.GetString("max-fee-per-gas"))
 		cli.ErrCheck(err, quiet, "failed to obtain max fee per gas")
-		cli.Assert(totalFeePerGas.Cmp(maxFeePerGas) <= 0, quiet, fmt.Sprintf("increased total fee per gas of %s too high; increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToString(totalFeePerGas, true)))
+		cli.Assert(totalFeePerGas.Cmp(maxFeePerGas) <= 0, quiet, fmt.Sprintf("increased total fee per gas of %s higher than maximum allowed; increase with --max-fee-per-gas if you are sure you want to do this", string2eth.WeiToString(totalFeePerGas, true)))
 
 		// Create and sign the transaction.
 		fromAddress, err := types.Sender(signer, tx)
