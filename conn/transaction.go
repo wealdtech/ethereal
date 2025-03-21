@@ -71,11 +71,18 @@ func (c *Conn) CreateTransaction(ctx context.Context,
 		txData.Nonce = &txNonce
 	}
 
-	if txData.GasLimit == nil {
-		// Set the gas limit (and perhaps the access list).
-		if err := c.PrepareTx(ctx, txData); err != nil {
-			return nil, err
-		}
+	// Store any user-supplied gas limit.
+	presetGasLimit := txData.GasLimit
+	txData.GasLimit = nil
+
+	// Estimate the gas limit (and perhaps the access list).
+	if err := c.PrepareTx(ctx, txData); err != nil {
+		return nil, err
+	}
+
+	if presetGasLimit != nil {
+		// Override the calculated gas limit, regardless of what we think we need.
+		txData.GasLimit = presetGasLimit
 	}
 
 	// Calculate fees.
