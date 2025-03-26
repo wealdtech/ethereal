@@ -221,8 +221,7 @@ func connectionDetails(_ context.Context) (string, *big.Int, error) {
 	case "holesky":
 		chainID = params.HoleskyChainConfig.ChainID
 	case "hoodi":
-		// Use geth parameter when available.
-		chainID = big.NewInt(560048)
+		chainID = params.HoodiChainConfig.ChainID
 	}
 
 	if viper.GetString("connection") != "" {

@@ -118,8 +118,7 @@ func newOffline(_ context.Context, debug bool, quiet bool) (*Conn, error) {
 	case "holesky":
 		chainID = params.HoleskyChainConfig.ChainID
 	case "hoodi":
-		// Use geth parameter when available.
-		chainID = big.NewInt(560048)
+		chainID = params.HoodiChainConfig.ChainID
 	default:
 		switch {
 		case strings.HasPrefix(viper.GetString("chainid"), "0x"):

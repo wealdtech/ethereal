@@ -8,7 +8,7 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.1
 	github.com/attestantio/go-eth2-client v0.24.1
 	github.com/attestantio/go-execution-client v0.10.2
-	github.com/ethereum/go-ethereum v1.15.5
+	github.com/ethereum/go-ethereum v1.15.6
 	github.com/miekg/dns v1.1.63
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pborman/uuid v1.2.1
@@ -42,7 +42,7 @@ require (
 	github.com/cockroachdb/pebble v1.1.4 // indirect
 	github.com/cockroachdb/redact v1.1.6 // indirect
 	github.com/consensys/bavard v0.1.30 // indirect
-	github.com/consensys/gnark-crypto v0.16.0 // indirect
+	github.com/consensys/gnark-crypto v0.17.0 // indirect
 	github.com/crate-crypto/go-ipa v0.0.0-20240724233137-53bbb0ceb27a // indirect
 	github.com/crate-crypto/go-kzg-4844 v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
