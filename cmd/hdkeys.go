@@ -84,7 +84,7 @@ In quiet mode this will return 0 if the keys were successfully obtained, otherwi
 	},
 }
 
-// expandMnmenonic expands mnemonics from their 4-letter versions.
+// expandMnemonic expands mnemonics from their 4-letter versions.
 func expandMnemonic(input string) string {
 	wordList := bip39.GetWordList()
 	truncatedWords := make(map[string]string, len(wordList))
