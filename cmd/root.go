@@ -380,6 +380,10 @@ func init() {
 	if err := viper.BindPFlag("consensus-connection", RootCmd.PersistentFlags().Lookup("consensus-connection")); err != nil {
 		panic(err)
 	}
+	RootCmd.PersistentFlags().Bool("allow-insecure-connections", false, "allow insecure connections to remote beacon nodes")
+	if err := viper.BindPFlag("allow-insecure-connections", RootCmd.PersistentFlags().Lookup("allow-insecure-connections")); err != nil {
+		panic(err)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
