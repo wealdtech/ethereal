@@ -36,6 +36,7 @@ type Service struct {
 	capellaForkEpoch             phase0.Epoch
 	denebForkEpoch               phase0.Epoch
 	electraForkEpoch             phase0.Epoch
+	fuluForkEpoch                phase0.Epoch
 }
 
 // module-wide log.
@@ -124,6 +125,13 @@ func New(ctx context.Context, params ...Parameter) (*Service, error) {
 	}
 	log.Trace().Uint64("epoch", uint64(electraForkEpoch)).Msg("Obtained Electra fork epoch")
 
+	fuluForkEpoch, err := fetchFuluForkEpoch(ctx, parameters.specProvider)
+	if err != nil {
+		// Set to far future epoch.
+		fuluForkEpoch = 0xffffffffffffffff
+	}
+	log.Trace().Uint64("epoch", uint64(fuluForkEpoch)).Msg("Obtained Fulu fork epoch")
+
 	s := &Service{
 		genesisTime:                  genesisResponse.Data.GenesisTime,
 		slotDuration:                 slotDuration,
@@ -134,6 +142,7 @@ func New(ctx context.Context, params ...Parameter) (*Service, error) {
 		capellaForkEpoch:             capellaForkEpoch,
 		denebForkEpoch:               denebForkEpoch,
 		electraForkEpoch:             electraForkEpoch,
+		fuluForkEpoch:                fuluForkEpoch,
 	}
 
 	return s, nil
@@ -356,6 +365,11 @@ func (s *Service) ElectraInitialEpoch() phase0.Epoch {
 	return s.electraForkEpoch
 }
 
+// FuluInitialEpoch provides the epoch at which the Fulu hard fork takes place.
+func (s *Service) FuluInitialEpoch() phase0.Epoch {
+	return s.fuluForkEpoch
+}
+
 func fetchElectraForkEpoch(ctx context.Context,
 	specProvider consensusclient.SpecProvider,
 ) (
@@ -369,12 +383,36 @@ func fetchElectraForkEpoch(ctx context.Context,
 	}
 	tmp, exists := specResponse.Data["ELECTRA_FORK_EPOCH"]
 	if !exists {
-		return 0, errors.New("deneb fork version not known by chain")
+		return 0, errors.New("electra fork version not known by chain")
 	}
 	epoch, isEpoch := tmp.(uint64)
 	if !isEpoch {
 		//nolint:revive
 		return 0, errors.New("ELECTRA_FORK_EPOCH is not a uint64!")
+	}
+
+	return phase0.Epoch(epoch), nil
+}
+
+func fetchFuluForkEpoch(ctx context.Context,
+	specProvider consensusclient.SpecProvider,
+) (
+	phase0.Epoch,
+	error,
+) {
+	// Fetch the fork version.
+	specResponse, err := specProvider.Spec(ctx, &api.SpecOpts{})
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to obtain spec")
+	}
+	tmp, exists := specResponse.Data["FULU_FORK_EPOCH"]
+	if !exists {
+		return 0, errors.New("fulu fork version not known by chain")
+	}
+	epoch, isEpoch := tmp.(uint64)
+	if !isEpoch {
+		//nolint:revive
+		return 0, errors.New("FULU_FORK_EPOCH is not a uint64!")
 	}
 
 	return phase0.Epoch(epoch), nil
