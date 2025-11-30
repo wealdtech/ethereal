@@ -2,3 +2,6 @@ ethereal
 
 # Vim
 *.sw?
+
+# IntelliJ + friends.
+.idea/
