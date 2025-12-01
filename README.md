@@ -1093,7 +1093,7 @@ $ ethereal version
 
 ## Maintainers
 
-Jim McDonald: [@mcdee](https://github.com/mcdee).
+Chris Berry: [@Bez625](https://github.com/bez625).
 
 ## Contribute
 

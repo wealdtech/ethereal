@@ -6,7 +6,7 @@ toolchain go1.23.2
 
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.1
-	github.com/attestantio/go-eth2-client v0.24.1
+	github.com/attestantio/go-eth2-client v0.27.1
 	github.com/attestantio/go-execution-client v0.10.2
 	github.com/ethereum/go-ethereum v1.15.6
 	github.com/miekg/dns v1.1.63
