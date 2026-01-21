@@ -1,9 +1,9 @@
 # ethereal
 
-[![Tag](https://img.shields.io/github/tag/wealdtech/ethereal.svg)](https://github.com/wealdtech/ethereal/releases/)
+[![Release](https://img.shields.io/github/v/release/wealdtech/ethereal)](https://github.com/wealdtech/ethereal/releases/)
 [![License](https://img.shields.io/github/license/wealdtech/ethereal.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/wealdtech/ethereal?status.svg)](https://godoc.org/github.com/wealdtech/ethereal)
-[![Travis CI](https://img.shields.io/travis/wealdtech/ethereal.svg)](https://travis-ci.org/wealdtech/ethereal)
+[![Test](https://github.com/wealdtech/ethereal/actions/workflows/test.yml/badge.svg)](https://github.com/wealdtech/ethereal/actions/workflows/test.yml)
 
 A command-line tool for managing common tasks in Ethereum.
 
