@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 	"runtime"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -119,6 +120,8 @@ func obtainGethWallets(chainID *big.Int, debug bool) ([]accounts.Wallet, error) 
 		keydir = filepath.Join(keydir, "sepolia")
 	case chainID.Cmp(params.HoleskyChainConfig.ChainID) == 0:
 		keydir = filepath.Join(keydir, "holesky")
+	case strings.ToLower(viper.GetString("network")) == "ephemery":
+		keydir = filepath.Join(keydir, "ephemery")
 	}
 	keydir = filepath.Join(keydir, "keystore")
 	if debug {

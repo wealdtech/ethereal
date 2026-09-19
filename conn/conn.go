@@ -119,6 +119,23 @@ func newOffline(_ context.Context, debug bool, quiet bool) (*Conn, error) {
 		chainID = params.HoleskyChainConfig.ChainID
 	case "hoodi":
 		chainID = params.HoodiChainConfig.ChainID
+	case "ephemery":
+		switch {
+		case strings.HasPrefix(viper.GetString("chainid"), "0x"):
+			// Hex.
+			tmp, err := hex.DecodeString(viper.GetString("chainid")[2:])
+			if err != nil {
+				return nil, errors.Wrap(err, "invalid chain ID")
+			}
+			chainID = new(big.Int).SetBytes(tmp)
+		default:
+			// Assume decimal.
+			tmp, err := strconv.ParseUint(viper.GetString("chainid"), 10, 64)
+			if err != nil {
+				return nil, errors.Wrap(err, "invalid chain ID")
+			}
+			chainID = new(big.Int).SetUint64(tmp)
+		}
 	default:
 		switch {
 		case strings.HasPrefix(viper.GetString("chainid"), "0x"):

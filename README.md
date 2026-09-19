@@ -134,6 +134,12 @@ By default Ethereal will return once the transaction has been submitted.  The `-
 
 Any time Ethereal broadcasts a transaction it logs the details in a file.  By default the file is `ethereal.log` in the user's home directory, with each line being a JSON object with the relevant fields.  The log file location can be changed with the `--log` argument.
 
+### Notes on Ephemery
+
+Ephemery testnet is supported with `--network=ephemery`, but has additional requirements:
+- `--connection` (or `connection` key in an external config file) *must* be supplied to an Ephemery EL node, be it localhost or otherwise
+- `chainid` *must* be supplied as an external config file key, with value of either a 0x hex value or decimal
+
 ### ENS
 
 Ethereal fully supports ENS.  Wherever an address is seen in the examples below an ENS name can be used instead.

@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -222,6 +223,23 @@ func connectionDetails(_ context.Context) (string, *big.Int, error) {
 		chainID = params.HoleskyChainConfig.ChainID
 	case "hoodi":
 		chainID = params.HoodiChainConfig.ChainID
+	case "ephemery":
+		switch {
+		case strings.HasPrefix(viper.GetString("chainid"), "0x"):
+			// Hex.
+			tmp, err := hex.DecodeString(viper.GetString("chainid")[2:])
+			if err != nil {
+				return "invalid chain id", nil, errors.Wrap(err, "invalid chain ID")
+			}
+			chainID = new(big.Int).SetBytes(tmp)
+		default:
+			// Assume decimal.
+			tmp, err := strconv.ParseUint(viper.GetString("chainid"), 10, 64)
+			if err != nil {
+				return "invalid chain id", nil, errors.Wrap(err, "invalid chain ID")
+			}
+			chainID = new(big.Int).SetUint64(tmp)
+		}
 	}
 
 	if viper.GetString("connection") != "" {
@@ -241,6 +259,8 @@ func connectionDetails(_ context.Context) (string, *big.Int, error) {
 		return "https://holesky.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
 	case "hoodi":
 		return "https://hoodi.infura.io/v3/831a5442dc2e4536a9f8dee4ea1707a6", chainID, nil
+	case "ephemery":
+		return strings.ToLower(viper.GetString("connection")), chainID, nil
 	default:
 		return "", nil, fmt.Errorf("unknown network %s", viper.GetString("network"))
 	}
